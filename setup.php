@@ -175,8 +175,8 @@ function grand_install() {
  */
 function grand_uninstall() {
 	//if uninstall not called from WordPress exit
-	if ( !defined( 'WP_UNINSTALL_PLUGIN' ) )
-		exit ();
+	//if ( !defined( 'WP_UNINSTALL_PLUGIN' ) )
+		//exit ();
 
 	/** @var $wpdb wpdb */
 	global $wpdb;
