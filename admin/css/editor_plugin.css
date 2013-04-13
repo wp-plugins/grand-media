@@ -1,0 +1,33 @@
+span.mceGMgallery {
+	display: inline-block;
+	position: relative;
+	height: 75px;
+	width: 300px;
+	border: none;
+	background: #193251 url(../images/logo.png) 10px 10px no-repeat;
+	border: 1px solid #21759B;
+	padding: 0;
+	overflow: hidden;
+	margin: 0;
+	vertical-align: bottom;
+	z-index: 2;
+	text-indent: -100em;
+}
+
+span.mceGMgallery.selected {
+	border-color: #F06D65;
+}
+
+span.mceGMgallery:before {
+	content: attr(title);
+	display: block;
+	position: absolute;
+	right: 10px;
+	top: 10px;
+	padding: 0;
+	margin: 0;
+	font: 24px/120% Arial;
+	text-align: right;
+	z-index: 1;
+	color: yellowgreen;
+}
