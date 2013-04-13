@@ -4,7 +4,7 @@ Donate link: #
 Tags: gallery, images, library, files, music, video, slideshow, responsive, admin, Post, posts
 Requires at least: 3.5
 Tested up to: 3.5.1
-Stable tag: trunk
+Stable tag: 0.6.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -56,8 +56,8 @@ Use Wordpress support forum for now. I'll try to answer ASAP
 == Screenshots ==
 
 1. Admin Area
-2. Add to Post MetaBox
-3. Afflux Module
+2. Afflux Module
+3. Add to Post - GrandMedia MetaBox
 
 == Changelog ==
 
