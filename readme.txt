@@ -1,4 +1,4 @@
-=== Gmedia - Grand Media Library plugin ===
+=== Gmedia Gallery ===
 Contributors: Rattus
 Donate link: #
 Tags: gallery, images, library, files, music, video, slideshow, responsive, admin, Post, posts
@@ -8,11 +8,11 @@ Stable tag: 0.6.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Powerfull media library plugin which provides a comprehensive interface for handling different files and creating beautiful galleries.
+Grand Media Gallery - powerfull media library plugin for creating beautiful galleries and managing files.
 
 == Description ==
 
-This plugin is in beta for now. I'm working hard to bring flash skins from my previous plugin ([GRAND Flagallery](http://wordpress.org/extend/plugins/flash-album-gallery/)) to this one. Also I'll add many others modules based on jQuery library for desktop and mobile browsers.
+This plugin is in beta for now. I'm working hard to bring flash skins from my previous plugin ([Grand Flagallery](http://wordpress.org/extend/plugins/flash-album-gallery/)) to this one. Also I'll add many others modules based on jQuery library for desktop and mobile browsers.
 
 As for now there is only one module called Afflux with touch/swipe interface on mobile browsers. Test it and give me know what problem you have or not have with Gmedia plugin.
 

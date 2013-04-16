@@ -107,7 +107,7 @@ $t = plugins_url( GRAND_FOLDER ) . '/admin/images/blank.gif';
 				</div>
 			</div>
 			<div id="gMedia-social">
-				<p><a target="_blank" href="#gmedia"><?php _e( 'Rate gMedia at Wordpress.org', 'gmLang' ); ?></a></p>
+				<p><a target="_blank" href="http://wordpress.org/extend/plugins/grand-media/"><?php _e( 'Rate gMedia at Wordpress.org', 'gmLang' ); ?></a></p>
 			</div>
 		</div>
 		<?php /*<div class="pane">Text here</div>*/ ?>
