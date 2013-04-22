@@ -1,8 +1,8 @@
 <?php
 /*
-Plugin Name: GRAND Media
-Plugin URI: http://codeasily.com/wordpress-plugins/grand-media/
-Description: The GRAND Media plugin - provides a comprehensive interface for managing photos and images through a set of admin pages, and it displays photos in a way that makes your web site look very professional.
+Plugin Name: Gmedia Gallery
+Plugin URI: http://wordpress.org/extend/plugins/grand-media/
+Description: Grand Media Gallery - powerfull media library plugin for creating beautiful galleries and managing files.
 Version: 0.6.0
 Author: Rattus
 Author URI: http://codeasily.com/
@@ -31,8 +31,8 @@ if ( preg_match( '#' . basename( __FILE__ ) . '#', $_SERVER['PHP_SELF'] ) ) {
 	die( 'You are not allowed to call this page directly.' );
 }
 
-ini_set( 'display_errors', '1' );
-ini_set( 'error_reporting', E_ALL );
+//ini_set( 'display_errors', '1' );
+//ini_set( 'error_reporting', E_ALL );
 if ( ! class_exists( 'grandLoad' ) ) {
 	class grandLoad {
 
