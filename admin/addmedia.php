@@ -109,7 +109,6 @@ function grandMedia_AddMedia() {
 				rename          		: true,
 				//urlstream_upload	: true,
 
-
 				// Resize images on clientside if we can
 				//resize 						: {width : 150, height : 150, quality : 90},
 
@@ -118,16 +117,25 @@ function grandMedia_AddMedia() {
 
 				// Flash settings
 				flash_swf_url   		: '<?php echo $gMediaURL; ?>/admin/js/plupload/plupload.flash.swf',
-				setup           		: setup
 			});
-			function setup(uploader) {
-				uploader.bind('Error', function (up, err) {
-					console.log('Error', err);
-				});
-				uploader.bind('BeforeUpload', function (up, file) {
-					up.settings.multipart_params = { postData: jQuery('#gmTerms').serialize() }
-				});
-			}
+			var uploader = jQuery('#pluploadUploader').pluploadQueue();
+			uploader.bind('Error', function (up, err) {
+				console.log('Error', err);
+			});
+			uploader.bind('BeforeUpload', function (up, file) {
+				up.settings.multipart_params = { postData: jQuery('#gmTerms').serialize() }
+			});
+			uploader.bind('UploadComplete', function (up, file) {
+				if (up.total.uploaded == uploader.files.length) {
+					jQuery(".plupload_buttons").css("display", "inline");
+					jQuery(".plupload_upload_status").css("display", "inline");
+					jQuery(".plupload_start").addClass("plupload_disabled");
+					jQuery("#grandMedia").one("mousedown", ".plupload_add", function () {
+						uploader.splice();
+						uploader.refresh();
+					});
+				}
+			});
 
 		});
 	</script>

@@ -1409,6 +1409,7 @@ div#pluploadUploader .plupload_scroll .plupload_filelist {
 .gmAddMedia div#pluploadUploader {
 	margin-left: 258px;
 }
+a.plupload_disabled:focus { color: #737373; }
 
 /** end plupload */
 

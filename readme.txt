@@ -16,6 +16,8 @@ This plugin is in beta for now. I'm working hard to bring flash skins from my pr
 
 As for now there is only one module called Afflux with touch/swipe interface on mobile browsers. Test it and give me know what problem you have or not have with Gmedia plugin.
 
+Help me make it best gallery plugin: test it and write suggestions how it could be improved in feature versions.
+
 Features:
 
 *   SEO and mobile friendly, responsive galleries
