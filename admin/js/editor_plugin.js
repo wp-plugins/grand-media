@@ -30,9 +30,9 @@
 					}
 				});
 				ed.onMouseUp.add(function (ed, e) {
-					if (e.target.nodeName == 'SPAN' && ed.dom.hasClass(e.target, 'mceGMgallery')) {
+					if (e.target.nodeName == 'INS' && ed.dom.hasClass(e.target, 'mceGMgallery')) {
 						if (!ed.dom.hasClass(e.target, 'selected')) {
-							var nParent = ed.selection.getNode().parentNode;
+							var nParent = ed.selection.getNode();//.parentNode;
 							ed.selection.select(nParent);
 							ed.dom.addClass(e.target, 'selected');
 						} else {
@@ -40,13 +40,13 @@
 							ed.dom.removeClass(e.target, 'selected');
 						}
 					} else {
-						ed.dom.removeClass(ed.dom.select('span.mceGMgallery'), 'selected');
+						ed.dom.removeClass(ed.dom.select('ins.mceGMgallery'), 'selected');
 					}
 				});
 				tinymce.dom.Event.add(ed.getBody(), 'dragend', function (e) {
-					if (ed.dom.select('span.mceGMgallery')) {
+					if (ed.dom.select('ins.mceGMgallery')) {
 						ed.selection.collapse(false);
-						ed.dom.removeClass(ed.dom.select('span.mceGMgallery'), 'selected');
+						ed.dom.removeClass(ed.dom.select('ins.mceGMgallery'), 'selected');
 					}
 				});
 
@@ -54,9 +54,9 @@
 					ed.onKeyUp.add(function (ed, e, o) {
 						var k = e.keyCode || e.charCode;
 						if (k == 35 || k == 36 || k == 37 || k == 38 || k == 39 || k == 40) {
-							if (ed.dom.select('span.mceGMgallery')) {
+							if (ed.dom.select('ins.mceGMgallery')) {
 								//ed.selection.collapse(false);
-								ed.dom.removeClass(ed.dom.select('span.mceGMgallery'), 'selected');
+								ed.dom.removeClass(ed.dom.select('ins.mceGMgallery'), 'selected');
 							}
 						}
 						if (k == 8 || k == 13 || k == 46) {
@@ -93,7 +93,7 @@
 		},
 
 		_handleFunction: function (ed) {
-			var galleryHTML = '<p><span class="mceGMgallery" title="ID#$1">$1</span></p>';
+			var galleryHTML = '<ins class="mceGMgallery" title="ID#$1">$1</ins>';
 
 			// Load plugin specific CSS into editor
 			ed.onInit.add(function () {
@@ -123,7 +123,7 @@
 					if ('undefined' != typeof(jQuery)) {
 						jQuery('#gMedia-galleries-list li.gMedia-gallery-li').removeClass('gMedia-selected');
 					}
-					o.content = o.content.replace(/(?:<span class="mceGMgallery[^>]*>)(.*?)(?:<\/span>)/g, function (a, im) {
+					o.content = o.content.replace(/(?:<ins class="mceGMgallery[^>]*>)(.*?)(?:<\/ins>)/g, function (a, im) {
 						if (a.indexOf('title="ID#') !== -1) {
 							var m = (m = a.match(/title="ID#(\d+)"/)) ? m[1] : '';
 							im = '[gmedia id=' + m + ']';
@@ -147,4 +147,3 @@
 	// Register plugin
 	tinymce.PluginManager.add('gmedia', tinymce.plugins.GrandMedia);
 })();
-

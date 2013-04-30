@@ -32,7 +32,7 @@
 				}
 				$(this).removeClass('gMedia-selected');
 			} else {
-				html = '<p><span class="mceGMgallery" title="ID#' + gm_id + '">' + gm_id + '</span></p>';
+				html = '<p><ins class="mceGMgallery" title="ID#' + gm_id + '">' + gm_id + '</ins></p>';
 				if (getUserSetting('editor') == 'html') {
 					html = '[gmedia id=' + gm_id + ']';
 				}

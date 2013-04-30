@@ -1,4 +1,4 @@
-span.mceGMgallery {
+ins.mceGMgallery {
 	display: inline-block;
 	position: relative;
 	height: 75px;
@@ -14,11 +14,11 @@ span.mceGMgallery {
 	text-indent: -100em;
 }
 
-span.mceGMgallery.selected {
+ins.mceGMgallery.selected {
 	border-color: #F06D65;
 }
 
-span.mceGMgallery:before {
+ins.mceGMgallery:before {
 	content: attr(title);
 	display: block;
 	position: absolute;
