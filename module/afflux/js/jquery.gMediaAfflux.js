@@ -25,7 +25,6 @@ if (typeof jQuery.fn.grandMediaAfflux == 'undefined') {
 						'width'               : '100%',
 						'height'              : '500',
 						'wmode'               : 'opaque',
-						'swfMouseWheel'       : false,
 						'imageZoom'           : 'FILL',
 						'autoSlideshow'       : true,
 						'slideshowDelay'      : 10,
@@ -163,9 +162,9 @@ if (typeof jQuery.fn.grandMediaAfflux == 'undefined') {
 									if($.isFunction(swfHover['swfHover'+ID])) {
 										swfHover['swfHover'+ID]('false');
 									}
-								}).on('mousewheel scroll DOMMouseScroll', e.ref, function (event) {
+								}); /*.on('mousewheel scroll DOMMouseScroll', e.ref, function (event) {
 									return false;
-								});
+								});*/
 							} else {
 								methods.noFlash();
 							}
