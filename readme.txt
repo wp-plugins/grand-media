@@ -4,7 +4,7 @@ Donate link: #
 Tags: gallery, images, library, files, music, video, slideshow, responsive, admin, Post, posts
 Requires at least: 3.5
 Tested up to: 3.5.1
-Stable tag: 0.6.0
+Stable tag: 0.6.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,7 +14,9 @@ Grand Media Gallery - powerfull media library plugin for creating beautiful gall
 
 This plugin is in beta for now. I'm working hard to bring flash skins from my previous plugin ([Grand Flagallery](http://wordpress.org/extend/plugins/flash-album-gallery/)) to this one. Also I'll add many others modules based on jQuery library for desktop and mobile browsers.
 
-As for now there is only one module called Afflux with touch/swipe interface on mobile browsers. Test it and give me know what problem you have or not have with Gmedia plugin.
+As for now there is only two modules:
+* Afflux with touch/swipe interface on mobile browsers. Test it and give me know what problem you have or not have with Gmedia plugin.
+* Phantom is the Wall/Grid Gallery - you can easily change thumbnail sizes, colors, navigation, lightbox position, add labels to thumbnails, captions … and much more.
 
 Help me make it best gallery plugin: test it and write suggestions how it could be improved in feature versions.
 
@@ -42,10 +44,10 @@ TODO List:
 
 1. Upload `grand-media` folder to the `/wp-content/plugins/` directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
-3. Go to Grand Media page and Add Files...
-4. Add Tags & Categories to uploaded files
+3. Go to Grand Media page and Add Tags & Categories
+4. Add Files to categories and with chosen tags
 5. Go to Manage Galleries... -> Available Modules tab -> choose module and click Create button
-6. Change settings to fit your site -> give gallery the Name -> add images in Query Builder -> click Save button
+6. Change settings to fit your site -> give gallery the Name -> in Query Builder choose category and other parameters to query images -> click Save button
 7. On Edit Post page click created gallery in GrandMedia Metabox to insert shortcode in text editor.
 8. When gallery loads first time or if you've added new images to gallery you'll see progress bar which means creating thumbnails for new images
 
@@ -63,10 +65,15 @@ Use Wordpress support forum for now. I'll try to answer ASAP
 
 == Changelog ==
 
+= 0.6.2 =
+* Fixes and improvments
+* Added new gallery module
+
 = 0.6.0 =
 * First public release
 
 == Upgrade Notice ==
 
-= 0.6.0 =
-Give it a try
+= 0.6.2 =
+Give it a try. More coming soon...
+

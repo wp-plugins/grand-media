@@ -177,8 +177,10 @@ function gmedia_manage_modules() {
 
 								<div class="description"><?php echo str_replace("\n", '<br />', $module['description']); ?></div>
 								<div class="links">
+									<?php if(!empty($module['demo']) && $module['demo'] != '#'){ ?>
 									<a class="module_preview button" target="_blank" href="<?php echo $module['demo']; ?>"><?php _e( 'View Demo', 'gmLang' ) ?></a>
 									|
+									<?php } ?>
 									<a class="module_create button-primary" href="<?php echo wp_nonce_url( 'admin.php?page=GrandMedia_Modules&amp;module=' . $moduledir, 'grandMedia' ); ?>"><?php _e( 'Create Gallery', 'gmLang' ) ?></a>
 									<?php echo $update; ?>
 								</div>
@@ -221,10 +223,12 @@ function gmedia_manage_modules() {
 
 								<div class="description"><?php echo str_replace("\n", '<br />', $module['description']); ?></div>
 								<div class="links">
-									<a class="module_delete ajaxPost" data-action="gmDoAjax" data-_ajax_nonce="<?php echo $nonce; ?>" data-post="module=<?php echo $moduledir; ?>" data-task="gm-delete-module" data-confirmtxt="<?php echo sprintf( __( "Are you sure want to delete %s module?\n\r'Cancel' to stop, 'OK' to delete.", "gmLang" ), $module['title'] ); ?>" href="<?php echo $url['page'] . '&amp;delete_module=' . urlencode( $moduledir ) . '&amp;_wpnonce=' . $nonce; ?>"><?php _e( 'delete', 'gmLang' ) ?></a>
+									<a class="module_delete button button-red ajaxPost" data-action="gmDoAjax" data-_ajax_nonce="<?php echo $nonce; ?>" data-post="module=<?php echo $moduledir; ?>" data-task="gm-delete-module" data-confirmtxt="<?php echo sprintf( __( "Are you sure want to delete %s module?\n\r'Cancel' to stop, 'OK' to delete.", "gmLang" ), $module['title'] ); ?>" href="<?php echo $url['page'] . '&amp;delete_module=' . urlencode( $moduledir ) . '&amp;_wpnonce=' . $nonce; ?>"><?php _e( 'delete', 'gmLang' ) ?></a>
 									|
+									<?php if(!empty($module['demo']) && $module['demo'] != '#'){ ?>
 									<a class="module_preview button" target="_blank" href="<?php echo $module['demo']; ?>"><?php _e( 'View Demo', 'gmLang' ) ?></a>
 									|
+									<?php } ?>
 									<a class="module_create button-primary" href="<?php echo wp_nonce_url( 'admin.php?page=GrandMedia_Modules&amp;module=' . $moduledir, 'grandMedia' ); ?>"><?php _e( 'Create Gallery', 'gmLang' ) ?></a>
 									<?php echo $update; ?>
 								</div>
@@ -254,9 +258,11 @@ function gmedia_manage_modules() {
 
 							<div class="description"><?php echo str_replace("\n", '<br />', $module['description']); ?></div>
 							<div class="links">
+								<?php if(!empty($module['demo']) && $module['demo'] != '#'){ ?>
 								<a class="module_preview button" target="_blank" href="<?php echo $module['demo']; ?>"><?php _e( 'View Demo', 'gmLang' ) ?></a>
 								|
-								<a class="install ajaxPost button-primary" data-action="gmDoAjax" data-_ajax_nonce="<?php echo $nonce; ?>" data-post="module=<?php echo $module['uid']; ?>" data-task="gm-install-module" href="http://dl.dropbox.com/u/6295502/gmedia_modules/<?php echo $module['filename']; ?>.zip"><?php _e( 'Install Module', 'gmLang' ) ?></a>
+								<?php } ?>
+								<a class="install ajaxPost button-primary" data-action="gmDoAjax" data-_ajax_nonce="<?php echo $nonce; ?>" data-post="module=<?php echo $module['filename']; ?>" data-task="gm-install-module" href="http://dl.dropbox.com/u/6295502/gmedia_modules/<?php echo $module['filename']; ?>.zip"><?php _e( 'Install Module', 'gmLang' ) ?></a>
 							</div>
 						</div>
 					</div>

@@ -322,19 +322,34 @@ if ( ! function_exists( 'gm_type_text' ) ) {
 
 		/** turns arguments array into variables
 		 *
-		 * @param     string      $field_id    The field ID.
-		 * @param     string      $field_name  The field Name.
-		 * @param     mixed       $field_value The field value is a string or an array of values.
-		 * @param     string      $field_desc  The field description.
-		 * @param     string      $field_class Extra CSS classes.
-		 * @param     string      $param       Extra parameter.
+		 * @param     string   $field_id    The field ID.
+		 * @param     string   $field_name  The field Name.
+		 * @param     mixed    $field_value The field value is a string or an array of values.
+		 * @param     string   $field_desc  The field description.
+		 * @param     string   $field_class Extra CSS classes.
+		 * @param     mixed		 $param       Extra parameter.
+		 * @param     string   $type        The field type.
 		 */
 		extract( $args );
 
 		/* verify a description */
 		$has_desc = $field_desc ? true : false;
 
-		$type = $param ? esc_attr( $param ) : 'text';
+		if(empty($param)){
+			$param = array('type'=>$type);
+		} elseif(is_array($param)) {
+			if(isset($param['type']) && $param['type'] == 'number'){
+				$param = wp_parse_args($param, array('min'=>'0','step'=>'1'));
+			} else {
+				$param['type'] = $type;
+			}
+		} else {
+			$param = array('type'=>$param);
+		}
+		$params = '';
+		foreach($param as $key => $val){
+			$params .= esc_attr($key).'="'.esc_attr($val).'" ';
+		}
 
 		/* format setting outer wrapper */
 		echo '<div class="format-setting type-text' . ( $has_desc ? ' has-desc' : ' no-desc' ) . '">';
@@ -343,7 +358,7 @@ if ( ! function_exists( 'gm_type_text' ) ) {
 		echo '<div class="format-setting-inner">';
 
 		/* build text input */
-		echo '<input type="' . $type . '" name="' . esc_attr( $field_name ) . '" id="' . esc_attr( $field_id ) . '" value="' . esc_attr( $field_value ) . '" class="gmedia-ui-input ' . esc_attr( $field_class ) . '" />';
+		echo '<input ' . $params . ' name="' . esc_attr( $field_name ) . '" id="' . esc_attr( $field_id ) . '" value="' . esc_attr( $field_value ) . '" class="gmedia-ui-input ' . esc_attr( $field_class ) . '" />';
 
 		echo '</div>';
 

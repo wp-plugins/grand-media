@@ -430,6 +430,9 @@ class grandCore {
 			list($max_w, $max_h) = wp_constrain_dimensions($width, $height, $max_w, $max_h);
 			$crop = 1;
 		}
+		if($crop && ($max_w.'x'.$max_h == $gmOptions['thumbnail_size']) && !$suffix) {
+			$suffix = 'thumb';
+		}
 		if(!$suffix) {
 			$suffix = $max_w . 'x' . $max_h;
 		}

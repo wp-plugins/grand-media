@@ -1,7 +1,7 @@
 /*
  * Title                   : Afflux Gallery
- * Version                 : 1.0
- * Copyright               : 2012 CodEasily.com
+ * Version                 : 2.1
+ * Copyright               : 2013 CodEasily.com
  * Website                 : http://www.codeasily.com
  */
 if (typeof jQuery.fn.grandMediaAfflux == 'undefined') {
@@ -87,7 +87,7 @@ if (typeof jQuery.fn.grandMediaAfflux == 'undefined') {
 								var crunchlength = Crunch.length;
 								if(crunchlength) {
 									tempVar = [];
-									tempVar.push('<div id="' + moduleID + '_ID' + ID + '_ProgressBar"><div class="gmProgress"><span class="gmBar"></span><div class="gmCounter"><span class="gmCount">0</span>/'+crunchlength+'</div></div></div>');
+									tempVar.push('<div id="' + moduleID + '_ID' + ID + '_ProgressBar" class="' + moduleID + '_ProgressBar"><div class="gmProgress"><span class="gmBar"></span><div class="gmCounter"><span class="gmCount">0</span>/'+crunchlength+'</div></div></div>');
 									Container.html(tempVar.join(''));
 									var index = 0,
 											crunch_image = function(index){

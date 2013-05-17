@@ -277,6 +277,11 @@ function gmDoAjax() {
 				$update = $grandCore->message( __( 'Installing...', 'gmLang' ), 'wait' );
 				$url    = "http://dl.dropbox.com/u/6295502/gmedia_modules/$module.zip";
 				$mzip   = download_url( $url );
+				if(is_wp_error($mzip)){
+					echo $url;
+					die( "ERROR : '" . $mzip->get_error_message() . "'" );
+				}
+
 				$mzip   = str_replace( "\\", "/", $mzip );
 
 				$gmOptions = get_option( 'gmediaOptions' );

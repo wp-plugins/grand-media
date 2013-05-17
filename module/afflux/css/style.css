@@ -1,5 +1,5 @@
 /* grandMediaAfflux CSS */
-.gmProgress { overflow:hidden; height:20px; position: relative; text-align: center; line-height: 20px; color: #222222; font-size: 12px;
+.grandMediaAfflux_ProgressBar .gmProgress { overflow:hidden; height:20px; position: relative; text-align: center; line-height: 20px; color: #222222; font-size: 12px;
 	background-color:#f7f7f7;
 	background-image:-moz-linear-gradient(top, #f5f5f5, #f9f9f9);
 	background-image:-webkit-gradient(linear,0 0,0 100%,from( #f5f5f5),to( #f9f9f9));
@@ -11,8 +11,8 @@
 	box-shadow:inset 0 1px 2px rgba(0,0,0,.1);
 	border-radius:4px;
 }
-.gmProgress .gmCounter { position: relative; z-index: 1; }
-.gmProgress .gmBar { position: absolute; left: 0; top: 0; display: block; width:0; height:100%; z-index: 0;
+.grandMediaAfflux_ProgressBar .gmProgress .gmCounter { position: relative; z-index: 1; }
+.grandMediaAfflux_ProgressBar .gmProgress .gmBar { position: absolute; left: 0; top: 0; display: block; width:0; height:100%; z-index: 0;
 	background-color:#5eb95e;
 	background-image:-moz-linear-gradient(top, #62c462, #57a957);
 	background-image:-webkit-gradient(linear,0 0,0 100%,from( #62c462),to( #57a957));
