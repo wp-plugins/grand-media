@@ -602,6 +602,7 @@ jQuery(document).ready(function () {
 							var elsize = (target.attr('rel') == 'audio')? ' width="250" height="30"' : ' width="520" height="304"';
 							api.set('content.text', '<'+target.attr('rel')+' src="'+target.attr('href')+'" controls="controls" preload="none"'+elsize+'></'+target.attr('rel')+'>');
 							me =  new MediaElementPlayer(jQuery(target.attr('rel'), this), {pluginPath: gMediaGlobalVar.pluginPath + '/inc/mediaelement/'});
+							me.play();
 						}
 						//console.log(jQuery(this).html());
 					},

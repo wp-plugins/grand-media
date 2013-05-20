@@ -292,6 +292,8 @@ div.grandLibrary {
 .grandmedia div#gm-message {
 	margin-top: -30px;
 	min-height: 24px;
+	max-height: 90px;
+	overflow: auto;
 	padding-bottom: 6px;
 	position: relative;
 	z-index: 200;

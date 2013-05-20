@@ -103,8 +103,8 @@ function grandMedia_AddMedia() {
 				multipart_params		: { postData: ''},
 				//max_file_size			: '<?php echo $maxupsize; ?>Mb',
 				max_file_size   		: '2000Mb',
-				//chunk_size				: '<?php echo $maxupsize; ?>Mb',
-				chunk_size      		: '10Mb',
+				//chunk_size      		: '10Mb',
+				chunk_size					: '<?php echo min(($maxupsize - 1), 8); ?>Mb',
 				unique_names    		: false,
 				rename          		: true,
 				//urlstream_upload	: true,
@@ -117,25 +117,110 @@ function grandMedia_AddMedia() {
 
 				// Flash settings
 				flash_swf_url   		: '<?php echo $gMediaURL; ?>/admin/js/plupload/plupload.flash.swf',
-			});
-			var uploader = jQuery('#pluploadUploader').pluploadQueue();
-			uploader.bind('Error', function (up, err) {
-				console.log('Error', err);
-			});
-			uploader.bind('BeforeUpload', function (up, file) {
-				up.settings.multipart_params = { postData: jQuery('#gmTerms').serialize() }
-			});
-			uploader.bind('UploadComplete', function (up, file) {
-				if (up.total.uploaded == uploader.files.length) {
-					jQuery(".plupload_buttons").css("display", "inline");
-					jQuery(".plupload_upload_status").css("display", "inline");
-					jQuery(".plupload_start").addClass("plupload_disabled");
-					jQuery("#grandMedia").one("mousedown", ".plupload_add", function () {
-						uploader.splice();
-						uploader.refresh();
-					});
+
+				// PreInit events, bound before any internal events
+				preinit : {
+					Init: function(up, info) {
+						//console.log('[Init]', 'Info:', info, 'Features:', up.features);
+					},
+
+					UploadFile: function(up, file) {
+						//console.log('[UploadFile]', file);
+						up.settings.multipart_params = { postData: jQuery('#gmTerms').serialize() }
+
+						// You can override settings before the file is uploaded
+						// up.settings.url = 'upload.php?id=' + file.id;
+						// up.settings.multipart_params = {param1 : 'value1', param2 : 'value2'};
+					}
+				},
+
+				// Post init events, bound after the internal events
+				init : {
+					Refresh: function(up) {
+						// Called when upload shim is moved
+						//console.log('[Refresh]');
+					},
+
+					StateChanged: function(up) {
+						// Called when the state of the queue is changed
+						//console.log('[StateChanged]', up.state == plupload.STARTED ? "STARTED" : "STOPPED");
+					},
+
+					QueueChanged: function(up) {
+						// Called when the files in queue are changed by adding/removing files
+						//console.log('[QueueChanged]');
+					},
+
+					UploadProgress: function(up, file) {
+						// Called while a file is being uploaded
+						//console.log('[UploadProgress]', 'File:', file, "Total:", up.total);
+					},
+
+					FileUploaded: function(up, file, info) {
+						// Called when a file has finished uploading
+						//console.log('[FileUploaded] File:', file, "Info:", info);
+						var response = jQuery.parseJSON(info.response);
+						if (response && response.error)
+						{
+							file.status = plupload.FAILED;
+							jQuery('<div/>').addClass('gm-message gm-error').html('<span><u><em>'+response.id+':</em></u> '+response.error.message+'</span><i class="gm-close">X</i>').appendTo('#gm-message');
+							console.log(response.error);
+						}
+					},
+
+					ChunkUploaded: function(up, file, info) {
+						// Called when a file chunk has finished uploading
+						//console.log('[ChunkUploaded] File:', file, "Info:", info);
+						var response = jQuery.parseJSON(info.response);
+						if (response && response.error)
+						{
+							up.stop();
+							file.status = plupload.FAILED;
+							jQuery('<div/>').addClass('gm-message gm-error').html('<span><u><em>'+response.id+':</em></u> '+response.error.message+'</span><i class="gm-close">X</i>').appendTo('#gm-message');
+							console.log(response.error);
+							up.trigger('QueueChanged');             // Line A
+							up.trigger('UploadProgress', file);     // Line B
+							up.start();
+						}
+					},
+
+					Error: function(up, args) {
+						// Called when a error has occured
+						jQuery('<div/>').addClass('gm-message gm-error').html('<span><u><em>'+args.file.name+':</em></u> '+args.message+' '+args.status+'</span><i class="gm-close">X</i>').appendTo('#gm-message');
+						console.log('[error] ', args);
+					},
+
+					UploadComplete: function(up, file) {
+						//console.log('[UploadComplete]');
+						jQuery(".plupload_buttons").css("display", "inline");
+						jQuery(".plupload_upload_status").css("display", "inline");
+						jQuery(".plupload_start").addClass("plupload_disabled");
+						jQuery("#grandMedia").one("mousedown", ".plupload_add", function () {
+							up.splice();
+							up.trigger('Refresh');
+							//up.refresh();
+						});
+					}
 				}
 			});
+			/*var uploader = jQuery('#pluploadUploader').pluploadQueue();
+			 uploader.bind('Error', function (up, args) {
+			 console.log('[error]', args);
+			 });
+			 uploader.bind('BeforeUpload', function (up, file) {
+			 up.settings.multipart_params = { postData: jQuery('#gmTerms').serialize() }
+			 });
+			 uploader.bind('UploadComplete', function (up, file) {
+			 if (up.total.uploaded == uploader.files.length) {
+			 jQuery(".plupload_buttons").css("display", "inline");
+			 jQuery(".plupload_upload_status").css("display", "inline");
+			 jQuery(".plupload_start").addClass("plupload_disabled");
+			 jQuery("#grandMedia").one("mousedown", ".plupload_add", function () {
+			 uploader.splice();
+			 uploader.refresh();
+			 });
+			 }
+			 });*/
 
 		});
 	</script>

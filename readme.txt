@@ -4,7 +4,7 @@ Donate link: #
 Tags: gallery, images, library, files, music, video, slideshow, responsive, admin, Post, posts
 Requires at least: 3.5
 Tested up to: 3.5.1
-Stable tag: 0.6.2
+Stable tag: 0.6.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -28,6 +28,7 @@ Features:
 *   Automatically add uploaded images to gallery related on tags
 *   Easily adding shortcode to post in one click
 *   Manage Wordpress Media Library files much easier
+*   Uses WordPress' native Image Resizer
 
 TODO List:
 
@@ -65,8 +66,12 @@ Use Wordpress support forum for now. I'll try to answer ASAP
 
 == Changelog ==
 
+= 0.6.3 =
+* Fixes and improvements
+* Added Error Handler to File Uploader
+
 = 0.6.2 =
-* Fixes and improvments
+* Fixes and improvements
 * Added new gallery module
 
 = 0.6.0 =
@@ -74,6 +79,6 @@ Use Wordpress support forum for now. I'll try to answer ASAP
 
 == Upgrade Notice ==
 
-= 0.6.2 =
+= 0.6.3 =
 Give it a try. More coming soon...
 

@@ -139,6 +139,9 @@ function gmTagsCategories() {
 							if ( count( $gmAllTerms ) ) {
 								$termsHierarr = $grandCore->gmGetTermsHierarr( $taxonomy, $gmAllTerms, $children, $count = 0 );
 								foreach ( $termsHierarr as $termitem ) {
+									if(intval($termitem->level) > 0)
+										continue;
+
 									$pad = str_repeat( '&#8212; ', max( 0, $termitem->level ) ); ?>
 									<option value="<?php echo $termitem->term_id; ?>"><?php echo $pad . $termitem->name; ?></option>
 								<?php

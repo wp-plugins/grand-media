@@ -78,11 +78,21 @@ function gmUploadTMP( $file_tmp, $targetFile, $contentType ) {
 	$chunk            = isset( $_REQUEST["chunk"] ) ? intval( $_REQUEST["chunk"] ) : 0;
 	$chunks           = isset( $_REQUEST["chunks"] ) ? intval( $_REQUEST["chunks"] ) : 0;
 	$targetDir        = $uploads['path'] . $gmOptions['folder'][$targetFile['folder']];
+	$siteurl 					= get_option( 'siteurl' );
+	$targetDirU       = str_replace($siteurl, '', $uploads['url']);
 
 	// try to make grand-media dir if not exists
 	if ( ! wp_mkdir_p( $targetDir ) ) {
-		$return = json_encode( array( "error" => array( "code" => 100, "message" => sprintf( __( 'Unable to create directory %s. Is its parent directory writable by the server?', 'gmLang' ), $targetDir ) ), "id" => $targetFile['name'] ) );
+		$return = json_encode( array( "error" => array( "code" => 100, "message" => sprintf( __( 'Unable to create directory %s. Is its parent directory writable by the server?', 'gmLang' ), $targetDirU.$gmOptions['folder'][$targetFile['folder']] ) ), "id" => $targetFile['name'] ) );
 		die( $return );
+	}
+	// Check if grand-media dir is writable
+	if ( ! is_writable( $targetDir ) ) {
+		@chmod( $targetDir, 0755 );
+		if ( ! is_writable( $targetDir ) ) {
+			$return = json_encode( array( "error" => array( "code" => 100, "message" => sprintf( __( 'Directory %s or its subfolders are not writable by the server.', 'gmLang' ), $targetDirU ) ), "id" => $targetFile['realname'] ) );
+			die( $return );
+		}
 	}
 	// Remove old temp files
 	if ( $cleanupTargetDir && is_dir( $targetDir ) && ( $dir = opendir( $targetDir ) ) ) {
@@ -98,7 +108,7 @@ function gmUploadTMP( $file_tmp, $targetFile, $contentType ) {
 		closedir( $dir );
 	}
 	else {
-		$return = json_encode( array( "error" => array( "code" => 100, "message" => sprintf( __( 'Failed to open directory: %s', 'gmLang' ), $targetDir ) ), "id" => $targetFile['name'] ) );
+		$return = json_encode( array( "error" => array( "code" => 100, "message" => sprintf( __( 'Failed to open directory: %s', 'gmLang' ), $targetDirU.$gmOptions['folder'][$targetFile['folder']] ) ), "id" => $targetFile['realname'] ) );
 		die( $return );
 	}
 
@@ -140,35 +150,48 @@ function gmUploadTMP( $file_tmp, $targetFile, $contentType ) {
 					$crop = 1;
 					$suffix = 'thumb';
 					$dest_path = $uploads['path'] . $gmOptions['folder']['link'];
+					if ( ! is_writable( $dest_path ) ) {
+						@chmod( $dest_path, 0755 );
+						if ( ! is_writable( $dest_path ) ) {
+							$return = json_encode( array( "error" => array( "code" => 100, "message" => sprintf( __( 'Directory %s is not writable by the server.', 'gmLang' ), $targetDirU.$gmOptions['folder']['link'] ) ), "id" => $targetFile['realname'] ) );
+							die( $return );
+						}
+					}
 					if( function_exists('wp_get_image_editor') ) {
 						$editor = wp_get_image_editor( $file );
-						if ( is_wp_error( $editor ) )
-							die( $editor );
+						if ( is_wp_error( $editor ) ){
+							$return = json_encode( array( "error" => array( "code" => $editor->get_error_code(), "message" => $editor->get_error_message() ) , "id" => $targetFile['name'] ) );
+							die( $return );
+						}
 						$editor->set_quality( $quality );
 
 						$resized = $editor->resize( $max_w, $max_h, $crop );
-						if ( is_wp_error( $resized ) )
-							die( $resized );
+						if ( is_wp_error( $resized ) ){
+							$return = json_encode( array( "error" => array( "code" => $resized->get_error_code(), "message" => $resized->get_error_message() ) , "id" => $targetFile['name'] ) );
+							die( $return );
+						}
 
 						$dest_file = $editor->generate_filename( $suffix, $dest_path );
 						$saved = $editor->save( $dest_file );
 
 						if ( is_wp_error( $saved ) ){
 							@unlink( $file );
-							die( $saved );
+							$return = json_encode( array( "error" => array( "code" => $saved->get_error_code(), "message" => $saved->get_error_message() ) , "id" => $targetFile['name'] ) );
+							die( $return );
 						}
 					}
 					else {
 						$new_file = image_resize( $file, $max_w, $max_h, $crop, $suffix, $dest_path, $quality );
 						if ( is_wp_error( $new_file ) ) {
 							@unlink( $file );
-							die( $new_file );
+							$return = json_encode( array( "error" => array( "code" => $new_file->get_error_code(), "message" => $new_file->get_error_message() ) , "id" => $targetFile['name'] ) );
+							die( $return );
 						}
 					}
 				}
 				else {
 					@unlink( $file );
-					$return = json_encode( array( "error" => array( "code" => 104, "message" => __( "Could not read image size. Invalid image was deleted.", 'gmLang' ) ), "id" => $targetFile['name'] ) );
+					$return = json_encode( array( "error" => array( "code" => 104, "message" => __( "Could not read image size. Invalid image was deleted.", 'gmLang' ) ), "id" => $targetFile['realname'] ) );
 					die( $return );
 				}
 			}
@@ -198,18 +221,17 @@ function gmUploadTMP( $file_tmp, $targetFile, $contentType ) {
 				'description' => $content
 			);
 			$media_data = wp_parse_args( $media_data, $post_data );
-			var_dump( $media_data );
 
 			// Save the data
 			$id = $gMDb->gmInsertMedia( $media_data );
-			if ( ! is_wp_error( $id ) ) {
-				$gMDb->gmUpdateMetaData( $meta_type = 'gmedia', $id, $meta_key = '_metadata', $gMDb->gmGenerateMediaMeta( $id, $file ) );
-			}
-			var_dump( $id );
+			$gMDb->gmUpdateMetaData( $meta_type = 'gmedia', $id, $meta_key = '_metadata', $gMDb->gmGenerateMediaMeta( $id, $file ) );
 
+			$return = json_encode( array( "success" => array( "code" => 200, "message" => sprintf( __( 'File uploaded successful. Assigned ID: %s', 'gmLang' ), $id ) ), "id" => $targetFile['realname'] ) );
+			die( $return );
 		}
 		else {
-			echo $chunk . '/' . $chunks;
+			$return = json_encode( array( "success" => array( "code" => 199, "message" => $chunk . '/' . $chunks ), "id" => $targetFile['realname'] ) );
+			die( $return );
 		}
 	}
 	else {
