@@ -401,6 +401,7 @@ function gmDoAjax() {
 			$query_args = reset( $gMediaQuery );
 			$tab        = key( $gMediaQuery );
 			if ( is_array( $query_args ) ) {
+				$query_args['nopaging'] = true;
 				$gMediaLib   = $gMDb->get_gmedias( $query_args );
 				$gmediaCount = $gMDb->gmediaCount;
 				$content     = '';
