@@ -219,11 +219,11 @@ if ( ! function_exists( 'gm_type_query' ) ) {
 					<?php
 					/* get category array */
 					$type = 'gmedia_category';
-					$categories = $gMDb->gmGetTerms( $type, array( 'hide_empty' => false ) );
+					$categories = $gMDb->get_terms( $type, array( 'hide_empty' => false ) );
 					$opt = '';
 					if ( count( $categories ) ) {
-						$children     = $gMDb->_gm_get_term_hierarchy( $type );
-						$termsHierarr = $grandCore->gmGetTermsHierarr( $type, $categories, $children, $count = 0 );
+						$children     = $gMDb->_get_term_hierarchy( $type );
+						$termsHierarr = $grandCore->get_terms_hierarrhically( $type, $categories, $children, $count = 0 );
 						foreach ( $termsHierarr as $termitem ) {
 							$sel = in_array( $termitem->term_id, $field_value['category']['value'] ) ? ' selected="selected"' : '';
 							$pad = str_repeat( '&#8212; ', max( 0, $termitem->level ) );
@@ -249,7 +249,7 @@ if ( ! function_exists( 'gm_type_query' ) ) {
 					<?php
 					/* get category array */
 					$type = 'gmedia_tag';
-					$tags = $gMDb->gmGetTerms( $type, array( 'hide_empty' => false ) );
+					$tags = $gMDb->get_terms( $type, array( 'hide_empty' => false ) );
 					$opt = '';
 					if ( count( $tags ) ) {
 						foreach ( $tags as $termitem ) {
@@ -875,7 +875,7 @@ if ( ! function_exists( 'gm_type_category_checkbox' ) ) {
 		echo '<div class="format-setting-inner">';
 
 		/* get category array */
-		$categories = $gMDb->gmGetTerms( 'gmedia_category', array( 'hide_empty' => false ) );
+		$categories = $gMDb->get_terms( 'gmedia_category', array( 'hide_empty' => false ) );
 
 		/* build categories */
 		if ( ! empty( $categories ) ) {
@@ -940,7 +940,7 @@ if ( ! function_exists( 'gm_type_category_select' ) ) {
 		echo '<select name="' . esc_attr( $field_name ) . '" id="' . esc_attr( $field_id ) . '" class="gmedia-ui-select ' . $field_class . '">';
 
 		/* get category array */
-		$categories = $gMDb->gmGetTerms( 'gmedia_category', array( 'hide_empty' => false ) );
+		$categories = $gMDb->get_terms( 'gmedia_category', array( 'hide_empty' => false ) );
 
 		/* has cats */
 		if ( ! empty( $categories ) ) {
@@ -999,7 +999,7 @@ if ( ! function_exists( 'gm_type_tag_checkbox' ) ) {
 		echo '<div class="format-setting-inner">';
 
 		/* get tags */
-		$tags = $gMDb->gmGetTerms( 'gmedia_tag', array( 'hide_empty' => false ) );
+		$tags = $gMDb->get_terms( 'gmedia_tag', array( 'hide_empty' => false ) );
 
 		/* has tags */
 		if ( $tags ) {
@@ -1064,7 +1064,7 @@ if ( ! function_exists( 'gm_type_tag_select' ) ) {
 		echo '<select name="' . esc_attr( $field_name ) . '" id="' . esc_attr( $field_id ) . '" class="gmedia-ui-select ' . $field_class . '">';
 
 		/* get tags */
-		$tags = $gMDb->gmGetTerms( 'gmedia_tag', array( 'hide_empty' => false ) );
+		$tags = $gMDb->get_terms( 'gmedia_tag', array( 'hide_empty' => false ) );
 
 		/* has tags */
 		if ( $tags ) {

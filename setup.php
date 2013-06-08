@@ -40,7 +40,7 @@ function grand_default_options() {
  **/
 function grand_install() {
 	/** @var $wpdb wpdb */
-	global $wpdb;
+	global $wpdb, $grandCore;
 
 	// Check for capability
 	if ( ! current_user_can( 'activate_plugins' ) )
@@ -52,7 +52,7 @@ function grand_install() {
 	// add charset & collate like wp core
 	$charset_collate = '';
 
-	if ( $wpdb->supports_collation() ) {
+	if ( $wpdb->has_cap( 'collation' ) ) {
 		if ( ! empty( $wpdb->charset ) ) $charset_collate = "DEFAULT CHARACTER SET $wpdb->charset";
 		if ( ! empty( $wpdb->collate ) ) $charset_collate .= " COLLATE $wpdb->collate";
 	}
@@ -156,14 +156,22 @@ function grand_install() {
 	add_option( "gmediaDbVersion", GRAND_DBVERSION );
 	add_option( "gmediaVersion", GRAND_VERSION );
 
-	// try to make gallery dir if not exists
-	if ( ! is_dir( WP_CONTENT_DIR . '/' . GRAND_FOLDER ) ) {
-		$gmOptions = get_option( 'gmediaOptions' );
-		wp_mkdir_p( WP_CONTENT_DIR . '/' . GRAND_FOLDER );
-		foreach ( $gmOptions['folder'] as $folder ) {
-			wp_mkdir_p( WP_CONTENT_DIR . '/' . GRAND_FOLDER . '/' . $folder );
-		}
+	// try to make gallery dirs if not exists
+	$assets_dir = $grandCore->gm_upload_dir();
+	foreach ( $gmOptions['folder'] as $folder ) {
+		wp_mkdir_p( $assets_dir['path'] . $folder );
 	}
+}
+
+/**
+ * Called via Setup and register_deactivate hook
+ *
+ * @access internal
+ * @return void
+ */
+function grand_deactivate() {
+	// remove & reset the init check option
+	delete_option( 'gmediaInitCheck' );
 }
 
 /**

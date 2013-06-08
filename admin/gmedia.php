@@ -13,7 +13,7 @@ function grandMedia() {
 
 	$gmOptions   = get_option( 'gmediaOptions' );
 	$gMediaURL = WP_PLUGIN_URL . '/' . GRAND_FOLDER . '/';
-	$url       = $grandCore->getAdminURL();
+	$url       = $grandCore->get_admin_url();
 	if ( isset( $_POST['selected_items'] ) ) {
 		$sel_ids = explode( ',', $_POST['selected_items'] );
 		$sel_ids = array_filter( $sel_ids, 'is_numeric' );
@@ -36,7 +36,7 @@ function grandMedia() {
 		'gmedia__in' => $sel_ids,
 		's'          => $grandCore->_get( 's', '' )
 	);
-	$gMediaLib = $gMDb->gmGetMedias( $arg );
+	$gMediaLib = $gMDb->get_gmedias( $arg );
 	//echo '<pre>'; print_r($gMediaLib); echo '</pre>';
 	/** @var $mime_type
 	 * @var  $orderby
@@ -62,7 +62,7 @@ function grandMedia() {
 		}
 	}
 	$nonce     = wp_create_nonce( 'grandMedia' );
-	$gmDbCount = $gMDb->gmediaCount();
+	$gmDbCount = $gMDb->count_gmedia();
 	//echo '<pre>'; print_r($gmDbCount); echo '</pre>';
 	/** @var $counting array() */
 	foreach ( $gmDbCount as $key => $value ) {
@@ -106,11 +106,11 @@ function grandMedia() {
 
 				<div id="category_list" class="term_list">
 					<?php
-					$gmTerms = $gMDb->gmGetTerms( 'gmedia_category' );
+					$gmTerms = $gMDb->get_terms( 'gmedia_category' );
 					$terms = '';
 					if ( count( $gmTerms ) ) {
-						$children     = $gMDb->_gm_get_term_hierarchy( 'gmedia_category' );
-						$termsHierarr = $grandCore->gmGetTermsHierarr( 'gmedia_category', $gmTerms, $children, $count = 0 );
+						$children     = $gMDb->_get_term_hierarchy( 'gmedia_category' );
+						$termsHierarr = $grandCore->get_terms_hierarrhically( 'gmedia_category', $gmTerms, $children, $count = 0 );
 						$terms .= '<div class="item"><span class="ajaxPost" data-action="gmDoAjax" data-_ajax_nonce="' . $nonce . '" data-form="#selectedForm" data-task="moveToCategory" data-term_id="0">' . __( 'No Category', 'gmLang' ) . '</span>';
 						$terms .= '<a class="opencat" href="' . $url['page'] . '&amp;cat=0" title="' . __( 'Show gMedia with no category', 'gmLang' ) . '">' . __( 'Show gMedia with no category', 'gmLang' ) . '</a></div>' . "\n";
 						foreach ( $termsHierarr as $termitem ) {
@@ -140,7 +140,7 @@ function grandMedia() {
 				<hr />
 
 				<?php
-				$gmTerms = $gMDb->gmGetTerms( 'gmedia_tag' );
+				$gmTerms = $gMDb->get_terms( 'gmedia_tag' );
 				if ( count( $gmTerms ) ) {
 					$terms = '<form id="tag_list" name="tag_list" action="" method="post"><div class="term_list">' . "\n";
 					foreach ( $gmTerms as $termitem ) {
@@ -178,7 +178,7 @@ function grandMedia() {
 				<span id="clearSelected"><?php _e( 'Clear selected items', 'gmLang' ); ?></span>
 			</div>
 		</div>
-		<?php echo $gMDb->queryPager(); ?>
+		<?php echo $gMDb->query_pager(); ?>
 		<form action="" method="get">
 			<div class="gmSearch">
 				<?php foreach ( $_GET as $key => $value ) {
@@ -236,7 +236,7 @@ function grandMedia() {
 					}
 				}
 				else {
-					echo '<tr class="emptybd"><td colspan="8">' . __( 'No items in Grand Media Library.', 'gmLang' ) . '</td></tr>';
+					echo '<tr class="emptybd"><td colspan="8">' . __( 'No items in Gmedia Library.', 'gmLang' ) . '</td></tr>';
 				}
 				?>
 				<tr class="noitems">

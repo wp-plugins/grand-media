@@ -12,7 +12,7 @@ function gmedia_manage_modules() {
 	global $grandCore;
 	$gmOptions = get_option( 'gmediaOptions' );
 	$upload    = $grandCore->gm_upload_dir();
-	$url       = $grandCore->getAdminURL();
+	$url       = $grandCore->get_admin_url();
 	$nonce     = wp_create_nonce( 'grandMedia' );
 
 	?>
@@ -51,7 +51,7 @@ function gmedia_manage_modules() {
 		$arg['offset'] = $offset = ( $page - 1 ) * $number;
 
 		$taxonomy    = 'gmedia_module';
-		$gMediaTerms = $gMDb->gmGetTerms( $taxonomy, $arg );
+		$gMediaTerms = $gMDb->get_terms( $taxonomy, $arg );
 
 
 		/** @var $orderby
@@ -107,7 +107,7 @@ function gmedia_manage_modules() {
 				if ( count( $gMediaTerms ) ) {
 					$filter = ( empty( $arg['search'] ) ) ? false : true;
 					//$count = 0;
-					//$termsHierarr = $grandCore->gmGetTermsHierarr( $taxonomy, $gMediaTerms, $children, $count, $offset, $number, 0, 0, $filter );
+					//$termsHierarr = $grandCore->get_terms_hierarrhically( $taxonomy, $gMediaTerms, $children, $count, $offset, $number, 0, 0, $filter );
 					foreach ( $gMediaTerms as $termitem ) {
 						$grandAdmin->gm_term_row( $termitem );
 					}
@@ -206,7 +206,7 @@ function gmedia_manage_modules() {
 						$update                   = '';
 						if ( isset( $all_modules[$muid] ) && (string) $all_modules[$muid]['uid'] == $module['uid'] ) {
 							if ( version_compare( (float) $all_modules[$muid]['version'], (float) $module['version'], '>' ) ) {
-								$update = '| <a class="module_update ajaxPost" data-action="gmDoAjax" data-_ajax_nonce="' . $nonce . '" data-post="module=' . $moduledir . '" data-task="gm-update-module" href="#">' . __( 'update', 'gmLang' ) . '</a>';
+								$update = '| <a class="module_update button button-green ajaxPost" data-action="gmDoAjax" data-_ajax_nonce="' . $nonce . '" data-post="module=' . $moduledir . '" data-task="gm-update-module" href="http://dl.dropbox.com/u/6295502/gmedia_modules/'.$all_modules[$muid]['filename'].'.zip">' . __( 'Update Module', 'gmLang' ) . " (v{$all_modules[$muid]['version']})</a>";
 								$mclass .= ' module_update';
 							}
 							$module['demo'] = $all_modules[$muid]['demo'];
@@ -223,7 +223,7 @@ function gmedia_manage_modules() {
 
 								<div class="description"><?php echo str_replace("\n", '<br />', $module['description']); ?></div>
 								<div class="links">
-									<a class="module_delete button button-red ajaxPost" data-action="gmDoAjax" data-_ajax_nonce="<?php echo $nonce; ?>" data-post="module=<?php echo $moduledir; ?>" data-task="gm-delete-module" data-confirmtxt="<?php echo sprintf( __( "Are you sure want to delete %s module?\n\r'Cancel' to stop, 'OK' to delete.", "gmLang" ), $module['title'] ); ?>" href="<?php echo $url['page'] . '&amp;delete_module=' . urlencode( $moduledir ) . '&amp;_wpnonce=' . $nonce; ?>"><?php _e( 'delete', 'gmLang' ) ?></a>
+									<a class="module_delete button button-red ajaxPost" data-action="gmDoAjax" data-_ajax_nonce="<?php echo $nonce; ?>" data-post="module=<?php echo $moduledir; ?>" data-task="gm-delete-module" data-confirmtxt="<?php echo sprintf( __( "Are you sure want to delete %s module?\n\r'Cancel' to stop, 'OK' to delete.", "gmLang" ), $module['title'] ); ?>" href="<?php echo $url['page'] . '&amp;delete_module=' . urlencode( $moduledir ) . '&amp;_wpnonce=' . $nonce; ?>"><?php _e( 'Delete Module', 'gmLang' ) ?></a>
 									|
 									<?php if(!empty($module['demo']) && $module['demo'] != '#'){ ?>
 									<a class="module_preview button" target="_blank" href="<?php echo $module['demo']; ?>"><?php _e( 'View Demo', 'gmLang' ) ?></a>
@@ -297,11 +297,11 @@ function gmedia_module_settings( $module_folder, $term_id = 0 ) {
 	if ( ! current_user_can( 'edit_posts' ) )
 		die( '-1' );
 
-	$url   = $grandCore->getAdminURL();
+	$url   = $grandCore->get_admin_url();
 	$nonce = wp_create_nonce( 'grandMedia' );
 
 	// module folder
-	$module_dir = $grandCore->gm_get_module_path( $module_folder );
+	$module_dir = $grandCore->get_module_path( $module_folder );
 	$module_ot  = array();
 	if ( is_dir( $module_dir['path'] ) ) {
 		include( $module_dir['path'] . '/settings.php' );
@@ -316,16 +316,16 @@ function gmedia_module_settings( $module_folder, $term_id = 0 ) {
 		/* get current module meta data */
 		if ( ! isset( $_GET['settings_default'] ) ) {
 			$load_default = 0;
-			$field_values = $gMDb->gmGetMetaData( 'gmedia_term', $term_id );
+			$field_values = $gMDb->get_metadata( 'gmedia_term', $term_id );
 			if ( ! empty( $field_values ) ) {
-				$field_values = array_map( array( $grandCore, 'gm_arr_o' ), $field_values );
+				$field_values = array_map( array( $grandCore, 'maybe_array_0' ), $field_values );
 				$field_values = array_map( 'maybe_unserialize', $field_values );
 			}
 			else {
 				$field_values = array();
 			}
 		}
-		$term_general = $gMDb->gmGetTerm( $term_id, 'gmedia_module', ARRAY_A );
+		$term_general = $gMDb->get_term( $term_id, 'gmedia_module', ARRAY_A );
 		$field_values = array_merge( $term_general, $field_values );
 		$submit_name  = 'gmedia_module_update';
 	}

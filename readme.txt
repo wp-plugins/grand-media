@@ -4,7 +4,7 @@ Donate link: #
 Tags: gallery, images, library, files, music, video, slideshow, responsive, admin, Post, posts
 Requires at least: 3.5
 Tested up to: 3.5.1
-Stable tag: 0.6.3
+Stable tag: 0.7.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,7 +14,7 @@ Grand Media Gallery - powerfull media library plugin for creating beautiful gall
 
 This plugin is in beta for now. I'm working hard to bring flash skins from my previous plugin ([Grand Flagallery](http://wordpress.org/extend/plugins/flash-album-gallery/)) to this one. Also I'll add many others modules based on jQuery library for desktop and mobile browsers.
 
-As for now there is only two modules:
+As for now there is two modules:
 * Afflux with touch/swipe interface on mobile browsers. Test it and give me know what problem you have or not have with Gmedia plugin.
 * Phantom is the Wall/Grid Gallery - you can easily change thumbnail sizes, colors, navigation, lightbox position, add labels to thumbnails, captions … and much more.
 
@@ -25,31 +25,33 @@ Features:
 *   SEO and mobile friendly, responsive galleries
 *   Add tags and categories to uploaded files
 *   Create many galleries with different options
-*   Automatically add uploaded images to gallery related on tags
+*   Automatically add uploaded images to gallery related on tags and categories
 *   Easily adding shortcode to post in one click
 *   Manage Wordpress Media Library files much easier
 *   Uses WordPress' native Image Resizer
+*   Import files from server folder or from others gallery plugins
+
 
 TODO List:
 
 *   More modules for creating galleries
 *   Easily add to Post media files with tags related to post tags
-*   Import feature for GRAND Flagallery plugin and some others gallery plugins
 *   Import from/to Wordpress Media Library
 *   Intergration with social services
 *   Upload ZIP with files
 *   Image Editor with watermark feature
+*   Add drag'n'drop sorting for files in category
 
 
 == Installation ==
 
 1. Upload `grand-media` folder to the `/wp-content/plugins/` directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
-3. Go to Grand Media page and Add Tags & Categories
+3. Go to Gmedia Gallery page and Add Tags & Categories
 4. Add Files to categories and with chosen tags
 5. Go to Manage Galleries... -> Available Modules tab -> choose module and click Create button
 6. Change settings to fit your site -> give gallery the Name -> in Query Builder choose category and other parameters to query images -> click Save button
-7. On Edit Post page click created gallery in GrandMedia Metabox to insert shortcode in text editor.
+7. On Edit Post page click created gallery in Gmedia Metabox to insert shortcode in text editor.
 8. When gallery loads first time or if you've added new images to gallery you'll see progress bar which means creating thumbnails for new images
 
 == Frequently Asked Questions ==
@@ -66,6 +68,11 @@ Use Wordpress support forum for now. I'll try to answer ASAP
 
 == Changelog ==
 
+= 0.7.0 =
+* Fixes and improvements
+* Added Import feature from different sources
+* Fixed Phantom Module (update to latest version, please)
+
 = 0.6.3 =
 * Fixes and improvements
 * Added Error Handler to File Uploader
@@ -79,6 +86,6 @@ Use Wordpress support forum for now. I'll try to answer ASAP
 
 == Upgrade Notice ==
 
-= 0.6.3 =
-Give it a try. More coming soon...
+= 0.7.0 =
+Go to Manage Galleries... page -> Available Modules tab -> update Phantom Module to latest version
 

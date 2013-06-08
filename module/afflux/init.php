@@ -93,7 +93,7 @@ $crunch = array();
  */
 foreach ( $module_meta['gMediaQuery'] as $i => $tab ) {
 
-	$gMediaQuery = $gMDb->gmGetMedias( $tab );
+	$gMediaQuery = $gMDb->get_gmedias( $tab );
 	if ( empty( $gMediaQuery ) ) {
 		continue;
 	}
@@ -104,9 +104,9 @@ foreach ( $module_meta['gMediaQuery'] as $i => $tab ) {
 
 	$b = array();
 	foreach ( $gMediaQuery as $item ) {
-		$meta['views'] = intval($gMDb->gmGetMetaData('gmedia', $item->ID, 'views', true));
-		$meta['likes'] = intval($gMDb->gmGetMetaData('gmedia', $item->ID, 'likes', true));
-		$_metadata = $gMDb->gmGetMetaData('gmedia', $item->ID, '_metadata', true);
+		$meta['views'] = intval($gMDb->get_metadata('gmedia', $item->ID, 'views', true));
+		$meta['likes'] = intval($gMDb->get_metadata('gmedia', $item->ID, 'likes', true));
+		$_metadata = $gMDb->get_metadata('gmedia', $item->ID, '_metadata', true);
 		$args = array(
 			'id' => $item->ID,
 			'file' => $item->gmuid,

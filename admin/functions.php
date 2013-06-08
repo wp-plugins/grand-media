@@ -35,16 +35,16 @@ class gmAdmin {
 		$file_info = pathinfo( $item_url );
 		switch ( $type[0] ) {
 			case 'image':
-				$actions = '<a class="fancy-view" rel="gm-view" href="' . $item_url . '" title="' . __( "View", "gmLang" ) . '">' . __( "View", "gmLang" ) . '</a>';
+				$actions = '<a class="fancy-view" rel="image" href="' . $item_url . '" title="' . __( "View", "gmLang" ) . '">' . __( "View", "gmLang" ) . '</a>';
 				break;
 			case 'audio':
-				$actions = '<a class="fancy-listen" rel="gm-listen" href="' . $gMediaURL . '/preview.php?gmID=' . $item->ID . '&amp;type=' . $type[0] . '" title="' . __( "Listen", "gmLang" ) . '">' . __( "Listen", "gmLang" ) . '</a>';
+				$actions = '<a class="fancy-listen" rel="audio" href="' . $item_url . '" title="' . __( "Listen", "gmLang" ) . '">' . __( "Listen", "gmLang" ) . '</a>';
 				break;
 			case 'video':
-				$actions = '<a class="fancy-watch" rel="gm-watch" href="' . $gMediaURL . '/preview.php?gmID=' . $item->ID . '&amp;type=' . $type[0] . '" title="' . __( "Watch", "gmLang" ) . '">' . __( "Watch", "gmLang" ) . '</a>';
+				$actions = '<a class="fancy-watch" rel="video" href="' . $item_url . '" title="' . __( "Watch", "gmLang" ) . '">' . __( "Watch", "gmLang" ) . '</a>';
 				break;
 			default:
-				$actions = '<a class="fancy-app" rel="gm-app" href="' . $item_url . '" title="' . __( "Application", "gmLang" ) . '">' . __( "Application", "gmLang" ) . '</a>';
+				$actions = '<a class="fancy-app" rel="application" href="' . $item_url . '" title="' . __( "Application", "gmLang" ) . '">' . __( "Application", "gmLang" ) . '</a>';
 				break;
 		}
 		$actions .= '<a class="edit ajaxPost" data-action="gmDoAjax" data-_ajax_nonce="' . $nonce . '" data-media_id="' . $item->ID . '" data-task="wpmedia-edit" href="' . admin_url( 'gmedia.php?attachment_id=' . $item->ID . '&amp;action=edit' ) . '" title="' . __( "Edit", "gmLang" ) . '">' . __( "Edit", "gmLang" ) . '</a>';
@@ -92,7 +92,7 @@ class gmAdmin {
 		$type           = explode( '/', $item->mime_type );
 		$item_url       = $uploads['url'] . $gmOptions['folder'][$type[0]] . '/' . $item->gmuid;
 
-		$image     = $grandCore->gmGetMediaImage( $item, 'thumb', array( 'width' => 36, 'height' => 36 ) );
+		$image     = $grandCore->gm_get_media_image( $item, 'thumb', array( 'width' => 36, 'height' => 36 ) );
 		$file      = '<a class="grandbox" href="' . $item_url . '">' . $image . '</a>';
 		$file_info = pathinfo( $item_url );
 		switch ( $type[0] ) {
@@ -112,7 +112,7 @@ class gmAdmin {
 		$actions .= '<a class="edit ajaxPost" data-action="gmDoAjax" data-_ajax_nonce="' . $nonce . '" data-gmedia_id="' . $item->ID . '" data-task="gmedia-edit" href="' . wp_nonce_url( "admin-ajax.php?action=gmDoAjax&amp;gmedia_id=" . $item->ID . "&amp;task=gmedia-edit", 'grandMedia' ) . '" title="' . __( "Edit", "gmLang" ) . '">' . __( "Edit", "gmLang" ) . '</a>';
 		$actions .= '<a class="delete ajaxPost" data-action="gmDoAjax" data-_ajax_nonce="' . $nonce . '" data-gmedia_id="' . $item->ID . '" data-task="gmedia-delete" data-confirmtxt="' . __( "You are about to permanently delete the selected items.\n\r'Cancel' to stop, 'OK' to delete.", "gmLang" ) . '" href="' . wp_nonce_url( "admin-ajax.php?action=gmDoAjax&amp;gmedia_id=" . $item->ID . "&amp;task=gmedia-delete", 'grandMedia' ) . '" title="' . __( "Delete Permanently", "gmLang" ) . '">' . __( "Delete Permanently", "gmLang" ) . '</a>';
 		$trClass = 'class="' . $type[0] . '" id="item_' . $item->ID . '"';
-		$tags    = $gMDb->gm_get_the_terms( $item->ID, 'gmedia_tag' );
+		$tags    = $gMDb->get_the_gmedia_terms( $item->ID, 'gmedia_tag' );
 		if ( ! empty( $tags ) ) {
 			$out = array();
 			foreach ( $tags as $c ) {
@@ -127,7 +127,7 @@ class gmAdmin {
 		else {
 			$tags = '';
 		}
-		$cats = $gMDb->gm_get_the_terms( $item->ID, 'gmedia_category' );
+		$cats = $gMDb->get_the_gmedia_terms( $item->ID, 'gmedia_category' );
 		if ( ! empty( $cats ) ) {
 			$out = array();
 			foreach ( $cats as $c ) {
@@ -171,30 +171,34 @@ class gmAdmin {
 			global $gMDb;
 
 			$meta_type     = 'gmedia_term';
-			$last_edited   = $gMDb->gmGetMetaData( $meta_type, $item->term_id, 'last_edited', true );
-			$module_folder = $gMDb->gmGetMetaData( $meta_type, $item->term_id, 'module_name', true );
-			$gMediaQuery   = $gMDb->gmGetMetaData( $meta_type, $item->term_id, 'gMediaQuery', true );
+			$last_edited   = $gMDb->get_metadata( $meta_type, $item->term_id, 'last_edited', true );
+			$module_folder = $gMDb->get_metadata( $meta_type, $item->term_id, 'module_name', true );
+			$gMediaQuery   = $gMDb->get_metadata( $meta_type, $item->term_id, 'gMediaQuery', true );
 			$gmModuleCount = 0;
 			foreach ( $gMediaQuery as $query_args ) {
 				$query_args['fields'] = 'ids';
-				$gmModuleCount += count( $gMDb->gmGetMedias( $query_args ) );
+				$gmModuleCount += count( $gMDb->get_gmedias( $query_args ) );
 			}
 
-			$module_dir = $grandCore->gm_get_module_path( $module_folder );
+			$module_dir = $grandCore->get_module_path( $module_folder );
 			/** @var $module array */
-			include( $module_dir['path'] . '/details.php' );
-			$actions = '<a class="edit" href="' . admin_url( "admin.php?page=GrandMedia_Modules&amp;module=" . $module_folder . "&amp;term_id=" . $item->term_id, 'grandMedia' ) . '" title="' . __( "Edit", "gmLang" ) . '">' . __( "Edit", "gmLang" ) . '</a>';
+			if($module_dir) {
+				include( $module_dir['path'] . '/details.php' );
+				$actions = '<a class="edit" href="' . admin_url( "admin.php?page=GrandMedia_Modules&amp;module=" . $module_folder . "&amp;term_id=" . $item->term_id, 'grandMedia' ) . '" title="' . __( "Edit", "gmLang" ) . '">' . __( "Edit", "gmLang" ) . '</a>';
+			} else {
+				$actions = '<span class="pad">&nbsp;</span>';
+			}
 			$actions .= '<a class="delete ajaxPost" data-action="gmDoAjax" data-_ajax_nonce="' . $nonce . '" data-term_id="' . $item->term_id . '" data-tax="' . $item->taxonomy . '" data-task="term-delete" data-confirmtxt="' . __( "You are about to permanently delete the selected items.\n\r'Cancel' to stop, 'OK' to delete.", "gmLang" ) . '" href="' . wp_nonce_url( "admin-ajax.php?action=gmDoAjax&amp;term_id=" . $item->term_id . "&amp;tax=" . $item->taxonomy . "&amp;task=term-delete", 'grandMedia' ) . '" title="' . __( "Delete Permanently", "gmLang" ) . '">' . __( "Delete Permanently", "gmLang" ) . '</a>';
 			$trClass = 'class="gmTermRow" id="item_' . $item->term_id . '"';
 			?>
 			<tr <?php echo $trClass; ?>>
 				<td class="bufer"><span>&nbsp;</span></td>
 				<td class="module_preview">
-					<span><img src="<?php echo $module_dir['url'] . '/screenshot.png'; ?>" alt="" width="100" style="height: auto;" /></span>
+					<span><?php if($module_dir) { ?><img src="<?php echo $module_dir['url'] . '/screenshot.png'; ?>" alt="" width="100" style="height: auto;" /><?php } else { _e('No Module', 'gmLang'); } ?></span>
 				</td>
 				<td class="id"><p><?php echo $item->term_id; ?></p></td>
 				<td class="name"><span><?php echo $item->name; ?></span><br />
-					<small><?php echo __( 'module', 'gmLang' ) . ': ' . $module['title']; ?></small>
+					<small><?php echo __( 'module', 'gmLang' ) . ': '; if($module_dir) { echo $module['title']; } else { echo "'{$module_folder}' " . __('not installed or broken', 'gmLang'); } ?></small>
 				</td>
 				<td class="descr">
 					<div><?php echo strip_tags( $item->description ); ?></div>
@@ -258,7 +262,7 @@ class gmAdmin {
 		switch ( $type ) {
 			case 'gmedia_category':
 			case 'gmedia_tag':
-				$item = $gMDb->gmGetTerm( $id, $type );
+				$item = $gMDb->get_term( $id, $type );
 				?>
 				<table id="gmedia-edit">
 					<tr class="gmedia-edit-row">
@@ -273,11 +277,11 @@ class gmAdmin {
 										<input type="text" id="tax-edit-<?php echo $type; ?>" class="the-term" name="terms[<?php echo $type; ?>]" autocomplete="off" value="<?php echo $item->name; ?>" />
 										<?php
 										if ( $type == 'gmedia_category' ) {
-											$gmTerms = $gMDb->gmGetTerms( $type, array( 'exclude_tree' => array( $item->term_id ) ) );
+											$gmTerms = $gMDb->get_terms( $type, array( 'exclude_tree' => array( $item->term_id ) ) );
 											$opt     = '';
 											if ( count( $gmTerms ) ) {
-												$children     = $gMDb->_gm_get_term_hierarchy( $type );
-												$termsHierarr = $grandCore->gmGetTermsHierarr( $type, $gmTerms, $children, $count = 0 );
+												$children     = $gMDb->_get_term_hierarchy( $type );
+												$termsHierarr = $grandCore->get_terms_hierarrhically( $type, $gmTerms, $children, $count = 0 );
 												foreach ( $termsHierarr as $termitem ) {
 													$sel = ( $item->global == $termitem->term_id ) ? ' selected="selected"' : '';
 													$pad = str_repeat( '&#8212; ', max( 0, $termitem->level ) );
@@ -315,8 +319,8 @@ class gmAdmin {
 				die();
 				break;
 			case 'gmedia':
-				$item  = $gMDb->gmGetMedia( $id );
-				$image = $grandCore->gmGetMediaImage( $item, 'thumb', array( 'width' => 150, 'height' => 150 ) );
+				$item  = $gMDb->get_gmedia( $id );
+				$image = $grandCore->gm_get_media_image( $item, 'thumb', array( 'width' => 150, 'height' => 150 ) );
 				?>
 				<table id="gmedia-edit">
 					<tr class="gmedia-edit-row">
@@ -333,7 +337,7 @@ class gmAdmin {
 									<div class="gmTitle row va-b">
 										<span class="label"><?php _e( 'Title', 'gmLang' ); ?></span><input name="gmedia[title]" type="text" value="<?php echo $item->title; ?>" />
 									</div>
-									<?php $cat = $gMDb->gm_get_the_terms( $item->ID, 'gmedia_category' );
+									<?php $cat = $gMDb->get_the_gmedia_terms( $item->ID, 'gmedia_category' );
 									if ( empty( $cat ) ) {
 										$cat_id = 0;
 									}
@@ -341,11 +345,11 @@ class gmAdmin {
 										$cat_id = $cat[0]->term_id;
 									}
 									$ttype = 'gmedia_category';
-									$gmTerms = $gMDb->gmGetTerms( $ttype );
+									$gmTerms = $gMDb->get_terms( $ttype );
 									$opt = '';
 									if ( count( $gmTerms ) ) {
-										$children     = $gMDb->_gm_get_term_hierarchy( $ttype );
-										$termsHierarr = $grandCore->gmGetTermsHierarr( $ttype, $gmTerms, $children, $count = 0 );
+										$children     = $gMDb->_get_term_hierarchy( $ttype );
+										$termsHierarr = $grandCore->get_terms_hierarrhically( $ttype, $gmTerms, $children, $count = 0 );
 										foreach ( $termsHierarr as $termitem ) {
 											$sel = ( $cat_id == $termitem->term_id ) ? ' selected="selected"' : '';
 											$pad = str_repeat( '&#8212; ', max( 0, $termitem->level ) );
@@ -360,7 +364,7 @@ class gmAdmin {
 											<?php echo $opt; ?>
 										</select></div>
 									<?php
-									$tags = $gMDb->gm_get_the_terms( $item->ID, 'gmedia_tag' );
+									$tags = $gMDb->get_the_gmedia_terms( $item->ID, 'gmedia_tag' );
 									if ( ! empty( $tags ) ) {
 										$out = array();
 										foreach ( $tags as $c ) {
@@ -404,7 +408,7 @@ class gmAdmin {
 				if ( ! $image ) {
 					if ( $src = wp_mime_type_icon( $item->ID ) ) {
 						$icon_dir_url = $gMediaURL . '/admin/images';
-						$image        = $icon_dir_url . '/' . wp_basename( $src );
+						$image[0]     = $icon_dir_url . '/' . wp_basename( $src );
 					}
 				}
 				$edit_url = admin_url( 'media.php?action=edit&amp;attachment_id=' . $item->ID );
@@ -459,7 +463,7 @@ class gmAdmin {
 		$tab   = $query_args['tab'];
 
 		if ( isset( $_REQUEST['term_id'] ) ) {
-			$gMediaLib   = $gMDb->gmGetMedias( $query_args );
+			$gMediaLib   = $gMDb->get_gmedias( $query_args );
 			$gmediaCount = $gMDb->gmediaCount;
 		}
 		else {
@@ -487,11 +491,11 @@ class gmAdmin {
 							<?php
 							/* get category array */
 							$type = 'gmedia_category';
-							$categories = $gMDb->gmGetTerms( $type, array( 'hide_empty' => false ) );
+							$categories = $gMDb->get_terms( $type, array( 'hide_empty' => false ) );
 							$opt = '';
 							if ( count( $categories ) ) {
-								$children     = $gMDb->_gm_get_term_hierarchy( $type );
-								$termsHierarr = $grandCore->gmGetTermsHierarr( $type, $categories, $children, $count = 0 );
+								$children     = $gMDb->_get_term_hierarchy( $type );
+								$termsHierarr = $grandCore->get_terms_hierarrhically( $type, $categories, $children, $count = 0 );
 								foreach ( $termsHierarr as $termitem ) {
 									$sel = selected( $query_args['cat'], $termitem->term_id, false );
 									$pad = str_repeat( '&#8212; ', max( 0, $termitem->level ) );
@@ -533,7 +537,7 @@ class gmAdmin {
 							<?php
 							/* get category array */
 							$type = 'gmedia_tag';
-							$tags = $gMDb->gmGetTerms( $type, array( 'hide_empty' => false ) );
+							$tags = $gMDb->get_terms( $type, array( 'hide_empty' => false ) );
 							$opt = '';
 							if ( count( $tags ) ) {
 								foreach ( $tags as $termitem ) {
@@ -563,7 +567,7 @@ class gmAdmin {
 					foreach ( $gMediaLib as $item ) {
 						$type     = explode( '/', $item->mime_type );
 						$item_url = $uploads['url'] . $gmOptions['folder'][$type[0]] . '/' . $item->gmuid;
-						$image    = $grandCore->gmGetMediaImage( $item, 'thumb', array( 'width' => 48, 'height' => 48 ), true );
+						$image    = $grandCore->gm_get_media_image( $item, 'thumb', array( 'width' => 48, 'height' => 48 ), true );
 						$file     = '<a class="grandbox" title="' . trim( esc_attr( strip_tags( $item->title ) ) ) . '" rel="querybuilder__' . $tab . '" href="' . $item_url . '">' . $image . '</a> ';
 						echo $file;
 					}

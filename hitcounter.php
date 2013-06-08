@@ -13,8 +13,8 @@ if ( (false === strpos( $ref, get_home_url() )) && (false === strpos( $ref, get_
 if ( isset($_POST['hit']) && ($gmID = intval($_POST['hit'])) ) {
 	/** @var $wpdb wpdb */
 	global $wpdb, $gMDb;
-	$meta['views'] = $gMDb->gmGetMetaData('gmedia', $gmID, 'views', true);
-	$meta['likes'] = $gMDb->gmGetMetaData('gmedia', $gmID, 'likes', true);
+	$meta['views'] = $gMDb->get_metadata('gmedia', $gmID, 'views', true);
+	$meta['likes'] = $gMDb->get_metadata('gmedia', $gmID, 'likes', true);
 	gm_hitcounter($gmID, $meta);
 	$return = json_encode($meta);
 	die($return);
@@ -27,9 +27,9 @@ function gm_hitcounter($gmID, $meta) {
 	global $wpdb, $gMDb;
 	$meta = array_map('intval', $meta);
 	if( isset($_POST['like']) ) {
-		$gMDb->gmUpdateMetaData('gmedia', $gmID, 'likes', $meta['likes'] + 1);
+		$gMDb->update_metadata('gmedia', $gmID, 'likes', $meta['likes'] + 1);
 	}
 	else {
-		$gMDb->gmUpdateMetaData('gmedia', $gmID, 'views', $meta['views'] + 1);
+		$gMDb->update_metadata('gmedia', $gmID, 'views', $meta['views'] + 1);
 	}
 }

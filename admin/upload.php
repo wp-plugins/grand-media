@@ -36,8 +36,9 @@ if ( ! isset( $_REQUEST["name"] ) ) {
 	die( $return );
 }
 
+global $grandCore;
 $fileName   = $_REQUEST["name"];
-$targetFile = gmTargetDir( $fileName );
+$targetFile = $grandCore->target_dir( $fileName );
 
 // Look for the content type header
 $contentType = '';
@@ -78,29 +79,29 @@ function gmUploadTMP( $file_tmp, $targetFile, $contentType ) {
 	$chunk            = isset( $_REQUEST["chunk"] ) ? intval( $_REQUEST["chunk"] ) : 0;
 	$chunks           = isset( $_REQUEST["chunks"] ) ? intval( $_REQUEST["chunks"] ) : 0;
 	$targetDir        = $uploads['path'] . $gmOptions['folder'][$targetFile['folder']];
-	$siteurl 					= get_option( 'siteurl' );
-	$targetDirU       = str_replace($siteurl, '', $uploads['url']);
+	$url  = $uploads['url'] . $gmOptions['folder'][$targetFile['folder']] . '/' . $targetFile['name'];
+	$file = $targetDir . '/' . $targetFile['name'];
 
 	// try to make grand-media dir if not exists
 	if ( ! wp_mkdir_p( $targetDir ) ) {
-		$return = json_encode( array( "error" => array( "code" => 100, "message" => sprintf( __( 'Unable to create directory %s. Is its parent directory writable by the server?', 'gmLang' ), $targetDirU.$gmOptions['folder'][$targetFile['folder']] ) ), "id" => $targetFile['name'] ) );
+		$return = json_encode( array( "error" => array( "code" => 100, "message" => sprintf( __( 'Unable to create directory %s. Is its parent directory writable by the server?', 'gmLang' ), $targetDir ) ), "id" => $targetFile['name'] ) );
 		die( $return );
 	}
 	// Check if grand-media dir is writable
 	if ( ! is_writable( $targetDir ) ) {
 		@chmod( $targetDir, 0755 );
 		if ( ! is_writable( $targetDir ) ) {
-			$return = json_encode( array( "error" => array( "code" => 100, "message" => sprintf( __( 'Directory %s or its subfolders are not writable by the server.', 'gmLang' ), $targetDirU ) ), "id" => $targetFile['realname'] ) );
+			$return = json_encode( array( "error" => array( "code" => 100, "message" => sprintf( __( 'Directory %s or its subfolders are not writable by the server.', 'gmLang' ), dirname($targetDir) ) ), "id" => $targetFile['realname'] ) );
 			die( $return );
 		}
 	}
 	// Remove old temp files
 	if ( $cleanupTargetDir && is_dir( $targetDir ) && ( $dir = opendir( $targetDir ) ) ) {
-		while ( ( $file = readdir( $dir ) ) !== false ) {
-			$tmpfilePath = $targetDir . DIRECTORY_SEPARATOR . $file;
+		while ( ( $_file = readdir( $dir ) ) !== false ) {
+			$tmpfilePath = $targetDir . DIRECTORY_SEPARATOR . $_file;
 
 			// Remove temp file if it is older than the max age and is not the current file
-			if ( preg_match( '/\.part$/', $file ) && ( filemtime( $tmpfilePath ) < time() - $maxFileAge ) && ( $tmpfilePath != $targetDir . '/' . $targetFile['name'] . '.part' ) ) {
+			if ( preg_match( '/\.part$/', $_file ) && ( filemtime( $tmpfilePath ) < time() - $maxFileAge ) && ( $tmpfilePath != $file . '.part' ) ) {
 				@unlink( $tmpfilePath );
 			}
 		}
@@ -108,12 +109,12 @@ function gmUploadTMP( $file_tmp, $targetFile, $contentType ) {
 		closedir( $dir );
 	}
 	else {
-		$return = json_encode( array( "error" => array( "code" => 100, "message" => sprintf( __( 'Failed to open directory: %s', 'gmLang' ), $targetDirU.$gmOptions['folder'][$targetFile['folder']] ) ), "id" => $targetFile['realname'] ) );
+		$return = json_encode( array( "error" => array( "code" => 100, "message" => sprintf( __( 'Failed to open directory: %s', 'gmLang' ), $targetDir ) ), "id" => $targetFile['realname'] ) );
 		die( $return );
 	}
 
 	// Open temp file
-	$out = fopen( $targetDir . '/' . $targetFile['name'] . '.part', $chunk == 0 ? "wb" : "ab" );
+	$out = fopen( $file . '.part', $chunk == 0 ? "wb" : "ab" );
 	if ( $out ) {
 		// Read binary input stream and append it to temp file
 		$in = fopen( $file_tmp, "rb" );
@@ -134,16 +135,13 @@ function gmUploadTMP( $file_tmp, $targetFile, $contentType ) {
 		}
 		if ( ! $chunks || $chunk == ( $chunks - 1 ) ) {
 			// Strip the temp .part suffix off
-			rename( $targetDir . '/' . $targetFile['name'] . '.part', $targetDir . '/' . $targetFile['name'] );
+			rename( $file.'.part', $file );
 
-			gmFileChmod( $targetDir . '/' . $targetFile['name'] );
-
-			$url  = $uploads['url'] . $gmOptions['folder'][$targetFile['folder']] . '/' . $targetFile['name'];
-			$file = $targetDir . '/' . $targetFile['name'];
+			$grandCore->file_chmod( $file );
 
 			$size = false;
 			if ( basename( $targetDir ) == 'image' ) {
-				$size = @getimagesize( $targetDir . '/' . $targetFile['name'] );
+				$size = @getimagesize( $file );
 				if ( $size ) {
 					$quality = 90;
 					list( $max_w, $max_h ) = explode( 'x', $gmOptions['thumbnail_size'] );
@@ -153,13 +151,15 @@ function gmUploadTMP( $file_tmp, $targetFile, $contentType ) {
 					if ( ! is_writable( $dest_path ) ) {
 						@chmod( $dest_path, 0755 );
 						if ( ! is_writable( $dest_path ) ) {
-							$return = json_encode( array( "error" => array( "code" => 100, "message" => sprintf( __( 'Directory %s is not writable by the server.', 'gmLang' ), $targetDirU.$gmOptions['folder']['link'] ) ), "id" => $targetFile['realname'] ) );
+							@unlink( $file );
+							$return = json_encode( array( "error" => array( "code" => 100, "message" => sprintf( __( 'Directory %s is not writable by the server.', 'gmLang' ), $uploads['path'].$gmOptions['folder']['link'] ) ), "id" => $targetFile['realname'] ) );
 							die( $return );
 						}
 					}
 					if( function_exists('wp_get_image_editor') ) {
 						$editor = wp_get_image_editor( $file );
 						if ( is_wp_error( $editor ) ){
+							@unlink( $file );
 							$return = json_encode( array( "error" => array( "code" => $editor->get_error_code(), "message" => $editor->get_error_message() ) , "id" => $targetFile['name'] ) );
 							die( $return );
 						}
@@ -167,6 +167,7 @@ function gmUploadTMP( $file_tmp, $targetFile, $contentType ) {
 
 						$resized = $editor->resize( $max_w, $max_h, $crop );
 						if ( is_wp_error( $resized ) ){
+							@unlink( $file );
 							$return = json_encode( array( "error" => array( "code" => $resized->get_error_code(), "message" => $resized->get_error_message() ) , "id" => $targetFile['name'] ) );
 							die( $return );
 						}
@@ -223,8 +224,8 @@ function gmUploadTMP( $file_tmp, $targetFile, $contentType ) {
 			$media_data = wp_parse_args( $media_data, $post_data );
 
 			// Save the data
-			$id = $gMDb->gmInsertMedia( $media_data );
-			$gMDb->gmUpdateMetaData( $meta_type = 'gmedia', $id, $meta_key = '_metadata', $gMDb->gmGenerateMediaMeta( $id, $file ) );
+			$id = $gMDb->insert_gmedia( $media_data );
+			$gMDb->update_metadata( $meta_type = 'gmedia', $id, $meta_key = '_metadata', $gMDb->generate_gmedia_metadata( $id, $file ) );
 
 			$return = json_encode( array( "success" => array( "code" => 200, "message" => sprintf( __( 'File uploaded successful. Assigned ID: %s', 'gmLang' ), $id ) ), "id" => $targetFile['realname'] ) );
 			die( $return );
@@ -238,52 +239,6 @@ function gmUploadTMP( $file_tmp, $targetFile, $contentType ) {
 		$return = json_encode( array( "error" => array( "code" => 102, "message" => __( "Failed to open output stream.", 'gmLang' ) ), "id" => $targetFile['name'] ) );
 		die( $return );
 	}
-}
-
-/** Automatic choose upload directory based on media type
- *
- * @param string $fileName
- *
- * @return array
- */
-function gmTargetDir( $fileName ) {
-	/** @var $wpdb wpdb */
-	global $wpdb;
-
-	$result = mysql_query( "SHOW TABLE STATUS LIKE '{$wpdb->prefix}gmedia'" );
-	$row    = mysql_fetch_array( $result );
-	$nextID = $row['Auto_increment'];
-	mysql_free_result( $result );
-
-	$ext           = strrchr( $fileName, '.' );
-	$fileName_base = substr( $fileName, 0, strrpos( $fileName, $ext ) );
-	// Clean the file Name for security reasons
-	$fileTitle       = mysql_real_escape_string( $fileName_base );
-	$fileName_base   = preg_replace( '/[^a-z0-9_\.-]+/i', '_', $fileName_base );
-	$fileName_id_ext = $fileName_base . '_id' . $nextID . $ext;
-
-	$file = wp_check_filetype( $fileName_id_ext, $mimes = null );
-	if ( empty( $file['ext'] ) ) $file['ext'] = ltrim( strrchr( $fileName_id_ext, '.' ), '.' );
-	if ( empty( $file['type'] ) ) $file['type'] = 'application/' . $file['ext'];
-	$folder            = explode( '/', $file['type'] );
-	$file['file_id']   = $nextID;
-	$file['folder']    = $folder[0];
-	$file['name']      = $fileName_id_ext;
-	$file['name_id']   = $fileName_base . '_id' . $nextID;
-	$file['name_base'] = $fileName_base;
-	$file['realname']  = $fileName;
-	$file['title']     = $fileTitle;
-	return $file;
-}
-
-/** Set correct file permissions (chmod)
- *
- * @param string $new_file
- */
-function gmFileChmod( $new_file ) {
-	$stat  = stat( dirname( $new_file ) );
-	$perms = $stat['mode'] & 0000666;
-	@ chmod( $new_file, $perms );
 }
 
 die( $return );

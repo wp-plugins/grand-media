@@ -191,9 +191,8 @@ jQuery(document).ready(function () {
 
 	jQuery('#toplevel_page_GrandMedia').addClass('current').removeClass('wp-not-current-submenu');
 
-	jQuery('#gm-message').click(function (event) {
-		if (jQuery(event.target).hasClass('gm-close'))
-			jQuery(event.target).parent('.gm-message').fadeOut(200);
+	jQuery('#gm-message').on('click', '.gm-close', function () {
+		jQuery(this).closest('.gm-message').fadeOut(200);
 	});
 
 	jQuery('.msg').click(function () {
@@ -221,6 +220,13 @@ jQuery(document).ready(function () {
 	grandMediaDOM.on('click', '.gmDelTab', function () {
 		jQuery(this).closest('.tabqueryblock').remove();
 		return false;
+	});
+
+	grandMediaDOM.on('click', '.gm_toggle_checklist', function() {
+		var checkBoxes = jQuery(this).parent().find('.gm_checklist :checkbox');
+		checkBoxes.each(function(){
+			jQuery(this).prop("checked", !jQuery(this).prop("checked"));
+		});
 	});
 
 
@@ -275,6 +281,11 @@ jQuery(document).ready(function () {
 		/** @namespace edata.task
 		 *  @namespace msg.stat
 		 *  @namespace msg.postmsg
+		 *  @namespace msg.message
+		 *  @namespace msg.message2
+		 *  @namespace msg.files
+		 *  @namespace msg.delete_source
+		 *  @namespace msg2.file
 		 */
 		jQuery.ajax({
 			type    : "POST",
@@ -413,6 +424,114 @@ jQuery(document).ready(function () {
 							var tabqueryblock = jQuery(event.target).closest('.tabqueryblock');
 							tabqueryblock.find('.query_media_vis').html(msg.gMediaLib);
 							tabqueryblock.find('.selectedItems').html(msg.gmediaCount);
+						}
+						break;
+					case 'gm-import-folder':
+						if (msg.stat) {
+							gmMessage(msg.stat, msg.message);
+						}
+						if(msg.files) {
+							var crunchlength = msg.files.length;
+							if(crunchlength) {
+								var index = 0,
+								crunch_file = function(index){
+									jQuery.ajax({
+										type    : "POST",
+										url     : ajaxurl,
+										data    : { action: 'gmDoAjax', task: 'gm-import-folder', _ajax_nonce: grandMedia.nonce, post: encodeURI('file='+encodeURIComponent(msg.files[index])+'&delete_source='+msg.delete_source)},
+										cache   : false,
+										timeout : 10000,
+										async 	: true,
+										success : function (msg2) {
+											index++;
+											jQuery('.msg0_progress').css({width: (100/crunchlength*(index))+'%'});
+											if(msg2.error) {
+												jQuery('<div/>').addClass('gm-message gm-error').html('<span><u><em>'+msg2.id+':</em></u> '+msg2.error.message+'</span>').appendTo('#import_folder .inside');
+											}
+											if(msg.files[index]) {
+												jQuery('#gm-message').find('.crunch_file').text(msg.files[index].replace(/\\/g,'/').replace(/.*\//, ''));
+												crunch_file(index);
+											} else {
+												gmMessage(msg.stat, msg.message2);
+												jQuery('.msg0_progress').css({width: 0});
+											}
+										}
+									});
+								};
+								crunch_file(index);
+							}
+						}
+						break;
+					case 'gm-import-flagallery':
+						if (msg.stat) {
+							gmMessage(msg.stat, msg.message);
+						}
+						if(msg.files) {
+							crunchlength = msg.files.length;
+							if(crunchlength) {
+								index = 0;
+								crunch_file = function(index){
+									jQuery.ajax({
+										type    : "POST",
+										url     : ajaxurl,
+										data    : { action: 'gmDoAjax', task: 'gm-import-flagallery', _ajax_nonce: grandMedia.nonce, post: jQuery.param(msg.files[index])},
+										cache   : false,
+										timeout : 10000,
+										async 	: true,
+										success : function (msg2) {
+											index++;
+											jQuery('.msg0_progress').css({width: (100/crunchlength*(index))+'%'});
+											if(msg2.error) {
+												jQuery('<div/>').addClass('gm-message gm-error').html('<span><u><em>'+msg2.id+':</em></u> '+msg2.error.message+'</span>').appendTo('#import_flagallery .inside');
+											}
+											if(msg.files[index]) {
+												jQuery('#gm-message').find('.crunch_file').text(msg.files[index]['file']);
+												crunch_file(index);
+											} else {
+												gmMessage(msg.stat, msg.message2);
+												jQuery('.msg0_progress').css({width: 0});
+											}
+										}
+									});
+								};
+								crunch_file(index);
+							}
+						}
+						break;
+					case 'gm-import-nextgen':
+						if (msg.stat) {
+							gmMessage(msg.stat, msg.message);
+						}
+						if(msg.files) {
+							crunchlength = msg.files.length;
+							if(crunchlength) {
+								index = 0;
+								crunch_file = function(index){
+									jQuery.ajax({
+										type    : "POST",
+										url     : ajaxurl,
+										data    : { action: 'gmDoAjax', task: 'gm-import-nextgen', _ajax_nonce: grandMedia.nonce, post: jQuery.param(msg.files[index])},
+										cache   : false,
+										timeout : 10000,
+										async 	: true,
+										success : function (msg2) {
+											index++;
+											jQuery('.msg0_progress').css({width: (100/crunchlength*(index))+'%'});
+											if(msg2.error) {
+												jQuery('<div/>').addClass('gm-message gm-error').html('<span><u><em>'+msg2.id+':</em></u> '+msg2.error.message+'</span>').appendTo('#import_nextgen .inside');
+											}
+											if(msg.files[index]) {
+												jQuery('#gm-message').find('.crunch_file').text(msg.files[index]['file']);
+												crunch_file(index);
+											} else {
+												gmMessage(msg.stat, msg.message2);
+												jQuery('.msg0_progress').css({width: 0});
+											}
+										}
+									});
+								};
+								crunch_file(index);
+							}
 						}
 						break;
 				}
@@ -669,6 +788,14 @@ jQuery(document).ready(function () {
 						window.location.hash = ui.index;
 					});
 		}
+		if (jQuery('.gmAddMedia .ui-tabs').length) {
+			jQuery(".gmAddMedia .ui-tabs").tabs({
+				fx      : {
+					opacity : "toggle",
+					duration: "fast"
+				}
+			});
+		}
 	}
 });
 function getStorage(key_prefix) {
@@ -714,13 +841,19 @@ function countmedias() {
 		jQuery('.other .page', this).text(o);
 	});
 }
-function gmMessage(stat, message, get_ajax) {
+function gmMessage(stat, message, get_ajax, append) {
 	if (get_ajax) {
 		jQuery.post(ajaxurl, { action: 'gmGetAjax', task: 'gmMessage', stat: stat, message: message }, function (response) {
-			jQuery('#gm-message').html(response);
+			if(append)
+				jQuery('#gm-message').append(response);
+			else
+				jQuery('#gm-message').html(response);
 		});
 	} else {
-		jQuery('#gm-message').html(message);
+		if(append)
+			jQuery('#gm-message').append(response);
+		else
+			jQuery('#gm-message').html(message);
 	}
 }
 function gmConfirm(txt) {

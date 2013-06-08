@@ -12,7 +12,7 @@ function gmTagsCategories() {
 	global $gMDb, $grandCore, $grandAdmin;
 
 	$gMediaURL = WP_PLUGIN_URL . '/' . GRAND_FOLDER . '/';
-	$url       = $grandCore->getAdminURL();
+	$url       = $grandCore->get_admin_url();
 	$arg       = array(
 		'orderby'    => $grandCore->_get( 'orderby', 'name' ),
 		'order'      => $grandCore->_get( 'order', 'ASC' ),
@@ -34,7 +34,7 @@ function gmTagsCategories() {
 	$arg['offset'] = $offset = ( $page - 1 ) * $number;
 
 	$taxonomy    = $grandCore->_get( 'tab', 'gmedia_tag' );
-	$gMediaTerms = $gMDb->gmGetTerms( $taxonomy, $arg );
+	$gMediaTerms = $gMDb->get_terms( $taxonomy, $arg );
 
 
 	/** @var $orderby
@@ -46,7 +46,7 @@ function gmTagsCategories() {
 
 	$gmOptions = get_option( 'gmediaOptions' );
 	if ( isset( $gmOptions['taxonomies'][$taxonomy]['hierarchical'] ) )
-		$children = $gMDb->_gm_get_term_hierarchy( $taxonomy );
+		$children = $gMDb->_get_term_hierarchy( $taxonomy );
 	else
 		$children = array();
 
@@ -130,14 +130,14 @@ function gmTagsCategories() {
 					<legend><?php _e( 'Add category', 'gmLang' ); ?></legend>
 					<div class="set">
 						<label for="tax-input-gmedia_category"><?php _e( 'Name', 'gmLang' ); ?></label>
-						<input type="text" id="tax-input-gmedia_category" class="the-category" name="terms[<?php echo $taxonomy; ?>]" autocomplete="off" value=""<?php $grandCore->gQTip( __( "The name is how it appears on your site.", "gmLang" ) ); ?> />
+						<input type="text" id="tax-input-gmedia_category" class="the-category" name="terms[<?php echo $taxonomy; ?>]" autocomplete="off" value=""<?php $grandCore->qTip( __( "The name is how it appears on your site.", "gmLang" ) ); ?> />
 						<hr class="spacer" />
 						<label for="tax-input-gm_term_global"><?php _e( 'Parent', 'gmLang' ); ?></label>
-						<select id="tax-input-gm_term_global" class="the-category-global" name="gm_term_global"<?php $grandCore->gQTip( __( "Categories, unlike tags, can have a hierarchy. You might have a Backgrounds category, and under that have children categories for Abstract and Vintage. Totally optional.", "gmLang" ) ); ?>>
+						<select id="tax-input-gm_term_global" class="the-category-global" name="gm_term_global"<?php $grandCore->qTip( __( "Categories, unlike tags, can have a hierarchy. You might have a Backgrounds category, and under that have children categories for Abstract and Vintage. Totally optional.", "gmLang" ) ); ?>>
 							<option value="0" selected="selected"><?php _e( 'None', 'gmLang' ); ?></option>
-							<?php $gmAllTerms = $gMDb->gmGetTerms( $taxonomy );
+							<?php $gmAllTerms = $gMDb->get_terms( $taxonomy );
 							if ( count( $gmAllTerms ) ) {
-								$termsHierarr = $grandCore->gmGetTermsHierarr( $taxonomy, $gmAllTerms, $children, $count = 0 );
+								$termsHierarr = $grandCore->get_terms_hierarrhically( $taxonomy, $gmAllTerms, $children, $count = 0 );
 								foreach ( $termsHierarr as $termitem ) {
 									if(intval($termitem->level) > 0)
 										continue;
@@ -151,7 +151,7 @@ function gmTagsCategories() {
 					</div>
 					<div class="set liq">
 						<label for="tax-input-gm_term_description"><?php _e( 'Description', 'gmLang' ); ?></label>
-						<textarea id="tax-input-gm_term_description" class="the-category-description" cols="20" rows="3" name="gm_term_description"<?php $grandCore->gQTip( __( "The description is not prominent by default; however, some themes may show it.", "gmLang" ) ); ?>></textarea>
+						<textarea id="tax-input-gm_term_description" class="the-category-description" cols="20" rows="3" name="gm_term_description"<?php $grandCore->qTip( __( "The description is not prominent by default; however, some themes may show it.", "gmLang" ) ); ?>></textarea>
 					</div>
 					<?php wp_nonce_field( 'grandMedia' ); ?>
 					<input type="submit" value="<?php _e( 'Add', 'gmLang' ); ?>" name="addterms" class="button categoryadd">
@@ -198,13 +198,13 @@ function gmTagsCategories() {
 			if ( count( $gMediaTerms ) ) {
 				$filter       = ( empty( $_GET['s'] ) && empty( $_REQUEST['gmSelected'] ) ) ? false : true;
 				$count        = 0;
-				$termsHierarr = $grandCore->gmGetTermsHierarr( $taxonomy, $gMediaTerms, $children, $count, $offset, $number, 0, 0, $filter );
+				$termsHierarr = $grandCore->get_terms_hierarrhically( $taxonomy, $gMediaTerms, $children, $count, $offset, $number, 0, 0, $filter );
 				foreach ( $termsHierarr as $termitem ) {
 					$grandAdmin->gm_term_row( $termitem );
 				}
 			}
 			else {
-				echo '<tr class="emptybd"><td colspan="7">' . __( 'No terms in Grand Media Library.', 'gmLang' ) . '</td></tr>';
+				echo '<tr class="emptybd"><td colspan="7">' . __( 'No terms in Gmedia Library.', 'gmLang' ) . '</td></tr>';
 			}
 			?>
 			<tr class="noitems">

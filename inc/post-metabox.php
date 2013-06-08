@@ -35,7 +35,7 @@ $t = plugins_url( GRAND_FOLDER ) . '/admin/images/blank.gif';
 					'per_page'  => 20,
 					'page'      => 1,
 				);
-				$gMediaLib = $gMDb->gmGetMedias( $arg );
+				$gMediaLib = $gMDb->get_gmedias( $arg );
 				?>
 				<div id="gMedia-images-wrap">
 					<ul id="gMedia-images-thumbnails">
@@ -45,7 +45,7 @@ $t = plugins_url( GRAND_FOLDER ) . '/admin/images/blank.gif';
 								$src = $upload['url'] . 'image/' . $item->gmuid;
 								?>
 								<li class="gMedia-image-li" id="gM-img-<?php echo $item->ID; ?>">
-									<a target="_blank" class="gM-img" href="<?php echo $src; ?>"><?php echo $grandCore->gmGetMediaImage( $item, 'thumb', array( 'width' => 50, 'height' => 50 ) ); ?></a>
+									<a target="_blank" class="gM-img" href="<?php echo $src; ?>"><?php echo $grandCore->gm_get_media_image( $item, 'thumb', array( 'width' => 50, 'height' => 50 ) ); ?></a>
 
 									<div style="display: none;" class="gM-img-description"><?php echo $item->description; ?></div>
 									<div class="gMedia-selector"></div>
@@ -67,12 +67,15 @@ $t = plugins_url( GRAND_FOLDER ) . '/admin/images/blank.gif';
 					<ul id="gMedia-galleries-list">
 						<?php
 						$taxonomy = 'gmedia_module';
-						$gMediaTerms = $gMDb->gmGetTerms( $taxonomy );
+						$gMediaTerms = $gMDb->get_terms( $taxonomy );
 
 						if ( count( $gMediaTerms ) ) {
 							foreach ( $gMediaTerms as $item ) {
-								$module_folder = $gMDb->gmGetMetaData( 'gmedia_term', $item->term_id, 'module_name', true );
-								$module_dir    = $grandCore->gm_get_module_path( $module_folder );
+								$module_folder = $gMDb->get_metadata( 'gmedia_term', $item->term_id, 'module_name', true );
+								$module_dir    = $grandCore->get_module_path( $module_folder );
+								if(!$module_dir)
+									continue;
+
 								/** @var $module array */
 								include_once( $module_dir['path'] . '/details.php' );
 
@@ -107,7 +110,7 @@ $t = plugins_url( GRAND_FOLDER ) . '/admin/images/blank.gif';
 				</div>
 			</div>
 			<div id="gMedia-social">
-				<p><a target="_blank" href="http://wordpress.org/extend/plugins/grand-media/"><?php _e( 'Rate gMedia at Wordpress.org', 'gmLang' ); ?></a></p>
+				<p><a target="_blank" href="http://wordpress.org/extend/plugins/grand-media/"><?php _e( 'Rate Gmedia at Wordpress.org', 'gmLang' ); ?></a></p>
 			</div>
 		</div>
 		<?php /*<div class="pane">Text here</div>*/ ?>

@@ -13,7 +13,7 @@ function grandWPMedia() {
 	$gmOptions   = get_option( 'gmediaOptions' );
 
 	//$gMediaURL = plugins_url(GRAND_FOLDER);
-	$url        = $grandCore->getAdminURL();
+	$url        = $grandCore->get_admin_url();
 	$arg        = array(
 		'mime_type' => $grandCore->_get( 'mime_type', '' ),
 		'orderby'   => $grandCore->_get( 'orderby', 'ID' ),
@@ -45,7 +45,7 @@ function grandWPMedia() {
 		}
 	}
 	$nonce     = wp_create_nonce( 'grandMedia' );
-	$gmDbCount = $gMDb->wpmediaCount( $arg );
+	$gmDbCount = $gMDb->wp_media_count( $arg );
 	/** @var $counting array() */
 	foreach ( $gmDbCount as $key => $value ) {
 		if ( $key == 'hidden' ) {
@@ -127,7 +127,7 @@ function grandWPMedia() {
 				<span id="clearSelected"><?php _e( 'Clear selected items', 'gmLang' ); ?></span>
 			</div>
 		</div>
-		<?php echo $gMDb->queryPager(); ?>
+		<?php echo $gMDb->query_pager(); ?>
 		<form action="" method="get">
 			<div class="gmSearch">
 				<?php foreach ( $_GET as $key => $value ) {

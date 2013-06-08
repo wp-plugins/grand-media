@@ -41,13 +41,13 @@ $loaded      = isset( $_GET['loaded'] ) ? explode( ',', $_GET['loaded'] ) : arra
 $module_meta = array();
 
 foreach ( $load as $mID ) {
-	$module = $gMDb->gmGetTerm( $mID, $taxonomy, ARRAY_A );
+	$module = $gMDb->get_term( $mID, $taxonomy, ARRAY_A );
 	if ( is_wp_error( $module ) || empty( $module ) )
 		continue;
 
-	$module_meta = $gMDb->gmGetMetaData( 'gmedia_term', $module['term_id'] );
+	$module_meta = $gMDb->get_metadata( 'gmedia_term', $module['term_id'] );
 	if ( ! empty( $module_meta ) ) {
-		$module_meta = array_map( array( $grandCore, 'gm_arr_o' ), $module_meta );
+		$module_meta = array_map( array( $grandCore, 'maybe_array_0' ), $module_meta );
 		$module_meta = array_map( 'maybe_unserialize', $module_meta );
 	}
 
@@ -58,7 +58,7 @@ foreach ( $load as $mID ) {
 		continue;
 
 	// module folder
-	$module_dir = $grandCore->gm_get_module_path( $module_meta['module_name'] );
+	$module_dir = $grandCore->get_module_path( $module_meta['module_name'] );
 	if ( ! $module_dir ) {
 		continue;
 	}

@@ -55,22 +55,23 @@ function gmDoAjax() {
 		case 'gmedia-update':
 			if ( ! empty( $gmedia['ID'] ) ) {
 				$gmedia['modified'] = current_time( 'mysql' );
-				$id                 = $gMDb->gmInsertMedia( $gmedia );
+				$id                 = $gMDb->insert_gmedia( $gmedia );
 				if ( ! is_wp_error( $id ) ) {
-					$item = $gMDb->gmGetMedia( $id );
+					$item = $gMDb->get_gmedia( $id );
 					//include_once(dirname(__FILE__).'/functions.php');
 					ob_start();
 					$grandAdmin->gMediaRow( $item );
 					$tr = ob_get_contents();
 					ob_end_clean();
-					$result = array( 'stat' => 'OK', 'message' => $grandCore->message( sprintf( __( 'Media #%s updated successfully', 'gmLang' ), $id ), 'info' ), 'content' => $tr );
+					$result = array( 'stat' => 'OK', 'message' => $grandCore->message( sprintf( __( 'gmedia #%s updated successfully', 'gmLang' ), $id ), 'info' ), 'content' => $tr );
 				}
 				else {
-					$result = array( 'stat' => 'KO', 'message' => $grandCore->message( sprintf( __( "Can't update media #%s", 'gmLang' ) . '. ' . __( 'Contact plugin author to solve this problem. Describe your problem and give temporary access to Wordpress Dashboard and to FTP plugins folder.' ) . ' (<a href="mailto:gmediafolder+support@gmail.com?subject=Gmedia Support" target="_blank">Gmedia Support</a>)', $gmID ), 'error' ), 'error' => $id );
+					$result = array( 'stat' => 'KO', 'message' => $grandCore->message( sprintf( __( "Can't update gmedia #%s", 'gmLang' ) . '. ' . __( 'Contact plugin author to solve this problem. Describe your problem and give temporary access to Wordpress Dashboard and to FTP plugins folder.' ) . ' (<a href="mailto:gmediafolder+support@gmail.com?subject=Gmedia Support" target="_blank">Gmedia Support</a>)', $gmID ), 'error' ), 'error' => $id );
 				}
 				header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
 				echo json_encode( $result );
 			}
+			die();
 			break;
 
 		case 'gmedia-delete':
@@ -81,15 +82,13 @@ function gmDoAjax() {
 					die( '0' );
 				if ( ! current_user_can( 'delete_posts' ) )
 					wp_die( __( 'You are not allowed to delete this post.' ) );
-				if ( ! $gMDb->gm_delete_gmedia( $mID ) )
+				if ( ! $gMDb->delete_gmedia( $mID ) )
 					wp_die( __( 'Error in deleting...' ) );
-				$result = array( 'stat' => 'OK', 'postmsg' => sprintf( __( 'gMedia #%s was deleted', 'gmLang' ), $mID ), 'message' => $update );
+				$result = array( 'stat' => 'OK', 'postmsg' => sprintf( __( 'gmedia #%s was deleted', 'gmLang' ), $mID ), 'message' => $update );
 				header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
 				echo json_encode( $result );
 			}
-			else {
-				die();
-			}
+			die();
 			break;
 
 		case 'gmedia-bulk-delete':
@@ -99,16 +98,14 @@ function gmDoAjax() {
 					if ( ! current_user_can( 'delete_posts' ) )
 						wp_die( __( 'You are not allowed to delete this post.' ) );
 
-					if ( ! $gMDb->gm_delete_gmedia( $mID ) )
+					if ( ! $gMDb->delete_gmedia( $mID ) )
 						wp_die( __( 'Error in deleting...' ) );
 				}
 				$result = array( 'stat' => 'OK', 'postmsg' => sprintf( __( '%s gmedia(s) was deleted', 'gmLang' ), count( $gmSelected ) ), 'message' => $update );
 				header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
 				echo json_encode( $result );
 			}
-			else {
-				die();
-			}
+			die();
 			break;
 
 		// term - autocomplete
@@ -179,7 +176,7 @@ function gmDoAjax() {
 			else {
 				die( '0' );
 			}
-			$result = $gMDb->gmDeleteTerm( $term_id, $taxonomy );
+			$result = $gMDb->delete_term( $term_id, $taxonomy );
 			if ( is_wp_error( $result ) || ! $result ) {
 				$result = array( 'stat' => 'KO', 'message' => $grandCore->message( sprintf( __( "Can't delete term #%s", 'gmLang' ), $term_id ), 'error' ) );
 			}
@@ -208,7 +205,7 @@ function gmDoAjax() {
 			}
 			$count = count( $gmSelected );
 			foreach ( $term_ids as $term_id ) {
-				$result = $gMDb->gmDeleteTerm( $term_id, $taxonomy );
+				$result = $gMDb->delete_term( $term_id, $taxonomy );
 				if ( is_wp_error( $result ) || ! $result ) {
 					$count = $count - 1;
 				}
@@ -226,7 +223,7 @@ function gmDoAjax() {
 				$count   = count( $gmSelected );
 				$error   = '';
 				foreach ( (array) $gmSelected as $mID ) {
-					$result = $gMDb->gmSetMediaTerms( $mID, $term_id, 'gmedia_category', $append = 0 );
+					$result = $gMDb->set_gmedia_terms( $mID, $term_id, 'gmedia_category', $append = 0 );
 					if ( is_wp_error( $result ) || ! $result ) {
 						$error[] = $result;
 						$count --;
@@ -253,7 +250,7 @@ function gmDoAjax() {
 				$count = count( $gmSelected );
 				$error = '';
 				foreach ( (array) $gmSelected as $mID ) {
-					$result = $gMDb->gmSetMediaTerms( $mID, $label, 'gmedia_tag', $append );
+					$result = $gMDb->set_gmedia_terms( $mID, $label, 'gmedia_tag', $append );
 					if ( is_wp_error( $result ) || ! $result ) {
 						$error[] = $result;
 						$count --;
@@ -310,9 +307,7 @@ function gmDoAjax() {
 					echo json_encode( $result );
 				}
 			}
-			else {
-				die();
-			}
+			die();
 			break;
 
 		case 'gm-delete-module':
@@ -321,33 +316,33 @@ function gmDoAjax() {
 				$gmOptions  = get_option( 'gmediaOptions' );
 				$upload     = $grandCore->gm_upload_dir();
 				$module_dir = $upload['path'] . $gmOptions['folder']['module'] . '/' . $module;
-				if ( $grandCore->gm_delete_folder( $module_dir ) ) {
+				if ( $grandCore->delete_folder( $module_dir ) ) {
 					$result = array( 'stat' => 'OK', 'postmsg' => sprintf( __( "'%s' module deleted successfully", 'gmLang' ), $module ), 'message' => $update );
 					header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
 					echo json_encode( $result );
 				}
 			}
-			else {
-				die();
-			}
+			die();
 			break;
 
 		case 'hideMedia':
 			foreach ( $gmSelected as $mID ) {
 				update_post_meta( $mID, '_gmedia_hidden', '1' );
 			}
-			$result = array( 'stat' => 'OK', 'postmsg' => sprintf( __( '%s medias was blocked', 'gmLang' ), count( $gmSelected ) ), 'message' => $update );
+			$result = array( 'stat' => 'OK', 'postmsg' => sprintf( __( '%s posts was blocked', 'gmLang' ), count( $gmSelected ) ), 'message' => $update );
 			header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
 			echo json_encode( $result );
+			die();
 			break;
 
 		case 'unhideMedia':
 			foreach ( $gmSelected as $mID ) {
 				delete_post_meta( $mID, '_gmedia_hidden' );
 			}
-			$result = array( 'stat' => 'KO', 'postmsg' => sprintf( __( '%s medias was unblocked', 'gmLang' ), count( $gmSelected ) ), 'message' => $update );
+			$result = array( 'stat' => 'KO', 'postmsg' => sprintf( __( '%s posts was unblocked', 'gmLang' ), count( $gmSelected ) ), 'message' => $update );
 			header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
 			echo json_encode( $result );
+			die();
 			break;
 
 		case 'deleteMedia':
@@ -358,9 +353,10 @@ function gmDoAjax() {
 				if ( ! wp_delete_attachment( $mID ) )
 					wp_die( __( 'Error in deleting...' ) );
 			}
-			$result = array( 'stat' => 'OK', 'postmsg' => sprintf( __( '%s medias was deleted', 'gmLang' ), count( $gmSelected ) ), 'message' => $update );
+			$result = array( 'stat' => 'OK', 'postmsg' => sprintf( __( '%s posts was deleted', 'gmLang' ), count( $gmSelected ) ), 'message' => $update );
 			header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
 			echo json_encode( $result );
+			die();
 			break;
 
 		case 'updateMedia':
@@ -371,13 +367,14 @@ function gmDoAjax() {
 				$gmObject = get_post( $gmID );
 				//include_once(dirname(__FILE__).'/functions.php');
 				$tr     = $grandAdmin->wpMediaRow( $gmObject );
-				$result = array( 'stat' => 'OK', 'message' => $grandCore->message( sprintf( __( 'Media #%s updated successfully', 'gmLang' ), $gmID ), 'info' ), 'content' => $tr );
+				$result = array( 'stat' => 'OK', 'message' => $grandCore->message( sprintf( __( 'post #%s updated successfully', 'gmLang' ), $gmID ), 'info' ), 'content' => $tr );
 			}
 			else {
-				$result = array( 'stat' => 'KO', 'message' => $grandCore->message( sprintf( __( "Can't update media #%s", 'gmLang' ) . '. ' . __( 'Contact plugin author to solve this problem. Describe your problem and give temporary access to Wordpress Dashboard and to FTP plugins folder.' ) . ' (<a href="mailto:gmediafolder+support@gmail.com?subject=Gmedia Support" target="_blank">Gmedia Support</a>)', $gmID ), 'error' ) );
+				$result = array( 'stat' => 'KO', 'message' => $grandCore->message( sprintf( __( "Can't update post #%s", 'gmLang' ) . '. ' . __( 'Contact plugin author to solve this problem. Describe your problem and give temporary access to Wordpress Dashboard and to FTP plugins folder.' ) . ' (<a href="mailto:gmediafolder+support@gmail.com?subject=Gmedia Support" target="_blank">Gmedia Support</a>)', $gmID ), 'error' ) );
 			}
 			header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
 			echo json_encode( $result );
+			die();
 			break;
 
 		case 'wpmedia-edit':
@@ -404,7 +401,7 @@ function gmDoAjax() {
 			$query_args = reset( $gMediaQuery );
 			$tab        = key( $gMediaQuery );
 			if ( is_array( $query_args ) ) {
-				$gMediaLib   = $gMDb->gmGetMedias( $query_args );
+				$gMediaLib   = $gMDb->get_gmedias( $query_args );
 				$gmediaCount = $gMDb->gmediaCount;
 				$content     = '';
 				if ( ! empty( $gMediaLib ) ) {
@@ -413,7 +410,7 @@ function gmDoAjax() {
 					foreach ( $gMediaLib as $item ) {
 						$type     = explode( '/', $item->mime_type );
 						$item_url = $uploads['url'] . $gmOptions['folder'][$type[0]] . '/' . $item->gmuid;
-						$image    = $grandCore->gmGetMediaImage( $item, 'thumb', array( 'width' => 48, 'height' => 48 ), true );
+						$image    = $grandCore->gm_get_media_image( $item, 'thumb', array( 'width' => 48, 'height' => 48 ), true );
 						$content .= '<a class="grandbox" title="' . trim( esc_attr( strip_tags( $item->title ) ) ) . '" rel="querybuilder__' . $tab . '" href="' . $item_url . '">' . $image . '</a> ';
 					}
 				}
@@ -424,6 +421,158 @@ function gmDoAjax() {
 				header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
 				echo json_encode( $result );
 			}
+			die();
+			break;
+
+
+		case 'gm-import-folder':
+			/**
+			 * @var $folderpath string
+			 * @var $delete_source
+			 */
+			$delete_source = (isset($delete_source) && (int) $delete_source) ? 1 : 0;
+			if(isset($folderpath)){
+				$folderpath = trim(urldecode($folderpath),'/');
+				if(!empty($folderpath)) {
+					$root = trailingslashit ( ABSPATH );
+					$path = $root.trailingslashit ( $folderpath );
+					$files = glob($path.'*.*', GLOB_NOSORT);
+					if(!empty($files)) {
+						$result = array( 'stat' => 'OK', 'message' => $grandCore->message( sprintf( __( '%s files in the folder. Wait please. Crunching', 'gmLang' ), count($files) ) . ' <span class="crunch_file">' . basename($files[0]) . '</span>', 'info', false ), 'message2' => $grandCore->message( __( 'Import operation is finished', 'gmLang' ), 'info' ), 'files' => $files, 'delete_source' => $delete_source );
+					} else {
+						$result = array( 'stat' => 'KO', 'message' => $grandCore->message( '"'.$path.'" '.__( 'folder is empty', 'gmLang' ), 'error' ) );
+					}
+				} else {
+					$result = array( 'stat' => 'KO', 'message' => $grandCore->message( __( 'Choose folder', 'gmLang' ), 'error' ) );
+				}
+				header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
+				echo json_encode( $result );
+				die();
+			} elseif(isset($file)) {
+				$result = $grandCore->import($file, $file_data = array(), $delete_source);
+				header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
+				echo json_encode( $result );
+				die();
+			}
+			die();
+			break;
+
+		case 'gm-import-flagallery':
+			/**
+			 * @var $gallery array
+			 * @var $file string
+			 * @var $title string
+			 * @var $description string
+			 * @var $term_id int
+			 */
+			$result = array( 'stat' => 'KO', 'message' => $grandCore->message( __( 'Choose gallery', 'gmLang' ), 'error' ) );
+			if(isset($gallery) && is_array($gallery) && !empty($gallery)){
+				$files = array();
+				foreach($gallery as $gid){
+					$flag_gallery = $wpdb->get_row($wpdb->prepare("SELECT gid, path, title, galdesc FROM `{$wpdb->prefix}flag_gallery` WHERE gid = %d", $gid), ARRAY_A);
+					if(empty($flag_gallery))
+						continue;
+
+					if(!$term = $gMDb->term_exists($flag_gallery['title'], 'gmedia_category')) {
+						$term = $gMDb->insert_term($flag_gallery['title'], 'gmedia_category', array('description' => $flag_gallery['galdesc']));
+						if(is_wp_error($term)){
+							$term['term_id'] = '';
+						}
+					}
+
+					$term_id = $term['term_id'];
+					$path = trailingslashit($flag_gallery['path']);
+
+					$flag_pictures = $wpdb->get_results($wpdb->prepare("SELECT CONCAT('{$path}', filename) AS file, description, alttext AS title, '{$term_id}' AS term_id FROM `{$wpdb->prefix}flag_pictures` WHERE galleryid = %d", $flag_gallery['gid']), ARRAY_A);
+					if(empty($flag_pictures))
+						continue;
+
+					$files = array_merge($files, $flag_pictures);
+				}
+				if(!empty($files)) {
+					$result = array( 'stat' => 'OK', 'message' => $grandCore->message( sprintf( __( '%s files for import. Wait please. Crunching', 'gmLang' ), count($files) ) . ' <span class="crunch_file">' . $files[0]['file'] . '</span>', 'info', false ), 'message2' => $grandCore->message( __( 'Import operation is finished', 'gmLang' ), 'info' ), 'files' => $files );
+				} else {
+					$result = array( 'stat' => 'KO', 'message' => $grandCore->message( __( 'No files for import', 'gmLang' ), 'error' ) );
+				}
+			} elseif(isset($file)) {
+				$file = ABSPATH . $file;
+				if(is_file($file)) {
+					$file_data = array(
+						 'title'				=> $title
+						,'description'	=> $description
+						,'terms'				=> array('gmedia_category' => $term_id, 'gmedia_tag' => 'flagallery')
+					);
+					$result = $grandCore->import($file, $file_data);
+				} else {
+					$result = array( "error" => array( "code" => 100, "message" => __( "File not exist", 'gmLang' ) ), "id" => $file );
+				}
+			}
+			header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
+			echo json_encode( $result );
+			die();
+			break;
+
+		case 'gm-import-nextgen':
+			/**
+			 * @var $gallery array
+			 * @var $pid int
+			 * @var $file string
+			 * @var $title string
+			 * @var $description string
+			 * @var $term_id int
+			 */
+			$result = array( 'stat' => 'KO', 'message' => $grandCore->message( __( 'Choose gallery', 'gmLang' ), 'error' ) );
+			if(isset($gallery) && is_array($gallery) && !empty($gallery)){
+				$files = array();
+				foreach($gallery as $gid){
+					$ngg_gallery = $wpdb->get_row($wpdb->prepare("SELECT gid, path, title, galdesc FROM `{$wpdb->prefix}ngg_gallery` WHERE gid = %d", $gid), ARRAY_A);
+					if(empty($ngg_gallery))
+						continue;
+
+					if(!$term = $gMDb->term_exists($ngg_gallery['title'], 'gmedia_category')) {
+						$term = $gMDb->insert_term($ngg_gallery['title'], 'gmedia_category', array('description' => $ngg_gallery['galdesc']));
+						if(is_wp_error($term)){
+							$term['term_id'] = '';
+						}
+					}
+
+					$term_id = $term['term_id'];
+					$path = trailingslashit($ngg_gallery['path']);
+
+					$ngg_pictures = $wpdb->get_results($wpdb->prepare("SELECT pid, CONCAT('{$path}', filename) AS file, description, alttext AS title, '{$term_id}' AS term_id FROM `{$wpdb->prefix}ngg_pictures` WHERE galleryid = %d", $ngg_gallery['gid']), ARRAY_A);
+					if(empty($ngg_pictures))
+						continue;
+
+					$files = array_merge($files, $ngg_pictures);
+				}
+				if(!empty($files)) {
+					$result = array( 'stat' => 'OK', 'message' => $grandCore->message( sprintf( __( '%s files for import. Wait please. Crunching', 'gmLang' ), count($files) ) . ' <span class="crunch_file">' . $files[0]['file'] . '</span>', 'info', false ), 'message2' => $grandCore->message( __( 'Import operation is finished', 'gmLang' ), 'info' ), 'files' => $files );
+				} else {
+					$result = array( 'stat' => 'KO', 'message' => $grandCore->message( __( 'No files for import', 'gmLang' ), 'error' ) );
+				}
+			} elseif(isset($file)) {
+				$file = ABSPATH . $file;
+				if(is_file($file)) {
+					$tags = wp_get_object_terms($pid, 'ngg_tag', 'fields=names');
+					if(!is_wp_error($tags) && is_array($tags)) {
+						//$tags = array_merge($tags, array('nextgen'));
+						array_unshift($tags, 'nextgen');
+					} else {
+						$tags = array('nextgen');
+					}
+					$tags = implode(',', $tags);
+					$file_data = array(
+						 'title'				=> $title
+						,'description'	=> $description
+						,'terms'				=> array('gmedia_category' => $term_id, 'gmedia_tag' => $tags)
+					);
+					$result = $grandCore->import($file, $file_data);
+				} else {
+					$result = array( "error" => array( "code" => 100, "message" => __( "File not exist", 'gmLang' ) ), "id" => $file );
+				}
+			}
+			header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
+			echo json_encode( $result );
 			die();
 			break;
 
@@ -469,5 +618,50 @@ function gmedia_crunching() {
 	global $grandCore;
 	$thumb = $grandCore->linked_img($_POST['args']);
 	echo json_encode($thumb);
+	die();
+}
+
+add_action( 'wp_ajax_gmedia_ftp_browser', 'gmedia_ftp_browser' );
+/**
+ * jQuery File Tree PHP Connector
+ * @author Cory S.N. LaViska - A Beautiful Site (http://abeautifulsite.net/)
+ * @version 1.0.1
+ *
+ * @return string folder content
+ */
+function gmedia_ftp_browser() {
+	global $grandCore;
+	if ( !current_user_can('upload_files') )
+		die('No access');
+
+	// if nonce is not correct it returns -1
+	check_ajax_referer( 'grandMedia' );
+
+	// start from the default path
+	$root = trailingslashit ( ABSPATH );
+	// get the current directory
+	$dir = trailingslashit ( urldecode($_POST['dir']) );
+
+	if( file_exists($root . $dir) ) {
+		$files = scandir($root . $dir);
+		natcasesort($files);
+
+		// The 2 counts for . and ..
+		if( count($files) > 2 ) {
+			echo "<ul class=\"jqueryDirTree\" style=\"display: none;\">";
+			// return only directories
+			foreach( $files as $file ) {
+				//reserved name for the thumnbnails, don't use it as folder name
+				if ( in_array( $file, array('wp-admin', 'wp-includes', GRAND_FOLDER, 'plugins', 'themes', 'thumb') ) )
+					continue;
+
+				if ( file_exists($root . $dir . $file) && $file != '.' && $file != '..' && is_dir($root . $dir . $file) ) {
+					echo "<li class=\"directory collapsed\"><a href=\"#\" rel=\"" . esc_html($dir . $file) . "/\">" . esc_html($file) . "</a></li>";
+				}
+			}
+			echo "</ul>";
+		}
+	}
+
 	die();
 }

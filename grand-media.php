@@ -3,7 +3,7 @@
 Plugin Name: Gmedia Gallery
 Plugin URI: http://wordpress.org/extend/plugins/grand-media/
 Description: Grand Media Gallery - powerfull media library plugin for creating beautiful galleries and managing files.
-Version: 0.6.3
+Version: 0.7.0
 Author: Rattus
 Author URI: http://codeasily.com/
 
@@ -36,7 +36,7 @@ if ( preg_match( '#' . basename( __FILE__ ) . '#', $_SERVER['PHP_SELF'] ) ) {
 if ( ! class_exists( 'grandLoad' ) ) {
 	class grandLoad {
 
-		var $version = '0.6.3';
+		var $version = '0.7.0';
 		var $dbversion = '0.6.2';
 		var $minium_WP = '3.3';
 		var $options = '';
@@ -65,7 +65,7 @@ if ( ! class_exists( 'grandLoad' ) ) {
 			register_deactivation_hook( $this->plugin_name, array( &$this, 'deactivate' ) );
 
 			// Register a uninstall hook to remove all tables & option automatic
-			register_uninstall_hook( $this->plugin_name, 'grandLoad::GrandMedia_uninstall' );
+			register_uninstall_hook( $this->plugin_name, 'grandLoad::gmedia_uninstall' );
 
 			// Start this plugin once all other plugins are fully loaded
 			add_action( 'plugins_loaded', array( &$this, 'start_plugin' ) );
@@ -76,16 +76,13 @@ if ( ! class_exists( 'grandLoad' ) ) {
 			//Add some links on the plugin page
 			add_filter( 'plugin_row_meta', array( &$this, 'add_plugin_links' ), 10, 2 );
 
-			add_action( 'admin_menu', array( &$this, 'add_meta_box' ) );
+			add_action( 'admin_menu', array( &$this, 'add_metabox' ) );
 			add_action( 'admin_enqueue_scripts', array( &$this, 'meta_box_load_styles' ) );
 			add_filter( 'mce_external_plugins', array( &$this, 'add_tinymce_plugin' ), 5 );
 
-			add_action( 'save_post', array( &$this, 'gMedia_shortcode_check' ) );
-		}
+			add_action( 'save_post', array( &$this, 'shortcode_check' ) );
 
-		function gm_admin_notices() {
-			echo '<div id="message" class="error"><p><strong>' . get_option( 'gmediaInitCheck' ) . '</strong></p></div>';
-			delete_option( 'gmediaInitCheck' );
+			add_action( 'wpmu_new_blog', array( &$this, 'new_blog'), 10, 6);
 		}
 
 		function start_plugin() {
@@ -101,7 +98,7 @@ if ( ! class_exists( 'grandLoad' ) ) {
 
 				// Pass the init check or show a message
 				if ( get_option( 'gmediaInitCheck' ) )
-					add_action( 'admin_notices', array( &$this, 'gm_admin_notices' ) );
+					add_action( 'admin_notices', array( &$this, 'admin_notices' ) );
 
 			}
 			else {
@@ -116,6 +113,11 @@ if ( ! class_exists( 'grandLoad' ) ) {
 			}
 		}
 
+		function admin_notices() {
+			echo '<div id="message" class="error"><p><strong>' . get_option( 'gmediaInitCheck' ) . '</strong></p></div>';
+			delete_option( 'gmediaInitCheck' );
+		}
+
 		function required_version() {
 
 			global $wp_version;
@@ -124,19 +126,19 @@ if ( ! class_exists( 'grandLoad' ) ) {
 			if ( version_compare( $wp_version, $this->minium_WP, '<' ) ) {
 				$note = sprintf( __( 'Sorry, GrandMedia works only under WordPress %s or higher', 'gmLang' ), $this->minium_WP );
 				update_option( 'gmediaInitCheck', $note );
-				add_action( 'admin_notices', array( &$this, 'gm_admin_notices' ) );
+				add_action( 'admin_notices', array( &$this, 'admin_notices' ) );
 				return false;
 			}
 			if ( version_compare( '5.2', phpversion(), '>' ) ) {
 				$note = sprintf( __( 'Attention! Your server php version is: %s. GrandMedia requires php version 5.2+ in order to run properly. Please upgrade your server!', 'gmLang' ), phpversion() );
 				update_option( 'gmediaInitCheck', $note );
-				add_action( 'admin_notices', array( &$this, 'gm_admin_notices' ) );
+				add_action( 'admin_notices', array( &$this, 'admin_notices' ) );
 			}
 			if ( version_compare( '5.3', phpversion(), '>' ) ) {
 				if ( ini_get( 'safe_mode' ) ) {
 					$note = __( 'Attention! Your server safe mode is: ON. GrandMedia requires safe mode to be OFF in order to run properly. Please set your server safe mode option!', 'gmLang' );
 					update_option( 'gmediaInitCheck', $note );
-					add_action( 'admin_notices', array( &$this, 'gm_admin_notices' ) );
+					add_action( 'admin_notices', array( &$this, 'admin_notices' ) );
 				}
 			}
 
@@ -257,7 +259,7 @@ if ( ! class_exists( 'grandLoad' ) ) {
 			$module_IDs = array_unique( $module_IDs );
 			$loaded     = $deps = $bad = array();
 			foreach ( $module_IDs as $mID ) {
-				$module_name = $gMDb->gmGetMetaData( 'gmedia_term', $mID, 'module_name', true );
+				$module_name = $gMDb->get_metadata( 'gmedia_term', $mID, 'module_name', true );
 				if ( ! $module_name ) {
 					$bad[] = $mID;
 					continue;
@@ -265,7 +267,7 @@ if ( ! class_exists( 'grandLoad' ) ) {
 				if ( in_array( $module_name, $loaded ) )
 					continue;
 
-				$module_dir = $grandCore->gm_get_module_path( $module_name );
+				$module_dir = $grandCore->get_module_path( $module_name );
 				if ( ! $module_dir )
 					continue;
 
@@ -303,7 +305,7 @@ if ( ! class_exists( 'grandLoad' ) ) {
 			}
 
 			foreach ( $module_IDs as $mID ) {
-				$module_name = $gMDb->gmGetMetaData( 'gmedia_term', $mID, 'module_name', true );
+				$module_name = $gMDb->get_metadata( 'gmedia_term', $mID, 'module_name', true );
 				if ( ! $module_name ) {
 					$bad[] = $mID;
 					continue;
@@ -311,7 +313,7 @@ if ( ! class_exists( 'grandLoad' ) ) {
 				if ( in_array( $module_name, $loaded ) )
 					continue;
 
-				$module_dir = $grandCore->gm_get_module_path( $module_name );
+				$module_dir = $grandCore->get_module_path( $module_name );
 				if ( ! $module_dir )
 					continue;
 
@@ -334,13 +336,14 @@ if ( ! class_exists( 'grandLoad' ) ) {
 			global $gMDb, $grandCore;
 			$content = '';
 
-			if($grandCore->isCrawler($_SERVER['HTTP_USER_AGENT'])) {
+			if($grandCore->is_crawler($_SERVER['HTTP_USER_AGENT'])) {
+				$gmOptions = get_option( 'gmediaOptions' );
 				$taxonomy = 'gmedia_module';
-				$module = $gMDb->gmGetTerm( $mID, $taxonomy, ARRAY_A );
+				$module = $gMDb->get_term( $mID, $taxonomy, ARRAY_A );
 				if ( is_wp_error( $module ) || empty( $module ) )
 					return '';
 
-				$grandMediaQuery = $gMDb->gmGetMetaData( 'gmedia_term', $module['term_id'], 'gMediaQuery', true );
+				$grandMediaQuery = $gMDb->get_metadata( 'gmedia_term', $module['term_id'], 'gMediaQuery', true );
 				if ( empty( $grandMediaQuery ) ) {
 					return '';
 				}
@@ -351,7 +354,7 @@ if ( ! class_exists( 'grandLoad' ) ) {
 				$a = array();
 				foreach ( $grandMediaQuery as $i => $tab ) {
 
-					$gMediaQuery = $gMDb->gmGetMedias( $tab );
+					$gMediaQuery = $gMDb->get_gmedias( $tab );
 					if ( empty( $gMediaQuery ) ) {
 						continue;
 					}
@@ -362,11 +365,12 @@ if ( ! class_exists( 'grandLoad' ) ) {
 
 					$b = array();
 					foreach ( $gMediaQuery as $item ) {
+						$type  = explode( '/', $item->mime_type );
 						$ext   = strrchr( $item->gmuid, '.' );
 						$thumb = substr( $item->gmuid, 0, strrpos( $item->gmuid, $ext ) ) . '-thumb' . $ext;
-						$meta['views'] = intval($gMDb->gmGetMetaData('gmedia', $item->ID, 'views', true));
-						$meta['likes'] = intval($gMDb->gmGetMetaData('gmedia', $item->ID, 'likes', true));
-						$b[]   = "	<p><a id='gmID_{$item->ID}' class='gmLink' style='display:inline-block; margin-right:10px;' href='{$libraryUrl}/image/{$item->gmuid}'><img src='{$libraryUrl}/link/{$thumb}' alt='" . esc_html( $item->title ) . "' data-date='{$item->date}' /></a><span style='display:inline-block;'><strong>' . $item->title . '</strong><br />' . $item->description . '</span></p>";
+						$meta['views'] = intval($gMDb->get_metadata('gmedia', $item->ID, 'views', true));
+						$meta['likes'] = intval($gMDb->get_metadata('gmedia', $item->ID, 'likes', true));
+						$b[]   = "	<p><a id='gmID_{$item->ID}' class='gmLink' style='display:inline-block; margin-right:10px;' href='{$libraryUrl}/{$gmOptions['folder'][$type[0]]}/{$item->gmuid}'><img src='{$libraryUrl}/link/{$thumb}' alt='" . strip_tags($item->title) . "' data-date='{$item->date}' /></a><span style='display:inline-block;'><strong>" . stripslashes($item->title) . "</strong><br />" . stripslashes($item->description) . "</span></p>";
 					}
 					$a[$i] .= implode( "\n", $b ) . "\n";
 					$a[$i] .= '</div>';
@@ -410,22 +414,63 @@ if ( ! class_exists( 'grandLoad' ) ) {
 			$this->options = get_option( 'gmediaOptions' );
 		}
 
-		function activate() {
+		/**
+		 * Call user function to all blogs in network
+		 * called during register_activation hook
+		 *
+		 * @param $pfunction string UserFunction name
+		 * @param $networkwide bool Check if plugin has been activated for the entire blog network.
+		 *
+		 * @return void
+		 */
+		function grand_network_propagate($pfunction, $networkwide) {
+			global $wpdb;
+
 			include_once ( dirname( __FILE__ ) . '/setup.php' );
-			// check for tables
-			grand_install();
+
+			if (function_exists('is_multisite') && is_multisite()) {
+				// check if it is a network activation - if so, run the activation function
+				// for each blog id
+				if ($networkwide) {
+					//$old_blog = $wpdb->blogid;
+					// Get all blog ids
+					$blogids = $wpdb->get_col("SELECT blog_id FROM {$wpdb->blogs}");
+					foreach ($blogids as $blog_id) {
+						switch_to_blog($blog_id);
+						call_user_func($pfunction);
+					}
+					//switch_to_blog($old_blog);
+					restore_current_blog();
+					return;
+				}
+			}
+			call_user_func($pfunction);
 		}
 
-		function deactivate() {
-			// remove & reset the init check option
-			delete_option( 'gmediaInitCheck' );
+		function activate($networkwide) {
+			$this->grand_network_propagate('grand_install', $networkwide);
 		}
 
-		static function GrandMedia_uninstall() {
-			// TODO check uninstall hook
+		function deactivate($networkwide) {
+			$this->grand_network_propagate('grand_deactivate', $networkwide);
+		}
+
+		static function gmedia_uninstall($networkwide) {
 			//wp_die( '<h1>This is run on <code>init</code> during uninstallation</h1>', 'Uninstallation hook example' );
-			include_once ( dirname( __FILE__ ) . '/setup.php' );
-			grand_uninstall();
+			grandLoad::grand_network_propagate('grand_uninstall', $networkwide);
+		}
+
+		function new_blog($blog_id, $user_id, $domain, $path, $site_id, $meta ) {
+			global $wpdb;
+
+			if (is_plugin_active_for_network(GRAND_FOLDER.'/grand-media.php')) {
+				//$old_blog = $wpdb->blogid;
+				include_once ( dirname( __FILE__ ) . '/setup.php' );
+				switch_to_blog($blog_id);
+				grand_install();
+				//switch_to_blog($old_blog);
+				restore_current_blog();
+			}
 		}
 
 		/*
@@ -468,29 +513,29 @@ if ( ! class_exists( 'grandLoad' ) ) {
 		}
 
 		/**
-		 * add_meta_box
+		 * add_metabox
 		 *
 		 * Adds meta box to posts/pages
 		 */
-		function add_meta_box() {
+		function add_metabox() {
 			global $grandCore;
 			if ( function_exists( 'add_meta_box' ) ) {
-				add_meta_box( 'gMedia-MetaBox', __( 'GrandMedia MetaBox', 'gmLang' ), array( $grandCore, 'gMedia_MetaBox' ), 'post', 'side', 'high' );
-				add_meta_box( 'gMedia-MetaBox', __( 'GrandMedia MetaBox', 'gmLang' ), array( $grandCore, 'gMedia_MetaBox' ), 'page', 'side', 'high' );
+				add_meta_box( 'gMedia-MetaBox', __( 'GrandMedia MetaBox', 'gmLang' ), array( $grandCore, 'metabox' ), 'post', 'side', 'high' );
+				add_meta_box( 'gMedia-MetaBox', __( 'GrandMedia MetaBox', 'gmLang' ), array( $grandCore, 'metabox' ), 'page', 'side', 'high' );
 			}
 		}
 
-		function gMedia_MetaBox() {
+		function metabox() {
 			global $grandCore;
-			$grandCore->gMedia_MetaBox();
+			$grandCore->metabox();
 		}
 
 		/**
-		 * gMedia_shortcode_check
+		 * shortcode_check
 		 *
 		 * Check if post/page have gmedia shortcode and save/delete postmeta
 		 */
-		function gMedia_shortcode_check( $post_id ) {
+		function shortcode_check( $post_id ) {
 			// verify post is not a revision and exit on autosave
 			if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) || ! wp_is_post_revision( $post_id ) ) {
 				return $post_id;
