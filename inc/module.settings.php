@@ -74,7 +74,8 @@ if ( ! function_exists( 'gm_type_query_vis' ) ) {
 			'author'    => '',
 			'orderby'   => '',
 			'order'     => 'DESC',
-			'mime_type' => ''
+			'mime_type' => '',
+			'nopaging'  => true
 		);
 
 		?>
