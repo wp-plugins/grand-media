@@ -1,7 +1,7 @@
 === Gmedia Gallery ===
 Contributors: Rattus
 Donate link: http://codeasily.com/wordpress-plugins/gmedia-gallery/
-Tags: gallery, images, library, files, music, video, slideshow, responsive, admin, Post, posts
+Tags: gallery, image, images, library, files, music, video, slideshow, responsive, admin, Post, posts, iOS gallery, iphone gallery, best gallery, portfolio, image gallery, photo gallery, photo, slider, admin, page, relative image
 Requires at least: 3.5
 Tested up to: 3.5.1
 Stable tag: 0.8.0
@@ -29,9 +29,10 @@ With our versatile plugin you can magically change the look and feel of your gal
 **[Home Page](http://codeasily.com/), [More Info and Screens](http://codeasily.com/wordpress-plugins/gmedia-gallery/), [Skins Portfolio](http://codeasily.com/portfolio/), [Support Forum](http://codeasily.com/community/forum/gmedia-gallery-wordpress-plugin/)**
 
 See demo of Gmedia Gallery Modules:
-* [Afflux Module](http://codeasily.com/portfolio-item/gmedia-afflux/) with touch/swipe interface on mobile browsers. Test it and give me know what problem you have or not have with Gmedia plugin.
-* [Phantom Module](http://codeasily.com/portfolio-item/gmedia-phantom/) is the Wall/Grid Gallery with social sharing - you can easily change thumbnail sizes, colors, navigation, lightbox position, add labels to thumbnails, captions … and much more.
-* [PhotoBox Module](http://codeasily.com/portfolio-item/gmedia-photobox/) - a lightweight image gallery which uses only CSS3 for silky-smooth animations and transitions.
+
+*   [Afflux Module](http://codeasily.com/portfolio-item/gmedia-afflux/) with touch/swipe interface on mobile browsers. Test it and give me know what problem you have or not have with Gmedia plugin.
+*   [Phantom Module](http://codeasily.com/portfolio-item/gmedia-phantom/) is the Wall/Grid Gallery with social sharing - you can easily change thumbnail sizes, colors, navigation, lightbox position, add labels to thumbnails, captions … and much more.
+*   [PhotoBox Module](http://codeasily.com/portfolio-item/gmedia-photobox/) - a lightweight image gallery which uses only CSS3 for silky-smooth animations and transitions.
 
 Help me make it best gallery plugin: test it and [write suggestions](http://codeasily.com/community/forum/gmedia-gallery-wordpress-plugin/) how it could be improved in feature versions.
 
