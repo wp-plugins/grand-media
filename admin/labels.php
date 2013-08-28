@@ -204,7 +204,7 @@ function gmTagsCategories() {
 				}
 			}
 			else {
-				echo '<tr class="emptybd"><td colspan="7">' . __( 'No terms in Gmedia Library.', 'gmLang' ) . '</td></tr>';
+				echo '<tr class="emptydb"><td colspan="7">' . __( 'No terms in Gmedia Library.', 'gmLang' ) . '</td></tr>';
 			}
 			?>
 			<tr class="noitems">

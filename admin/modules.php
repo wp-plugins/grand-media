@@ -113,7 +113,7 @@ function gmedia_manage_modules() {
 					}
 				}
 				else {
-					echo '<tr class="emptybd"><td colspan="8">' . __( 'No Galleries.', 'gmLang' ) . ' <a href="' . admin_url( 'admin.php?page=GrandMedia_Modules&amp;tab=modules' ) . '">' . __( 'Create', 'gmLang' ) . '</a></td></tr>';
+					echo '<tr class="emptydb"><td colspan="8">' . __( 'No Galleries.', 'gmLang' ) . ' <a href="' . admin_url( 'admin.php?page=GrandMedia_Modules&amp;tab=modules' ) . '">' . __( 'Create', 'gmLang' ) . '</a></td></tr>';
 				}
 				?>
 				</tbody>
@@ -355,7 +355,7 @@ function gmedia_module_settings( $module_folder, $term_id = 0 ) {
 			</div>
 			<div class="msg0"><?php _e( 'Gallery Settings', 'gmLang' ) ?></div>
 		</div>
-		<div class="gmediaModuleSettings">
+		<div class="gmediaSettings">
 			<div class="gm-metabox-wrapper">
 				<div class="ui-tabs">
 					<?php

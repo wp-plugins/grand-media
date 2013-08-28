@@ -312,7 +312,8 @@ class gMDb {
 		$object   = wp_parse_args( $object, $defaults );
 		//$object   = sanitize_post( $object, 'db' );
 		$object['title'] = strip_tags($object['title'], '<span>');
-		$object['description'] = $grandCore->sanitize($object['description']);
+		//$object['description'] = $grandCore->sanitize($object['description']);
+		$object['description'] = $grandCore->clean_input($object['description']);
 
 		// export array as variables
 		extract( $object, EXTR_SKIP );
@@ -643,7 +644,7 @@ class gMDb {
 	 * - 'type' (string) - (optional) The type of the value.
 	 *              Possible values: 'NUMERIC', 'BINARY', 'CHAR', 'DATE', 'DATETIME', 'DECIMAL', 'SIGNED', 'TIME', 'UNSIGNED'.
 	 *              Default: 'CHAR'
-	 * 's' (string) - search string or terms separated by comma. Searche exactly string if 'exact' parameter set to true
+	 * 's' (string) - search string or terms separated by comma. Search exactly string if 'exact' parameter set to true
 	 * 'fields' (string) - 'ids': return an array of post IDs.
 	 * 'robots' - bool Default is empty
 	 *
@@ -651,7 +652,7 @@ class gMDb {
 	 *
 	 * @return array List of posts.
 	 */
-	function &get_gmedias() {
+	function get_gmedias() {
 		/** @var $wpdb wpdb */
 		global $wpdb, $user_ID, $_wp_using_ext_object_cache;
 
@@ -666,7 +667,9 @@ class gMDb {
 		$groupby       = '';
 		$fields        = '';
 		$page          = 1;
-		$array         = array();
+		$array         = array(
+			'null_tags'	 => false
+		);
 
 		$keys = array(
 			'error'
@@ -696,7 +699,7 @@ class gMDb {
 		);
 
 		foreach ( $keys as $key ) {
-			if ( ! isset( $g[$key] ) )
+			if ( ! isset( $array[$key] ) )
 				$array[$key] = '';
 		}
 
@@ -704,7 +707,7 @@ class gMDb {
 			'tag__in', 'tag__not_in', 'tag__and', 'tag_name__in', 'tag_name__and', 'meta_query' );
 
 		foreach ( $array_keys as $key ) {
-			if ( ! isset( $g[$key] ) )
+			if ( ! isset( $array[$key] ) )
 				$array[$key] = array();
 		}
 
@@ -829,7 +832,7 @@ class gMDb {
 			$searchand         = '';
 			foreach ( (array) $q['search_terms'] as $term ) {
 				$term = esc_sql( like_escape( $term ) );
-				$search .= "{$searchand}(({$wpdb->prefix}gmedia.title LIKE '{$n}{$term}{$n}') OR ({$wpdb->prefix}gmedia.description LIKE '{$n}{$term}{$n}'))";
+				$search .= "{$searchand}(({$wpdb->prefix}gmedia.title LIKE '{$n}{$term}{$n}') OR ({$wpdb->prefix}gmedia.description LIKE '{$n}{$term}{$n}') OR ({$wpdb->prefix}gmedia.gmuid LIKE '{$n}{$term}{$n}'))";
 				$searchand = ' AND ';
 			}
 
@@ -975,6 +978,9 @@ class gMDb {
 					WHERE taxonomy = 'gmedia_tag'
 					AND name IN ({$q['tag_name__in']})
 				" );
+			if(empty($q['tag_name__in']) && $q['null_tags']){
+				return $q['tag_name__in'];
+			}
 			$tax_query[]       = array(
 				'taxonomy' => 'gmedia_tag',
 				'terms'    => $q['tag_name__in'],
@@ -990,6 +996,9 @@ class gMDb {
 					WHERE taxonomy = 'gmedia_tag'
 					AND name IN ({$q['tag_name__and']})
 				" );
+			if(empty($q['tag_name__and']) && $q['null_tags']){
+				return $q['tag_name__and'];
+			}
 			$tax_query[]        = array(
 				'taxonomy' => 'gmedia_tag',
 				'terms'    => $q['tag_name__and'],
@@ -1243,11 +1252,8 @@ class gMDb {
 			$q['order'] = 'DESC';
 
 		// Order by
-		if ( empty( $q['orderby'] ) ) {
+		if ( empty( $q['orderby'] ) || ( 'none' == $q['orderby'] ) ) {
 			$orderby = "{$wpdb->prefix}gmedia.ID " . $q['order'];
-		}
-		elseif ( 'none' == $q['orderby'] ) {
-			$orderby = '';
 		}
 		else {
 			// Used to filter values TODO make orderby comment count
@@ -1777,7 +1783,7 @@ class gMDb {
 	 * @return mixed|null|WP_Error Term Row from database. Will return null if $term is empty. If taxonomy does not
 	 *       exist then WP_Error will be returned.
 	 */
-	function &get_term( $term, $taxonomy, $output = OBJECT ) {
+	function get_term( $term, $taxonomy, $output = OBJECT ) {
 		/** @var $wpdb wpdb */
 		global $wpdb;
 		$null = null;
@@ -1906,7 +1912,7 @@ class gMDb {
 	 *
 	 * @return array|WP_Error List of Term Objects and their children. Will return WP_Error, if any of $taxonomies do not exist.
 	 */
-	function &get_terms( $taxonomies, $args = array() ) {
+	function get_terms( $taxonomies, $args = array() ) {
 		/** @var $wpdb wpdb */
 		global $wpdb, $gMDb;
 		$empty_array = array();
@@ -3137,7 +3143,7 @@ class gMDb {
 	 *
 	 * @return array The subset of $terms that are descendants of $term_id.
 	 */
-	function &_get_term_children( $term_id, $terms, $taxonomy ) {
+	function _get_term_children( $term_id, $terms, $taxonomy ) {
 		global $gMDb;
 
 		$empty_array = array();

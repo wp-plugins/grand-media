@@ -16,20 +16,22 @@
 		init: function (ed) {
 			var t = this;
 
-			ed.addCommand('gMedia_redraw', function () {
+			/*ed.addCommand('gMedia_redraw', function () {
 				t._handleFunction(ed);
-			});
+			});*/
 
 
 			/** "onPreInit","onBeforeRenderUI","onPostRender","onInit","onRemove","onActivate","onDeactivate","onClick","onEvent","onMouseUp","onMouseDown","onDblClick","onKeyDown","onKeyUp","onKeyPress","onContextMenu","onSubmit","onReset","onPaste","onPreProcess","onPostProcess","onBeforeSetContent","onBeforeGetContent","onSetContent","onGetContent","onLoadContent","onSaveContent","onNodeChange","onChange","onBeforeExecCommand","onExecCommand","onUndo","onRedo","onVisualAid","onSetProgressState" */
 			ed.onInit.add(function (ed) {
+
 				// make sure these run last
-				ed.onClick.add(function (ed, e) {
+				/*ed.onClick.add(function (ed, e) {
 					if (e.target.nodeName == 'IMG' && ed.dom.hasClass(e.target, 'gm-image')) {
 						console.log(e.target);
 					}
-				});
-				ed.onMouseUp.add(function (ed, e) {
+				});*/
+
+				/*ed.onMouseUp.add(function (ed, e) {
 					if (e.target.nodeName == 'INS' && ed.dom.hasClass(e.target, 'mceGMgallery')) {
 						if (!ed.dom.hasClass(e.target, 'selected')) {
 							var nParent = ed.selection.getNode();//.parentNode;
@@ -48,24 +50,24 @@
 						ed.selection.collapse(false);
 						ed.dom.removeClass(ed.dom.select('ins.mceGMgallery'), 'selected');
 					}
-				});
+				});*/
 
 				if ('undefined' != typeof(jQuery)) {
 					ed.onKeyUp.add(function (ed, e, o) {
 						var k = e.keyCode || e.charCode;
-						if (k == 35 || k == 36 || k == 37 || k == 38 || k == 39 || k == 40) {
+						/*if (k == 35 || k == 36 || k == 37 || k == 38 || k == 39 || k == 40) {
 							if (ed.dom.select('ins.mceGMgallery')) {
 								//ed.selection.collapse(false);
 								ed.dom.removeClass(ed.dom.select('ins.mceGMgallery'), 'selected');
 							}
-						}
+						}*/
 						if (k == 8 || k == 13 || k == 46) {
 							var m, content = ed.getContent();
-							m = content.match(/\[gmedia id=(\d+)\]/g);
+							m = content.match(/\[gmedia \s*id=(\d+)\s*?\]/g);
 							jQuery('#gMedia-galleries-list li.gMedia-gallery-li').removeClass('gMedia-selected');
 							if (m) {
 								jQuery.each(m, function (i, shcode) {
-									var id = shcode.replace(/\[gmedia id=(\d+)\]/, '$1');
+									var id = shcode.replace(/\[gm.*id=(\d+).*?\]/, '$1');
 									jQuery('#gmModule-' + id).addClass('gMedia-selected');
 								});
 							}
@@ -78,42 +80,44 @@
 			});
 
 			// Add listeners to handle function
-			t._handleFunction(ed);
+			//t._handleFunction(ed);
 
 		},
 
 		getInfo: function () {
 			return {
-				longname : 'GrandMedia Plugin',
-				author   : 'GrandMedia',
-				authorurl: 'http://gmedia.com',
-				infourl  : 'http://gmedia.com',
-				version  : '1.0'
+				longname : 'Gmedia Gallery',
+				author   : 'Rattus',
+				authorurl: 'http://codeasily.com',
+				infourl  : 'http://codeasily.com',
+				version  : '1.1'
 			};
 		},
 
 		_handleFunction: function (ed) {
-			var galleryHTML = '<ins class="mceGMgallery" title="ID#$1">$1</ins>';
 
 			// Load plugin specific CSS into editor
 			ed.onInit.add(function () {
 				ed.dom.loadCSS(gMediaGlobalVar.pluginPath + '/admin/css/editor_plugin.css');
 			});
 
+			/*
+			var galleryHTML = '<ins class="mceGMgallery" title="ID#$1">$1</ins>';
+
 			// Replace morebreak with images
 			ed.onBeforeSetContent.add(function (ed, o) {
 				if (o.content) {
 					if ('undefined' != typeof(jQuery)) {
-						var m = o.content.match(/\[gmedia id=(\d+)\]/g);
+						var m = o.content.match(/\[gmedia[ ]+id=(\d+)[ ]?\]/g);
 						jQuery('#gMedia-galleries-list li.gMedia-gallery-li').removeClass('gMedia-selected');
 						if (m) {
 							jQuery.each(m, function (i, shcode) {
-								var id = shcode.replace(/\[gmedia id=(\d+)\]/, '$1');
+								var id = shcode.replace(/\[gmedia[ ]+id=(\d+)[ ]?\]/, '$1');
 								jQuery('#gmModule-' + id).addClass('gMedia-selected');
 							});
 						}
 					}
-					o.content = o.content.replace(/\[gmedia id=(\d+)\]/g, galleryHTML);
+					o.content = o.content.replace(/\[gmedia[ ]+id=(\d+)[ ]?\]/g, galleryHTML);
 				}
 			});
 
@@ -139,11 +143,12 @@
 					});
 				}
 			});
-
+			*/
 		}
 
 	});
 
 	// Register plugin
 	tinymce.PluginManager.add('gmedia', tinymce.plugins.GrandMedia);
+
 })();

@@ -3,7 +3,7 @@
 Plugin Name: Gmedia Gallery
 Plugin URI: http://wordpress.org/extend/plugins/grand-media/
 Description: Grand Media Gallery - powerfull media library plugin for creating beautiful galleries and managing files.
-Version: 0.7.0
+Version: 0.8.0
 Author: Rattus
 Author URI: http://codeasily.com/
 
@@ -36,7 +36,7 @@ if ( preg_match( '#' . basename( __FILE__ ) . '#', $_SERVER['PHP_SELF'] ) ) {
 if ( ! class_exists( 'grandLoad' ) ) {
 	class grandLoad {
 
-		var $version = '0.7.0';
+		var $version = '0.8.0';
 		var $dbversion = '0.6.2';
 		var $minium_WP = '3.3';
 		var $options = '';
@@ -65,7 +65,7 @@ if ( ! class_exists( 'grandLoad' ) ) {
 			register_deactivation_hook( $this->plugin_name, array( &$this, 'deactivate' ) );
 
 			// Register a uninstall hook to remove all tables & option automatic
-			register_uninstall_hook( $this->plugin_name, 'grandLoad::gmedia_uninstall' );
+			register_uninstall_hook( $this->plugin_name, array(__CLASS__, 'gmedia_uninstall') );
 
 			// Start this plugin once all other plugins are fully loaded
 			add_action( 'plugins_loaded', array( &$this, 'start_plugin' ) );
@@ -74,11 +74,12 @@ if ( ! class_exists( 'grandLoad' ) ) {
 			//add_action( 'after_plugin_row', array(&$this, 'check_message_version') );
 
 			//Add some links on the plugin page
-			add_filter( 'plugin_row_meta', array( &$this, 'add_plugin_links' ), 10, 2 );
+			//add_filter( 'plugin_row_meta', array( &$this, 'add_plugin_links' ), 10, 2 );
 
-			add_action( 'admin_menu', array( &$this, 'add_metabox' ) );
-			add_action( 'admin_enqueue_scripts', array( &$this, 'meta_box_load_styles' ) );
+			add_action( 'do_meta_boxes', array( &$this, 'do_meta_boxes' ), 20, 2 );
 			add_filter( 'mce_external_plugins', array( &$this, 'add_tinymce_plugin' ), 5 );
+			add_action( 'admin_enqueue_scripts', array( &$this, 'meta_box_load_styles' ), 20 );
+			add_filter( 'media_buttons_context', array( &$this, 'media_button'), 4 );
 
 			add_action( 'save_post', array( &$this, 'shortcode_check' ) );
 
@@ -206,6 +207,7 @@ if ( ! class_exists( 'grandLoad' ) ) {
 		function load_scripts() {
 			global $wp_query, $grandCore, $gMDb;
 
+			$gmOptions 			= get_option( 'gmediaOptions' );
 			$gMediaURL      = plugins_url( GRAND_FOLDER );
 			$upload         = $grandCore->gm_upload_dir();
 			$load_in_footer = true;
@@ -214,9 +216,8 @@ if ( ! class_exists( 'grandLoad' ) ) {
 			wp_register_script( 'grandMediaGlobalFrontend', $gMediaURL . '/admin/js/gmedia.global.front.js', array( 'jquery' ), '1.0' );
 			wp_localize_script( 'grandMediaGlobalFrontend', 'gMediaGlobalVar', array(
 				'ajaxurl'    => admin_url( 'admin-ajax.php' ),
-				'loading'    => '/admin/images/throbber.gif',
 				'uploadPath' => rtrim( $upload['url'], '/' ),
-				'pluginPath' => $gMediaURL
+				'gmediaKey' => strtolower($gmOptions['gmedia_key'])
 			) );
 			wp_enqueue_script( 'grandMediaGlobalFrontend' );
 			//wp_register_script('swfaddress', $gMediaURL.'/admin/js/swfaddress.js', array(), '2.4');
@@ -233,7 +234,6 @@ if ( ! class_exists( 'grandLoad' ) ) {
 			}
 			*/
 			if ( ! empty( $wp_query->posts ) ) {
-				//echo '<pre>'; print_r($wp_query); echo '</pre>';
 				$module_IDs = array();
 				foreach ( $wp_query->posts as $post ) {
 					$module_IDs_str = get_post_meta( $post->ID, '_gmedia_module_id', true );
@@ -336,32 +336,36 @@ if ( ! class_exists( 'grandLoad' ) ) {
 			global $gMDb, $grandCore;
 			$content = '';
 
-			if($grandCore->is_crawler($_SERVER['HTTP_USER_AGENT'])) {
-				$gmOptions = get_option( 'gmediaOptions' );
-				$taxonomy = 'gmedia_module';
-				$module = $gMDb->get_term( $mID, $taxonomy, ARRAY_A );
-				if ( is_wp_error( $module ) || empty( $module ) )
-					return '';
+			$gmOptions = get_option( 'gmediaOptions' );
+			$taxonomy = 'gmedia_module';
+			$module_term = $gMDb->get_term( $mID, $taxonomy, ARRAY_A );
+			if ( is_wp_error( $module_term ) || empty( $module_term ) )
+				return $content;
 
-				$grandMediaQuery = $gMDb->get_metadata( 'gmedia_term', $module['term_id'], 'gMediaQuery', true );
-				if ( empty( $grandMediaQuery ) ) {
-					return '';
-				}
-				$grandMediaQuery = array_map( 'maybe_unserialize', $grandMediaQuery );
+			$module_meta = $gMDb->get_metadata( 'gmedia_term', $module_term['term_id'] );
+			if ( ! empty( $module_meta ) ) {
+				$module_meta = array_map( array( $grandCore, 'maybe_array_0' ), $module_meta );
+				$module_meta = array_map( 'maybe_unserialize', $module_meta );
+			}
+			if ( empty( $module_meta['gMediaQuery'] ) ) {
+				return $content;
+			}
+
+			if(!$grandCore->is_browser($_SERVER['HTTP_USER_AGENT'])) {
 
 				$upload = $grandCore->gm_upload_dir();
 				$libraryUrl = rtrim( $upload['url'], '/' );
 				$a = array();
-				foreach ( $grandMediaQuery as $i => $tab ) {
+				foreach ( $module_meta['gMediaQuery'] as $i => $tab ) {
 
 					$gMediaQuery = $gMDb->get_gmedias( $tab );
 					if ( empty( $gMediaQuery ) ) {
 						continue;
 					}
 
-					$name   = isset( $tab['tabname'] ) ? $tab['tabname'] : $module['name'];
+					$name   = isset( $tab['tabname'] ) ? $tab['tabname'] : $module_term['name'];
 					$tabkey = sanitize_key( $name );
-					$a[$i]  = "\n<div class='{$tabkey}'><h4>" . $name . "</h4>\n";
+					$a[$i]  = "\n<div class='gallery module-content category-{$tabkey}'><h4 class='gallery-title'>{$name}</h4>";
 
 					$b = array();
 					foreach ( $gMediaQuery as $item ) {
@@ -370,17 +374,42 @@ if ( ! class_exists( 'grandLoad' ) ) {
 						$thumb = substr( $item->gmuid, 0, strrpos( $item->gmuid, $ext ) ) . '-thumb' . $ext;
 						$meta['views'] = intval($gMDb->get_metadata('gmedia', $item->ID, 'views', true));
 						$meta['likes'] = intval($gMDb->get_metadata('gmedia', $item->ID, 'likes', true));
-						$b[]   = "	<p><a id='gmID_{$item->ID}' class='gmLink' style='display:inline-block; margin-right:10px;' href='{$libraryUrl}/{$gmOptions['folder'][$type[0]]}/{$item->gmuid}'><img src='{$libraryUrl}/link/{$thumb}' alt='" . strip_tags($item->title) . "' data-date='{$item->date}' /></a><span style='display:inline-block;'><strong>" . stripslashes($item->title) . "</strong><br />" . stripslashes($item->description) . "</span></p>";
+						$b[]   = "
+<dl class='gallery-item gmedia-item gmID_{$item->ID}' data-item-id='{$item->ID}'>
+	<dt class='gallery-icon'>
+		<a href='{$libraryUrl}/{$gmOptions['folder'][$type[0]]}/{$item->gmuid}' title='" . esc_attr(strip_tags(stripslashes($item->title))) . "'>
+			<img
+				src='{$libraryUrl}/link/{$thumb}'
+				alt='" . esc_attr(strip_tags(stripslashes($item->title))) . "'
+				width='150' height='150'
+				data-src='{$libraryUrl}/{$gmOptions['folder'][$type[0]]}/{$item->gmuid}'
+				data-date='{$item->date}'
+			/>
+		</a>
+	</dt>
+	<dd class='gallery-caption'>" . stripslashes($item->description) . "</dd>
+</dl>";
 					}
-					$a[$i] .= implode( "\n", $b ) . "\n";
+					$a[$i] .= implode( '', $b ) . "\n";
 					$a[$i] .= '</div>';
 				}
 				if ( !empty( $a ) ) {
 					$content = implode( "", $a ) . "\n";
 				}
 			}
+			$content = apply_filters('gm_shortcode_content', $content);
 
-			return apply_filters('gm_shortcode_content', $content);
+			// module folder
+			$module_dir = $grandCore->get_module_path( $module_meta['module_name'] );
+			if(empty($gmOptions['gmedia_key']) && $module_dir){
+				$module = array();
+				include($module_dir['path'] . '/details.php');
+				if('free' != $module['status']){
+					$content .= '<p><a href="http://codeasily.com/">'.__('Best WordPress Gallery Plugin', 'gmLang').'</a></p>';
+				}
+			}
+
+			return $content;
 		}
 
 		function meta_box_load_styles( $hook ) {
@@ -392,6 +421,13 @@ if ( ! class_exists( 'grandLoad' ) ) {
 			}
 			else
 				return;
+		}
+
+		function media_button($context){
+
+			$button = '<a href="#" class="gmedia_button button hidden" onclick="gm_media_button(this); return false;"><span class="wp-media-buttons-icon"></span> '.__('Gmedia', 'gmLang').'</a>';
+
+			return $context.$button;
 		}
 
 		/**
@@ -513,15 +549,17 @@ if ( ! class_exists( 'grandLoad' ) ) {
 		}
 
 		/**
-		 * add_metabox
-		 *
-		 * Adds meta box to posts/pages
+		 * Adds the meta box to the post or page edit screen
+		 * @param string $page the name of the current page
+		 * @param string $context the current context
 		 */
-		function add_metabox() {
+		function do_meta_boxes( $page, $context ) {
 			global $grandCore;
-			if ( function_exists( 'add_meta_box' ) ) {
-				add_meta_box( 'gMedia-MetaBox', __( 'GrandMedia MetaBox', 'gmLang' ), array( $grandCore, 'metabox' ), 'post', 'side', 'high' );
-				add_meta_box( 'gMedia-MetaBox', __( 'GrandMedia MetaBox', 'gmLang' ), array( $grandCore, 'metabox' ), 'page', 'side', 'high' );
+			// Plugins that use custom post types can use this filter to hide the Gmedia UI in their post type.
+			$gm_post_types = apply_filters( 'gmedia-post-types', array_keys( get_post_types( array('show_ui' => true ) ) ) );
+
+			if ( function_exists( 'add_meta_box' ) && in_array( $page, $gm_post_types ) && 'side' === $context ) {
+				add_meta_box( 'gMedia-MetaBox', __( 'Gmedia Gallery MetaBox', 'gmLang' ), array( $grandCore, 'metabox' ), $page, 'side', 'high' );
 			}
 		}
 
@@ -537,7 +575,7 @@ if ( ! class_exists( 'grandLoad' ) ) {
 		 */
 		function shortcode_check( $post_id ) {
 			// verify post is not a revision and exit on autosave
-			if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) || ! wp_is_post_revision( $post_id ) ) {
+			if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) || wp_is_post_revision( $post_id ) ) {
 				return $post_id;
 			}
 			// check capabilities
@@ -554,7 +592,15 @@ if ( ! class_exists( 'grandLoad' ) ) {
 				return $post_id;
 			}
 
-			$c = preg_match_all( '/\[gmedia id=(\d+)\]/', $_POST['post_content'], $matches, PREG_PATTERN_ORDER );
+			if(isset($_POST['content'])) {
+				$content = $_POST['content'];
+			} else if(isset($_POST['post_content'])){
+				$content = $_POST['post_content'];
+			} else {
+				return $post_id;
+			}
+
+			$c = preg_match_all( '/\[gmedia \s*id=(\d+)\s*?\]/', $content, $matches, PREG_PATTERN_ORDER );
 			if ( $c ) {
 				update_post_meta( $post_id, '_gmedia_module_id', implode( ',', $matches[1] ) );
 			}

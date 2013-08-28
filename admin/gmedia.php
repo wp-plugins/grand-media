@@ -236,7 +236,7 @@ function grandMedia() {
 					}
 				}
 				else {
-					echo '<tr class="emptybd"><td colspan="8">' . __( 'No items in Gmedia Library.', 'gmLang' ) . '</td></tr>';
+					echo '<tr class="emptydb"><td colspan="8">' . __( 'No items in Gmedia Library.', 'gmLang' ) . '</td></tr>';
 				}
 				?>
 				<tr class="noitems">
@@ -247,5 +247,17 @@ function grandMedia() {
 		</div>
 		<?php wp_original_referer_field( true, 'previous' ); ?>
 	</form>
+
+	<div id="gMedia-MetaBox" class="gMedia-MetaBox" style="dispay:none;">
+		<div class="gMedia-control">
+			<div class="gMedia-control-update"><span class="gMedia-update-text"><?php _e('Update', 'gmLang'); ?></span></div>
+			<div class="gMedia-refine-field"><input type="search" value="" class="gMedia-refine-input" placeholder="<?php _e('Search in Gmedia') ?>" autocomplete="off" /></div>
+		</div>
+		<div class="gMedia-images-wrap">
+			<ul class="gMedia-images-thumbnails">
+				<li>spin</li>
+			</ul>
+		</div>
+	</div>
 <?php
 }

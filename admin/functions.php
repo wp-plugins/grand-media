@@ -66,7 +66,7 @@ class gmAdmin {
 			<td class="type"><span><?php echo $file_info['extension']; ?></span></td>
 			<td class="title"><span><?php echo $item->post_title; ?></span></td>
 			<td class="descr">
-				<div><?php echo $item->post_content; ?></div>
+				<div><?php echo htmlspecialchars($item->post_content); ?></div>
 			</td>
 			<td class="actions">
 				<div><?php echo $actions; ?></div>
@@ -91,8 +91,18 @@ class gmAdmin {
 		$uploads        = $grandCore->gm_upload_dir();
 		$type           = explode( '/', $item->mime_type );
 		$item_url       = $uploads['url'] . $gmOptions['folder'][$type[0]] . '/' . $item->gmuid;
+		$attr = array( 'width' => 36, 'height' => 36 );
 
-		$image     = $grandCore->gm_get_media_image( $item, 'thumb', array( 'width' => 36, 'height' => 36 ) );
+		if('image' != $type[0]){
+			$preview_meta  	= $gMDb->get_metadata( 'gmedia', $item->ID, 'preview', true );
+			if(intval($preview_meta)){
+				$preview_item = $gMDb->get_gmedia( intval($preview_meta) );
+				$preview_image = $grandCore->gm_get_media_image( $preview_item, 'thumb', array(), 'src' );
+				$attr['data-preview'] = $preview_image;
+			}
+		}
+
+		$image     = $grandCore->gm_get_media_image( $item, 'thumb', $attr );
 		$file      = '<a class="grandbox" href="' . $item_url . '">' . $image . '</a>';
 		$file_info = pathinfo( $item_url );
 		switch ( $type[0] ) {
@@ -117,7 +127,7 @@ class gmAdmin {
 			$out = array();
 			foreach ( $tags as $c ) {
 				$out[] = sprintf( '<a class="tag" href="%s">%s</a>',
-					esc_url( add_query_arg( array( 'tag_id' => $c->term_id, 'cat' => false ) ) ),
+					esc_url( add_query_arg( array( 'tag_id' => $c->term_id, 'cat' => false, 'pager' => false ) ) ),
 					esc_html( $c->name )
 				);
 			}
@@ -132,7 +142,7 @@ class gmAdmin {
 			$out = array();
 			foreach ( $cats as $c ) {
 				$out[] = sprintf( '<a class="category" href="%s">%s</a>',
-					esc_url( add_query_arg( array( 'cat' => $c->term_id, 'tag_id' => false ) ) ),
+					esc_url( add_query_arg( array( 'cat' => $c->term_id, 'tag_id' => false, 'pager' => false ) ) ),
 					esc_html( $c->name )
 				);
 			}
@@ -153,7 +163,7 @@ class gmAdmin {
 			<td class="type"><span><?php echo $file_info['extension']; ?></span></td>
 			<td class="title"><span><?php echo $item->title; ?></span></td>
 			<td class="descr">
-				<div><?php echo $cats . $tags . $item->description; ?></div>
+				<div><?php echo $cats . $tags . htmlspecialchars($item->description); ?></div>
 			</td>
 			<td class="actions">
 				<div><?php echo $actions; ?></div>
@@ -201,7 +211,7 @@ class gmAdmin {
 					<small><?php echo __( 'module', 'gmLang' ) . ': '; if($module_dir) { echo $module['title']; } else { echo "'{$module_folder}' " . __('not installed or broken', 'gmLang'); } ?></small>
 				</td>
 				<td class="descr">
-					<div><?php echo strip_tags( $item->description ); ?></div>
+					<div><?php echo htmlspecialchars( $item->description ); ?></div>
 				</td>
 				<td class="count">
 					<div><?php echo $gmModuleCount; ?></div>
@@ -233,7 +243,7 @@ class gmAdmin {
 				<td class="id"><span><?php echo $item->term_id; ?></span></td>
 				<td class="name"><span><?php echo $name; ?></span></td>
 				<td class="descr">
-					<div><?php echo $item->description; ?></div>
+					<div><?php echo htmlspecialchars($item->description); ?></div>
 				</td>
 				<td class="count">
 					<div><?php echo $item->count; ?></div>
@@ -304,7 +314,7 @@ class gmAdmin {
 									</div>
 									<div class="set gmDescription">
 										<label for="tax-edit-gm_term_description"><?php _e( 'Description', 'gmLang' ); ?></label>
-										<textarea id="tax-edit-gm_term_description" class="the-term-description" cols="20" rows="3" name="gm_term_description"><?php echo $item->description; ?></textarea>
+										<textarea id="tax-edit-gm_term_description" class="the-term-description" cols="20" rows="3" name="gm_term_description"><?php echo htmlspecialchars($item->description); ?></textarea>
 									</div>
 									<div class="buttons">
 										<input type="button" class="cancel" value="<?php _e( 'Cancel', 'gmLang' ); ?>" title="<?php _e( 'Cancel', 'gmLang' ); ?>" />
@@ -320,8 +330,15 @@ class gmAdmin {
 				break;
 			case 'gmedia':
 				$item  = $gMDb->get_gmedia( $id );
+				$meta  = $gMDb->get_metadata( 'gmedia', $id );
+				$mime_type = explode( '/', $item->mime_type );
 				$image = $grandCore->gm_get_media_image( $item, 'thumb', array( 'width' => 150, 'height' => 150 ) );
-				?>
+				if(isset($meta['preview'][0]) && intval($meta['preview'][0])){
+					$preview_item = $gMDb->get_gmedia( intval($meta['preview'][0]) );
+					$preview_image = $grandCore->gm_get_media_image( $preview_item, 'thumb', array( 'width' => 150, 'height' => 150, 'id' => false, 'class' => 'gmedia-thumb-preview' ) );
+					$image = $preview_image . $image;
+				}
+			?>
 				<table id="gmedia-edit">
 					<tr class="gmedia-edit-row">
 						<td class="colspanchange" colspan="8">
@@ -337,6 +354,16 @@ class gmAdmin {
 									<div class="gmTitle row va-b">
 										<span class="label"><?php _e( 'Title', 'gmLang' ); ?></span><input name="gmedia[title]" type="text" value="<?php echo $item->title; ?>" />
 									</div>
+									<?php if('image' == $mime_type[0]){ ?>
+									<div class="gmLink row va-b">
+										<span class="label"><?php _e( 'Link', 'gmLang' ); ?></span><input name="gmedia[meta][link]" type="text" value="<?php if(isset($meta['link'][0])){echo $meta['link'][0];}; ?>" />
+									</div>
+									<?php } else { ?>
+									<div class="gmPreview row va-b">
+										<span class="label"><?php _e( 'Preview ID', 'gmLang' ); ?></span><input name="gmedia[meta][preview]" type="text" value="<?php if(isset($meta['preview'][0]) && intval($meta['preview'][0])){echo $meta['preview'][0];}; ?>" readonly /><span title="<?php _e('clear', 'gmLang'); ?>" class="clear-preview">&times;</span>
+										<span class="metabox-preview">#</span>
+									</div>
+									<?php } ?>
 									<?php $cat = $gMDb->get_the_gmedia_terms( $item->ID, 'gmedia_category' );
 									if ( empty( $cat ) ) {
 										$cat_id = 0;
@@ -381,7 +408,7 @@ class gmAdmin {
 										<span class="label"><?php _e( 'Labels', 'gmLang' ); ?></span><textarea name="gmedia[terms][gmedia_tag]" rows="2" cols="60"><?php echo $tags; ?></textarea>
 									</div>
 									<div class="gmDescription">
-										<span class="label"><?php _e( 'Description', 'gmLang' ); ?></span><textarea name="gmedia[description]" rows="4" cols="10"><?php echo $item->description; ?></textarea>
+										<span class="label"><?php _e( 'Description', 'gmLang' ); ?></span><textarea name="gmedia[description]" rows="4" cols="10"><?php echo htmlspecialchars($item->description); ?></textarea>
 									</div>
 									<input name="gmedia[author]" type="hidden" value="<?php echo $item->author; ?>" />
 									<input name="gmedia[gmuid]" type="hidden" value="<?php echo $item->gmuid; ?>" />
@@ -431,7 +458,7 @@ class gmAdmin {
 										<span class="label"><?php _e( 'Title', 'gmLang' ); ?></span><input name="gmTitle" type="text" value="<?php echo $item->post_title; ?>" />
 									</div>
 									<div class="gmDescription">
-										<span class="label"><?php _e( 'Description', 'gmLang' ); ?></span><textarea name="gmDescription" rows="4" cols="60"><?php echo $item->post_content; ?></textarea>
+										<span class="label"><?php _e( 'Description', 'gmLang' ); ?></span><textarea name="gmDescription" rows="4" cols="60"><?php echo htmlspecialchars($item->post_content); ?></textarea>
 									</div>
 									<div class="buttons">
 										<input type="button" class="cancel" value="<?php _e( 'Cancel', 'gmLang' ); ?>" title="<?php _e( 'Cancel', 'gmLang' ); ?>" />
@@ -567,7 +594,7 @@ class gmAdmin {
 					foreach ( $gMediaLib as $item ) {
 						$type     = explode( '/', $item->mime_type );
 						$item_url = $uploads['url'] . $gmOptions['folder'][$type[0]] . '/' . $item->gmuid;
-						$image    = $grandCore->gm_get_media_image( $item, 'thumb', array( 'width' => 48, 'height' => 48 ), true );
+						$image    = $grandCore->gm_get_media_image( $item, 'thumb', array( 'width' => 48, 'height' => 48 ) );
 						$file     = '<a class="grandbox" title="' . trim( esc_attr( strip_tags( $item->title ) ) ) . '" rel="querybuilder__' . $tab . '" href="' . $item_url . '">' . $image . '</a> ';
 						echo $file;
 					}

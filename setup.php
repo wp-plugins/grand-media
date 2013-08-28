@@ -20,6 +20,8 @@ function grand_default_options() {
 	$grand['folder']['module']      = 'module';
 	$grand['thumbnail_size']        = '150x150';
 
+	$grand['gmedia_key']  = '';
+
 	$grand['taxonomies']['gmedia_tag']      = array( 'hierarchical' => false );
 	$grand['taxonomies']['gmedia_category'] = array( 'hierarchical' => true );
 	$grand['taxonomies']['gmedia_module']   = array( 'hierarchical' => true );
@@ -185,6 +187,9 @@ function grand_uninstall() {
 	//if uninstall not called from WordPress exit
 	//if ( !defined( 'WP_UNINSTALL_PLUGIN' ) )
 		//exit ();
+
+	//if(get_option('gmediaVersion'))
+		//return;
 
 	/** @var $wpdb wpdb */
 	global $wpdb;

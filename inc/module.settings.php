@@ -209,10 +209,10 @@ if ( ! function_exists( 'gm_type_query' ) ) {
 			<div class="format-setting-query gm_query_terms">
 				<h4>
 					<select name="gMediaQuery[category][key]" id="query_category_key" class="gmedia-ui-select query_category_key">
-						<option value="cat" <?php selected( $field_value['category']['key'], 'cat' ); ?>><?php _e( 'Show gMedia from chosen categories and any children of these categories', 'gmLang' ); ?></option>
-						<option value="category__and" <?php selected( $field_value['category']['key'], 'category__and' ); ?>><?php _e( 'Show gMedia that are in multiple categories', 'gmLang' ); ?></option>
-						<option value="category__in" <?php selected( $field_value['category']['key'], 'category__in' ); ?>><?php _e( 'Show gMedia from either category (note this does not show gMedia from any children of these categories)', 'gmLang' ); ?></option>
-						<option value="category__not_in" <?php selected( $field_value['category']['key'], 'category__not_in' ); ?>><?php _e( 'Hide gMedia from multiple categories', 'gmLang' ); ?></option>
+						<option value="cat" <?php selected( $field_value['category']['key'], 'cat' ); ?>><?php _e( 'Show Gmedia from chosen categories and any children of these categories', 'gmLang' ); ?></option>
+						<option value="category__and" <?php selected( $field_value['category']['key'], 'category__and' ); ?>><?php _e( 'Show Gmedia that are in multiple categories', 'gmLang' ); ?></option>
+						<option value="category__in" <?php selected( $field_value['category']['key'], 'category__in' ); ?>><?php _e( 'Show Gmedia from either category (note this does not show gMedia from any children of these categories)', 'gmLang' ); ?></option>
+						<option value="category__not_in" <?php selected( $field_value['category']['key'], 'category__not_in' ); ?>><?php _e( 'Hide Gmedia from multiple categories', 'gmLang' ); ?></option>
 					</select>
 				</h4>
 				<select name="gMediaQuery[category][value][]" id="query_category_value" class="gmedia-ui-multiselect query_category_value" multiple="multiple" size="5">
@@ -241,9 +241,9 @@ if ( ! function_exists( 'gm_type_query' ) ) {
 			<div class="format-setting-query gm_query_terms">
 				<h4>
 					<select name="gMediaQuery[tag][key]" id="query_tag_key" class="gmedia-ui-select query_tag_key">
-						<option value="tag__and" <?php selected( $field_value['tag']['key'], 'tag__and' ); ?>><?php _e( 'Show gMedia that are tagged with all chosen tags', 'gmLang' ); ?></option>
-						<option value="tag__in" <?php selected( $field_value['tag']['key'], 'tag__in' ); ?>><?php _e( 'Show gMedia with either chosen tags', 'gmLang' ); ?></option>
-						<option value="tag__not_in" <?php selected( $field_value['tag']['key'], 'tag__not_in' ); ?>><?php _e( 'Hide gMedia that do not have any of the chosen tags', 'gmLang' ); ?></option>
+						<option value="tag__and" <?php selected( $field_value['tag']['key'], 'tag__and' ); ?>><?php _e( 'Show Gmedia that are tagged with all chosen tags', 'gmLang' ); ?></option>
+						<option value="tag__in" <?php selected( $field_value['tag']['key'], 'tag__in' ); ?>><?php _e( 'Show Gmedia with either chosen tags', 'gmLang' ); ?></option>
+						<option value="tag__not_in" <?php selected( $field_value['tag']['key'], 'tag__not_in' ); ?>><?php _e( 'Hide Gmedia that do not have any of the chosen tags', 'gmLang' ); ?></option>
 					</select>
 				</h4>
 				<select name="gMediaQuery[tag][value][]" id="query_tag_value" class="gmedia-ui-multiselect query_tag_value" multiple="multiple" size="5">
@@ -284,7 +284,7 @@ if ( ! function_exists( 'gm_type_query' ) ) {
 				<h4><?php _e( 'Sort retrieved gMedia by parameter', 'gmLang' ); ?></h4>
 				<select name="gMediaQuery[orderby]" id="query_orderby" class="gmedia-ui-select query_orderby">
 					<option value="none" <?php selected( $field_value['orderby'], 'none' ); ?>><?php _e( 'No order', 'gmLang' ); ?></option>
-					<option value="ID" <?php selected( $field_value['orderby'], 'ID' ); ?>><?php _e( 'Order by gMedia id', 'gmLang' ); ?></option>
+					<option value="ID" <?php selected( $field_value['orderby'], 'ID' ); ?>><?php _e( 'Order by ID', 'gmLang' ); ?></option>
 					<option value="author" <?php selected( $field_value['orderby'], 'author' ); ?>><?php _e( 'Order by author', 'gmLang' ); ?></option>
 					<option value="title" <?php selected( $field_value['orderby'], 'title' ); ?>><?php _e( 'Order by title', 'gmLang' ); ?></option>
 					<option value="date" <?php selected( $field_value['orderby'], 'date' ); ?>><?php _e( 'Order by date', 'gmLang' ); ?></option>

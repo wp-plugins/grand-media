@@ -184,7 +184,7 @@ function grandWPMedia() {
 				}
 			}
 			else {
-				echo '<tr class="emptybd"><td colspan="8">' . __( 'No items in WordPress Media Library.', 'gmLang' ) . '</td></tr>';
+				echo '<tr class="emptydb"><td colspan="8">' . __( 'No items in WordPress Media Library.', 'gmLang' ) . '</td></tr>';
 			}
 			?>
 			<tr class="noitems">

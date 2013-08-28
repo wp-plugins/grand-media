@@ -1160,7 +1160,7 @@ table.gMediaLibTable tr.noitems td {
 	font-weight: bold;
 }
 
-table.gMediaLibTable tr.emptybd td {
+table.gMediaLibTable tr.emptydb td {
 	padding: 60px 0;
 	text-align: center;
 	font-weight: bold;
@@ -1417,6 +1417,14 @@ tr.gmedia-edit-row {
 	display: block;
 }
 
+img.gmedia-thumb-preview + img.gmedia-thumb {
+	position: absolute;
+	right: 5px;
+	bottom: 5px;
+	max-width: 30%;
+	max-height: 30%;
+}
+
 .gmedia-edit-row fieldset .gmImage .gmImageEdit {
 	position: absolute;
 	right: 7px;
@@ -1459,6 +1467,47 @@ tr.gmedia-edit-row {
 	margin-left: -5px;
 	width: 220px;
 	vertical-align: top;
+}
+
+.gmedia-edit-row fieldset .gmPreview.row input {
+	width: 190px;
+}
+
+.gmedia-edit-row fieldset .gmPreview .metabox-preview {
+	display: inline-block;
+	width: 25px;
+	height: 23px;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	-ms-box-sizing: border-box;
+	box-sizing: border-box;
+	overflow: hidden;
+	line-height: 24px;
+	text-align: center;
+	text-indent: -100em;
+	background: #fff url(../images/metabox.png) no-repeat 0px -223px;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	margin-top: 1px;
+}
+
+.gmedia-edit-row fieldset .gmPreview .metabox-preview.active {
+	background-color: #f9f9f9;
+	width: 40px;
+}
+
+.gmedia-edit-row fieldset .gmPreview .clear-preview {
+	font-size: 18px;
+	font-weight: bold;
+	color: darkred;
+	margin: 0px 0 0 -20px;
+	display: inline-block;
+	width: 20px;
+	overflow: hidden;
+	height: 24px;
+	line-height: 24px;
+	text-align: center;
+	cursor: pointer;
 }
 
 .gmedia-edit-row fieldset .gmDescription {
@@ -1538,6 +1587,133 @@ tr.gmedia-edit-row {
 	position: absolute;
 	left: 0;
 	top: -17px;
+}
+
+/** MetaBox */
+.gMedia-MetaBox {
+	position: absolute;
+	left: 510px;
+	top: 2px;
+	right: 66px;
+	bottom: 11px;
+	z-index: 10;
+	display: none;
+}
+
+.gMedia-MetaBox * {
+	margin: 0;
+	padding: 0;
+	font-size: 11px;
+	line-height: 15px;
+	text-decoration: none;
+}
+
+.gMedia-control {
+	position: absolute;
+	width: 240px;
+	right: 0;
+	top: 0;
+	padding: 0 6px;
+	background: #a1a1a1 url(../images/metabox.png) repeat-x 0 -145px;
+	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+	height: 28px;
+	border-top: 1px solid rgba(250, 250, 250, 0.8);
+	border-bottom: 1px solid rgba(24, 24, 24, 0.2);
+	z-index: 5;
+	overflow: hidden;
+}
+
+.gMedia-control .gMedia-control-update {
+	cursor: pointer;
+	position: absolute;
+	right: 3px;
+	top: 4px;
+	padding: 0 2px 0 3px;
+	height: 17px;
+	overflow: hidden;
+	border: 1px solid transparent;
+	border-radius: 3px;
+}
+
+.gMedia-control .gMedia-control-update:hover {
+	border-color: #c2c2c2;
+	background-color: #eee;
+}
+
+.gMedia-control-update span.gMedia-update-text {
+	background: url(../images/metabox.png) no-repeat right -206px;
+	line-height: 9px;
+	padding: 4px 17px 6px 0;
+	display: block;
+	color: #7fb900;
+	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+	text-transform: capitalize;
+	font-size: 11px;
+	font-weight: bold;
+}
+
+.gMedia-control .gMedia-refine-field {
+	margin: 1px 0 0 0;
+	float: left;
+}
+
+.gMedia-control .gMedia-refine-field input.gMedia-refine-input {
+	width: 134px;
+	font-size: 12px;
+}
+
+.gMedia-images-wrap {
+	background: #f9f9f9;
+	box-shadow: 0 0 6px #999 inset;
+	border-radius: 4px;
+	overflow: hidden;
+	overflow-y: scroll;
+	position: absolute;
+	left: 0;
+	top: 30px;
+	bottom: 0;
+	right: 0;
+	z-index: 1;
+}
+
+.gMedia-images-wrap ul.gMedia-images-thumbnails {
+	padding: 6px 0 0 6px;
+	position: absolute;
+	width: 100%;
+	top: 0;
+	left: 0;
+}
+
+.gMedia-images-wrap ul.gMedia-images-thumbnails .gMedia-image-li {
+	padding: 2px;
+	cursor: pointer;
+	width: 50px;
+	height: 50px;
+	float: left;
+	margin: 0 6px 6px 0;
+	border: 1px solid #bbb;
+	position: relative;
+	background: #fff;
+	border-radius: 3px;
+	box-shadow: 0 0 4px #CCC;
+	transition-property: border-color;
+	transition-duration: .33s;
+}
+
+.gMedia-images-wrap ul.gMedia-images-thumbnails .gMedia-image-li:hover,
+.gMedia-images-wrap ul.gMedia-images-thumbnails .gMedia-image-li.active {
+	border-color: #777;
+}
+.gMedia-images-wrap ul.gMedia-images-thumbnails .gMedia-image-li.active {
+	background-color: yellowgreen;
+}
+
+.gMedia-images-wrap .emptydb {
+	text-align: center;
+	font-weight: bold;
+	padding: 6px 0 10px;
+	clear: both;
+	float: none;
 }
 
 /** plupload overrite */
@@ -1753,7 +1929,7 @@ a.plupload_disabled:focus { color: #737373; }
 	padding: 7px 0;
 }
 
-.gmediaModuleSettings {
+.gmediaSettings {
 	position: relative;
 }
 
@@ -1840,6 +2016,8 @@ a.plupload_disabled:focus { color: #737373; }
 .mw220 {
 	max-width: 220px;
 }
+
+.relative { position: relative; }
 
 .spacer {
 	margin: 0;

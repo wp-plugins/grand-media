@@ -1,6 +1,6 @@
 /*
- * Title                   : Afflux Gallery
- * Version                 : 2.1
+ * Title                   : Afflux Gallery Module
+ * Version                 : 2.3
  * Copyright               : 2013 CodEasily.com
  * Website                 : http://www.codeasily.com
  */
@@ -148,7 +148,7 @@ if (typeof jQuery.fn.grandMediaAfflux == 'undefined') {
 							}
 							prototypes.swfobject_switchOffAutoHideShow();
 							/** @namespace opt.ModuleUrl */
-							swfobject.embedSWF(opt.moduleUrl + '/gallery.swf', moduleID + '_ID' + ID + '_Container', opt.width, opt.height, flashVerion, gMediaGlobalVar.pluginPath + '/inc/expressInstall.swf', flashvars, parameters, attributes, methods.callbackFn);
+							swfobject.embedSWF(opt.moduleUrl + '/gallery.swf', moduleID + '_ID' + ID + '_Container', opt.width, opt.height, flashVerion, opt.pluginUrl + '/inc/expressInstall.swf', flashvars, parameters, attributes, methods.callbackFn);
 
 						},
 						callbackFn   : function (e) {// e = {(bool) success, (string) id, (reference to the active HTML object element) ref}
@@ -324,6 +324,7 @@ if (typeof jQuery.fn.grandMediaAfflux == 'undefined') {
 									times = ((swipeSpeed < 0) && (scrollX < (scrollWidth - swipeWidth))) ? Math.ceil(times) : Math.floor(times);
 									positionX = swipeWidth * times + corr;
 									var toload = $('div.' + moduleID + '_img:eq('+(times + Math.max(-2, (0 - times)))+')', this).nextUntil($('div.' + moduleID + '_img:eq('+(times+3)+')', this).get(0)).andSelf().filter('.gm_thumb');
+									// ? var toload = $('div.' + moduleID + '_img:eq('+(times + Math.max(-2, (0 - times)))+')', this).nextUntil($('div.' + moduleID + '_img:eq('+(times+3)+')', this).get(0)).addBack().filter('.gm_thumb');
 									toload.each(function(){
 										var curimg = $('img',this);
 										methods.preloadImage(curimg, function(url){
@@ -369,6 +370,7 @@ if (typeof jQuery.fn.grandMediaAfflux == 'undefined') {
 									//positionX = swipeWidth * times + corr;
 									positionX = $('div.' + moduleID + '_img:eq('+times+')', this).get(0).offsetLeft;
 									var toload = $('div.' + moduleID + '_img:eq('+(times + Math.max(-2, (0 - times)))+')', this).nextUntil($('div.' + moduleID + '_img:eq('+(times+3)+')', this).get(0)).andSelf().filter('.gm_thumb');
+									// ? var toload = $('div.' + moduleID + '_img:eq('+(times + Math.max(-2, (0 - times)))+')', this).nextUntil($('div.' + moduleID + '_img:eq('+(times+3)+')', this).get(0)).addBack().filter('.gm_thumb');
 									toload.each(function(){
 										var curimg = $('img',this);
 										methods.preloadImage(curimg, function(url){

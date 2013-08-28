@@ -25,8 +25,9 @@ function gmedia_shortcode( $atts, $content = null ) {
 			$grandLoad->module_IDs['quene'][] = $id;
 
 		$shortcode = $gMDb->get_metadata( 'gmedia_term', $id, 'shortcode', true );
+		$module_name = $gMDb->get_metadata( 'gmedia_term', $id, 'module_name', true );
 		if ( ! empty( $shortcode ) )
-			return '<div class="' . $shortcode . '" id="' . $shortcode . '_ID' . $id . '">' . $content . '</div>';
+			return '<div class="gmedia_module ' . $module_name . '_module" id="' . $shortcode . '_ID' . $id . '">' . $content . '</div>';
 		if ( $gMDb->term_exists( $id ) )
 			return '<div class="GrandMediaShortcode">#' . $id . ': ' . __( 'Update Gmedia Module ID options. Missed `shortcode` option.', 'gmLang' ) . '<br />' . $content . '</div>';
 	}

@@ -106,6 +106,7 @@ foreach ( $module_meta['gMediaQuery'] as $i => $tab ) {
 	foreach ( $gMediaQuery as $item ) {
 		$meta['views'] = intval($gMDb->get_metadata('gmedia', $item->ID, 'views', true));
 		$meta['likes'] = intval($gMDb->get_metadata('gmedia', $item->ID, 'likes', true));
+		$meta['link'] = $gMDb->get_metadata('gmedia', $item->ID, 'link', true);
 		$_metadata = $gMDb->get_metadata('gmedia', $item->ID, '_metadata', true);
 		$args = array(
 			'id' => $item->ID,
@@ -119,7 +120,10 @@ foreach ( $module_meta['gMediaQuery'] as $i => $tab ) {
 		if(isset($thumb['crunch'])){
 			$crunch[] = $thumb['crunch'];
 		}
-		$b[]   = "		{'id': '{$item->ID}','image': '/{$gmOptions['folder']['image']}/{$item->gmuid}','thumb': '/{$gmOptions['folder']['link']}/{$thumb['file']}','title': '" . str_replace( "\\", "\\\\", esc_html( $item->title )) . "','description': '" . str_replace( array("'", "\\"), array("&#39;", "\\\\"), $item->description ) . "','date': '{$item->date}','views': '{$meta['views']}','likes': '{$meta['likes']}','w': '{$_metadata['width']}','h': '{$_metadata['height']}'}";
+		if(!empty($meta['link'])){
+			$item->title = '<a href="'.$meta['link'].'"><b>'. $item->title .'</b></a>';
+		}
+		$b[]   = "		{'id': '{$item->ID}','image': '/{$gmOptions['folder']['image']}/{$item->gmuid}','thumb': '/{$gmOptions['folder']['link']}/{$thumb['file']}','title': " . json_encode( $item->title ) . ",'description': " . json_encode( wpautop($item->description) ) . ",'date': '{$item->date}','views': '{$meta['views']}','likes': '{$meta['likes']}','w': '{$_metadata['width']}','h': '{$_metadata['height']}'}";
 	}
 	$a[$i] .= implode( ",\n", $b ) . "\n";
 	$a[$i] .= "	]}";

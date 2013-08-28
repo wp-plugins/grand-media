@@ -17,7 +17,7 @@ div.gm-metabox-wrapper {
 .gm-metabox-wrapper .postbox {
 	background: #fff;
 	border: none;
-	margin: 0 30px;
+	margin: 0 20px;
 	padding: 0 0 10px;
 }
 
@@ -131,13 +131,18 @@ div.gm-metabox-wrapper {
   ---------------------------------------------------*/
 .format-settings {
 	border-bottom: 1px dashed #ddd;
-	padding: 1px 0 6px 0;
+	padding: 7px;
 	position: relative;
-	width: 100%;
 }
 
 .format-settings.block-hidden {
 	display: none;
+}
+.format-settings.block-success {
+	background-color: rgba(0,255,0,0.1);
+}
+.format-settings.block-error {
+	background-color: rgba(255,0,0,0.1);
 }
 
 /* -------------------------------------------------- 
@@ -147,10 +152,12 @@ div.gm-metabox-wrapper {
 	margin: 0 0 2px 0;
 	padding: 1px 0px 1px 0px;
 	width: 100%;
+	display: block;
 }
 
 .gm-metabox-wrapper .description h3,
-.metabox-holder .format-setting-label .label {
+.metabox-holder .format-setting-label .label,
+.metabox-holder label.format-setting-label {
 	background: none;
 	border: none;
 	color: #333;
@@ -202,8 +209,14 @@ div.gm-metabox-wrapper {
 	width: 70%;
 }
 
+.format-setting .button {
+	display: inline-block;
+}
+
 .format-setting.wide-desc .description {
 	width: 100%;
+	display: block;
+	padding-top: 10px;
 }
 
 .list-item-description {

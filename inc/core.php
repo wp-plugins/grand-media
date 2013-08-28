@@ -87,6 +87,7 @@ class grandCore {
 	 *
 	 * @param string $message
 	 * @param string $type
+	 * @param bool   $close
 	 *
 	 * @return string
 	 */
@@ -182,6 +183,12 @@ class grandCore {
 				'GeonaBot|Gigabot|Lycos|MSRBOT|Scooter|AltaVista|IDBot|eStyle|Scrubby|yandex|facebook';
 		$isCrawler = ( preg_match( "/$crawlers/i", $userAgent ) > 0 );
 		return $isCrawler;
+	}
+
+	function is_browser( $userAgent ) {
+		$browsers  = 'opera|aol|msie|firefox|chrome|konqueror|safari|netscape|navigator|mosaic|lynx|amaya|omniweb|avant|camino|flock|seamonkey|mozilla|gecko';
+		$isBrowser = ( preg_match( "/$browsers/i", $userAgent ) > 0 );
+		return $isBrowser;
 	}
 
 	/**
@@ -300,11 +307,11 @@ class grandCore {
 	 * @param string $size Optional, default is empty string, could be 'thumb' (size from gmediaOptions)
 	 *                     or array($width, $height). If empty string, get size from meta.
 	 * @param array  $attr Optional, additional attributes.
-	 * @param bool   $noid Optional, add or skip image id attribute.
+	 * @param string $return Set 'src' to return only image url
 	 *
 	 * @return string HTML img element or empty string on failure.
 	 */
-	function gm_get_media_image( $item, $size = '', $attr = array(), $noid = false ) {
+	function gm_get_media_image( $item, $size = '', $attr = array(), $return = '' ) {
 		global $gMDb, $grandCore;
 
 		$html      = '';
@@ -356,10 +363,15 @@ class grandCore {
 		$attr = apply_filters( 'gm_get_media_image_attributes', $attr, $item );
 		$attr = array_map( 'esc_attr', $attr );
 
-		$hwstring = image_hwstring( $width, $height );
+		if('src' === $return) {
+			return $attr['src'];
+		}
+
+		//$hwstring = image_hwstring( $width, $height );
 
 		$html = "<img";
 		foreach ( $attr as $name => $value ) {
+			if(empty($value)){ continue; }
 			$html .= " $name=" . '"' . $value . '"';
 		}
 		$html .= ' />';
@@ -427,34 +439,56 @@ class grandCore {
 		 * @var $suffix string
 		 */
 		$args = wp_parse_args($args, array(
+			'id' => 0,
+			'file' => '',
+			'suffix' => '',
+			'max_w' => 0,
+			'max_h' => 0,
 			'crop' => 0,
 			'quality' => 90,
-			'suffix' => ''
+			'width' => 0,
+			'height' => 0,
 		));
 		extract($args);
+		if(empty($file)){
+			return array( 'file' => 'NaN', 'error' => '$file empty' );
+		}
 		$gmOptions   = get_option( 'gmediaOptions' );
 		$upload      = $this->gm_upload_dir();
 
-		if(!$crop || !$max_w || !$max_h){
-			list($max_w, $max_h) = wp_constrain_dimensions($width, $height, $max_w, $max_h);
-			$crop = 1;
-		}
-		if($crop && ($max_w.'x'.$max_h == $gmOptions['thumbnail_size']) && !$suffix) {
+		if(empty($width) || empty($height) ){
 			$suffix = 'thumb';
-		}
-		if(!$suffix) {
-			$suffix = $max_w . 'x' . $max_h;
 		}
 
 		$ext   = strrchr( $file, '.' );
 		$filename = substr( $file, 0, strrpos( $file, $ext ) );
-		$thumb = $filename . '-thumb' . $ext;
 		$file_path = $upload['path'] . $gmOptions['folder']['image'] . '/' . $file;
-		$link_path = $upload['path'] . $gmOptions['folder']['link'] . '/' . $filename . '-' . $suffix . $ext;
 		$file_url = $upload['url'] . $gmOptions['folder']['image'] . '/' . $file;
-		$link_url = $upload['url'] . $gmOptions['folder']['link'] . '/' . $filename . '-' . $suffix . $ext;
+
+		if('thumb' != $suffix){
+			if((!$crop || !$max_w || !$max_h) && ($crop|$max_w|$max_h) ){
+				list($max_w, $max_h) = wp_constrain_dimensions($width, $height, $max_w, $max_h);
+				$crop = 1;
+			}
+			if($crop && ($max_w.'x'.$max_h == $gmOptions['thumbnail_size'])) {
+				$suffix = 'thumb';
+			}
+		}
+
+		if(empty($suffix)) {
+			$suffix = $max_w . 'x' . $max_h;
+		}
+
+		if( ($max_w.'x'.$max_h) === ($width.'x'.$height) ){
+			$link_path = $file_path;
+			$link_url = $file_url;
+		} else {
+			$link_path = $upload['path'] . $gmOptions['folder']['link'] . '/' . $filename . '-' . $suffix . $ext;
+			$link_url = $upload['url'] . $gmOptions['folder']['link'] . '/' . $filename . '-' . $suffix . $ext;
+		}
 
 		if ( !file_exists($link_path) ) {
+			$thumb = $filename . '-thumb' . $ext;
 			if( !$crunch ) {
 				$args['max_h'] = $max_h;
 				$args['max_w'] = $max_w;

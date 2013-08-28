@@ -31,6 +31,19 @@ class grandLibrary {
 		$gmOptions = get_option( 'gmediaOptions' );
 		switch ( $this->page ) {
 			case 'GrandMedia_Settings':
+				if ( isset( $_POST['gmedia_settings_save'] ) ) {
+					check_admin_referer( 'grandMedia' );
+					$gmOptions = get_option( 'gmediaOptions' );
+					foreach ( $_POST['set'] as $key => $val ) {
+						$gmOptions[$key] = $val;
+					}
+					update_option( 'gmediaOptions', $gmOptions );
+
+					$this->msg .= $grandCore->message( __( "Settings saved", 'gmLang' ) );
+				}
+				if ( isset( $_GET['settings_default'] ) ) {
+					$this->msg .= $grandCore->message( __( "Default setings loaded", 'gmLang' ), 'info' );
+				}
 				break;
 			case 'GrandMedia_Tags_and_Categories':
 				if ( isset( $_POST['addterms'] ) ) {

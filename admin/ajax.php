@@ -15,13 +15,14 @@ function gmDoAjax() {
 	if ( ! current_user_can( 'edit_posts' ) )
 		die( '-1' );
 
-	if ( $referer = wp_get_referer() ) {
+/*	if ( $referer = wp_get_referer() ) {
 		if ( false === strpos( $referer, 'GrandMedia' ) )
 			die( '0' );
 	}
 	else {
 		die( '0' );
 	}
+*/
 
 	$task = isset( $_REQUEST['task'] ) ? $_REQUEST['task'] : false;
 	if ( ! $task )
@@ -55,8 +56,14 @@ function gmDoAjax() {
 		case 'gmedia-update':
 			if ( ! empty( $gmedia['ID'] ) ) {
 				$gmedia['modified'] = current_time( 'mysql' );
-				$id                 = $gMDb->insert_gmedia( $gmedia );
+				$id = $gMDb->insert_gmedia( $gmedia );
 				if ( ! is_wp_error( $id ) ) {
+					// Meta Stuff
+					if ( isset($gmedia['meta']) && is_array($gmedia['meta']) ) {
+						foreach ( $gmedia['meta'] as $key => $value ) {
+							$gMDb->update_metadata( 'gmedia', $id, $key, $value );
+						}
+					}
 					$item = $gMDb->get_gmedia( $id );
 					//include_once(dirname(__FILE__).'/functions.php');
 					ob_start();
@@ -366,7 +373,10 @@ function gmDoAjax() {
 			if ( wp_update_post( $post ) ) {
 				$gmObject = get_post( $gmID );
 				//include_once(dirname(__FILE__).'/functions.php');
-				$tr     = $grandAdmin->wpMediaRow( $gmObject );
+				ob_start();
+				$grandAdmin->wpMediaRow( $gmObject );
+				$tr = ob_get_contents();
+				ob_end_clean();
 				$result = array( 'stat' => 'OK', 'message' => $grandCore->message( sprintf( __( 'post #%s updated successfully', 'gmLang' ), $gmID ), 'info' ), 'content' => $tr );
 			}
 			else {
@@ -411,7 +421,7 @@ function gmDoAjax() {
 					foreach ( $gMediaLib as $item ) {
 						$type     = explode( '/', $item->mime_type );
 						$item_url = $uploads['url'] . $gmOptions['folder'][$type[0]] . '/' . $item->gmuid;
-						$image    = $grandCore->gm_get_media_image( $item, 'thumb', array( 'width' => 48, 'height' => 48 ), true );
+						$image    = $grandCore->gm_get_media_image( $item, 'thumb', array( 'width' => 48, 'height' => 48 ) );
 						$content .= '<a class="grandbox" title="' . trim( esc_attr( strip_tags( $item->title ) ) ) . '" rel="querybuilder__' . $tab . '" href="' . $item_url . '">' . $image . '</a> ';
 					}
 				}
@@ -474,8 +484,8 @@ function gmDoAjax() {
 					if(empty($flag_gallery))
 						continue;
 
-					if(!$term = $gMDb->term_exists($flag_gallery['title'], 'gmedia_category')) {
-						$term = $gMDb->insert_term($flag_gallery['title'], 'gmedia_category', array('description' => $flag_gallery['galdesc']));
+					if( !$term = $gMDb->term_exists($flag_gallery['title'], 'gmedia_category') ) {
+						$term = $gMDb->insert_term( $flag_gallery['title'], 'gmedia_category', array('description' => htmlspecialchars_decode(stripslashes( $flag_gallery['galdesc'] ))) );
 						if(is_wp_error($term)){
 							$term['term_id'] = '';
 						}
@@ -531,7 +541,7 @@ function gmDoAjax() {
 						continue;
 
 					if(!$term = $gMDb->term_exists($ngg_gallery['title'], 'gmedia_category')) {
-						$term = $gMDb->insert_term($ngg_gallery['title'], 'gmedia_category', array('description' => $ngg_gallery['galdesc']));
+						$term = $gMDb->insert_term( $ngg_gallery['title'], 'gmedia_category', array('description' => htmlspecialchars_decode(stripslashes( $ngg_gallery['galdesc'] ))) );
 						if(is_wp_error($term)){
 							$term['term_id'] = '';
 						}
@@ -576,6 +586,136 @@ function gmDoAjax() {
 			echo json_encode( $result );
 			die();
 			break;
+
+
+		case 'related-image':
+			$post_tags = array_filter(array_map( 'trim', explode(',', $grandCore->_get('tags', '')) ));
+			$paged = (int) $grandCore->_get('paged', 1);
+			$per_page = 20;
+			$s = trim( $grandCore->_get('search') );
+			if ( $s && strlen( $s ) > 2 ) {
+				$post_tags = array();
+			} else {
+				$s = '';
+			}
+
+			$gMediaLib = array();
+			$relative = (int) $grandCore->_get('rel', 1);
+			$continue = true;
+			$content = '';
+
+			if($relative == 1){
+				$arg = array(
+					'mime_type' 		=> 'image/*'
+				,	'orderby'   		=> 'ID'
+				,	'order'     		=> 'DESC'
+				,	'per_page'  		=> $per_page
+				,	'page'      		=> $paged
+				,	's'							=> $s
+				,	'tag_name__in'	=> $post_tags
+				,	'null_tags'			=> true
+				);
+				$gMediaLib = $gMDb->get_gmedias( $arg );
+			}
+
+			if( empty( $gMediaLib ) && count($post_tags) ) {
+
+				if($relative == 1){
+					$relative = 0;
+					$paged = 1;
+					$content .= '<li class="emptydb">' . __( 'No items related by tags.', 'gmLang' ) . '</li>'."\n";
+				}
+
+				$tag__not_in = "'" . implode( "','", array_map( 'sanitize_title_for_query', array_unique( (array) $post_tags ) ) ) . "'";
+				$tag__not_in = $wpdb->get_col( "
+					SELECT term_id
+					FROM {$wpdb->prefix}gmedia_term
+					WHERE taxonomy = 'gmedia_tag'
+					AND name IN ({$tag__not_in})
+				" );
+
+				$arg = array(
+					'mime_type' 		=> 'image/*'
+				,	'orderby'   		=> 'ID'
+				,	'order'     		=> 'DESC'
+				,	'per_page'  		=> $per_page
+				,	'page'      		=> $paged
+				,	'tag__not_in'		=> $tag__not_in
+				);
+				$gMediaLib = $gMDb->get_gmedias( $arg );
+			}
+
+			if( $count = count( $gMediaLib ) ) {
+				$upload = $grandCore->gm_upload_dir();
+				foreach ( $gMediaLib as $item ) {
+					$src = $upload['url'] . 'image/' . $item->gmuid;
+
+					$content .= "<li class='gMedia-image-li' id='gM-img-{$item->ID}'>\n";
+					$content .= "	<a target='_blank' class='gM-img' data-gmid='{$item->ID}' href='{$src}'>".$grandCore->gm_get_media_image( $item, 'thumb', array( 'width' => 50, 'height' => 50 ) )."</a>\n";
+
+					$content .= "	<div style='display: none;' class='gM-img-description'>".trim(esc_html(strip_tags($item->description)))."</div>\n";
+					//$content .= "	<div class='gMedia-selector'></div>\n";
+					$content .= "</li>\n";
+
+				}
+				if(($count < $per_page) && ($relative == 0 || !empty($s))){
+					$continue = false;
+				}
+			}
+			else {
+				if($s){
+					$content .= '<li class="emptydb">' . __( 'No items matching the search query.', 'gmLang' ) . '</li>'."\n";
+				} else {
+					$content .= '<li class="emptydb">' . __( 'Gmedia Library is empty.', 'gmLang' ) . '</li>'."\n";
+				}
+				$continue = false;
+			}
+			$result = array( 'paged' => $paged, 'rel' => $relative, 'continue' => $continue,  'content' => $content );
+			header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
+			echo json_encode( $result );
+
+			die();
+			break;
+
+		case 'gm-get-key':
+			global $wp_version;
+			if(isset($set['gmedia_key']) && !empty($set['gmedia_key'])){
+				$gmedia_ua = "WordPress/{$wp_version} | ";
+				$gmedia_ua .= 'Gmedia/' . constant( 'GRAND_VERSION' );
+
+				$response = wp_remote_post( 'http://codeasily.com/rest/gmedia-key.php', array(
+						'body' => array( 'key' => $set['gmedia_key'], 'site' => site_url() ),
+						'headers'		=> array(
+							'Content-Type'	=> 'application/x-www-form-urlencoded; ' .
+							'charset=' . get_option( 'blog_charset' ),
+							'Host'			=> 'codeasily.com',
+							'User-Agent'	=> $gmedia_ua
+						),
+						'httpversion' => '1.0',
+						'timeout' => 45,
+					)
+				);
+
+				if ( is_wp_error( $response ) ) {
+					$error_message = $response->get_error_message();
+					$result = array( "error" => array( "code" => 102, "message" => $grandCore->message(__( "Something went wrong:", 'gmLang' ).' '.$error_message, 'error') ) );
+				} else {
+					$result = json_decode($response['body']);
+					if($result->error->code == 200){
+						$result->message = $grandCore->message(__('License Key activated successfully', 'gmLang'));
+					} else {
+						$result->message = $grandCore->message(__('Error', 'gmLang').': '.$result->error->message, 'error');
+					}
+				}
+			} else {
+				$result = array( "error" => array( "code" => 101, "message" => $grandCore->message(__( "Empty License Key", 'gmLang' ), 'error') ) );
+			}
+			header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
+			echo json_encode( $result );
+			//echo '<pre>'; print_r($result); echo '</pre>';;
+			die();
+			break;
+
 
 	}
 	die();
