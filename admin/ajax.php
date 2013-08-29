@@ -271,18 +271,17 @@ function gmDoAjax() {
 			break;
 
 		case 'gm-update-module':
-			if ( isset( $module ) )
-				$postmsg = sprintf( __( "'%s' module updated successfully", 'gmLang' ), $module );
+			if ( isset( $modulezip ) && isset( $modulename ) )
+				$postmsg = sprintf( __( "'%s' module updated successfully", 'gmLang' ), $modulename );
 		case 'gm-install-module':
-			if ( isset( $module ) ) {
+			if ( isset( $modulezip ) && isset( $modulename ) ) {
 				/** @var $postmsg */
 				if ( $task == 'gm-install-module' )
-					$postmsg = sprintf( __( '%s.zip module installed successfully', 'gmLang' ), $module );
+					$postmsg = sprintf( __( '%s module installed successfully', 'gmLang' ), $modulename );
 				$update = $grandCore->message( __( 'Installing...', 'gmLang' ), 'wait' );
-				$url    = "http://dl.dropbox.com/u/6295502/gmedia_modules/$module.zip";
-				$mzip   = download_url( $url );
+				$mzip   = download_url( $modulezip );
 				if(is_wp_error($mzip)){
-					echo $url;
+					echo $modulezip;
 					die( "ERROR : '" . $mzip->get_error_message() . "'" );
 				}
 

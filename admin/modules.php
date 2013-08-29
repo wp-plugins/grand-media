@@ -129,7 +129,8 @@ function gmedia_manage_modules() {
 		<div class="gmediaModules">
 			<?php
 			// not installed modules
-			$modules_xml = @simplexml_load_file( 'http://dl.dropbox.com/u/6295502/gmedia_modules/modules.xml', 'SimpleXMLElement', LIBXML_NOCDATA );
+			$dropbox_public = 'http://dl.dropbox.com/u/6295502/gmedia_modules/';
+			$modules_xml = @simplexml_load_file( $dropbox_public.'modules.xml', 'SimpleXMLElement', LIBXML_NOCDATA );
 			$all_modules = $modules_by_type = $available_modules = array();
 			$modules_xml_message = '';
 			if ( ! empty( $modules_xml ) ) {
@@ -206,7 +207,7 @@ function gmedia_manage_modules() {
 						$update                   = '';
 						if ( isset( $all_modules[$muid] ) && (string) $all_modules[$muid]['uid'] == $module['uid'] ) {
 							if ( version_compare( (float) $all_modules[$muid]['version'], (float) $module['version'], '>' ) ) {
-								$update = '| <a class="module_update button button-green ajaxPost" data-action="gmDoAjax" data-_ajax_nonce="' . $nonce . '" data-post="module=' . $moduledir . '" data-task="gm-update-module" href="http://dl.dropbox.com/u/6295502/gmedia_modules/'.$all_modules[$muid]['filename'].'.zip">' . __( 'Update Module', 'gmLang' ) . " (v{$all_modules[$muid]['version']})</a>";
+								$update = '| <a class="module_update button button-green ajaxPost" data-action="gmDoAjax" data-_ajax_nonce="' . $nonce . '" data-post="module=' . $all_modules[$muid]['download'] . '" data-task="gm-update-module" href="'.$all_modules[$muid]['download'].'">' . __( 'Update Module', 'gmLang' ) . " (v{$all_modules[$muid]['version']})</a>";
 								$mclass .= ' module_update';
 							}
 							$module['demo'] = $all_modules[$muid]['demo'];
@@ -250,7 +251,7 @@ function gmedia_manage_modules() {
 				<?php foreach ( $all_modules as $module ) { ?>
 					<div class="module <?php echo $module['type'] . ' ' . $module['status']; ?>" id="<?php echo $module['uid']; ?>">
 						<div class="screenshot">
-							<img src="http://dl.dropbox.com/u/6295502/gmedia_modules/<?php echo $module['filename']; ?>.png" alt="<?php echo $module['title']; ?>" width="320" height="240" />
+							<img src="<?php echo $dropbox_public.$module['filename']; ?>.png" alt="<?php echo $module['title']; ?>" width="320" height="240" />
 						</div>
 						<div class="content">
 							<h3><?php echo $module['title']; ?></h3>
@@ -262,7 +263,7 @@ function gmedia_manage_modules() {
 								<a class="module_preview button" target="_blank" href="<?php echo $module['demo']; ?>"><?php _e( 'View Demo', 'gmLang' ) ?></a>
 								|
 								<?php } ?>
-								<a class="install ajaxPost button-primary" data-action="gmDoAjax" data-_ajax_nonce="<?php echo $nonce; ?>" data-post="module=<?php echo $module['filename']; ?>" data-task="gm-install-module" href="http://dl.dropbox.com/u/6295502/gmedia_modules/<?php echo $module['filename']; ?>.zip"><?php _e( 'Install Module', 'gmLang' ) ?></a>
+								<a class="install ajaxPost button-primary" data-action="gmDoAjax" data-_ajax_nonce="<?php echo $nonce; ?>" data-post="modulezip=<?php echo urlencode($module['download']); ?>&modulename=<?php echo urlencode($module['title']); ?>" data-task="gm-install-module" href="<?php echo $module['download']; ?>"><?php _e( 'Install Module', 'gmLang' ) ?></a>
 							</div>
 						</div>
 					</div>
