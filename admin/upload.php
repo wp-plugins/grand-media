@@ -9,6 +9,9 @@
  * Contributing: http://www.plupload.com/contributing
  */
 
+ini_set( 'display_errors', 0 );
+ini_set( 'error_reporting', 0 );
+
 preg_match( '|^(.*?/)(grand-media)/|i', str_replace( '\\', '/', __FILE__ ), $_m );
 require_once( $_m[1] . 'grand-media/config.php' );
 

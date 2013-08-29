@@ -731,11 +731,11 @@ class gMDb {
 		if ( '' !== $q['second'] ) $q['second'] = absint( $q['second'] );
 
 
-		if ( ! isset( $q['per_page'] ) ) {
+		/*if ( ! isset( $q['per_page'] ) ) {
 			$gmOptions   = get_option( 'gmediaOptions' );
 			$q['per_page'] = $gmOptions['per_page_gmedia'];
-		}
-		if( $q['per_page'] == 0 ) {
+		}*/
+		if( !isset( $q['per_page'] ) || $q['per_page'] == 0 ) {
 			$q['per_page'] = - 1;
 		}
 		if ( ! isset( $q['nopaging'] ) ) {
