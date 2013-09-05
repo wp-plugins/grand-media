@@ -1,7 +1,7 @@
 <?php
 @ require_once ('config.php');
 if ( empty( $_SERVER['HTTP_REFERER'] ) ) {
-	die('0');
+	die();
 }
 $ref = $_SERVER['HTTP_REFERER'];
 if ( (false === strpos( $ref, get_home_url() )) && (false === strpos( $ref, get_site_url()) )) {
@@ -13,6 +13,9 @@ if ( (false === strpos( $ref, get_home_url() )) && (false === strpos( $ref, get_
 if ( isset($_POST['hit']) && ($gmID = intval($_POST['hit'])) ) {
 	/** @var $wpdb wpdb */
 	global $wpdb, $gMDb;
+	if(null === $gMDb->get_gmedia($gmID)){
+		die('0');
+	}
 	$meta['views'] = $gMDb->get_metadata('gmedia', $gmID, 'views', true);
 	$meta['likes'] = $gMDb->get_metadata('gmedia', $gmID, 'likes', true);
 	gm_hitcounter($gmID, $meta);

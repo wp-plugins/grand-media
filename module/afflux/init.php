@@ -5,8 +5,8 @@
  * @var  $jsInit
  * @var  $jsRun
  **/
-$jsInit .= "var grandMediaAfflux_ID{$module_meta['term_id']},\n";
-$jsInit .= "grandMediaAfflux_ID{$module_meta['term_id']}_Settings = {\n";
+$jsInit .= "var gmAfflux_ID{$module_meta['term_id']},\n";
+$jsInit .= "gmAfflux_ID{$module_meta['term_id']}_Settings = {\n";
 $a = array();
 if ( isset( $module_meta['width'] ) )
 	$a[] = "	'width': '" . intval( $module_meta['width'] ) . ( strpos( $module_meta['width'], '%' ) ? '%' : '' ) . "'";
@@ -65,12 +65,10 @@ if ( isset( $module_meta['backButtonBgColor'] ) )
 
 if ( isset( $module_meta['hitcounter'] ) )
 	$a[] = "	'hitcounter': " . ( empty( $module_meta['hitcounter'] ) ? 'false' : 'true' );
-if ( isset( $module_meta['LoveLink'] ) )
+if ( isset( $module_meta['loveLink'] ) )
 	$a[] = "	'loveLink': " . ( empty( $module_meta['loveLink'] ) ? 'false' : 'true' );
 
 $a[] = "	'moduleName': '" . esc_js( $module_meta['name'] ) . "'";
-//$a[] = "	'website': '".get_site_url()."'";
-$a[] = "	'licenseKey': ''";
 $a[] = "	'pluginUrl': '" . plugins_url( GRAND_FOLDER ) . "'";
 $a[] = "	'libraryUrl': '" . rtrim( $upload['url'], '/' ) . "'";
 $a[] = "	'moduleUrl': '" . $module_dir['url'] . "'";
@@ -84,7 +82,7 @@ if ( is_page() ) {
 $jsInit .= implode( ",\n", $a ) . "\n";
 $jsInit .= "},\n";
 
-$jsInit .= "grandMediaAfflux_ID{$module_meta['term_id']}_Content = [\n";
+$jsInit .= "gmAfflux_ID{$module_meta['term_id']}_Content = [\n";
 $a = array();
 $crunch = array();
 /**
@@ -135,6 +133,6 @@ if ( empty( $a ) ) {
 $jsInit .= implode( ",\n", $a ) . "\n";
 $jsInit .= "];\n\n";
 if (!empty($crunch)){
-	$jsInit .= "grandMediaAfflux_ID{$module_meta['term_id']}_Crunch = ".json_encode($crunch)."\n\n";
+	$jsInit .= "gmAfflux_ID{$module_meta['term_id']}_Crunch = ".json_encode($crunch)."\n\n";
 }
-$jsRun .= "	grandMediaAfflux_ID{$module_meta['term_id']} = jQuery('#grandMediaAfflux_ID{$module_meta['term_id']}').grandMediaAfflux();\n\n";
+$jsRun .= "	gmAfflux_ID{$module_meta['term_id']} = jQuery('#gmAfflux_ID{$module_meta['term_id']}').gmAfflux();\n\n";

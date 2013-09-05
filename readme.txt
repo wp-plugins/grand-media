@@ -3,8 +3,8 @@ Contributors: Rattus
 Donate link: http://codeasily.com/wordpress-plugins/gmedia-gallery/
 Tags: gallery, image, images, library, files, music, video, slideshow, responsive, admin, Post, posts, iOS gallery, iphone gallery, best gallery, portfolio, image gallery, photo gallery, photo, slider, admin, page, relative image
 Requires at least: 3.5
-Tested up to: 3.5.1
-Stable tag: 0.8.1
+Tested up to: 3.6
+Stable tag: 0.8.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -58,6 +58,7 @@ TODO List:
 *   Upload ZIP with files
 *   Image Editor with watermark feature
 *   Add drag'n'drop sorting for files in category
+*   Add bulk editing
 
 
 == Installation ==
@@ -84,6 +85,10 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 3. Add to Post - GrandMedia MetaBox
 
 == Changelog ==
+
+= 0.8.2 =
+* Added compatibility with future modules
+* Updated Afflux Module and other gallery modules
 
 = 0.8.1 =
 * Fix for 30 images limit

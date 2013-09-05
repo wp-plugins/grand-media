@@ -11,7 +11,7 @@ add_filter( 'the_content', 'do_shortcode' );
 /** ******************************* **/
 
 function gmedia_shortcode( $atts, $content = null ) {
-	global $gMDb, $grandLoad;
+	global $gMDb, $grandLoad, $grandCore;
 	/** @var $id */
 	extract( shortcode_atts( array(
 		"id" => 0
@@ -24,14 +24,17 @@ function gmedia_shortcode( $atts, $content = null ) {
 		if ( isset( $grandLoad->module_IDs['loaded'] ) && ! in_array( $id, $grandLoad->module_IDs['loaded'] ) )
 			$grandLoad->module_IDs['quene'][] = $id;
 
-		$shortcode = $gMDb->get_metadata( 'gmedia_term', $id, 'shortcode', true );
 		$module_name = $gMDb->get_metadata( 'gmedia_term', $id, 'module_name', true );
-		if ( ! empty( $shortcode ) )
-			return '<div class="gmedia_module ' . $module_name . '_module" id="' . $shortcode . '_ID' . $id . '">' . $content . '</div>';
+		$module_dir = $grandCore->get_module_path( $module_name );
+		if ( $module_dir ){
+			$module['uid'] = 'gmModule';
+			include($module_dir['path'] . '/details.php');
+			return '<div class="gmedia_module ' . $module_name . '_module" id="' . $module['uid'] . '_ID' . $id . '">' . $content . '</div>';
+		}
 		if ( $gMDb->term_exists( $id ) )
-			return '<div class="GrandMediaShortcode">#' . $id . ': ' . __( 'Update Gmedia Module ID options. Missed `shortcode` option.', 'gmLang' ) . '<br />' . $content . '</div>';
+			return '<div class="gmedia_module gmediaShortcodeError">#' . $id . ': ' . __( 'Gmedia Module folder missed.', 'gmLang' ) . '<br />' . $content . '</div>';
 	}
 
-	return '<div class="GrandMediaShortcode">#' . $id . ': ' . __( 'Gmedia Module ID does not exist.', 'gmLang' ) . '</div>';
+	return '<div class="gmedia_module gmediaShortcodeError">#' . $id . ': ' . __( 'Gmedia Module ID does not exist.', 'gmLang' ) . '</div>';
 }
 

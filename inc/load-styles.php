@@ -73,6 +73,12 @@ foreach ( $load as $mID ) {
 	}
 	$out .= str_replace( '../img/', $module_meta['module_url'] . '/img/', $module_css );
 
+	if(file_exists($path . '/dynamic_css.php')){
+		$dynamic_css = '';
+		include($path . '/dynamic_css.php');
+		$out .= $dynamic_css;
+	}
+
 	$loaded[] = $module_meta['module_name'];
 
 }
