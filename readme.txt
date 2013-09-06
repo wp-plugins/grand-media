@@ -86,6 +86,10 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 
 == Changelog ==
 
+= *.*.* =
+* Fixed update module button not worked
+* Added handle errors when installing skins
+
 = 0.8.2 =
 * Added compatibility with future modules
 * Updated Afflux Module and other gallery modules
