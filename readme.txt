@@ -1,7 +1,7 @@
 === Gmedia Gallery ===
 Contributors: Rattus
 Donate link: http://codeasily.com/wordpress-plugins/gmedia-gallery/
-Tags: gallery, image, images, library, files, music, video, slideshow, responsive, admin, Post, posts, iOS gallery, iphone gallery, best gallery, portfolio, image gallery, photo gallery, photo, slider, admin, page, relative image
+Tags: gallery, image, images, library, files, music, video, slideshow, responsive, admin, Post, posts, easy gallery, iphone gallery, best gallery, portfolio, image gallery, photo gallery, photo, slider, admin, page, relative image
 Requires at least: 3.5
 Tested up to: 3.6
 Stable tag: 0.8.2
