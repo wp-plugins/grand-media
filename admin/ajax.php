@@ -281,8 +281,10 @@ function gmDoAjax() {
 				$update = $grandCore->message( __( 'Installing...', 'gmLang' ), 'wait' );
 				$mzip   = download_url( $modulezip );
 				if(is_wp_error($mzip)){
-					echo $modulezip;
-					die( "ERROR : '" . $mzip->get_error_message() . "'" );
+					$result = array( 'stat' => 'KO', 'message' => "ERROR : '" . $mzip->get_error_message() . "' ({$modulezip})" );
+					header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
+					echo json_encode( $result );
+					die();
 				}
 
 				$mzip   = str_replace( "\\", "/", $mzip );
@@ -294,16 +296,37 @@ function gmDoAjax() {
 
 				if ( class_exists( 'ZipArchive' ) ) {
 					$zip = new ZipArchive;
-					$zip->open( $mzip );
-					$zip->extractTo( $module_dir );
-					$zip->close();
+					$open = $zip->open( $mzip );
+					if($open === true){
+						$zip->extractTo( $module_dir );
+						$zip->close();
+					} else {
+						$result = array( 'stat' => 'KO', 'message' => "ERROR : Can't open archive. Error code: {$open}" );
+						header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
+						echo json_encode( $result );
+						die();
+						/*
+							ZIPARCHIVE::ER_EXISTS 	- 10: 'File already exists'
+							ZIPARCHIVE::ER_INCONS 	- 21: 'Zip archive inconsistent'
+							ZIPARCHIVE::ER_INVAL 		- 18: 'Invalid argument'
+							ZIPARCHIVE::ER_MEMORY 	- 14: 'Malloc failure'
+							ZIPARCHIVE::ER_NOENT 		-  9: 'No such file'
+							ZIPARCHIVE::ER_NOZIP 		- 19: 'Not a zip archive'
+							ZIPARCHIVE::ER_OPEN 		- 11: 'Can't open file'
+							ZIPARCHIVE::ER_READ 		-  5: 'Read error'
+							ZIPARCHIVE::ER_SEEK 		-  4: 'Seek error'
+						 */
+					}
 				}
 				else {
 					require_once( ABSPATH . 'wp-admin/includes/class-pclzip.php' );
 					$archive = new PclZip( $mzip );
 					$list    = $archive->extract( $module_dir );
 					if ( $list == 0 ) {
-						die( "ERROR : '" . $archive->errorInfo( true ) . "'" );
+						$result = array( 'stat' => 'KO', 'message' => "ERROR : '" . $archive->errorInfo( true ) . "'" );
+						header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
+						echo json_encode( $result );
+						die();
 					}
 
 				}

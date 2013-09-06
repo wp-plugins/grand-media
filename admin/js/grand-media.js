@@ -303,7 +303,9 @@ jQuery(function($){
 			cache   : false,
 			timeout : 10000,
 			success : function (msg) {
-				gmMessage(msg.stat, msg.message);
+				if(msg.stat && msg.message){
+					gmMessage(msg.stat, msg.message);
+				}
 				var domel;
 				switch (edata.task) {
 					case 'gmedia-edit':
@@ -440,9 +442,6 @@ jQuery(function($){
 						}
 						break;
 					case 'gm-import-folder':
-						if (msg.stat) {
-							gmMessage(msg.stat, msg.message);
-						}
 						if(msg.files) {
 							var crunchlength = msg.files.length;
 							if(crunchlength) {
@@ -476,9 +475,6 @@ jQuery(function($){
 						}
 						break;
 					case 'gm-import-flagallery':
-						if (msg.stat) {
-							gmMessage(msg.stat, msg.message);
-						}
 						if(msg.files) {
 							crunchlength = msg.files.length;
 							if(crunchlength) {
@@ -512,9 +508,6 @@ jQuery(function($){
 						}
 						break;
 					case 'gm-import-nextgen':
-						if (msg.stat) {
-							gmMessage(msg.stat, msg.message);
-						}
 						if(msg.files) {
 							crunchlength = msg.files.length;
 							if(crunchlength) {
