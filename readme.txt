@@ -31,7 +31,7 @@ With our versatile plugin you can magically change the look and feel of your gal
 See demo of Gmedia Gallery Modules:
 
 *   [Afflux Module](http://codeasily.com/portfolio-item/gmedia-afflux/) with touch/swipe interface on mobile browsers. Test it and give me know what problem you have or not have with Gmedia plugin.
-*   [Phantom Module](http://codeasily.com/portfolio-item/gmedia-phantom/) is the Wall/Grid Gallery with social sharing - you can easily change thumbnail sizes, colors, navigation, lightbox position, add labels to thumbnails, captions … and much more.
+*   [Phantom Module](http://codeasily.com/portfolio-item/gmedia-phantom/) is the Wall/Grid Gallery with social sharing - you can easily change thumbnail sizes, colors, navigation, borders, add stylish labels to thumbnails ... and much more. PhotoSwipe like theme on touch devices.. only better.
 *   [PhotoBox Module](http://codeasily.com/portfolio-item/gmedia-photobox/) - a lightweight image gallery which uses only CSS3 for silky-smooth animations and transitions.
 
 Help me make it best gallery plugin: test it and [write suggestions](http://codeasily.com/community/forum/gmedia-gallery-wordpress-plugin/) how it could be improved in feature versions.
