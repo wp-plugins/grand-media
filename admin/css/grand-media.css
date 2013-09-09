@@ -980,6 +980,11 @@ div.query_media_vis {
 	overflow: auto;
 }
 
+div.query_media_vis a { width: 48px; height: 48px; margin-bottom: 12px; text-decoration: none; position: relative; display: inline-block; color: black; }
+div.query_media_vis a span { display: none; white-space: nowrap; font-size: 10px; position: absolute; left: 0; top: 100%; }
+div.query_media_vis a:hover { text-decoration: none; color: black; }
+div.query_media_vis a:hover span { display: block; }
+
 div.query_media_vis > :last-child {
 	margin-right: 5px;
 }
@@ -1417,7 +1422,8 @@ tr.gmedia-edit-row {
 	display: block;
 }
 
-img.gmedia-thumb-preview + img.gmedia-thumb {
+img.gmedia-thumb-preview + img.gmedia-thumb,
+img.gmedia-thumb + img.gmedia-thumb-icon {
 	position: absolute;
 	right: 5px;
 	bottom: 5px;

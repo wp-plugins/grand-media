@@ -4,7 +4,7 @@ Donate link: http://codeasily.com/wordpress-plugins/gmedia-gallery/
 Tags: gallery, image, images, library, files, music, video, slideshow, responsive, admin, Post, posts, easy gallery, iphone gallery, best gallery, portfolio, image gallery, photo gallery, photo, slider, admin, page, relative image
 Requires at least: 3.5
 Tested up to: 3.6
-Stable tag: 0.8.2
+Stable tag: 0.8.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -33,6 +33,7 @@ See demo of Gmedia Gallery Modules:
 *   [Afflux Module](http://codeasily.com/portfolio-item/gmedia-afflux/) with touch/swipe interface on mobile browsers. Test it and give me know what problem you have or not have with Gmedia plugin.
 *   [Phantom Module](http://codeasily.com/portfolio-item/gmedia-phantom/) is the Wall/Grid Gallery with social sharing - you can easily change thumbnail sizes, colors, navigation, borders, add stylish labels to thumbnails ... and much more. PhotoSwipe like theme on touch devices.. only better.
 *   [PhotoBox Module](http://codeasily.com/portfolio-item/gmedia-photobox/) - a lightweight image gallery which uses only CSS3 for silky-smooth animations and transitions.
+*   [Music Player Module](http://codeasily.com/portfolio-item/gmedia-music-player/) - beautiful audio player with playlist is totally written in JQuery and HTML5.
 
 Help me make it best gallery plugin: test it and [write suggestions](http://codeasily.com/community/forum/gmedia-gallery-wordpress-plugin/) how it could be improved in feature versions.
 
@@ -86,7 +87,10 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 
 == Changelog ==
 
-= *.*.* =
+= 0.8.3 =
+* Added Music Player
+* Added jplayer sources
+* Added link field to audio items
 * Fixed update module button not worked
 * Added handle errors when installing skins
 
@@ -119,6 +123,10 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 * First public release
 
 == Upgrade Notice ==
+
+= 0.8.3 =
+Go to Manage Galleries... page -> Available Modules tab -> delete modules -> install new versions of modules (all your galleries will be safe)
+Clear your browser's cache.
 
 = 0.8.0 =
 Go to Manage Galleries... page -> Available Modules tab -> update modules to latest version

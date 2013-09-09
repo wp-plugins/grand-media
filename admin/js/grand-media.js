@@ -883,8 +883,8 @@ function gmTableImageTip(item) {
 			content : {
 				text : function (api) {
 					var preview_thumb = '<img src="' + jQuery(this).attr('src') + '" width="150" height="150" class="gmedia-thumb" alt="' + jQuery(this).attr('alt') + '" />';
-					if(jQuery(this).data('preview')){
-						preview_thumb = '<div class="relative"><img src="' + jQuery(this).data('preview') + '" width="150" height="150" class="gmedia-thumb-preview" alt="' + jQuery(this).attr('alt') + '" />' + preview_thumb + '</div>';
+					if(jQuery(this).data('icon')){
+						preview_thumb = '<div class="relative">' + preview_thumb + '<img src="' + jQuery(this).data('icon') + '" width="150" height="150" class="gmedia-thumb-icon" alt="' + jQuery(this).attr('alt') + '" /></div>';
 					}
 					return preview_thumb;
 				},

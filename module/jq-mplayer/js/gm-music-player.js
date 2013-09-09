@@ -1,0 +1,555 @@
+/**
+ * Created by 23rd and Walnut for Codebasehero.com
+ * www.23andwalnut.com
+ * www.codebasehero.com
+ * User: Saleem El-Amin
+ * Date: 6/11/11
+ * Time: 6:41 AM
+ *
+ * Version: 1.01
+ * License: MIT License
+ */
+
+(function($) {
+	$.fn.gmMusicPlayer = function(playlist, userOptions) {
+		var $self = this, defaultOptions, options, cssSelector, appMgr, playlistMgr, interfaceMgr, ratingsMgr,
+				layout, ratings, myPlaylist, current;
+
+		cssSelector = {
+			jPlayer: ".gm-music-player",
+			jPlayerInterface: '.jp-interface',
+			playerPrevious: ".jp-interface .jp-previous",
+			playerNext: ".jp-interface .jp-next",
+			trackList:'.tracklist',
+			tracks:'.tracks',
+			track:'.track',
+			trackRating:'.rating-bar',
+			trackInfo:'.track-info',
+			rating:'.rating',
+			ratingLevel:'.rating-level',
+			ratingLevelOn:'.on',
+			title: '.track-title',
+			text: '.track-description',
+			duration: '.duration',
+			button:'.button',
+			buttonNotActive:'.not-active',
+			playing:'.playing',
+			moreButton:'.more',
+			player:'.player',
+			artist:'.artist',
+			artistOuter:'.artist-outer',
+			albumCover:'.img',
+			description:'.description',
+			descriptionShowing:'.showing'
+		};
+
+		defaultOptions = {
+			width:'auto',
+			rating:false,
+			linkText:'Download',
+			moreText:'View More...',
+			tracksToShow:5,
+			autoPlay:false,
+			jPlayer:{
+				swfPath: userOptions.pluginUrl + '/inc/jplayer'
+			}
+		};
+
+		options = $.extend(true, {}, defaultOptions, userOptions);
+
+		myPlaylist = playlist;
+
+		current = 0;
+
+		appMgr = function() {
+			playlist = new playlistMgr();
+			layout = new interfaceMgr();
+
+			layout.buildInterface();
+			playlist.init(options.jPlayer);
+
+			//don't initialize the ratings until the playlist has been built, which wont happen until after the jPlayer ready event
+			$self.bind('mbPlaylistLoaded', function() {
+				if(options.rating){
+					$self.bind('mbInterfaceBuilt', function() {
+						ratings = new ratingsMgr();
+					});
+				}
+				layout.init();
+
+			});
+		};
+
+		playlistMgr = function() {
+
+			var playing = false, markup, $myJplayer = {},$tracks,$tracksWrapper, $more;
+
+			markup = {
+				listItem:'<li class="track"><section>' +
+										 '<span class="maxwidth"><span class="track-title"></span></span>' +
+										 '<span>' +
+											 '<span class="duration">&nbsp;</span>' +
+											 (options.rating ? '<span class="rating"></span>' : '') +
+											 '<a href="#" class="button not-active" target="_blank"></a>' +
+										 '</span>' +
+						'</section></li>',
+				ratingBar:'<span class="rating-level rating-bar"></span>'
+			};
+
+			function init(playlistOptions) {
+
+				$myJplayer = $('.gm-music-player .jPlayer-container', $self);
+
+
+				var jPlayerDefaults, jPlayerOptions;
+
+				jPlayerDefaults = {
+					swfPath: "jplayer",
+					supplied: "mp3, oga",
+					cssSelectorAncestor:  cssSelector.jPlayerInterface,
+					errorAlerts: false,
+					warningAlerts: false
+				};
+
+				//apply any user defined jPlayer options
+				jPlayerOptions = $.extend(true, {}, jPlayerDefaults, playlistOptions);
+
+				$myJplayer.bind($.jPlayer.event.ready, function() {
+
+					//Bind jPlayer events. Do not want to pass in options object to prevent them from being overridden by the user
+					$myJplayer.bind($.jPlayer.event.ended, function(event) {
+						playlistNext();
+					});
+
+					$myJplayer.bind($.jPlayer.event.play, function(event) {
+						$myJplayer.jPlayer("pauseOthers");
+						$tracks.eq(current).addClass(attr(cssSelector.playing)).siblings().removeClass(attr(cssSelector.playing));
+					});
+
+					$myJplayer.bind($.jPlayer.event.playing, function(event) {
+						playing = true;
+					});
+
+					$myJplayer.bind($.jPlayer.event.pause, function(event) {
+						playing = false;
+					});
+
+					$myJplayer.bind($.jPlayer.event.loadeddata, function(event) {
+						if(event.jPlayer.status.duration != 'NaN'){
+							$tracks.eq(current).find('.duration').text($.jPlayer.convertTime( event.jPlayer.status.duration ));
+						}
+					});
+
+					//Bind next/prev click events
+					$(cssSelector.playerPrevious, $self).click(function() {
+						playlistPrev();
+						$(this).blur();
+						return false;
+					});
+
+					$(cssSelector.playerNext, $self).click(function() {
+						playlistNext();
+						$(this).blur();
+						return false;
+					});
+
+					$self.bind('mbInitPlaylistAdvance', function(e) {
+						var changeTo = this.getData('mbInitPlaylistAdvance');
+
+						if (changeTo != current) {
+							current = changeTo;
+							playlistAdvance(current);
+						}
+						else {
+							if (!$myJplayer.data('jPlayer').status.srcSet) {
+								playlistAdvance(0);
+							}
+							else {
+								togglePlay();
+							}
+						}
+					});
+
+					buildPlaylist();
+					//If the user doesn't want to wait for widget loads, start playlist now
+					$self.trigger('mbPlaylistLoaded');
+
+					playlistInit(options.autoplay);
+				});
+
+				//Initialize jPlayer
+				$myJplayer.jPlayer(jPlayerOptions);
+			}
+
+			function playlistInit(autoplay) {
+				current = 0;
+
+				if (autoplay) {
+					playlistAdvance(current);
+				}
+				else {
+					playlistConfig(current);
+					$self.trigger('mbPlaylistInit');
+				}
+			}
+
+			function playlistConfig(index) {
+				current = index;
+				$myJplayer.jPlayer("setMedia", myPlaylist[current]);
+			}
+
+			function playlistAdvance(index) {
+				playlistConfig(index);
+
+				if (index >= options.tracksToShow)
+					showMore();
+
+				$self.trigger('mbPlaylistAdvance');
+				$myJplayer.jPlayer("play");
+			}
+
+			function playlistNext() {
+				var index = (current + 1 < myPlaylist.length) ? current + 1 : 0;
+				playlistAdvance(index);
+			}
+
+			function playlistPrev() {
+				var index = (current - 1 >= 0) ? current - 1 : myPlaylist.length - 1;
+				playlistAdvance(index);
+			}
+
+			function togglePlay() {
+				if (!playing)
+					$myJplayer.jPlayer("play");
+				else $myJplayer.jPlayer("pause");
+			}
+
+			function buildPlaylist() {
+				$tracksWrapper = $self.find(cssSelector.tracks);
+
+				if(options.rating){
+					var $ratings = $();
+					//set up the html for the track ratings
+					for (var i = 0; i < 10; i++)
+						$ratings = $ratings.add(markup.ratingBar);
+				}
+
+				for (var j = 0; j < myPlaylist.length; j++) {
+					var $track = $(markup.listItem, $self);
+
+					$track.find(cssSelector.title).html(trackName(j));
+
+					if(options.rating){
+						//since $ratings refers to a specific object, if we just use .html($ratings) we would be moving the $rating object from one list item to the next
+						$track.find(cssSelector.rating).html($ratings.clone());
+						setRating('track', $track, j);
+					}
+
+					setLink($track, j);
+
+					$track.data('index', j);
+
+					$tracksWrapper.append($track);
+				}
+
+				$tracks = $(cssSelector.track, $self);
+
+				$tracks.eq(options.tracksToShow - 1).nextAll().hide();
+
+				if (options.tracksToShow < myPlaylist.length) {
+					var $trackList = $(cssSelector.trackList, $self);
+
+					$trackList.addClass('show-more-button');
+
+					$trackList.find(cssSelector.moreButton).click(function() {
+						$more = $(this);
+
+						showMore();
+					});
+				}
+
+				$tracks.find('.track-title').click(function() {
+					playlistAdvance($(this).parents('li').data('index'));
+				});
+			}
+
+			function showMore() {
+				if (isUndefined($more))
+					$more = $self.find(cssSelector.moreButton);
+
+				$tracksWrapper.css('height', $tracksWrapper.height());
+				$tracks.show();
+				var tracks_height = $tracks.eq(0).outerHeight() * myPlaylist.length + 1;
+				$tracksWrapper.animate({height: tracks_height}, 400);
+				$more.removeClass('anim').animate({'height': 0}, 400, function() {
+					$more.parents(cssSelector.trackList).removeClass('show-more-button');
+					$more.remove();
+				});
+			}
+
+			function setLink($track, index) {
+				if (myPlaylist[index].button != '') {
+					$track.find(cssSelector.button).removeClass(attr(cssSelector.buttonNotActive)).attr('href', myPlaylist[index].button).html(options.linkText);
+				}
+			}
+
+			return{
+				init:init,
+				playlistInit:playlistInit,
+				playlistAdvance:playlistAdvance,
+				playlistNext:playlistNext,
+				playlistPrev:playlistPrev,
+				togglePlay:togglePlay,
+				$myJplayer:$myJplayer
+			};
+
+		};
+
+		ratingsMgr = function() {
+
+			var $tracks = $self.find(cssSelector.track);
+
+			function bindEvents() {
+
+				//Handler for when user hovers over a rating
+				$(cssSelector.rating, $self).find(cssSelector.ratingLevel).hover(function() {
+					$(this).addClass('hover').prevAll().addClass('hover').end().nextAll().removeClass('hover');
+				});
+
+				//Restores previous rating when user is finished hovering (assuming there is no new rating)
+				$(cssSelector.rating, $self).mouseleave(function() {
+					$(this).find(cssSelector.ratingLevel).removeClass('hover');
+				});
+
+				//Set the new rating when the user clicks
+				$(cssSelector.ratingLevel, $self).click(function() {
+					var $this = $(this), rating = $this.parent().children().index($this) + 1, index;
+
+					if ($this.hasClass(attr(cssSelector.trackRating))) {
+						rating = rating / 2;
+						index = $this.parents('li').data('index');
+
+						if (index == current)
+							applyCurrentlyPlayingRating(rating);
+					}
+					else {
+						index = current;
+						applyTrackRating($tracks.eq(index), rating);
+					}
+
+
+					$this.prevAll().add($this).addClass(attr(cssSelector.ratingLevelOn)).end().end().nextAll().removeClass(attr(cssSelector.ratingLevelOn));
+
+					processRating(index, rating);
+				});
+			}
+
+			function processRating(index, rating) {
+				myPlaylist[index].rating = rating;
+				//runCallback(options.ratingCallback, index, myPlaylist[index], rating);
+			}
+
+			bindEvents();
+		};
+
+		interfaceMgr = function() {
+
+			var $player, $title, $text, $artist, $albumCover;
+
+
+			function init() {
+				$player = $(cssSelector.player, $self),
+						$title = $player.find(cssSelector.title),
+						$text = $player.find(cssSelector.text),
+						$artist = $player.find(cssSelector.artist),
+						$albumCover = $player.find(cssSelector.albumCover);
+
+				setDescription();
+
+				$self.bind('mbPlaylistAdvance mbPlaylistInit', function() {
+					setTitle();
+					//setArtist();
+					setText();
+					if(options.rating){
+						setRating('current', null, current);
+					}
+					setCover();
+				});
+			}
+
+			function buildInterface() {
+				var markup, $interface;
+
+				//I would normally use the templating plugin for something like this, but I wanted to keep this plugin's footprint as small as possible
+				markup =
+						'<div class="gm-music-player">' +
+								'	<div class="player jp-interface">' +
+								'		<div class="album-cover">' +
+								'			<span class="img"></span>' +
+								'   	<span class="highlight"></span>' +
+										(options.rating ?
+								'     <div class="rating">' +
+								'     	<span class="rating-level rating-star on"></span>' +
+								'       <span class="rating-level rating-star on"></span>' +
+								'       <span class="rating-level rating-star on"></span>' +
+								'       <span class="rating-level rating-star on"></span>' +
+								'       <span class="rating-level rating-star"></span>' +
+								'     </div>' : '') +
+								'   </div>' +
+								'   <div class="track-title"></div>' +
+								'   <div class="player-controls">' +
+								'   	<div class="main">' +
+								'     	<div class="previous jp-previous"></div>' +
+								'       <div class="play jp-play"></div>' +
+								'       <div class="pause jp-pause"></div>' +
+								'       <div class="next jp-next"></div>' +
+								'<!-- These controls aren\'t used by this plugin, but jPlayer seems to require that they exist -->' +
+								'       <span class="unused-controls">' +
+								'       	<span class="jp-video-play"></span>' +
+								'         <span class="jp-stop"></span>' +
+								'         <span class="jp-mute"></span>' +
+								'         <span class="jp-unmute"></span>' +
+								'         <span class="jp-volume-bar"></span>' +
+								'         <span class="jp-volume-bar-value"></span>' +
+								'         <span class="jp-volume-max"></span>' +
+								'         <span class="jp-current-time"></span>' +
+								'         <span class="jp-duration"></span>' +
+								'         <span class="jp-full-screen"></span>' +
+								'         <span class="jp-restore-screen"></span>' +
+								'         <span class="jp-repeat"></span>' +
+								'         <span class="jp-repeat-off"></span>' +
+								'         <span class="jp-gui"></span>' +
+								'       </span>' +
+								'     </div>' +
+								'     <div class="progress-wrapper">' +
+								'     	<div class="progress jp-seek-bar">' +
+								'       	<div class="elapsed jp-play-bar"></div>' +
+								'       </div>' +
+								'     </div>' +
+								'   </div>' +
+								' 	<div class="track-description"></div>' +
+								' </div>' +
+								' <div class="description"></div>' +
+								' <div class="tracklist">' +
+								' 	<ol class="tracks"></ol>' +
+								'   <div class="more anim">' + options.moreText + '</div>' +
+								' </div>' +
+								' <div class="jPlayer-container"></div>' +
+								'</div>';
+
+				$interface = $(markup).css({display:'none', opacity:0, width: options.width}).appendTo($self).slideDown('slow', function() {
+					$interface.animate({opacity:1});
+
+					$self.trigger('mbInterfaceBuilt');
+				});
+			}
+
+			function setTitle() {
+				$title.html(trackName(current));
+			}
+
+			function setArtist() {
+				if (isUndefined(myPlaylist[current].artist))
+					$artist.parent(cssSelector.artistOuter).animate({opacity:0}, 'fast');
+				else {
+					$artist.html(myPlaylist[current].artist).parent(cssSelector.artistOuter).animate({opacity:1}, 'fast');
+				}
+			}
+
+			function setText() {
+				if (myPlaylist[current].text == '')
+					$text.animate({opacity:0}, 'fast', function(){ $(this).empty() });
+				else {
+					$text.html(myPlaylist[current].text).animate({opacity:1}, 'fast');
+				}
+			}
+
+			function setCover() {
+				$albumCover.animate({opacity:0}, 'fast', function() {
+					$(this).empty();
+					if (!isUndefined(myPlaylist[current].cover) || myPlaylist[current].cover != '') {
+						var now = current;
+						$('<img src="' + myPlaylist[current].cover + '" alt="album cover" />').load(function(){
+							if(now == current)
+								$albumCover.html($(this)).animate({opacity:1})
+						});
+					}
+				});
+			}
+
+			function setDescription() {
+				if (!isUndefined(options.description))
+					$self.find(cssSelector.description).html(options.description).addClass(attr(cssSelector.descriptionShowing)).slideDown();
+			}
+
+			return{
+				buildInterface:buildInterface,
+				init:init
+			}
+
+		};
+
+		/** Common Functions **/
+		function trackName(index) {
+			if (myPlaylist[index].title != '')
+				return myPlaylist[index].title;
+			else if (myPlaylist[index].mp3 != '')
+				return fileName(myPlaylist[index].mp3);
+			else if (myPlaylist[index].oga != '')
+				return fileName(myPlaylist[index].oga);
+			else return 'NaN';
+		}
+
+		function fileName(path) {
+			path = path.split('/');
+			return path[path.length - 1];
+		}
+
+		function setRating(type, $track, index) {
+			if (type == 'track') {
+				if (!isUndefined(myPlaylist[index].rating)) {
+					applyTrackRating($track, myPlaylist[index].rating);
+				}
+			}
+			else {
+				//if the rating isn't set, use 0
+				var rating = !isUndefined(myPlaylist[index].rating) ? Math.ceil(myPlaylist[index].rating) : 0;
+				applyCurrentlyPlayingRating(rating);
+			}
+		}
+
+		function applyCurrentlyPlayingRating(rating) {
+			//reset the rating to 0, then set the rating defined above
+			$self.find(cssSelector.trackInfo).find(cssSelector.ratingLevel).removeClass(attr(cssSelector.ratingLevelOn)).slice(0, rating).addClass(attr(cssSelector.ratingLevelOn));
+
+		}
+
+		function applyTrackRating($track, rating) {
+			//multiply rating by 2 since the list ratings have 10 levels rather than 5
+			$track.find(cssSelector.ratingLevel).removeClass(attr(cssSelector.ratingLevelOn)).slice(0, rating * 2).addClass(attr(cssSelector.ratingLevelOn));
+
+		}
+
+
+		/** Utility Functions **/
+		function attr(selector) {
+			return selector.substr(1);
+		}
+
+		/*
+		function runCallback(callback) {
+			var functionArgs = Array.prototype.slice.call(arguments, 1);
+
+			if ($.isFunction(callback)) {
+				callback.apply(this, functionArgs);
+			}
+		}
+		*/
+
+		function isUndefined(value) {
+			return typeof value == 'undefined';
+		}
+
+		appMgr();
+	};
+})(jQuery);

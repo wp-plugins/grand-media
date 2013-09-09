@@ -93,14 +93,14 @@ class gmAdmin {
 		$item_url       = $uploads['url'] . $gmOptions['folder'][$type[0]] . '/' . $item->gmuid;
 		$attr = array( 'width' => 36, 'height' => 36 );
 
-		if('image' != $type[0]){
+		/*if('image' != $type[0]){
 			$preview_meta  	= $gMDb->get_metadata( 'gmedia', $item->ID, 'preview', true );
 			if(intval($preview_meta)){
 				$preview_item = $gMDb->get_gmedia( intval($preview_meta) );
 				$preview_image = $grandCore->gm_get_media_image( $preview_item, 'thumb', array(), 'src' );
 				$attr['data-preview'] = $preview_image;
 			}
-		}
+		}*/
 
 		$image     = $grandCore->gm_get_media_image( $item, 'thumb', $attr );
 		$file      = '<a class="grandbox" href="' . $item_url . '">' . $image . '</a>';
@@ -332,10 +332,10 @@ class gmAdmin {
 				$item  = $gMDb->get_gmedia( $id );
 				$meta  = $gMDb->get_metadata( 'gmedia', $id );
 				$mime_type = explode( '/', $item->mime_type );
-				$image = $grandCore->gm_get_media_image( $item, 'thumb', array( 'width' => 150, 'height' => 150 ) );
+				$image = $grandCore->gm_get_media_image( $item, 'thumb', array( 'data-icon' => false ) );
 				if(isset($meta['preview'][0]) && intval($meta['preview'][0])){
 					$preview_item = $gMDb->get_gmedia( intval($meta['preview'][0]) );
-					$preview_image = $grandCore->gm_get_media_image( $preview_item, 'thumb', array( 'width' => 150, 'height' => 150, 'id' => false, 'class' => 'gmedia-thumb-preview' ) );
+					$preview_image = $grandCore->gm_get_media_image( $preview_item, 'thumb', array( 'id' => false, 'class' => 'gmedia-thumb-preview' ) );
 					$image = $preview_image . $image;
 				}
 			?>
@@ -354,16 +354,15 @@ class gmAdmin {
 									<div class="gmTitle row va-b">
 										<span class="label"><?php _e( 'Title', 'gmLang' ); ?></span><input name="gmedia[title]" type="text" value="<?php echo $item->title; ?>" />
 									</div>
-									<?php if('image' == $mime_type[0]){ ?>
-									<div class="gmLink row va-b">
-										<span class="label"><?php _e( 'Link', 'gmLang' ); ?></span><input name="gmedia[meta][link]" type="text" value="<?php if(isset($meta['link'][0])){echo $meta['link'][0];}; ?>" />
-									</div>
-									<?php } else { ?>
+									<?php if('image' != $mime_type[0]){ ?>
 									<div class="gmPreview row va-b">
 										<span class="label"><?php _e( 'Preview ID', 'gmLang' ); ?></span><input name="gmedia[meta][preview]" type="text" value="<?php if(isset($meta['preview'][0]) && intval($meta['preview'][0])){echo $meta['preview'][0];}; ?>" readonly /><span title="<?php _e('clear', 'gmLang'); ?>" class="clear-preview">&times;</span>
 										<span class="metabox-preview">#</span>
 									</div>
 									<?php } ?>
+									<div class="gmLink row va-b">
+										<span class="label"><?php _e( 'Link', 'gmLang' ); ?></span><input name="gmedia[meta][link]" type="text" value="<?php if(isset($meta['link'][0])){echo $meta['link'][0];}; ?>" />
+									</div>
 									<?php $cat = $gMDb->get_the_gmedia_terms( $item->ID, 'gmedia_category' );
 									if ( empty( $cat ) ) {
 										$cat_id = 0;
@@ -595,7 +594,8 @@ class gmAdmin {
 						$type     = explode( '/', $item->mime_type );
 						$item_url = $uploads['url'] . $gmOptions['folder'][$type[0]] . '/' . $item->gmuid;
 						$image    = $grandCore->gm_get_media_image( $item, 'thumb', array( 'width' => 48, 'height' => 48 ) );
-						$file     = '<a class="grandbox" title="' . trim( esc_attr( strip_tags( $item->title ) ) ) . '" rel="querybuilder__' . $tab . '" href="' . $item_url . '">' . $image . '</a> ';
+						$title = trim( esc_attr( strip_tags( $item->title ) ) );
+						$file     = '<a class="grandbox" title="' . $title . '" rel="querybuilder__' . $tab . '" href="' . $item_url . '">' . $image . '<span>' . $title . '</span></a> ';
 						echo $file;
 					}
 				}

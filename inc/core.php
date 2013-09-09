@@ -339,6 +339,7 @@ class grandCore {
 			$file = substr( $item->gmuid, 0, strrpos( $item->gmuid, $ext ) );
 			$src  = $uploads_url . $file . $size . $ext;
 			$alt  = trim( esc_attr( strip_tags( $item->title ) ) );
+			$type = $type[0];
 		}
 		else {
 			$size = '-thumb';
@@ -348,11 +349,22 @@ class grandCore {
 				$type = 'application';
 			$src = plugins_url( GRAND_FOLDER ) . '/admin/images/' . $type . '.png';
 			$alt = 'icon';
+			if(!isset($attr['data-icon'])){
+				$preview_id  = $gMDb->get_metadata( 'gmedia', $item->ID, 'preview', true );
+				if(!empty($preview_id)){
+					$preview_item = $gMDb->get_gmedia( intval($preview_id) );
+					if(!empty($preview_item)){
+						$preview_src = $grandCore->gm_get_media_image( $preview_item, 'thumb', array(), 'src' );
+						$attr['src'] = $preview_src;
+						$attr['data-icon'] = $src;
+					}
+				}
+			}
 		}
 		$default_attr = array(
 			'id'     => 'gm_' . $item->ID,
 			'src'    => $src,
-			'class'  => "gmedia{$size}",
+			'class'  => "gmedia{$size} $type",
 			'alt'    => $alt, // Use Alt field first
 			'title'  => trim( esc_attr( strip_tags( $item->title ) ) ),
 			'width'  => $width,
