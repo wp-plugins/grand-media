@@ -16,7 +16,7 @@ Gmedia Gallery is a fully integrated Image, Music, Video Gallery WordPress plugi
 
 Are you looking for a best way to manage and display photos, video on your blogs? Then you must try this fantastic WordPress Plugin. It provides a comprehensive interface for handling photos, MP3 and Video.
 
-You can edit photos the way you want: upload an unlimited number of images, create dozens of galleries, group pictures in categories, and add tags for each photo.
+With Gmedia plugin you can upload an unlimited number of images and audio, create dozens of galleries and playlists, group pictures and other files in categories, and add tags for each file.
 
 Create Galleries with using tags and automatically add images to several galleries by assigning these tags to uploaded photos.
 
