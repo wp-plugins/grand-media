@@ -7,8 +7,8 @@ $jsInit .= "var gmMusicPlayer_ID{$module_meta['term_id']}_Settings = {\n";
 $a = array();
 if ( isset( $module_meta['width'] ) )
 	$a[] = "	'width': '" . intval( $module_meta['width'] ) . ( strpos( $module_meta['width'], '%' ) ? '%' : '' ) . "'";
-if ( isset( $module_meta['autoPlay'] ) )
-	$a[] = "	'autoPlay': " . ( empty( $module_meta['autoPlay'] ) ? 'false' : 'true' );
+if ( isset( $module_meta['autoPlay'][0] ) )
+	$a[] = "	'autoPlay': " . ( empty( $module_meta['autoPlay'][0] ) ? 'false' : 'true' );
 if ( isset( $module_meta['buttonText'] ) )
 	$a[] = "	'linkText': " . json_encode($module_meta['buttonText']);
 if ( isset( $module_meta['tracksToShow'] ) )

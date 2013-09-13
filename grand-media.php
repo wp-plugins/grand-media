@@ -3,7 +3,7 @@
 Plugin Name: Gmedia Gallery
 Plugin URI: http://wordpress.org/extend/plugins/grand-media/
 Description: Grand Media Gallery - powerfull media library plugin for creating beautiful galleries and managing files.
-Version: 0.8.3
+Version: 0.8.4
 Author: Rattus
 Author URI: http://codeasily.com/
 
@@ -36,7 +36,7 @@ if ( preg_match( '#' . basename( __FILE__ ) . '#', $_SERVER['PHP_SELF'] ) ) {
 if ( ! class_exists( 'grandLoad' ) ) {
 	class grandLoad {
 
-		var $version = '0.8.3';
+		var $version = '0.8.4';
 		var $dbversion = '0.6.2';
 		var $minium_WP = '3.4';
 		var $options = '';
@@ -221,6 +221,8 @@ if ( ! class_exists( 'grandLoad' ) ) {
 			) );
 			wp_enqueue_script( 'grandMediaGlobalFrontend' );
 
+			wp_register_script('fancybox', $gMediaURL.'/inc/fancybox/jquery.fancybox-1.3.4.pack.js', array( 'jquery' ), '1.3.4');
+			wp_register_style('fancybox', $gMediaURL.'/inc/fancybox/jquery.fancybox-1.3.4.css', array(), '1.3.4');
 			wp_register_script('jplayer', $gMediaURL.'/inc/jplayer/jquery.jplayer.js', array( 'jquery' ), '2.0.22');
 			//wp_register_script('swfaddress', $gMediaURL.'/admin/js/swfaddress.js', array(), '2.4');
 			//wp_enqueue_script('swfobject');
@@ -275,13 +277,16 @@ if ( ! class_exists( 'grandLoad' ) ) {
 
 				/** @var $module */
 				include( $module_dir['path'] . '/details.php' );
-				$deps     = array_merge( $deps, explode( ',', $module['dependencies'] ) );
+				$deps     = array_merge( $deps, array_filter( array_map( 'trim', explode( ',', $module['dependencies'] ) ) ) );
 				$loaded[] = $module_name;
 			}
 			$this->module_IDs['modules'] = $loaded;
 			$deps                        = array_unique( $deps );
-			foreach ( $deps as $js ) {
-				wp_enqueue_script( $js );
+			foreach ( $deps as $handle ) {
+				if(wp_script_is( $handle, 'registered' ))
+					wp_enqueue_script( $handle );
+				if(wp_style_is( $handle, 'registered' ))
+					wp_enqueue_style( $handle );
 			}
 
 			$module_IDs = array_diff( $module_IDs, $bad );
@@ -325,8 +330,11 @@ if ( ! class_exists( 'grandLoad' ) ) {
 				$loaded[] = $module_name;
 			}
 			$deps = array_unique( $deps );
-			foreach ( $deps as $js ) {
-				wp_enqueue_script( $js );
+			foreach ( $deps as $handle ) {
+				if(wp_script_is( $handle, 'registered' ))
+					wp_enqueue_script( $handle );
+				if(wp_style_is( $handle, 'registered' ))
+					wp_print_styles( $handle );
 			}
 
 			$module_IDs = array_diff( $module_IDs, $bad );

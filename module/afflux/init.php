@@ -14,18 +14,18 @@ if ( isset( $module_meta['height'] ) )
 	$a[] = "	'height': '" . intval( $module_meta['height'] ) . ( strpos( $module_meta['height'], '%' ) ? '%' : '' ) . "'";
 if ( isset( $module_meta['wmode'] ) )
 	$a[] = "	'wmode': '{$module_meta['wmode']}'";
-if ( isset( $module_meta['swfMouseWheel'] ) )
-	$a[] = "	'swfMouseWheel': " . ( empty( $module_meta['swfMouseWheel'] ) ? 'false' : 'true' );
+if ( isset( $module_meta['swfMouseWheel'][0] ) )
+	$a[] = "	'swfMouseWheel': " . ( empty( $module_meta['swfMouseWheel'][0] ) ? 'false' : 'true' );
 if ( isset( $module_meta['imageZoom'] ) )
 	$a[] = "	'imageZoom': '{$module_meta['imageZoom']}'";
-if ( isset( $module_meta['autoSlideshow'] ) )
-	$a[] = "	'autoSlideshow': " . ( empty( $module_meta['autoSlideshow'] ) ? 'false' : 'true' );
+if ( isset( $module_meta['autoSlideshow'][0] ) )
+	$a[] = "	'autoSlideshow': " . ( empty( $module_meta['autoSlideshow'][0] ) ? 'false' : 'true' );
 if ( isset( $module_meta['slideshowDelay'] ) )
 	$a[] = "	'slideshowDelay': " . intval( $module_meta['slideshowDelay'] );
 if ( isset( $module_meta['thumbHeight'] ) )
 	$a[] = "	'thumbHeight': " . intval( $module_meta['thumbHeight'] );
-if ( isset( $module_meta['descrVisOnMouseover'] ) )
-	$a[] = "	'descrVisOnMouseover': " . ( empty( $module_meta['descrVisOnMouseover'] ) ? 'false' : 'true' );
+if ( isset( $module_meta['descrVisOnMouseover'][0] ) )
+	$a[] = "	'descrVisOnMouseover': " . ( empty( $module_meta['descrVisOnMouseover'][0] ) ? 'false' : 'true' );
 
 if ( isset( $module_meta['bgColor'] ) )
 	$a[] = "	'bgColor': '0x{$module_meta['bgColor']}'";
@@ -63,10 +63,10 @@ if ( isset( $module_meta['backButtonTextColor'] ) )
 if ( isset( $module_meta['backButtonBgColor'] ) )
 	$a[] = "	'backButtonBgColor': '0x{$module_meta['backButtonBgColor']}'";
 
-if ( isset( $module_meta['hitcounter'] ) )
-	$a[] = "	'hitcounter': " . ( empty( $module_meta['hitcounter'] ) ? 'false' : 'true' );
-if ( isset( $module_meta['loveLink'] ) )
-	$a[] = "	'loveLink': " . ( empty( $module_meta['loveLink'] ) ? 'false' : 'true' );
+if ( isset( $module_meta['hitcounter'][0] ) )
+	$a[] = "	'hitcounter': " . ( empty( $module_meta['hitcounter'][0] ) ? 'false' : 'true' );
+if ( isset( $module_meta['loveLink'][0] ) )
+	$a[] = "	'loveLink': " . ( empty( $module_meta['loveLink'][0] ) ? 'false' : 'true' );
 
 $a[] = "	'moduleName': '" . esc_js( $module_meta['name'] ) . "'";
 $a[] = "	'pluginUrl': '" . plugins_url( GRAND_FOLDER ) . "'";

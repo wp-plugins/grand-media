@@ -556,7 +556,7 @@ class grandCore {
 		$nextID = $row['Auto_increment'];
 		mysql_free_result( $result );
 
-		$ext           = strrchr( $fileName, '.' );
+		$ext           = strtolower(strrchr( $fileName, '.' ));
 		$fileName_base = substr( $fileName, 0, strrpos( $fileName, $ext ) );
 		// Clean the file Name for security reasons
 		$fileTitle       = mysql_real_escape_string( $fileName_base );

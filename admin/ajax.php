@@ -23,6 +23,8 @@ function gmDoAjax() {
 		die( '0' );
 	}
 */
+	$_GET    = stripslashes_deep( $_GET    );
+	$_POST   = stripslashes_deep( $_POST   );
 
 	$task = isset( $_REQUEST['task'] ) ? $_REQUEST['task'] : false;
 	if ( ! $task )
@@ -292,13 +294,15 @@ function gmDoAjax() {
 				$gmOptions = get_option( 'gmediaOptions' );
 				$upload    = $grandCore->gm_upload_dir();
 
-				$module_dir = $upload['path'] . $gmOptions['folder']['module'] . '/';
-
+				$modules_dir = $upload['path'] . $gmOptions['folder']['module'] . '/';
+				if(isset($moduledir) && !empty($moduledir) && is_dir($modules_dir.$moduledir)){
+					$grandCore->delete_folder($modules_dir.$moduledir);
+				}
 				if ( class_exists( 'ZipArchive' ) ) {
 					$zip = new ZipArchive;
 					$open = $zip->open( $mzip );
 					if($open === true){
-						$zip->extractTo( $module_dir );
+						$zip->extractTo( $modules_dir );
 						$zip->close();
 					} else {
 						$result = array( 'stat' => 'KO', 'message' => "ERROR : Can't open archive. Error code: {$open}" );
@@ -321,7 +325,7 @@ function gmDoAjax() {
 				else {
 					require_once( ABSPATH . 'wp-admin/includes/class-pclzip.php' );
 					$archive = new PclZip( $mzip );
-					$list    = $archive->extract( $module_dir );
+					$list    = $archive->extract( $modules_dir );
 					if ( $list == 0 ) {
 						$result = array( 'stat' => 'KO', 'message' => "ERROR : '" . $archive->errorInfo( true ) . "'" );
 						header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );

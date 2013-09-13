@@ -3,8 +3,8 @@ Contributors: Rattus
 Donate link: http://codeasily.com/wordpress-plugins/gmedia-gallery/
 Tags: gallery, image, images, library, files, music, video, slideshow, responsive, admin, Post, posts, easy gallery, iphone gallery, best gallery, portfolio, image gallery, photo gallery, photo, slider, admin, page, relative image
 Requires at least: 3.5
-Tested up to: 3.6
-Stable tag: 0.8.3
+Tested up to: 3.6.1
+Stable tag: 0.8.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -87,6 +87,13 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 
 == Changelog ==
 
+= 0.8.4 =
+* Added FancyBox script for future modules
+* Fixed images with extension in uppercase not working
+* Fixed slashes in title and description
+* Fixed checkbox settings not worked in module
+* Fixed delete old module before install new version
+
 = 0.8.3 =
 * Added Music Player
 * Added jplayer sources
@@ -123,6 +130,10 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 * First public release
 
 == Upgrade Notice ==
+
+= 0.8.4 =
+Go to Manage Galleries... page -> Available Modules tab -> update modules to latest version
+Clear your browser's cache.
 
 = 0.8.3 =
 Go to Manage Galleries... page -> Available Modules tab -> delete modules -> install new versions of modules (all your galleries will be safe)

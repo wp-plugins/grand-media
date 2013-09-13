@@ -1,15 +1,9 @@
-/**
- * Created by 23rd and Walnut for Codebasehero.com
- * www.23andwalnut.com
- * www.codebasehero.com
- * User: Saleem El-Amin
- * Date: 6/11/11
- * Time: 6:41 AM
- *
- * Version: 1.01
- * License: MIT License
+/*
+ * Title                   : Music Player Module for Gmedia Gallery plugin
+ * Version                 : 1.1
+ * Copyright               : 2013 CodEasily.com
+ * Website                 : http://www.codeasily.com
  */
-
 (function($) {
 	$.fn.gmMusicPlayer = function(playlist, userOptions) {
 		var $self = this, defaultOptions, options, cssSelector, appMgr, playlistMgr, interfaceMgr, ratingsMgr,

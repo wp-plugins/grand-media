@@ -207,7 +207,7 @@ function gmedia_manage_modules() {
 						$update                   = '';
 						if ( isset( $all_modules[$muid] ) && (string) $all_modules[$muid]['uid'] == $module['uid'] ) {
 							if ( version_compare( (float) $all_modules[$muid]['version'], (float) $module['version'], '>' ) ) {
-								$update = '| <a class="module_update button button-green ajaxPost" data-action="gmDoAjax" data-_ajax_nonce="' . $nonce . '" data-post="modulezip=' . urlencode($all_modules[$muid]['download']) . '&modulename=' . urlencode($all_modules[$muid]['title']) . '" data-task="gm-update-module" href="'.$all_modules[$muid]['download'].'">' . __( 'Update Module', 'gmLang' ) . " (v{$all_modules[$muid]['version']})</a>";
+								$update = '| <a class="module_update button button-green ajaxPost" data-action="gmDoAjax" data-_ajax_nonce="' . $nonce . '" data-post="modulezip=' . urlencode($all_modules[$muid]['download']) . '&moduledir=' . $moduledir . '&modulename=' . urlencode($all_modules[$muid]['title']) . '" data-task="gm-update-module" href="'.$all_modules[$muid]['download'].'">' . __( 'Update Module', 'gmLang' ) . " (v{$all_modules[$muid]['version']})</a>";
 								$mclass .= ' module_update';
 							}
 							$module['demo'] = $all_modules[$muid]['demo'];
