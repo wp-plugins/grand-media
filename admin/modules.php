@@ -322,10 +322,11 @@ function gmedia_module_settings( $module_folder, $term_id = 0 ) {
 				$field_values = array_map( array( $grandCore, 'maybe_array_0' ), $field_values );
 				$field_values = array_map( 'maybe_unserialize', $field_values );
 			}
-			else {
-				$field_values = array();
-			}
+		} else {
+			$field_values['gMediaQuery'] = $gMDb->get_metadata( 'gmedia_term', $term_id, 'gMediaQuery', true );
 		}
+		$field_values = array_map( 'maybe_unserialize', $field_values );
+
 		$term_general = $gMDb->get_term( $term_id, 'gmedia_module', ARRAY_A );
 		$field_values = array_merge( $term_general, $field_values );
 		$submit_name  = 'gmedia_module_update';
@@ -367,7 +368,7 @@ function gmedia_module_settings( $module_folder, $term_id = 0 ) {
 
 						/* loop through page sections */
 						foreach ( $module_ot['settings'] as $key => $section ) {
-							echo '<li><a href="#section_' . $key . '">' . $section['title'] . '</a></li>';
+							echo '<li><a href="#' . $key . '">' . $section['title'] . '</a></li>';
 						}
 						echo '</ul>';
 
@@ -376,7 +377,7 @@ function gmedia_module_settings( $module_folder, $term_id = 0 ) {
 						<div id="post-body">
 							<div id="post-body-content">
 								<?php foreach ( $module_ot['settings'] as $key => $section ) { ?>
-									<div id="section_<?php echo $key; ?>" class="postbox ui-tabs-panel">
+									<div id="<?php echo $key; ?>" class="postbox ui-tabs-panel">
 										<div class="inside">
 											<?php
 											/* loop through meta box fields */

@@ -68,7 +68,7 @@ if ( ! function_exists( 'gm_type_query_vis' ) ) {
 		}
 
 		$query_defaults = array(
-			'tabname'   => 'gMedia',
+			'tabname'   => 'Gmedia',
 			'cat'       => '',
 			'tag__in'   => array(),
 			'author'    => '',
