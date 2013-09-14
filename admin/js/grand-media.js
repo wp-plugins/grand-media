@@ -782,26 +782,19 @@ jQuery(function($){
 			$("a.gm_add_hash").attr('href', back_url + window.location.hash);
 			$('form#gm_module_settings_form').attr('action', form_action + window.location.hash);
 			$(".gmediaSettings .ui-tabs").tabs({
-				fx      : {
-					opacity : "toggle",
-					duration: "fast"
-				},
-				selected: uitab_id
-			}).on("tabsselect", function (event, ui) {
-						$("input[name=\'_wp_http_referer\']").val(ui.tab);
-						$("a.ui-tab-link").attr('href', reset_url + '#' + ui.index);
-						$("a.gm_add_hash").attr('href', back_url + '#' + ui.index);
-						$("form#gm_module_settings_form").attr('action', form_action + '#' + ui.index);
-						window.location.hash = ui.index;
-					});
-		}
-		if ($('.gmAddMedia .ui-tabs').length) {
-			$(".gmAddMedia .ui-tabs").tabs({
-				fx      : {
-					opacity : "toggle",
-					duration: "fast"
+				active: uitab_id,
+				activate: function(event, ui){
+					var index = ui.newTab.index();
+					window.location.hash = index;
+					$("input[name=\'_wp_http_referer\']").val(window.location);
+					$("a.ui-tab-link").attr('href', reset_url + '#' + index);
+					$("a.gm_add_hash").attr('href', back_url + '#' + index);
+					$("form#gm_module_settings_form").attr('action', form_action + '#' + index);
 				}
 			});
+		}
+		if ($('.gmAddMedia .ui-tabs').length) {
+			$(".gmAddMedia .ui-tabs").tabs();
 		}
 	}
 

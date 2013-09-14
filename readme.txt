@@ -87,6 +87,10 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 
 == Changelog ==
 
+= *.*.* =
+* replace deprecated js properties in ui-tabs
+* fix for module settings reset
+
 = 0.8.4 =
 * Added FancyBox script for future modules
 * Fixed images with extension in uppercase not working

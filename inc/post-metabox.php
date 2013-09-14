@@ -111,11 +111,11 @@ $post_tags = wp_get_post_tags($post_ID, array('fields' => 'names'));
 
 									<div class="gMedia-insert">
 										<div class="gMedia-remove-button">
-											<img src="<?php echo $t; ?>" alt="" /><?php _e( 'click to remove', 'gmLang' ); ?>
+											<img src="<?php echo $t; ?>" alt="" /><?php _e( 'click to remove shortcode', 'gmLang' ); ?>
 											<br /><small>[gmedia id=<?php echo $item->term_id; ?>]</small>
 										</div>
 										<div class="gMedia-insert-button">
-											<img src="<?php echo $t; ?>" alt="" /><?php _e( 'click to insert', 'gmLang' ); ?>
+											<img src="<?php echo $t; ?>" alt="" /><?php _e( 'click to insert shortcode', 'gmLang' ); ?>
 											<br /><small>[gmedia id=<?php echo $item->term_id; ?>]</small>
 										</div>
 									</div>
