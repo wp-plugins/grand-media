@@ -1,8 +1,13 @@
 <?php
+ini_set( 'display_errors', 0 );
+ini_set( 'error_reporting', 0 );
+
 @ require_once ('config.php');
+
 if ( empty( $_SERVER['HTTP_REFERER'] ) ) {
 	die();
 }
+
 $ref = $_SERVER['HTTP_REFERER'];
 if ( (false === strpos( $ref, get_home_url() )) && (false === strpos( $ref, get_site_url()) )) {
 	echo 'referer:'.$_SERVER['HTTP_REFERER']."\n";
@@ -10,6 +15,7 @@ if ( (false === strpos( $ref, get_home_url() )) && (false === strpos( $ref, get_
 	echo 'site_url:'.get_site_url()."\n";
 	die('-1');
 }
+
 if ( isset($_POST['hit']) && ($gmID = intval($_POST['hit'])) ) {
 	/** @var $wpdb wpdb */
 	global $wpdb, $gMDb;
@@ -22,6 +28,7 @@ if ( isset($_POST['hit']) && ($gmID = intval($_POST['hit'])) ) {
 	$return = json_encode($meta);
 	die($return);
 }
+
 /**
  * Update media meta in the database
  */

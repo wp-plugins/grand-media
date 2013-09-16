@@ -45,8 +45,9 @@ function gmSettings() {
 										<div class="format-setting type-text wide-desc">
 											<div class="format-setting-inner" id="gmedia_license"><input type="text" name="set[gmedia_key]" id="gmedia_key" value="<?php if(isset($gmOptions['gmedia_key'])){ echo $gmOptions['gmedia_key']; } ?>" class="gmedia-ui-input" /></div>
 											<input type="hidden" value="<?php if(isset($gmOptions['product_name'])){ echo $gmOptions['product_name']; } ?>" name="set[product_name]" id="product_name" />
+											<input type="hidden" value="<?php if(isset($gmOptions['gmedia_key2'])){ echo $gmOptions['gmedia_key2']; } ?>" name="set[gmedia_key2]" id="gmedia_key2" />
 											<span class="hide-if-no-js button button-green ajaxPost" data-action="gmDoAjax" data-_ajax_nonce="<?php echo $nonce; ?>" data-form="#gmedia_license" data-task="gm-get-key"><?php _e( 'Activate Key', 'gmLang' ) ?></span>
-											<div class="description"><?php _e('Enter License Key to remove backlink label from premium gallery addons.') ?></div>
+											<div class="description"><?php _e('Enter License Key to remove backlink label from premium gallery modules.') ?></div>
 											<div id="console"></div>
 										</div>
 									</div>

@@ -34,6 +34,9 @@ class grandLibrary {
 				if ( isset( $_POST['gmedia_settings_save'] ) ) {
 					check_admin_referer( 'grandMedia' );
 					$gmOptions = get_option( 'gmediaOptions' );
+					if(isset($_POST['set']['gmedia_key2']) && empty($_POST['set']['gmedia_key2'])){
+						$_POST['set']['gmedia_key'] = '';
+					}
 					foreach ( $_POST['set'] as $key => $val ) {
 						$gmOptions[$key] = $val;
 					}

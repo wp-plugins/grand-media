@@ -1,39 +1,39 @@
-=== Gmedia Gallery ===
+=== Gmedia Gallery - Photo Gallery, Image Slider, Music Player, Media Library ===
 Contributors: Rattus
 Donate link: http://codeasily.com/wordpress-plugins/gmedia-gallery/
 Tags: gallery, image, images, library, files, music, video, slideshow, responsive, admin, Post, posts, easy gallery, iphone gallery, best gallery, portfolio, image gallery, photo gallery, photo, slider, admin, page, relative image
 Requires at least: 3.5
 Tested up to: 3.6.1
-Stable tag: 0.8.4
+Stable tag: 0.8.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Grand Media Gallery - powerfull media library plugin for creating beautiful galleries and managing files.
+Gmedia Gallery - powerfull media library plugin for creating beautiful galleries and managing files.
 
 == Description ==
 
-Gmedia Gallery is a fully integrated Image, Music, Video Gallery WordPress plugin with a powerful admin panel.
+Manage files, show image galleries and photo slideshows, play music on your site Gmedia Gallery plugin. Gmedia Library provides a comprehensive interface for handling galleries, image and audio files.
 
-Are you looking for a best way to manage and display photos, video on your blogs? Then you must try this fantastic WordPress Plugin. It provides a comprehensive interface for handling photos, MP3 and Video.
-
-With Gmedia plugin you can upload an unlimited number of images and audio, create dozens of galleries and playlists, group pictures and other files in categories, and add tags for each file.
+With Gmedia plugin you can upload an unlimited number of photo and audio files, create dozens of galleries and playlists, group pictures and other files in categories, and add tags for each file.
+Handle any file format and link any files with images in few clicks.
 
 Create Galleries with using tags and automatically add images to several galleries by assigning these tags to uploaded photos.
 
 Easily add related photos from Gmedia Library to the Post by using Gmedia Gallery MetaBox. One click for inserting image or gallery right in your page.
 
-Friendly for iPad and iPhone. Doesn’t slow down your website.
+Friendly for iPad and iPhone. Doesn’t slow down your website. **Unlimited galleries** on your website with **unlimited customizations** for each gallery.
 
-With our versatile plugin you can magically change the look and feel of your gallery, a huge selection of modules will help you embed the gallery in your posts and web pages making them feel complete. You will appreciate user friendly interface of admin panel, making the creation of unique and contemporary style gallery an easy and funny process, and attracting increasing attention from viewers.
+With our versatile plugin you can magically change the look and feel of your photo gallery, a huge selection of modules will help you embed the gallery in your posts and web pages making them feel complete. You will appreciate user friendly interface of admin panel, making the creation of unique and contemporary style gallery an easy and funny process, and attracting increasing attention from viewers.
 
 **[Home Page](http://codeasily.com/), [More Info and Screens](http://codeasily.com/wordpress-plugins/gmedia-gallery/), [Skins Portfolio](http://codeasily.com/portfolio/), [Support Forum](http://codeasily.com/community/forum/gmedia-gallery-wordpress-plugin/)**
 
 See demo of Gmedia Gallery Modules:
 
-*   [Afflux Module](http://codeasily.com/portfolio-item/gmedia-afflux/) with touch/swipe interface on mobile browsers. Test it and give me know what problem you have or not have with Gmedia plugin.
+*   [Afflux Module](http://codeasily.com/portfolio-item/gmedia-afflux/) with touch/swipe interface on mobile browsers. Multi-categorized professional photo gallery module with autoslideshow feature.
 *   [Phantom Module](http://codeasily.com/portfolio-item/gmedia-phantom/) is the Wall/Grid Gallery with social sharing - you can easily change thumbnail sizes, colors, navigation, borders, add stylish labels to thumbnails ... and much more. PhotoSwipe like theme on touch devices.. only better.
 *   [PhotoBox Module](http://codeasily.com/portfolio-item/gmedia-photobox/) - a lightweight image gallery which uses only CSS3 for silky-smooth animations and transitions.
-*   [Music Player Module](http://codeasily.com/portfolio-item/gmedia-music-player/) - beautiful audio player with playlist is totally written in JQuery and HTML5.
+*   [Slider Module](http://codeasily.com/portfolio-item/gmedia-slider/) - shows your images in one line sliding them one by one + LightBox for big images & Link to other pages or files.
+*   [Music Player Module](http://codeasily.com/portfolio-item/gmedia-music-player/) - beautiful audio player with playlist is totally written in jQuery and HTML5.
 
 Help me make it best gallery plugin: test it and [write suggestions](http://codeasily.com/community/forum/gmedia-gallery-wordpress-plugin/) how it could be improved in feature versions.
 
@@ -52,7 +52,7 @@ Features:
 
 TODO List:
 
-*   More modules for creating galleries
+*   More modules for creating photo gallery, audio playlist, video playlist
 *   Easily add to Post audio and video files with tags related to post tags
 *   Import from/to Wordpress Media Library
 *   Intergration with social services
@@ -87,9 +87,11 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 
 == Changelog ==
 
-= *.*.* =
-* replace deprecated js properties in ui-tabs
-* fix for module settings reset
+= 0.8.5 =
+* New Slider Module available for install
+* Added compatibility with Slider Module
+* Fixed deprecated js properties in ui-tabs
+* Fixed module settings reset now skip query builder
 
 = 0.8.4 =
 * Added FancyBox script for future modules
@@ -134,6 +136,10 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 * First public release
 
 == Upgrade Notice ==
+
+= 0.8.5 =
+If you've bought License Key: go to Settings page -> click Activate Key -> Save settings
+This need for Premium Slider Module work properly.
 
 = 0.8.4 =
 Go to Manage Galleries... page -> Available Modules tab -> update modules to latest version

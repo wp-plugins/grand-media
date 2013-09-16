@@ -544,6 +544,7 @@ jQuery(function($){
 						node = $(event.target).closest('.block-text');
 						if (msg.error.code == 200) {
 							$('#gmedia_key').val(msg.key);
+							$('#gmedia_key2').val(msg.key2);
 							$('#product_name').val(msg.content);
 							$('#gmedia_key_label span').html(': <i>'+msg.content+'</i>');
 							gmMessage('info', msg.message);
@@ -551,6 +552,7 @@ jQuery(function($){
 						} else if(msg.error.code == 100){
 							gmMessage('error', msg.message);
 							$('#gmedia_key').val('');
+							$('#gmedia_key2').val('');
 							$('#product_name').val('');
 							$('#gmedia_key_label span').text(':');
 							node.removeClass('block-success').addClass('block-error');
