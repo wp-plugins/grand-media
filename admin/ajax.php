@@ -726,12 +726,20 @@ function gmDoAjax() {
 					$error_message = $response->get_error_message();
 					$result = array( "error" => array( "code" => 102, "message" => $grandCore->message(__( "Something went wrong:", 'gmLang' ).' '.$error_message, 'error') ) );
 				} else {
+					$gmOptions = get_option( 'gmediaOptions' );
 					$result = json_decode($response['body']);
 					if($result->error->code == 200){
+						$gmOptions['gmedia_key'] = $result->key;
+						$gmOptions['gmedia_key2'] = $result->key2;
+						$gmOptions['product_name'] = $result->content;
 						$result->message = $grandCore->message(__('License Key activated successfully', 'gmLang'));
 					} else {
+						$gmOptions['gmedia_key'] = '';
+						$gmOptions['gmedia_key2'] = '';
+						$gmOptions['product_name'] = '';
 						$result->message = $grandCore->message(__('Error', 'gmLang').': '.$result->error->message, 'error');
 					}
+					update_option( 'gmediaOptions', $gmOptions );
 				}
 			} else {
 				$result = array( "error" => array( "code" => 101, "message" => $grandCore->message(__( "Empty License Key", 'gmLang' ), 'error') ) );
