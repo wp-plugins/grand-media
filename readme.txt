@@ -4,7 +4,7 @@ Donate link: http://codeasily.com/wordpress-plugins/gmedia-gallery/
 Tags: gallery, image, images, library, files, music, video, slideshow, responsive, admin, Post, posts, easy gallery, iphone gallery, best gallery, portfolio, image gallery, photo gallery, photo, slider, admin, page, relative image
 Requires at least: 3.5
 Tested up to: 3.6.1
-Stable tag: 0.8.5
+Stable tag: 0.8.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -86,6 +86,12 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 3. Add to Post - GrandMedia MetaBox
 
 == Changelog ==
+
+= 0.8.6 =
+* Improved Messages fixed at top if window scroll
+* Improved Key saved on Activation
+* Fixed hitcounter for flash modules
+* Fixed Afflux Module js error
 
 = 0.8.5 =
 * New Slider Module available for install

@@ -86,14 +86,15 @@ class grandCore {
 	 * Show a system messages
 	 *
 	 * @param string $message
-	 * @param string $type
+	 * @param bool|string $type
 	 * @param bool   $close
 	 *
 	 * @return string
 	 */
-	function message( $message = '', $type = 'info', $close = true ) {
+	function message( $message = '', $type = false, $close = true ) {
 		$content = '';
 		$close = $close ? '<i class="gm-close">' . __( 'Hide', 'gmLang' ) . '</i>' : '';
+		$type = $type ? $type : 'info';
 		if ( $message ) {
 			$content .= '<div class="gm-message gm-' . $type . '"><span>' . stripslashes( $message ) . '</span>' . $close . '</div>';
 		}

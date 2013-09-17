@@ -191,6 +191,17 @@ jQuery(function($){
 
 	$('#toplevel_page_GrandMedia').addClass('current').removeClass('wp-not-current-submenu');
 
+	var messageY = $('.grandmedia #gm-message').offset().top - $('#wpadminbar').height(),
+			fixed = false;
+	$(window).scroll(function(e){
+		if($(this).scrollTop() > messageY && !fixed){
+			fixed = true;
+			$('#gm-message').appendTo($('#wpadminbar')[0]);
+		} else if($(this).scrollTop() < messageY && fixed){
+			fixed = false;
+			$('#gm-message').insertAfter($('#grandMedia .grandHeader')[0]);
+		}
+	});
 	$('#gm-message').on('click', '.gm-close', function () {
 		$(this).closest('.gm-message').fadeOut(200);
 	});

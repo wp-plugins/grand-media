@@ -1,6 +1,6 @@
 /*
  * Title                   : Afflux Gallery Module
- * Version                 : 2.5
+ * Version                 : 2.6
  * Copyright               : 2013 CodEasily.com
  * Website                 : http://www.codeasily.com
  */
@@ -13,7 +13,6 @@ if (typeof jQuery.fn.gmAfflux == 'undefined') {
 		$.fn.gmAfflux = function (method) {
 			var Container = this,
 					ID = '',
-					moduleID = '',
 					tempVar,
 					flashVerion = '11',
 					Content,
@@ -65,29 +64,27 @@ if (typeof jQuery.fn.gmAfflux == 'undefined') {
 							});
 						},
 						parseSettings: function () {// Parse Settings.
-							ID = $(Container).attr('id').split('_ID');
-							moduleID = ID[0];
-							ID = ID[1];
-							if (typeof(window[moduleID + '_ID' + ID + '_Settings']) === 'object')
-								Settings = window[moduleID + '_ID' + ID + '_Settings'];
+							ID = $(Container).attr('id').split('_ID')[1];
+							if (typeof(window['gmAfflux_ID' + ID + '_Settings']) === 'object')
+								Settings = window['gmAfflux_ID' + ID + '_Settings'];
 							else
 								Settings = {};
 							return Settings;
 						},
 						parseContent: function () {// Parse Content.
-							if (typeof(window[moduleID + '_ID' + ID + '_Content']) === 'object')
-								Content = window[moduleID + '_ID' + ID + '_Content'];
+							if (typeof(window['gmAfflux_ID' + ID + '_Content']) === 'object')
+								Content = window['gmAfflux_ID' + ID + '_Content'];
 							else
 								Content = [];
 							return Content;
 						},
 						crunching		 : function () {// create new thumbs if not exists
-							if (typeof(window[moduleID + '_ID' + ID + '_Crunch']) === 'object') {
-								var Crunch = window[moduleID + '_ID' + ID + '_Crunch'];
+							if (typeof(window['gmAfflux_ID' + ID + '_Crunch']) === 'object') {
+								var Crunch = window['gmAfflux_ID' + ID + '_Crunch'];
 								var crunchlength = Crunch.length;
 								if(crunchlength) {
 									tempVar = [];
-									tempVar.push('<div id="' + moduleID + '_ID' + ID + '_ProgressBar" class="' + moduleID + '_ProgressBar"><div class="gmProgress"><span class="gmBar"></span><div class="gmCounter"><span class="gmCount">0</span>/'+crunchlength+'</div></div></div>');
+									tempVar.push('<div id="gmAfflux_ID' + ID + '_ProgressBar" class="gmAfflux_ProgressBar"><div class="gmProgress"><span class="gmBar"></span><div class="gmCounter"><span class="gmCount">0</span>/'+crunchlength+'</div></div></div>');
 									Container.html(tempVar.join(''));
 									var index = 0,
 											crunch_image = function(index){
@@ -100,7 +97,7 @@ if (typeof jQuery.fn.gmAfflux == 'undefined') {
 													async 	: true,
 													success : function (msg) {
 														index++;
-														$('#' + moduleID + '_ID' + ID + '_ProgressBar .gmBar', Container).animate({width: (100/crunchlength*(index))+'%'}, 500, function(){
+														$('#gmAfflux_ID' + ID + '_ProgressBar .gmBar', Container).animate({width: (100/crunchlength*(index))+'%'}, 500, function(){
 															$(this).parent().find('.gmCount').text(index);
 															if(!Crunch[index]) {
 																methods.initGallery();
@@ -122,7 +119,7 @@ if (typeof jQuery.fn.gmAfflux == 'undefined') {
 						},
 						initGallery  : function () {// Init the Gallery
 							tempVar = [];
-							tempVar.push('<div id="' + moduleID + '_ID' + ID + '_Container"></div>');
+							tempVar.push('<div id="gmAfflux_ID' + ID + '_Container"></div>');
 							Container.html(tempVar.join(''));
 
 							var parameters = {
@@ -139,8 +136,8 @@ if (typeof jQuery.fn.gmAfflux == 'undefined') {
 										json: 'gmAfflux'
 									},
 									attributes = {
-										styleclass: moduleID + '_Flash',
-										id        : moduleID + '_ID' + ID + '_Flash'
+										styleclass: 'gmAfflux_Flash',
+										id        : 'gmAfflux_ID' + ID + '_Flash'
 									};
 							if (opt.postID) {
 								flashvars.postID = opt.postID;
@@ -148,13 +145,13 @@ if (typeof jQuery.fn.gmAfflux == 'undefined') {
 							}
 							prototypes.swfobject_switchOffAutoHideShow();
 							/** @namespace opt.ModuleUrl */
-							swfobject.embedSWF(opt.moduleUrl + '/gallery.swf', moduleID + '_ID' + ID + '_Container', opt.width, opt.height, flashVerion, opt.pluginUrl + '/inc/expressInstall.swf', flashvars, parameters, attributes, methods.callbackFn);
+							swfobject.embedSWF(opt.moduleUrl + '/gallery.swf', 'gmAfflux_ID' + ID + '_Container', opt.width, opt.height, flashVerion, opt.pluginUrl + '/inc/expressInstall.swf', flashvars, parameters, attributes, methods.callbackFn);
 
 						},
 						callbackFn   : function (e) {// e = {(bool) success, (string) id, (reference to the active HTML object element) ref}
 							if (e.success) {
 								var swfHover = e.ref;
-								$('#' + moduleID + '_ID' + ID).on("mouseenter", e.ref,function () {
+								$('#gmAfflux_ID' + ID).on("mouseenter", e.ref,function () {
 									if($.isFunction(swfHover['swfHover'+ID])) {
 										swfHover['swfHover'+ID]('true');
 									}
@@ -173,27 +170,27 @@ if (typeof jQuery.fn.gmAfflux == 'undefined') {
 							// add html for gallery
 							tempVar = [];
 							if(prototypes.isTouchDevice())	{
-								tempVar.push('<div class="' + moduleID + '_alternative is-touch">');
+								tempVar.push('<div class="gmAfflux_alternative is-touch">');
 							} else {
-								tempVar.push('<div class="' + moduleID + '_alternative no-touch">');
+								tempVar.push('<div class="gmAfflux_alternative no-touch">');
 							}
-							tempVar.push('<div class="' + moduleID + '_catLinks">');
+							tempVar.push('<div class="gmAfflux_catLinks">');
 							$.each(Content, function (index) {
 								tempVar.push('<a class="gm_tab" href="#' + Content[index].cID + '" rel="' + Content[index].cID + '">' + Content[index].name + '</a>');
 							});
 							tempVar.push('</div>');
 							var imgobj, imgdata, img;
 							$.each(Content, function (index) {
-								tempVar.push('<div class="' + moduleID + '_imgContainer" id="' + Content[index].cID + '">');
+								tempVar.push('<div class="gmAfflux_imgContainer" id="' + Content[index].cID + '">');
 								$.each(this.data, function (index) {
 									ratio = Math.max(ratio, (this.w/this.h));
 									imgdata = this;
 									imgobj = new Image();
 									img = $(imgobj).attr('src', opt.libraryUrl + this.thumb).attr('data-src', opt.libraryUrl + this.image);
-									tempVar.push('<div class="' + moduleID + '_img gm_thumb">');
+									tempVar.push('<div class="gmAfflux_img gm_thumb">');
 									tempVar.push(img[0].outerHTML);
 									if(opt.descrVisOnMouseover && (this.title || this.description)) {
-										tempVar.push('<div class="' + moduleID + '_imgDescr"><span class="gm_title">' + this.title + '</span>' + $("<div />").html(this.description).text() + '</div><span class="gm_close">&times;</span>');
+										tempVar.push('<div class="gmAfflux_imgDescr"><span class="gm_title">' + this.title + '</span>' + $("<div />").html(this.description).text() + '</div><span class="gm_close">&times;</span>');
 									}
 									tempVar.push('</div>');
 								});
@@ -203,25 +200,25 @@ if (typeof jQuery.fn.gmAfflux == 'undefined') {
 							Container.html(tempVar.join(""));
 
 							// set responsive gallery height
-							var bars_height = $('.' + moduleID + '_catLinks', Container).height(),
+							var bars_height = $('.gmAfflux_catLinks', Container).height(),
 									responsive_height = function() { return (opt.width == '100%') ? Math.floor(Container.width() / ratio + bars_height) : Math.floor(Container.width() / (opt.width/opt.height) + bars_height); };
-							$('.' + moduleID + '_alternative', Container).css({'height': responsive_height});
+							$('.gmAfflux_alternative', Container).css({'height': responsive_height});
 							$(window).resize(function(){
-								$('.' + moduleID + '_alternative', Container).css({'height': responsive_height});
+								$('.gmAfflux_alternative', Container).css({'height': responsive_height});
 							});
 
 							// append stylesheet to the body
 							tempVar = [];
-							tempVar.push('div#'+moduleID+'_ID'+ID+' .' + moduleID + '_imgContainer { background-color: '+ opt.bgColor.replace('0x','#') +'; }');
+							tempVar.push('div#gmAfflux_ID'+ID+' .gmAfflux_imgContainer { background-color: '+ opt.bgColor.replace('0x','#') +'; }');
 							var imgDescrBg = prototypes.hexToRgb(opt.imageDescrBgColor);
-							tempVar.push('div#'+moduleID+'_ID'+ID+' .' + moduleID + '_imgDescr { background-color: rgba('+imgDescrBg.r+','+imgDescrBg.g+','+imgDescrBg.b+','+(opt.imageDescrBgAlpha/100)+'); color: '+ opt.imageDescrColor.replace('0x','#') +'; font-size: '+ opt.imageDescrFontSize +'px; }');
-							tempVar.push('div#'+moduleID+'_ID'+ID+' .' + moduleID + '_imgDescr .gm_title { color:  '+ opt.imageTitleColor.replace('0x','#') +'; font-size: '+ opt.imageTitleFontSize +'px; }');
-							tempVar.push('div#'+moduleID+'_ID'+ID+' .' + moduleID + '_catLinks { background-color: '+ opt.barsBgColor.replace('0x','#') +'; overflow: auto; }');
-							tempVar.push('div#'+moduleID+'_ID'+ID+' .' + moduleID + '_catLinks a { color: '+ opt.catButtonColor.replace('0x','#') +'; }');
-							tempVar.push('div#'+moduleID+'_ID'+ID+' .' + moduleID + '_catLinks a:hover, ');
-							tempVar.push('div#'+moduleID+'_ID'+ID+' .' + moduleID + '_catLinks a.active, ');
-							tempVar.push('div#'+moduleID+'_ID'+ID+' .' + moduleID + '_catLinks a.active:hover { color: '+ opt.catButtonColorHover.replace('0x','#') +'; }');
-							Container.append('<style id="'+moduleID+'_ID'+ID+'_styles" type="text/css" scoped="scoped">' + tempVar.join("\n") + '</style>');
+							tempVar.push('div#gmAfflux_ID'+ID+' .gmAfflux_imgDescr { background-color: rgba('+imgDescrBg.r+','+imgDescrBg.g+','+imgDescrBg.b+','+(opt.imageDescrBgAlpha/100)+'); color: '+ opt.imageDescrColor.replace('0x','#') +'; font-size: '+ opt.imageDescrFontSize +'px; }');
+							tempVar.push('div#gmAfflux_ID'+ID+' .gmAfflux_imgDescr .gm_title { color:  '+ opt.imageTitleColor.replace('0x','#') +'; font-size: '+ opt.imageTitleFontSize +'px; }');
+							tempVar.push('div#gmAfflux_ID'+ID+' .gmAfflux_catLinks { background-color: '+ opt.barsBgColor.replace('0x','#') +'; overflow: auto; }');
+							tempVar.push('div#gmAfflux_ID'+ID+' .gmAfflux_catLinks a { color: '+ opt.catButtonColor.replace('0x','#') +'; }');
+							tempVar.push('div#gmAfflux_ID'+ID+' .gmAfflux_catLinks a:hover, ');
+							tempVar.push('div#gmAfflux_ID'+ID+' .gmAfflux_catLinks a.active, ');
+							tempVar.push('div#gmAfflux_ID'+ID+' .gmAfflux_catLinks a.active:hover { color: '+ opt.catButtonColorHover.replace('0x','#') +'; }');
+							Container.append('<style id="gmAfflux_ID'+ID+'_styles" type="text/css" scoped="scoped">' + tempVar.join("\n") + '</style>');
 							tempVar = [];
 
 							// show image description
@@ -229,9 +226,9 @@ if (typeof jQuery.fn.gmAfflux == 'undefined') {
 							if(prototypes.isTouchDevice()) {
 								event = 'click'
 							}
-							$('.' + moduleID + '_imgContainer', Container).on(event, '> div > img', function(){
+							$('.gmAfflux_imgContainer', Container).on(event, '> div > img', function(){
 								var obj = $(this).parent(),
-										objDescr = $('.' + moduleID + '_imgDescr', obj);
+										objDescr = $('.gmAfflux_imgDescr', obj);
 								if(!objDescr.length)
 									return;
 
@@ -242,7 +239,7 @@ if (typeof jQuery.fn.gmAfflux == 'undefined') {
 										$(this).css('bottom','100%');
 									});
 								} else {
-									objDescr.css('bottom',obj.outerHeight()).animate({'bottom': (obj.outerHeight() - $('.' + moduleID + '_imgDescr', obj).outerHeight())}, 200, function(){
+									objDescr.css('bottom',obj.outerHeight()).animate({'bottom': (obj.outerHeight() - $('.gmAfflux_imgDescr', obj).outerHeight())}, 200, function(){
 										obj.addClass('gm_info');
 										$('.gm_close', obj).one('click', function(e){
 											$(this).prev().stop().animate({'bottom': '100%'}, 200).parent().removeClass('gm_info');
@@ -252,8 +249,8 @@ if (typeof jQuery.fn.gmAfflux == 'undefined') {
 							});
 
 							// show first category and load big image
-							var catID = $('.' + moduleID + '_catLinks a:first', Container).addClass('active').attr('rel');
-							$('#' + catID, Container).show().siblings('.' + moduleID + '_imgContainer').hide().end().each(function(){
+							var catID = $('.gmAfflux_catLinks a:first', Container).addClass('active').attr('rel');
+							$('#' + catID, Container).show().siblings('.gmAfflux_imgContainer').hide().end().each(function(){
 								var swipeWidth = $(this).width(),
 										corr = parseInt($(this).children().first().css('margin-left')),
 										times = Math.round($(this).scrollLeft()/swipeWidth);
@@ -265,7 +262,7 @@ if (typeof jQuery.fn.gmAfflux == 'undefined') {
 							});
 
 							// switch between categories
-							$('.' + moduleID + '_catLinks', Container).on('click', 'a', function(e){
+							$('.gmAfflux_catLinks', Container).on('click', 'a', function(e){
 								e.preventDefault();
 								if(!$(this).hasClass('active')) {
 									catID = $(this).attr('rel');
@@ -273,7 +270,7 @@ if (typeof jQuery.fn.gmAfflux == 'undefined') {
 									if(prototypes.isTouchDevice())	{
 										$('#' + catID, Container).show().scrollLeft(0);
 									}
-									$('#' + catID, Container).show().siblings('.' + moduleID + '_imgContainer').hide().end().each(function(){
+									$('#' + catID, Container).show().siblings('.gmAfflux_imgContainer').hide().end().each(function(){
 										var swipeWidth = $(this).width(),
 												corr = parseInt($(this).children().first().css('margin-left')),
 												times = Math.round($(this).scrollLeft()/swipeWidth);
@@ -292,8 +289,8 @@ if (typeof jQuery.fn.gmAfflux == 'undefined') {
 							var prev, curr, touch, scrollX, positionX, initial,
 									swipeWidth, swipeFix, startTime, endTime,
 									scrollWidth, drag = false,
-									swipeDiv = $('.' + moduleID + '_imgContainer', Container),
-									corr = parseInt($('.' + moduleID + '_img:first', swipeDiv).css('margin-left'));
+									swipeDiv = $('.gmAfflux_imgContainer', Container),
+									corr = parseInt($('.gmAfflux_img:first', swipeDiv).css('margin-left'));
 
 							if(prototypes.isTouchDevice())	{
 								var prevy, curry;
@@ -323,8 +320,8 @@ if (typeof jQuery.fn.gmAfflux == 'undefined') {
 											times = (Math.abs(swipeSpeed) > 300) ? (scrollX/swipeWidth) : Math.round(scrollX/swipeWidth);
 									times = ((swipeSpeed < 0) && (scrollX < (scrollWidth - swipeWidth))) ? Math.ceil(times) : Math.floor(times);
 									positionX = swipeWidth * times + corr;
-									var toload = $('div.' + moduleID + '_img:eq('+(times + Math.max(-2, (0 - times)))+')', this).nextUntil($('div.' + moduleID + '_img:eq('+(times+3)+')', this).get(0)).andSelf().filter('.gm_thumb');
-									// ? var toload = $('div.' + moduleID + '_img:eq('+(times + Math.max(-2, (0 - times)))+')', this).nextUntil($('div.' + moduleID + '_img:eq('+(times+3)+')', this).get(0)).addBack().filter('.gm_thumb');
+									var toload = $('div.gmAfflux_img:eq('+(times + Math.max(-2, (0 - times)))+')', this).nextUntil($('div.gmAfflux_img:eq('+(times+3)+')', this).get(0)).andSelf().filter('.gm_thumb');
+									// ? var toload = $('div.gmAfflux_img:eq('+(times + Math.max(-2, (0 - times)))+')', this).nextUntil($('div.gmAfflux_img:eq('+(times+3)+')', this).get(0)).addBack().filter('.gm_thumb');
 									toload.each(function(){
 										var curimg = $('img',this);
 										methods.preloadImage(curimg, function(url){
@@ -368,9 +365,9 @@ if (typeof jQuery.fn.gmAfflux == 'undefined') {
 											times = (Math.abs(swipeSpeed) > 600) ? (scrollX/swipeWidth) : Math.round(scrollX/swipeWidth);
 											times = ((swipeSpeed < 0) && (scrollX < (scrollWidth - swipeWidth))) ? Math.ceil(times) : Math.floor(times);
 									//positionX = swipeWidth * times + corr;
-									positionX = $('div.' + moduleID + '_img:eq('+times+')', this).get(0).offsetLeft;
-									var toload = $('div.' + moduleID + '_img:eq('+(times + Math.max(-2, (0 - times)))+')', this).nextUntil($('div.' + moduleID + '_img:eq('+(times+3)+')', this).get(0)).andSelf().filter('.gm_thumb');
-									// ? var toload = $('div.' + moduleID + '_img:eq('+(times + Math.max(-2, (0 - times)))+')', this).nextUntil($('div.' + moduleID + '_img:eq('+(times+3)+')', this).get(0)).addBack().filter('.gm_thumb');
+									positionX = $('div.gmAfflux_img:eq('+times+')', this).get(0).offsetLeft;
+									var toload = $('div.gmAfflux_img:eq('+(times + Math.max(-2, (0 - times)))+')', this).nextUntil($('div.gmAfflux_img:eq('+(times+3)+')', this).get(0)).andSelf().filter('.gm_thumb');
+									// ? var toload = $('div.gmAfflux_img:eq('+(times + Math.max(-2, (0 - times)))+')', this).nextUntil($('div.gmAfflux_img:eq('+(times+3)+')', this).get(0)).addBack().filter('.gm_thumb');
 									toload.each(function(){
 										var curimg = $('img',this);
 										methods.preloadImage(curimg, function(url){

@@ -24,9 +24,13 @@ if ( isset($_POST['hit']) && ($gmID = intval($_POST['hit'])) ) {
 	}
 	$meta['views'] = $gMDb->get_metadata('gmedia', $gmID, 'views', true);
 	$meta['likes'] = $gMDb->get_metadata('gmedia', $gmID, 'likes', true);
-	gm_hitcounter($gmID, $meta);
-	$return = json_encode($meta);
-	die($return);
+
+	$meta = array_map('intval', $meta);
+	$meta = gm_hitcounter($gmID, $meta);
+
+	header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
+	echo json_encode($meta);
+	die();
 }
 
 /**
@@ -35,11 +39,13 @@ if ( isset($_POST['hit']) && ($gmID = intval($_POST['hit'])) ) {
 function gm_hitcounter($gmID, $meta) {
 	/** @var wpdb $wpdb */
 	global $wpdb, $gMDb;
-	$meta = array_map('intval', $meta);
-	if( isset($_POST['like']) ) {
-		$gMDb->update_metadata('gmedia', $gmID, 'likes', $meta['likes'] + 1);
+	if( isset($_POST['vote']) ) {
+		$meta['likes'] +=1;
+		$gMDb->update_metadata('gmedia', $gmID, 'likes', $meta['likes']);
 	}
 	else {
-		$gMDb->update_metadata('gmedia', $gmID, 'views', $meta['views'] + 1);
+		$meta['views'] +=1;
+		$gMDb->update_metadata('gmedia', $gmID, 'views', $meta['views']);
 	}
+	return $meta;
 }

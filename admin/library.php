@@ -15,7 +15,7 @@ class grandLibrary {
 		// GET variables
 		$this->mode = $grandCore->_get( 'mode', 'main' );
 		$this->page = $grandCore->_get( 'page', 'GrandMedia' );
-		$this->msg  = $grandCore->message( $grandCore->_post( 'gmUpdateMessage' ), $grandCore->_post( 'gmUpdateStatus', false ) );
+		$this->msg  = $grandCore->message( $grandCore->_post( 'gmUpdateMessage', 'Testing' ), $grandCore->_post( 'gmUpdateStatus', false ) );
 
 		$this->processor();
 	}
@@ -36,6 +36,9 @@ class grandLibrary {
 					$gmOptions = get_option( 'gmediaOptions' );
 					if(isset($_POST['set']['gmedia_key2']) && empty($_POST['set']['gmedia_key2'])){
 						$_POST['set']['gmedia_key'] = '';
+					} else if(empty($_POST['set']['gmedia_key'])){
+						$_POST['set']['gmedia_key2'] = '';
+						$_POST['set']['product_name'] = '';
 					}
 					foreach ( $_POST['set'] as $key => $val ) {
 						$gmOptions[$key] = $val;

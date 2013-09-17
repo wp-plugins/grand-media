@@ -1,7 +1,7 @@
 <?php
 $module = array(
 	'title'        => 'Afflux',
-	'version'      => '2.5',
+	'version'      => '2.6',
 	'author'       => 'CodEasily.com',
 	'description'  => 'A Free Image Gallery Skin that supports thumbnails size change, color change, captions and autoplay.
 Responsive and mobile friendly gallery:

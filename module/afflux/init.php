@@ -121,7 +121,7 @@ foreach ( $module_meta['gMediaQuery'] as $i => $tab ) {
 		if(!empty($meta['link'])){
 			$item->title = '<a href="'.$meta['link'].'"><b>'. $item->title .'</b></a>';
 		}
-		$b[]   = "		{'id': '{$item->ID}','image': '/{$gmOptions['folder']['image']}/{$item->gmuid}','thumb': '/{$gmOptions['folder']['link']}/{$thumb['file']}','title': " . json_encode( $item->title ) . ",'description': " . json_encode( wpautop($item->description) ) . ",'date': '{$item->date}','views': '{$meta['views']}','likes': '{$meta['likes']}','w': '{$_metadata['width']}','h': '{$_metadata['height']}'}";
+		$b[]   = "		{'id': '{$item->ID}','image': '/{$gmOptions['folder']['image']}/{$item->gmuid}','thumb': '/{$gmOptions['folder']['link']}/{$thumb['file']}','title': " . json_encode( $item->title ) . ",'description': " . json_encode( str_replace(array("\r\n", "\r", "\n"), '', wpautop($item->description)) ) . ",'date': '{$item->date}','views': '{$meta['views']}','likes': '{$meta['likes']}','w': '{$_metadata['width']}','h': '{$_metadata['height']}'}";
 	}
 	$a[$i] .= implode( ",\n", $b ) . "\n";
 	$a[$i] .= "	]}";
@@ -133,6 +133,6 @@ if ( empty( $a ) ) {
 $jsInit .= implode( ",\n", $a ) . "\n";
 $jsInit .= "];\n\n";
 if (!empty($crunch)){
-	$jsInit .= "gmAfflux_ID{$module_meta['term_id']}_Crunch = ".json_encode($crunch)."\n\n";
+	$jsInit .= "var gmAfflux_ID{$module_meta['term_id']}_Crunch = ".json_encode($crunch).";\n\n";
 }
 $jsRun .= "	gmAfflux_ID{$module_meta['term_id']} = jQuery('#gmAfflux_ID{$module_meta['term_id']}').gmAfflux();\n\n";
