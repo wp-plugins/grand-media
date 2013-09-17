@@ -15,7 +15,7 @@ class grandLibrary {
 		// GET variables
 		$this->mode = $grandCore->_get( 'mode', 'main' );
 		$this->page = $grandCore->_get( 'page', 'GrandMedia' );
-		$this->msg  = $grandCore->message( $grandCore->_post( 'gmUpdateMessage', 'Testing' ), $grandCore->_post( 'gmUpdateStatus', false ) );
+		$this->msg  = $grandCore->message( $grandCore->_post( 'gmUpdateMessage' ), $grandCore->_post( 'gmUpdateStatus', false ) );
 
 		$this->processor();
 	}
