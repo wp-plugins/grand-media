@@ -1,0 +1,4 @@
+/**
+ * gMedia Globals
+ * @var gMediaGlobalVar
+ */
