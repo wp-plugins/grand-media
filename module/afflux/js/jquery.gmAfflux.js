@@ -1,6 +1,6 @@
 /*
  * Title                   : Afflux Gallery Module
- * Version                 : 2.6
+ * Version                 : 2.7
  * Copyright               : 2013 CodEasily.com
  * Website                 : http://www.codeasily.com
  */
@@ -250,12 +250,13 @@ if (typeof jQuery.fn.gmAfflux == 'undefined') {
 
 							// show first category and load big image
 							var catID = $('.gmAfflux_catLinks a:first', Container).addClass('active').attr('rel');
-							$('#' + catID, Container).show().siblings('.gmAfflux_imgContainer').hide().end().each(function(){
+							$('#' + catID, Container).css('display','block').siblings('.gmAfflux_imgContainer').css('display','none').end().each(function(){
 								var swipeWidth = $(this).width(),
 										corr = parseInt($(this).children().first().css('margin-left')),
 										times = Math.round($(this).scrollLeft()/swipeWidth);
+								if(!times || times == 'undefined'){ times = 0; }
 								var curimg = $('> div:eq('+times+') > img',this);
-								$(this).animate({scrollLeft: (curimg.parent().get(0).offsetLeft)}, 1000);
+								$(this).animate({scrollLeft: (curimg.parent().offsetLeft)}, 1000);
 								methods.preloadImage(curimg, function(url){
 									curimg.attr('src', url).parent().removeClass('gm_thumb');
 								});
@@ -268,14 +269,14 @@ if (typeof jQuery.fn.gmAfflux == 'undefined') {
 									catID = $(this).attr('rel');
 									$(this).addClass('active').siblings().removeClass('active');
 									if(prototypes.isTouchDevice())	{
-										$('#' + catID, Container).show().scrollLeft(0);
+										$('#' + catID, Container).css('display','block').scrollLeft(0);
 									}
-									$('#' + catID, Container).show().siblings('.gmAfflux_imgContainer').hide().end().each(function(){
+									$('#' + catID, Container).css('display','block').siblings('.gmAfflux_imgContainer').css('display','none').end().each(function(){
 										var swipeWidth = $(this).width(),
 												corr = parseInt($(this).children().first().css('margin-left')),
 												times = Math.round($(this).scrollLeft()/swipeWidth);
 										var curimg = $('> div:eq('+times+') > img',this);
-										$(this).scrollLeft(curimg.parent().get(0).offsetLeft);
+										$(this).scrollLeft(curimg.parent().offsetLeft);
 										methods.preloadImage(curimg, function(url){
 											curimg.attr('src', url).parent().removeClass('gm_thumb');
 										});
