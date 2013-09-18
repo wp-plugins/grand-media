@@ -53,7 +53,7 @@ foreach ( $module_meta['gMediaQuery'] as $i => $tab ) {
 		}
 		$button = isset($meta['link'][0])? json_encode($meta['link'][0]) : "''";
 		if($ext == 'ogg'){$ext = 'oga';}
-		$a[]   = "	{{$ext}: '" . rtrim( $upload['url'], '/' ) . "/{$gmOptions['folder']['audio']}/{$item->gmuid}', cover: '{$preview_image}', title: " . json_encode( $item->title ) . ", text: " .  json_encode(wpautop($item->description)) . ", rating: '', button: {$button}}";
+		$a[]   = "	{{$ext}: '" . rtrim( $upload['url'], '/' ) . "/{$gmOptions['folder']['audio']}/{$item->gmuid}', cover: '{$preview_image}', title: " . json_encode( $item->title ) . ", text: " .  json_encode( str_replace(array("\r\n", "\r", "\n"), '', wpautop($item->description)) ) . ", rating: '', button: {$button}}";
 	}
 }
 if ( empty( $a ) ) {
