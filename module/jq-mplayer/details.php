@@ -8,6 +8,6 @@ $module = array(
 	'type'         => 'music',
 	'status'       => 'free',
 	'uid'          => 'gmMusicPlayer',
-	'demo'         => '',
+	'demo'         => 'http://codeasily.com/portfolio-item/gmedia-music-player/',
 	'dependencies' => 'jplayer'
 );

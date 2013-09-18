@@ -298,6 +298,7 @@ function gmDoAjax() {
 				if(isset($moduledir) && !empty($moduledir) && is_dir($modules_dir.$moduledir)){
 					$grandCore->delete_folder($modules_dir.$moduledir);
 				}
+				// TODO replace with unzip_file() function
 				if ( class_exists( 'ZipArchive' ) ) {
 					$zip = new ZipArchive;
 					$open = $zip->open( $mzip );
@@ -305,7 +306,7 @@ function gmDoAjax() {
 						$zip->extractTo( $modules_dir );
 						$zip->close();
 					} else {
-						$result = array( 'stat' => 'KO', 'message' => "ERROR : Can't open archive. Error code: {$open}" );
+						$result = array( 'stat' => 'KO', 'message' => $grandCore->message("ERROR : Can't open archive. Error code: {$open}", 'error') );
 						header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
 						echo json_encode( $result );
 						die();
@@ -327,7 +328,7 @@ function gmDoAjax() {
 					$archive = new PclZip( $mzip );
 					$list    = $archive->extract( $modules_dir );
 					if ( $list == 0 ) {
-						$result = array( 'stat' => 'KO', 'message' => "ERROR : '" . $archive->errorInfo( true ) . "'" );
+						$result = array( 'stat' => 'KO', 'message' => $grandCore->message("ERROR : '" . $archive->errorInfo( true ) . "'", 'error') );
 						header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
 						echo json_encode( $result );
 						die();

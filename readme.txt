@@ -87,6 +87,11 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 
 == Changelog ==
 
+= *.*.* =
+* fix for unzip error handler
+* loading modules data via cURL
+* small fixes and improvements
+
 = 0.8.6 =
 * Improved Messages fixed at top if window scroll
 * Improved Key saved on Activation

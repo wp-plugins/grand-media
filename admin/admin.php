@@ -176,11 +176,12 @@ class grandAdminPanel {
 		switch ( $screen_id ) {
 			case "toplevel_page_GrandMedia" :
 			case "admin_page_GrandMedia_Settings" :
-				$link = '<a href="mailto:gmediafolder@gmail.com" target="_blank">gmediafolder@gmail.com</a>';
+				$link = '<a href="http://codeasily.com/community/forum/gmedia-gallery-wordpress-plugin/" target="_blank">'.__( 'Support Forum', 'gmLang' ).'</a>';
 				break;
 		}
 		if ( ! empty( $link ) ) {
-			$contextual_help = '<p>' . sprintf( __( "Contact deveoper: %s", 'gmLang' ), $link ) . '</p>';
+			//$contextual_help = '<p>' . sprintf( __( "Support Forum: %s", 'gmLang' ), $link ) . '</p>';
+			$contextual_help = '<p>' . $link . '</p>';
 			/*
 						$temp = '<div class="metabox-prefs">'.$link.'</div>
 			<h5>'.__('More Help & Info', 'gmLang').'</h5>

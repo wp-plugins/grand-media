@@ -131,9 +131,19 @@ function gmedia_manage_modules() {
 			// not installed modules
 			$dropbox_public = 'http://dl.dropbox.com/u/6295502/gmedia_modules/';
 			$modules_xml = @simplexml_load_file( $dropbox_public.'modules.xml', 'SimpleXMLElement', LIBXML_NOCDATA );
+			if( empty($modules_xml) ){
+				$ch = curl_init($dropbox_public.'modules.xml');
+				curl_setopt($ch, CURLOPT_HEADER, 0);
+				curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+				curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+				$modules_xml = curl_exec($ch);
+				$modules_xml = @simplexml_load_string($modules_xml);
+				curl_close ($ch);
+			}
 			$all_modules = $modules_by_type = $available_modules = array();
 			$modules_xml_message = '';
-			if ( ! empty( $modules_xml ) ) {
+			if ( !empty( $modules_xml ) ) {
 				foreach ( $modules_xml as $m ) {
 					$muid               = (string) $m->uid;
 					$type               = (string) $m->type;
@@ -143,7 +153,7 @@ function gmedia_manage_modules() {
 				$modules_xml_message = __( 'All available modules are already installed...', 'flag' );
 			}
 			else {
-				$modules_xml_message = __( 'Error loading remote modules or URL file-access is disabled in the server configuration...', 'flag' ) . ' <a class="ext" href="http://codeasily.com/gmedia/faq">' . __( 'more', 'gmLang' ) . '</a>';
+				$modules_xml_message = __( 'Error loading remote modules or cURL library is not installed on your server...', 'flag' ) . ' <a class="ext" href="http://codeasily.com/community/topic/gmedia-faq/">' . __( 'more', 'gmLang' ) . '</a>';
 			}
 
 			// plugin's module folder
@@ -181,8 +191,20 @@ function gmedia_manage_modules() {
 									<?php if(!empty($module['demo']) && $module['demo'] != '#'){ ?>
 									<a class="module_preview button" target="_blank" href="<?php echo $module['demo']; ?>"><?php _e( 'View Demo', 'gmLang' ) ?></a>
 									|
-									<?php } ?>
-									<a class="module_create button-primary" href="<?php echo wp_nonce_url( 'admin.php?page=GrandMedia_Modules&amp;module=' . $moduledir, 'grandMedia' ); ?>"><?php _e( 'Create Gallery', 'gmLang' ) ?></a>
+									<?php }
+									switch($module['type']){
+										case 'gallery':
+											$create_txt = __( 'Create Gallery', 'gmLang' );
+										break;
+										case 'music':
+										case 'video':
+											$create_txt = __( 'Create Playlist', 'gmLang' );
+										break;
+										default:
+											$create_txt = __( 'Create...', 'gmLang' );
+									}
+									?>
+									<a class="module_create button-primary" href="<?php echo wp_nonce_url( 'admin.php?page=GrandMedia_Modules&amp;module=' . $moduledir, 'grandMedia' ); ?>"><?php echo $create_txt; ?></a>
 									<?php echo $update; ?>
 								</div>
 							</div>
