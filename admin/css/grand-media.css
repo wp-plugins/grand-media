@@ -415,6 +415,7 @@ div#gm-message .gm-message > span {
 div#gm-message .gm-message .gm-close {
 	display: inline-block;
 	vertical-align: top;
+	text-align: left;
 	position: relative;
 	width: 11px;
 	height: 15px;
@@ -1776,7 +1777,8 @@ a.plupload_disabled:focus { color: #737373; }
 	float: left;
 	margin: 3px;
 	border: 1px solid #ccc;
-	min-height: 311px;
+	height: 311px;
+	overflow: hidden;
 }
 
 .gmAddMedia .optionsPanel .info {
@@ -1788,7 +1790,7 @@ a.plupload_disabled:focus { color: #737373; }
 
 .gmAddMedia .optionsPanel .params {
 	overflow: hidden;
-	margin-bottom: 10px;
+	margin-top: 10px;
 }
 
 .gmAddMedia .optionsPanel .params .tagsdiv .the-tags {
@@ -1798,8 +1800,10 @@ a.plupload_disabled:focus { color: #737373; }
 
 .gmAddMedia .optionsPanel .params .categorydiv .the-category {
 	margin-left: 0;
-	width: 226px;
+	width: 100%;
 }
+
+#new-tag-gmedia_tag { width: 60%; }
 
 .gmAddMedia .optionsPanel label {
 	display: block;
@@ -1834,6 +1838,7 @@ a.plupload_disabled:focus { color: #737373; }
 	padding: 1px 7px;
 	white-space: nowrap;
 	cursor: pointer;
+	line-height: 20px;
 }
 
 .gm_toggle_checklist {
@@ -2046,6 +2051,18 @@ a.plupload_disabled:focus { color: #737373; }
 	height: 0;
 	visibility: hidden;
 }
+
+body.gmedia_body { overflow: hidden; height: auto; }
+.gmedia_body div#gm-message {
+	position: absolute;
+	right: 5px; top: 5px;
+	overflow: visible;
+	z-index: 200;
+}
+.gmedia_body div#gm-message .gm-message {
+	text-align: right;
+}
+.gmedia_body div.gMediaLibActions .msg0 { right: auto; left: 5px; }
 
 
 

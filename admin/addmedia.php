@@ -12,13 +12,18 @@ function grandMedia_AddMedia() {
 	global $grandCore;
 	$url = $grandCore->get_admin_url();
 	$tab = $grandCore->_get('tab','upload');
+	$extra_tools = (defined('GMEDIA_IFRAME_TOOL') && GMEDIA_IFRAME_TOOL)? false : true;
 	?>
 	<div class="gMediaLibActions">
+		<?php if($extra_tools){ ?>
 		<div class="abuts">
 			<a class="upload<?php if($tab=='upload') echo ' active'; ?>" href="<?php echo $url['page']; ?>"><?php _e( 'Upload Files', 'gmLang' ); ?></a>
 			<span class="unzip disabled"><?php _e( 'Upload ZIP', 'gmLang' ); ?></span>
 			<a class="import<?php if($tab=='import') echo ' active'; ?>" href="<?php echo $url['page'].'&amp;tab=import'; ?>"><?php _e( 'Import', 'gmLang' ); ?></a>
 		</div>
+		<?php } else {
+			echo '<div id="gm-message"></div>';
+		} ?>
 		<div class="msg0"><span class="msg0_text"><?php
 			if($tab == 'upload')
 				_e( 'Add files to the upload queue and click the start button', 'gmLang' );

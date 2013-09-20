@@ -4,7 +4,7 @@ Donate link: http://codeasily.com/wordpress-plugins/gmedia-gallery/
 Tags: gallery, image, images, library, files, music, video, slideshow, responsive, admin, Post, posts, easy gallery, iphone gallery, best gallery, portfolio, image gallery, photo gallery, photo, slider, admin, page, relative image
 Requires at least: 3.5
 Tested up to: 3.6.1
-Stable tag: 0.8.6
+Stable tag: 0.9.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -34,6 +34,7 @@ See demo of Gmedia Gallery Modules:
 *   [PhotoBox Module](http://codeasily.com/portfolio-item/gmedia-photobox/) - a lightweight image gallery which uses only CSS3 for silky-smooth animations and transitions.
 *   [Slider Module](http://codeasily.com/portfolio-item/gmedia-slider/) - shows your images in one line sliding them one by one + LightBox for big images & Link to other pages or files.
 *   [Music Player Module](http://codeasily.com/portfolio-item/gmedia-music-player/) - beautiful audio player with playlist is totally written in jQuery and HTML5.
+*   [Optima Module](http://codeasily.com/portfolio-item/gmedia-optima/) - is multi-categorized premium gallery module with slideshow, background music support, views counter, image like button, etc.
 
 Help me make it best gallery plugin: test it and [write suggestions](http://codeasily.com/community/forum/gmedia-gallery-wordpress-plugin/) how it could be improved in feature versions.
 
@@ -87,10 +88,14 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 
 == Changelog ==
 
-= *.*.* =
-* fix for unzip error handler
-* loading modules data via cURL
-* small fixes and improvements
+= 0.9.0 =
+* Added new Minima Gallery Module
+* Added button for upload images right from the post page
+* Added quick button for creating gallery
+* Fixed wrong module name in metabox
+* Fixed unzip module error handler
+* Added loading new modules info via cURL
+* Other fixes and improvements
 
 = 0.8.6 =
 * Improved Messages fixed at top if window scroll

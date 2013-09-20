@@ -4,7 +4,7 @@ var dload = true, load_page = 2, gm_rel = 1;
 (function ($, window, document, undefined) {
 	$('body').on('click', 'textarea.wp-editor-area', function(){
 		gmActiveEditor = $(this).attr('id');
-		setTimeout(gm_check_scode(gmActiveEditor), 10);
+		setTimeout(function(){ gm_check_scode(gmActiveEditor); }, 10);
 	});
 
 	$("#gMedia-tabs").gmTabs('#gMedia-source > .pane', {gmTabs: 'li'});
@@ -91,7 +91,7 @@ var dload = true, load_page = 2, gm_rel = 1;
 		e.preventDefault();
 	});
 
-	setTimeout(gm_check_scode(false), 100);
+	setTimeout(function(){ gm_check_scode(false); }, 100);
 
 	$('textarea.wp-editor-area').on('keyup', function (e) {
 		var k = e.keyCode || e.charCode;
@@ -187,6 +187,28 @@ var dload = true, load_page = 2, gm_rel = 1;
 		}
 	});
 
+	var iframe = $('<iframe frameborder="0" marginwidth="0" marginheight="0" allowfullscreen></iframe>');
+	var dialog = $("<div></div>").append(iframe).appendTo("body").dialog({
+		autoOpen: false,
+		modal: true,
+		closeOnEscape: true,
+		dialogClass: 'wp-dialog gmedia-tool-dialog',
+		resizable: false,
+		width: "auto",
+		height: "auto",
+		close: function () {
+			iframe.attr("src", "");
+		}
+	});
+	$('#gMedia-images .gm-add-button').on('click', function(e){
+		e.preventDefault();
+		iframe.attr({
+			width: +$(this).data("width"),
+			height: +$(this).data("height"),
+			src: $(this).attr("href")
+		});
+		dialog.dialog("option", "title", $(this).attr("title")).dialog("open");
+	});
 
 })(jQuery, window, document);
 
@@ -321,7 +343,7 @@ function gm_media_button(b) {
 		pos = el.offset();
 		pos.top += el.height() + 1;
 		jQuery('#gMedia-wraper').appendTo('body').css({'position':'absolute', 'z-index': 1001, 'width': jQuery('#gMedia-wraper').data('width')}).offset(pos);
-		jQuery("#gMedia-wraper").draggable({ handle: "h2" });
+		jQuery("#gMedia-wraper").draggable({ handle: ".title-bar" });
 	} else {
 		jQuery('#gMedia-wraper').removeAttr('style').appendTo('#gMedia-MetaBox .inside');
 		jQuery('#gMedia-wraper').draggable('destroy');

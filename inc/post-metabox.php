@@ -24,7 +24,7 @@ $post_tags = wp_get_post_tags($post_ID, array('fields' => 'names'));
 	<div id="gMedia-source">
 		<div class="pane">
 
-			<div id="gMedia-images"><h2><span class="gMedia-images-title"><?php _e('Related Gmedia files', 'gmLang'); ?></span></h2>
+			<div id="gMedia-images"><div class="title-bar"><span class="gMedia-images-title"><?php _e('Related Gmedia files', 'gmLang'); ?></span><a title="<?php _e('Gmedia Uploader', 'gmLang'); ?>" data-width="800" data-height="360" class="button button-primary button-small gm-add-button" href="<?php echo admin_url('admin.php?page=GrandMedia_AddMedia&iframe=gmedia&tab=upload'); ?>"><?php _e('Add Images', 'gmLang'); ?></a></div>
 				<div id="gMedia-control">
 					<div id="gMedia-control-update"><span class="gMedia-update-text"><?php _e('Update', 'gmLang'); ?></span></div>
 					<div id="gMedia-refine">
@@ -82,7 +82,7 @@ $post_tags = wp_get_post_tags($post_ID, array('fields' => 'names'));
 				</div>
 			</div>
 
-			<div id="gMedia-galleries"><h2><span class="gMedia-galleries-title"><?php _e('Gmedia Galleries', 'gmLang'); ?></span></h2>
+			<div id="gMedia-galleries"><div class="title-bar"><span class="gMedia-galleries-title"><?php _e('Gmedia Galleries', 'gmLang'); ?></span><a title="<?php _e('Create Gallery', 'gmLang'); ?>" class="button button-primary button-small gm-add-button" target="_blank" href="<?php echo admin_url('admin.php?page=GrandMedia_Modules&tab=modules'); ?>"><?php _e('Create Gallery', 'gmLang'); ?></a></div>
 				<div id="gMedia-galleries-wrap">
 					<ul id="gMedia-galleries-list">
 						<?php
@@ -97,7 +97,8 @@ $post_tags = wp_get_post_tags($post_ID, array('fields' => 'names'));
 									continue;
 
 								/** @var $module array */
-								include_once( $module_dir['path'] . '/details.php' );
+								$module = array();
+								include( $module_dir['path'] . '/details.php' );
 
 								?>
 								<li class="gMedia-gallery-li" id="gmModule-<?php echo $item->term_id; ?>">

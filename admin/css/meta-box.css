@@ -177,6 +177,16 @@ div#gMedia-message span { display: block; }
 div#gMedia-message .info-init { color: blue; }
 div#gMedia-message .info-textarea { color: red; }
 
+#gMedia-source .title-bar .gm-add-button {
+	position: absolute;
+	display: block;
+	right: 5px; top: 5px;
+	line-height: 100%;
+	height: auto;
+	padding: 2px 4px;
+}
+
+
 div#gMedia-images {
 	height: 185px;
 	position: relative;
@@ -184,8 +194,8 @@ div#gMedia-images {
 	background: #f9f9f9;
 }
 
-div#gMedia-wraper.ui-draggable h2 { cursor: move; }
-div#gMedia-images h2 {
+div#gMedia-wraper.ui-draggable .title-bar { cursor: move; }
+div#gMedia-images .title-bar {
 	position: relative;
 	padding: 0 6px;
 	background: #a1a1a1 url(../images/metabox.png) repeat-x 0 -25px;
@@ -196,7 +206,7 @@ div#gMedia-images h2 {
 	border-bottom: 1px solid rgba(24, 24, 24, 0.2);
 }
 
-div#gMedia-images h2 span.gMedia-images-title {
+div#gMedia-images .title-bar span.gMedia-images-title {
 	position: absolute;
 	left: 8px;
 	top: 50%;
@@ -275,7 +285,7 @@ div#gMedia-galleries {
 	border-radius: 0 0 4px 4px;
 }
 
-div#gMedia-galleries h2 {
+div#gMedia-galleries .title-bar {
 	position: relative;
 	padding: 0 7px;
 	background: #a1a1a1 url(../images/metabox.png) repeat-x 0 -25px;
@@ -286,7 +296,7 @@ div#gMedia-galleries h2 {
 	border-bottom: 1px solid rgba(24, 24, 24, 0.2);
 }
 
-div#gMedia-galleries h2 span.gMedia-galleries-title {
+div#gMedia-galleries .title-bar span.gMedia-galleries-title {
 	position: relative;
 	display: block;
 	margin-top: 7px;
@@ -427,6 +437,16 @@ div#gMedia-galleries ul#gMedia-galleries-list .gMedia-gallery-li .gMedia-insert 
 	visibility: hidden;
 }
 
+div#gMedia-galleries ul#gMedia-galleries-list .gMedia-gallery-li .gMedia-insert:after {
+	content: '';
+	z-index: 2;
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+}
+
 div#gMedia-galleries ul#gMedia-galleries-list .gMedia-gallery-li:hover .gMedia-insert {
 	visibility: visible;
 }
@@ -511,3 +531,5 @@ div#gMedia-galleries .ui-resizable-s {
 .wp-media-buttons .gmedia_button span.wp-media-buttons-icon {
 	background: url(../images/gm-icon.png) no-repeat top left;
 }
+
+.ui-dialog.gmedia-tool-dialog .ui-dialog-content { overflow: hidden !important; }
