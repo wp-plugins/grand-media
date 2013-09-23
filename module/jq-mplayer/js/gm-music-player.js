@@ -1,6 +1,6 @@
 /*
  * Title                   : Music Player Module for Gmedia Gallery plugin
- * Version                 : 1.1
+ * Version                 : 1.2
  * Copyright               : 2013 CodEasily.com
  * Website                 : http://www.codeasily.com
  */
@@ -45,7 +45,7 @@
 			tracksToShow:5,
 			autoPlay:false,
 			jPlayer:{
-				swfPath: userOptions.pluginUrl + '/inc/jplayer'
+				swfPath: userOptions.pluginUrl + '/assets/jplayer'
 			}
 		};
 
@@ -80,7 +80,7 @@
 
 			markup = {
 				listItem:'<li class="track"><section>' +
-										 '<span class="maxwidth"><span class="track-title"></span></span>' +
+										 '<span class="maxwidth"><span class="track-title-wrapper">&nbsp;<span class="track-title"></span></span></span>' +
 										 '<span>' +
 											 '<span class="duration">&nbsp;</span>' +
 											 (options.rating ? '<span class="rating"></span>' : '') +

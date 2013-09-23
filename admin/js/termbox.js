@@ -1,5 +1,5 @@
 /**
- * TermBox v1.0.0
+ * TermBox v0.9.1
  */
 function gm_array_unique_noempty(a) {
 	var out = [];
@@ -119,11 +119,11 @@ var gmTagBox;
 							multipleSep: ","
 						});
 					});
-			$("#grandMedia").on('click', "#tagcloud-gmedia_tag span", function () {
+			$(".gmAddMedia").on('click', "#tagcloud-gmedia_tag span", function () {
 				gmTagBox.flushTags($(this).closest("#termsdiv-gmedia_tag").children(".tagsdiv"), this);
 				return false;
 			});
-			$("#grandMedia").on('mousedown', ".plupload_button", function () {
+			$(".gmAddMedia").on('mousedown', ".plupload_button", function () {
 				$("div.tagsdiv").each(function () {
 					gmTagBox.flushTags(this, false, 1);
 				});

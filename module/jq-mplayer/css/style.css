@@ -252,7 +252,8 @@
 
 .gm-music-player .tracklist section { display: table; width: 100%; }
 .gm-music-player .tracklist section > * { display: table-cell; vertical-align: middle; }
-.gm-music-player .tracklist section .maxwidth { width: 100%; position: relative; }
+.gm-music-player .tracklist section .maxwidth { width: 100%; position: relative; vertical-align: top; }
+.gm-music-player .tracklist .track-title-wrapper { position: relative; display: block; width: 100%; overflow: visible; }
 .gm-music-player .tracklist .track-title {
 	padding: 0;
 	cursor: pointer;

@@ -1778,7 +1778,7 @@ a.plupload_disabled:focus { color: #737373; }
 	margin: 3px;
 	border: 1px solid #ccc;
 	height: 311px;
-	overflow: hidden;
+	overflow: auto;
 }
 
 .gmAddMedia .optionsPanel .info {
@@ -1816,10 +1816,17 @@ a.plupload_disabled:focus { color: #737373; }
 
 .gmAddMedia .optionsPanel .params .tagchecklist {
 	min-height: 20px;
+	margin-left: 0;
+	padding-left: 14px;
 }
 
 .gmAddMedia .optionsPanel .params .tagchecklist span {
 	margin-right: 20px;
+	position: relative;
+}
+
+.gmAddMedia .optionsPanel .params .tagchecklist span a {
+	margin-top: 5px;
 }
 
 .gmAddMedia .optionsPanel .the-tagcloud {

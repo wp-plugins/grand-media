@@ -225,7 +225,7 @@ class grandLibrary {
 		?>
 		<div id="grandMedia" class="grandmedia">
 			<div class="grandHeader">
-				<div class="grandLogo">GrandMedia</div>
+				<div class="grandLogo">Gmedia Gallery</div>
 				<h2><?php echo $sideLinks['grandTitle']; ?></h2>
 			</div>
 			<div id="gm-message"><?php echo $this->msg; ?></div>

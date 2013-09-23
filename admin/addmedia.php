@@ -139,7 +139,7 @@ function gmedia_upload_files() {
 				filters         		: [{title: "All files", extensions: "*"}],
 
 				// Flash settings
-				flash_swf_url   		: '<?php echo $gMediaURL; ?>/admin/js/plupload/plupload.flash.swf',
+				flash_swf_url   		: '<?php echo $gMediaURL; ?>/assets/plupload/plupload.flash.swf',
 
 				// PreInit events, bound before any internal events
 				preinit : {
@@ -271,8 +271,8 @@ function gmedia_import() {
 			<div class="metabox-holder">
 
 				<div id="import_folder" class="postbox ui-tabs-panel">
-					<style type="text/css">@import url('<?php echo $gMediaURL; ?>/admin/js/jqueryFileTree/jqueryFileTree.css');</style>
-					<script type="text/javascript" src="<?php echo $gMediaURL; ?>/admin/js/jqueryFileTree/jqueryFileTree.js"></script>
+					<style type="text/css">@import url('<?php echo $gMediaURL; ?>/assets/jqueryFileTree/jqueryFileTree.css');</style>
+					<script type="text/javascript" src="<?php echo $gMediaURL; ?>/assets/jqueryFileTree/jqueryFileTree.js"></script>
 					<script type="text/javascript">
 						/* <![CDATA[ */
 						jQuery(document).ready(function () {

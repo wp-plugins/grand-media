@@ -1,6 +1,6 @@
 <?php
 /**
- * GrandMedia Database Class
+ * Gmedia Database Class
  *
  */
 class gMDb {

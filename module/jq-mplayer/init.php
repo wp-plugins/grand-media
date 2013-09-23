@@ -19,7 +19,7 @@ if ( isset( $module_meta['moreText'] ) )
 if ( isset( $module_meta['description'] ) )
 	$a[] = "	'description': " . json_encode($module_meta['description']);
 
-$a[] = "	'jPlayer': { 'swfPath': " . json_encode( plugins_url( GRAND_FOLDER ).'/inc/jplayer' ) . " }";
+$a[] = "	'jPlayer': { 'swfPath': " . json_encode( plugins_url( GRAND_FOLDER ).'/assets/jplayer' ) . " }";
 $a[] = "	'moduleName': '" . esc_js( $module_meta['name'] ) . "'";
 $a[] = "	'pluginUrl': '" . plugins_url( GRAND_FOLDER ) . "'";
 $a[] = "	'libraryUrl': '" . rtrim( $upload['url'], '/' ) . "'";

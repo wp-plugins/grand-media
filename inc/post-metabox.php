@@ -121,7 +121,7 @@ $post_tags = wp_get_post_tags($post_ID, array('fields' => 'names'));
 										</div>
 									</div>
 									<div class="gMedia-selector"></div>
-									<a href="<?php echo admin_url( "admin.php?page=GrandMedia_Modules&amp;module=" . $module_folder . "&amp;term_id=" . $item->term_id, 'grandMedia' ); ?>"
+									<a href="<?php echo admin_url( "admin.php?page=GrandMedia_Modules&amp;module=" . $module_folder . "&amp;term_id=" . $item->term_id ); ?>"
 										title="Edit Gallery #<?php echo $item->term_id; ?> in New Window" target="_blank" class="gMedia-gallery-gear"><?php _e( 'edit', 'gmLang' ); ?></a>
 								</li>
 							<?php

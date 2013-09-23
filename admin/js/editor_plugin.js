@@ -4,7 +4,7 @@
 (function () {
 	var DOM = tinymce.DOM;
 
-	tinymce.create('tinymce.plugins.GrandMedia', {
+	tinymce.create('tinymce.plugins.GmediaGallery', {
 
 		/**
 		 * Initializes the plugin, this will be executed after the plugin has been created.
@@ -149,6 +149,6 @@
 	});
 
 	// Register plugin
-	tinymce.PluginManager.add('gmedia', tinymce.plugins.GrandMedia);
+	tinymce.PluginManager.add('gmedia', tinymce.plugins.GmediaGallery);
 
 })();

@@ -97,72 +97,56 @@ class grandAdminPanel {
 		$gMediaURL = plugins_url( GRAND_FOLDER );
 		$upload    = $grandCore->gm_upload_dir();
 
-		wp_register_script( 'grandMediaGlobalBackend', $gMediaURL . '/admin/js/gmedia.global.back.js', array( 'jquery' ), '0.9.0' );
-		wp_localize_script( 'grandMediaGlobalBackend', 'gMediaGlobalVar', array(
-			'ajaxurl'    => admin_url( 'admin-ajax.php' ),
-			'nonce'      => wp_create_nonce( 'grandMedia' ),
-			'loading'    => $gMediaURL . '/admin/images/throbber.gif',
-			'uploadPath' => rtrim( $upload['url'], '/' ),
-			'pluginPath' => $gMediaURL
-		) );
-		//wp_enqueue_script('grandMediaGlobalBackend');
-
 		// no need to go on if it's not a plugin page
 		if ( 'admin.php' != $hook && strpos( $grandCore->_get( 'page' ), 'GrandMedia' ) === false )
 			return;
 
-		wp_enqueue_script( 'dataset', $gMediaURL . '/admin/js/jquery.dataset.js', array( 'jquery' ), '0.1.0' );
-		wp_enqueue_script( 'qtip', $gMediaURL . '/admin/js/qtip/jquery.qtip.min.js', array( 'jquery' ), '2.1.1' );
-		wp_enqueue_script( 'outside-events', $gMediaURL . '/admin/js/outside-events.js', array( 'jquery' ), '1.1' );
-		wp_register_script( 'GrandMedia', $gMediaURL . '/admin/js/grand-media.js', array( 'jquery', 'grandMediaGlobalBackend' ), '0.9.0' );
-		wp_localize_script( 'GrandMedia', 'grandMedia', array(
-			'error3'   => $grandCore->message(__( 'Disable your Popup Blocker and try again.', 'gmLang' )),
-			'download' => $grandCore->message(__( 'downloading...', 'gmLang' )),
-			'wait' => $grandCore->message(__( 'Working. Wait please.', 'gmLang' )),
-			'nonce' => wp_create_nonce( 'grandMedia' ),
-		) );
-		wp_enqueue_script( 'GrandMedia' );
+		// todo remove this script
+		wp_enqueue_script( 'dataset', $gMediaURL . '/assets/jq-plugins/jquery.dataset.js', array( 'jquery' ), '0.1.0' );
 
-		//wp_enqueue_script('jquery.quicksearch', $gMediaURL.'/admin/js/jquery.quicksearch.js', array('jquery'), '10.09.28');
+		wp_enqueue_script( 'qtip' );
+		wp_enqueue_script( 'outside-events' );
+
 		if ( isset( $_GET['page'] ) ) {
 			switch ( $_GET['page'] ) {
 				case "GrandMedia" :
 				case "GrandMedia_WordpressLibrary" :
 					wp_enqueue_script( 'swfobject' );
-					wp_enqueue_script( 'fancybox', $gMediaURL . '/admin/js/jquery.fancybox.js', array( 'jquery' ), '1.3.4' );
-					wp_enqueue_script( 'easing', $gMediaURL . '/admin/js/jquery.easing.js', array( 'jquery' ), '1.3.0' );
-					wp_enqueue_script( 'mediaelement', $gMediaURL . '/inc/mediaelement/mediaelement-and-player.min.js', array( 'jquery' ), '2.13.0' );
+					wp_enqueue_script( 'fancybox' );
+					wp_enqueue_script( 'mediaelement' );
 					break;
 				case "GrandMedia_Tags_and_Categories" :
-					wp_enqueue_script( 'quicksearch', $gMediaURL . '/admin/js/jquery.quicksearch.js', array( 'jquery' ), '1.0.0' );
+					wp_enqueue_script( 'quicksearch' );
 					break;
 				case "GrandMedia_AddMedia" :
 					$tab = $grandCore->_get('tab', 'upload');
 					if($tab == 'upload') {
-						wp_enqueue_script( 'plupload', $gMediaURL . '/admin/js/plupload/plupload.js', array( 'jquery' ), '1.5.7' );
-						wp_enqueue_script( 'plupload-flash', $gMediaURL . '/admin/js/plupload/plupload.flash.js', array( 'jquery' ), '1.5.7' );
-						wp_enqueue_script( 'plupload-html4', $gMediaURL . '/admin/js/plupload/plupload.html4.js', array( 'jquery' ), '1.5.7' );
-						wp_enqueue_script( 'plupload-html5', $gMediaURL . '/admin/js/plupload/plupload.html5.js', array( 'jquery' ), '1.5.7' );
-						wp_enqueue_script( 'jquery.plupload.queue', $gMediaURL . '/admin/js/plupload/jquery.plupload.queue/jquery.plupload.queue.js', array( 'jquery' ), '1.5.7' );
+						wp_enqueue_script( 'plupload', $gMediaURL . '/assets/plupload/plupload.js', array( 'jquery' ), '1.5.7' );
+						wp_enqueue_script( 'plupload-flash', $gMediaURL . '/assets/plupload/plupload.flash.js', array( 'jquery' ), '1.5.7' );
+						wp_enqueue_script( 'plupload-html4', $gMediaURL . '/assets/plupload/plupload.html4.js', array( 'jquery' ), '1.5.7' );
+						wp_enqueue_script( 'plupload-html5', $gMediaURL . '/assets/plupload/plupload.html5.js', array( 'jquery' ), '1.5.7' );
+						wp_enqueue_script( 'jquery.plupload.queue', $gMediaURL . '/assets/plupload/jquery.plupload.queue/jquery.plupload.queue.js', array( 'jquery' ), '1.5.7' );
 						wp_enqueue_script( 'suggest' );
-						wp_enqueue_script( 'termBox', $gMediaURL . '/admin/js/termbox.js', array( 'jquery', 'suggest' ), '1.0.0' );
+						wp_enqueue_script( 'termBox', $gMediaURL . '/admin/js/termbox.js', array( 'jquery', 'suggest' ), '0.9.1' );
 						wp_localize_script( 'termBox', 'gMediaTermBox', array(
 							'nonce' => wp_create_nonce( 'grandMedia' ),
 						) );
 					} else if($tab == 'import') {
-						wp_enqueue_script( array( 'jquery-ui-tabs' ) );
+						wp_enqueue_script( 'jquery-ui-tabs' );
 					}
 					break;
 				case "GrandMedia_Settings" :
 					// enqueue jscolor
 				case "GrandMedia_Modules" :
 					if ( isset( $_GET['module'] ) ) {
-						wp_enqueue_script( 'jscolor', $gMediaURL . '/admin/js/jscolor/jscolor.js', array( 'grandMediaGlobalBackend' ), '1.4.0' );
+						wp_enqueue_script( 'jscolor' );
 					}
-					wp_enqueue_script( array( 'jquery-ui-tabs' ) );
+					wp_enqueue_script( 'jquery-ui-tabs' );
 					break;
 			}
 		}
+
+		wp_enqueue_script( 'grand-media' );
 
 	}
 
@@ -173,14 +157,14 @@ class grandAdminPanel {
 			return;
 		$gMediaURL = plugins_url( GRAND_FOLDER );
 
-		wp_enqueue_style( 'qtip', $gMediaURL . '/admin/js/qtip/jquery.qtip.css', array(), '2.1.1', 'screen' );
-		wp_enqueue_style( 'fancybox', $gMediaURL . '/admin/css/jquery.fancybox.css', array(), '1.3.4', 'screen' );
-		wp_enqueue_style( 'grand-media', $gMediaURL . '/admin/css/grand-media.css', array(), '0.9.0', 'screen' );
+		wp_enqueue_style( 'qtip' );
+		wp_enqueue_style( 'fancybox' );
+		wp_enqueue_style( 'grand-media' );
 		switch ( $_GET['page'] ) {
 			case "GrandMedia_AddMedia" :
 				$tab = $grandCore->_get('tab', 'upload');
 				if($tab == 'upload') {
-					wp_enqueue_style( 'jquery.plupload.queue', $gMediaURL . '/admin/js/plupload/jquery.plupload.queue/css/jquery.plupload.queue.css', array(), '1.5.7', 'screen' );
+					wp_enqueue_style( 'jquery.plupload.queue', $gMediaURL . '/assets/plupload/jquery.plupload.queue/css/jquery.plupload.queue.css', array(), '1.5.7', 'screen' );
 				} else if($tab == 'import') {
 					wp_enqueue_style( 'jquery-ui-tabs', $gMediaURL . '/admin/css/jquery-ui-tabs.css', array(), '0.9.0', 'screen' );
 				}
@@ -191,7 +175,7 @@ class grandAdminPanel {
 				break;
 			case "GrandMedia" :
 			case "GrandMedia_WordpressLibrary" :
-				wp_enqueue_style( 'mediaelement', $gMediaURL . '/inc/mediaelement/mediaelementplayer.min.css', array(), '2.13.0', 'screen' );
+				wp_enqueue_style( 'mediaelement' );
 				break;
 		}
 	}
