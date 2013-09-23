@@ -3,7 +3,7 @@
 Plugin Name: Gmedia Gallery
 Plugin URI: http://wordpress.org/extend/plugins/grand-media/
 Description: Gmedia Gallery - powerfull media library plugin for creating beautiful galleries and managing files.
-Version: 0.9.1
+Version: 0.9.2
 Author: Rattus
 Author URI: http://codeasily.com/
 
@@ -36,7 +36,7 @@ if ( preg_match( '#' . basename( __FILE__ ) . '#', $_SERVER['PHP_SELF'] ) ) {
 if ( ! class_exists( 'grandLoad' ) ) {
 	class grandLoad {
 
-		var $version = '0.9.1';
+		var $version = '0.9.2';
 		var $dbversion = '0.6.2';
 		var $minium_WP = '3.4';
 		var $options = '';
@@ -65,6 +65,8 @@ if ( ! class_exists( 'grandLoad' ) ) {
 
 			// Register a uninstall hook to remove all tables & option automatic
 			register_uninstall_hook( $this->plugin_name, array(__CLASS__, 'gmedia_uninstall') );
+
+			add_action( 'wp_enqueue_scripts', array( &$this, 'register_scripts' ) );
 
 			add_action( 'admin_enqueue_scripts', array( &$this, 'register_scripts' ) );
 			add_action( 'admin_enqueue_scripts', array( &$this, 'meta_box_load_scripts' ), 20 );
