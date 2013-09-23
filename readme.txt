@@ -17,7 +17,7 @@ Manage files, show image galleries and photo slideshows, play music on your site
 With Gmedia plugin you can upload an unlimited number of photo and audio files, create dozens of galleries and playlists, group pictures and other files in categories, and add tags for each file.
 Handle any file format and link any files with images in few clicks.
 
-Create Galleries with using tags and automatically add images to several galleries by assigning these tags to uploaded photos.
+Create Slideshow Galleries with using tags and automatically add images to several galleries by assigning these tags to uploaded photos.
 
 Easily add related photos from Gmedia Library to the Post by using Gmedia Gallery MetaBox. One click for inserting image or gallery right in your page.
 
