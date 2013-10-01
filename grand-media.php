@@ -66,9 +66,9 @@ if ( ! class_exists( 'grandLoad' ) ) {
 			// Register a uninstall hook to remove all tables & option automatic
 			register_uninstall_hook( $this->plugin_name, array(__CLASS__, 'gmedia_uninstall') );
 
-			add_action( 'wp_enqueue_scripts', array( &$this, 'register_scripts' ) );
+			add_action( 'wp_enqueue_scripts', array( &$this, 'register_scripts' ), 3 );
 
-			add_action( 'admin_enqueue_scripts', array( &$this, 'register_scripts' ) );
+			add_action( 'admin_enqueue_scripts', array( &$this, 'register_scripts' ), 8 );
 			add_action( 'admin_enqueue_scripts', array( &$this, 'meta_box_load_scripts' ), 20 );
 
 			add_action( 'do_meta_boxes', array( &$this, 'do_meta_boxes' ), 20, 2 );
@@ -110,7 +110,7 @@ if ( ! class_exists( 'grandLoad' ) ) {
 			else {
 
 				// Add the script and style files
-				add_action( 'template_redirect', array( &$this, 'load_scripts' ) );
+				add_action( 'wp_enqueue_scripts', array( &$this, 'load_scripts' ), 4 );
 
 				// Add a version number to the header
 				add_action( 'wp_head', create_function( '', 'echo "\n<!-- <meta name=\'GmediaGallery\' content=\'' . $this->version . '\' /> -->\n";' ) );
