@@ -15,7 +15,7 @@ Gmedia Gallery - powerfull media library plugin for creating beautiful galleries
 Manage files, show image galleries and photo slideshows, play music on your site Gmedia Gallery plugin. Gmedia Library provides a comprehensive interface for handling galleries, image and audio files.
 
 With Gmedia plugin you can upload an unlimited number of photo and audio files, create dozens of galleries and playlists, group pictures and other files in categories, and add tags for each file.
-Handle any file format and link any files with images in few clicks.
+Handle any file format and link any files with images in few clicks. You can import images with captions from Flagallery plugin and from NextGen Gallery plugin right to Gmedia Library.
 
 Create Slideshow Galleries with using tags and automatically add images to several galleries by assigning these tags to uploaded photos.
 
