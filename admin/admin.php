@@ -56,12 +56,12 @@ class grandAdminPanel {
 	function add_menu() {
 		$gMediaURL = plugins_url( GRAND_FOLDER );
 		add_object_page( __( 'Gmedia Library', 'gmLang' ), 'Gmedia Gallery', 'edit_pages', 'GrandMedia', array( &$this, 'show_menu' ), $gMediaURL . '/admin/images/gm-icon.png' );
-		add_submenu_page( 'gmedia-plugin', __( 'Gmedia Library', 'gmLang' ), __( 'Gmedia Library', 'gmLang' ), 'edit_pages', 'GrandMedia', array( &$this, 'show_menu' ) );
-		add_submenu_page( 'gmedia-plugin', __( 'Gmedia: Tags & Categories', 'gmLang' ), __( 'Tags & Categories', 'gmLang' ), 'edit_pages', 'GrandMedia_Tags_and_Categories', array( &$this, 'show_menu' ) );
-		add_submenu_page( 'gmedia-plugin', __( 'Add Media Files', 'gmLang' ), __( 'Add Files', 'gmLang' ), 'edit_pages', 'GrandMedia_AddMedia', array( &$this, 'show_menu' ) );
-		add_submenu_page( 'gmedia-plugin', __( 'Gallery Manager', 'gmLang' ), __( 'Manage Galleries...', 'gmLang' ), 'edit_pages', 'GrandMedia_Modules', array( &$this, 'show_menu' ) );
-		add_submenu_page( 'gmedia-plugin', __( 'Gmedia Settings', 'gmLang' ), __( 'Settings', 'gmLang' ), 'edit_pages', 'GrandMedia_Settings', array( &$this, 'show_menu' ) );
-		add_submenu_page( 'gmedia-plugin', __( 'Wordpress Media Library', 'gmLang' ), __( 'Wordpress Media Library', 'gmLang' ), 'edit_pages', 'GrandMedia_WordpressLibrary', array( &$this, 'show_menu' ) );
+		add_submenu_page( 'GrandMedia', __( 'Gmedia Library', 'gmLang' ), __( 'Gmedia Library', 'gmLang' ), 'edit_pages', 'GrandMedia', array( &$this, 'show_menu' ) );
+		add_submenu_page( 'GrandMedia', __( 'Add Media Files', 'gmLang' ), __( 'Add Files', 'gmLang' ), 'edit_pages', 'GrandMedia_AddMedia', array( &$this, 'show_menu' ) );
+		add_submenu_page( 'GrandMedia', __( 'Gmedia: Tags & Categories', 'gmLang' ), __( 'Tags & Categories', 'gmLang' ), 'edit_pages', 'GrandMedia_Tags_and_Categories', array( &$this, 'show_menu' ) );
+		add_submenu_page( 'GrandMedia', __( 'Gallery Manager', 'gmLang' ), __( 'Manage Galleries...', 'gmLang' ), 'edit_pages', 'GrandMedia_Modules', array( &$this, 'show_menu' ) );
+		add_submenu_page( 'GrandMedia', __( 'Gmedia Settings', 'gmLang' ), __( 'Settings', 'gmLang' ), 'edit_pages', 'GrandMedia_Settings', array( &$this, 'show_menu' ) );
+		add_submenu_page( 'GrandMedia', __( 'Wordpress Media Library', 'gmLang' ), __( 'Wordpress Media Library', 'gmLang' ), 'edit_pages', 'GrandMedia_WordpressLibrary', array( &$this, 'show_menu' ) );
 
 	}
 

@@ -255,19 +255,19 @@ class grandLibrary {
 		<div class="sideLinks">
 			<div class="gm-bufer"><a class="button-primary" href="' . admin_url( 'admin.php?page=GrandMedia_AddMedia' ) . '"' . $grandCore->qTip( __( "Click to upload media files", "gmLang" ), true ) . '>' . __( 'Add Files...', 'gmLang' ) . '</a></div>
 			<ul>';
-		foreach ( $submenu['gmedia-plugin'] as $menuKey => $menuItem ) {
-			if ( $submenu['gmedia-plugin'][$menuKey][2] == $this->page ) {
+		foreach ( $submenu['GrandMedia'] as $menuKey => $menuItem ) {
+			if ( $submenu['GrandMedia'][$menuKey][2] == $this->page ) {
 				$iscur                 = ' class="current"';
-				$content['grandTitle'] = $submenu['gmedia-plugin'][$menuKey][3];
+				$content['grandTitle'] = $submenu['GrandMedia'][$menuKey][3];
 			}
 			else {
 				$iscur = '';
 			}
-			if($submenu['gmedia-plugin'][$menuKey][2] == 'GrandMedia_AddMedia')
+			if($submenu['GrandMedia'][$menuKey][2] == 'GrandMedia_AddMedia')
 				continue;
 
 			$content['sideLinks'] .= '
-				<li' . $iscur . '><a href="' . admin_url( 'admin.php?page=' . $submenu['gmedia-plugin'][$menuKey][2] ) . '">' . $submenu['gmedia-plugin'][$menuKey][0] . '</a></li>';
+				<li' . $iscur . '><a href="' . admin_url( 'admin.php?page=' . $submenu['GrandMedia'][$menuKey][2] ) . '">' . $submenu['GrandMedia'][$menuKey][0] . '</a></li>';
 		}
 		$content['sideLinks'] .= '
 			</ul>

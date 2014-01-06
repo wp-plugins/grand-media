@@ -61,54 +61,58 @@ function gmTagsCategories() {
 	$gmSelected           = isset( $_COOKIE['gmedia_' . $taxonomy . '_selected_items'] ) ? $_COOKIE['gmedia_' . $taxonomy . '_selected_items'] : '';
 	?>
 	<script type="text/javascript">play_with_page = true;</script>
-	<div class="gMediaLibActions">
-		<div class="cb abut">
-			<div class="dropbut"><input class="doaction" type="checkbox" /></div>
-			<div class="dropbox">
-				<span class="all"><?php _e( 'All', 'gmLang' ); ?></span>
-				<span class="none"><?php _e( 'None', 'gmLang' ); ?></span>
-				<span class="reverse" title="<?php _e( 'Reverse only visible items', 'gmLang' ); ?>"><?php _e( 'Reverse', 'gmLang' ); ?></span>
-			</div>
-		</div>
-		<div class="abuts">
-			<a class="gmTags<?php if ( $taxonomy == 'gmedia_tag' ) echo ' active'; ?>" rel="gmTags" href="<?php echo $url['page'] . $url_param['tab'] . 'gmedia_tag'; ?>"><?php _e( 'Tags', 'gmLang' ); ?></a>
-			<a class="gmCategories<?php if ( $taxonomy == 'gmedia_category' ) echo ' active'; ?>" rel="gmCategories" href="<?php echo $url['page'] . $url_param['tab'] . 'gmedia_category'; ?>"><?php _e( 'Categories', 'gmLang' ); ?></a>
-		</div>
-		<div class="more abut">
-			<div class="dropbut"><?php _e( 'Actions', 'gmLang' ); ?></div>
-			<div class="dropbox">
-				<span class="delete ajaxPost" data-action="gmDoAjax" data-_ajax_nonce="<?php echo $nonce; ?>" data-form="#selectedForm" data-tax="<?php echo $taxonomy; ?>" data-task="terms-delete" data-confirmtxt="<?php _e( "You are about to permanently delete the selected items.\n\r'Cancel' to stop, 'OK' to delete.", "gmLang" ); ?>"><?php _e( 'Delete selected', 'gmLang' ); ?></span>
-			</div>
-		</div>
-		<div class="msg">
-			<span id="selectedItems"><span class="selectedItems"><?php if ( ! empty( $include ) ) {
-						echo count( explode( ',', $include ) );
-					}
-					else {
-						echo '0';
-					} ?></span> <?php _e( 'selected', 'gmLang' ); ?></span>
-
-			<form id="selectedForm" name="selectedForm" style="display: none;" action="<?php echo $url['page'] . $url_param['tab'] . $taxonomy . '&amp;filter=selected'; ?>" method="post">
-				<input type="hidden" id="gmSelected" name="gmSelected" data-key="<?php echo $taxonomy; ?>" value="<?php echo $gmSelected; ?>" />
+	<div class="gMediaLibActions floatholdviz">
+		<div class="gm-searchdiv">
+			<form action="" method="get">
+				<div class="gmSearch">
+					<?php foreach ( $_GET as $key => $value ) {
+						if ( in_array( $key, array( 's' ) ) ) continue; ?>
+						<input type="hidden" name="<?php echo $key; ?>" value="<?php echo $value; ?>" />
+					<?php } ?>
+					<span class="loading">Loading... </span>
+					<input id="gMediaLibSearch" type="search" name="s" autocomplete="off" placeholder="<?php _e( 'Search...', 'gmLang' ); ?>" value="<?php echo $grandCore->_get( 's', '' ); ?>" />
+					<span class="resetSearch" style="display: none;">reset</span>
+				</div>
 			</form>
-			<span class="more">&raquo;</span>
+		</div>
+		<div class="gm-buttonsdiv">
+			<div class="cb abut">
+				<div class="dropbut"><input class="doaction" type="checkbox" /></div>
+				<div class="dropbox">
+					<span class="all"><?php _e( 'All', 'gmLang' ); ?></span>
+					<span class="none"><?php _e( 'None', 'gmLang' ); ?></span>
+					<span class="reverse" title="<?php _e( 'Reverse only visible items', 'gmLang' ); ?>"><?php _e( 'Reverse', 'gmLang' ); ?></span>
+				</div>
+			</div>
+			<div class="abuts">
+				<a class="gmTags<?php if ( $taxonomy == 'gmedia_tag' ) echo ' active'; ?>" rel="gmTags" href="<?php echo $url['page'] . $url_param['tab'] . 'gmedia_tag'; ?>"><?php _e( 'Tags', 'gmLang' ); ?></a>
+				<a class="gmCategories<?php if ( $taxonomy == 'gmedia_category' ) echo ' active'; ?>" rel="gmCategories" href="<?php echo $url['page'] . $url_param['tab'] . 'gmedia_category'; ?>"><?php _e( 'Categories', 'gmLang' ); ?></a>
+			</div>
+			<div class="more abut">
+				<div class="dropbut"><?php _e( 'Actions', 'gmLang' ); ?></div>
+				<div class="dropbox">
+					<span class="delete ajaxPost" data-action="gmDoAjax" data-_ajax_nonce="<?php echo $nonce; ?>" data-form="#selectedForm" data-tax="<?php echo $taxonomy; ?>" data-task="terms-delete" data-confirmtxt="<?php _e( "You are about to permanently delete the selected items.\n\r'Cancel' to stop, 'OK' to delete.", "gmLang" ); ?>"><?php _e( 'Delete selected', 'gmLang' ); ?></span>
+				</div>
+			</div>
+			<div class="msg">
+				<span id="selectedItems"><span class="selectedItems"><?php if ( ! empty( $include ) ) {
+							echo count( explode( ',', $include ) );
+						}
+						else {
+							echo '0';
+						} ?></span> <?php _e( 'selected', 'gmLang' ); ?></span>
 
-			<div class="actions">
-				<span id="showSelected"><?php _e( 'Show only selected items', 'gmLang' ); ?></span>
-				<span id="clearSelected"><?php _e( 'Clear selected items', 'gmLang' ); ?></span>
+				<form id="selectedForm" name="selectedForm" style="display: none;" action="<?php echo $url['page'] . $url_param['tab'] . $taxonomy . '&amp;filter=selected'; ?>" method="post">
+					<input type="hidden" id="gmSelected" name="gmSelected" data-key="<?php echo $taxonomy; ?>" value="<?php echo $gmSelected; ?>" />
+				</form>
+				<span class="more">&raquo;</span>
+
+				<div class="actions">
+					<span id="showSelected"><?php _e( 'Show only selected items', 'gmLang' ); ?></span>
+					<span id="clearSelected"><?php _e( 'Clear selected items', 'gmLang' ); ?></span>
+				</div>
 			</div>
 		</div>
-		<form action="" method="get">
-			<div class="gmSearch">
-				<?php foreach ( $_GET as $key => $value ) {
-					if ( in_array( $key, array( 's' ) ) ) continue; ?>
-					<input type="hidden" name="<?php echo $key; ?>" value="<?php echo $value; ?>" />
-				<?php } ?>
-				<span class="loading">Loading... </span>
-				<input id="gMediaLibSearch" type="search" name="s" autocomplete="off" placeholder="<?php _e( 'Search...', 'gmLang' ); ?>" value="<?php echo $grandCore->_get( 's', '' ); ?>" />
-				<span class="resetSearch" style="display: none;">reset</span>
-			</div>
-		</form>
 	</div>
 	<div id="gMediaLibTable" class="<?php echo $taxonomy; ?>">
 		<?php if ( $taxonomy == 'gmedia_tag' ) { ?>

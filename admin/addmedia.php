@@ -149,7 +149,7 @@ function gmedia_upload_files() {
 
 					UploadFile: function(up, file) {
 						//console.log('[UploadFile]', file);
-						up.settings.multipart_params = { postData: jQuery('#gmTerms').serialize() }
+						up.settings.multipart_params = { postData: jQuery('#gmTerms').serialize() };
 
 						// You can override settings before the file is uploaded
 						// up.settings.url = 'upload.php?id=' + file.id;

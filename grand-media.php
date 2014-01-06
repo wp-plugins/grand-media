@@ -3,7 +3,7 @@
 Plugin Name: Gmedia Gallery
 Plugin URI: http://wordpress.org/extend/plugins/grand-media/
 Description: Gmedia Gallery - powerfull media library plugin for creating beautiful galleries and managing files.
-Version: 0.9.3
+Version: 0.9.4
 Author: Rattus
 Author URI: http://codeasily.com/
 
@@ -36,7 +36,7 @@ if ( preg_match( '#' . basename( __FILE__ ) . '#', $_SERVER['PHP_SELF'] ) ) {
 if ( ! class_exists( 'grandLoad' ) ) {
 	class grandLoad {
 
-		var $version = '0.9.3';
+		var $version = '0.9.4';
 		var $dbversion = '0.6.2';
 		var $minium_WP = '3.4';
 		var $options = '';
@@ -233,7 +233,7 @@ if ( ! class_exists( 'grandLoad' ) ) {
 				'mash' => $gmOptions['gmedia_key2']
 			) );
 
-			wp_register_style('grand-media', $gMediaURL . '/admin/css/grand-media.css', array(), '0.9.1', 'all' );
+			wp_register_style('grand-media', $gMediaURL . '/admin/css/grand-media.css', array(), '0.9.4', 'all' );
 			wp_register_script( 'grand-media', $gMediaURL . '/admin/js/grand-media.js', array( 'jquery', 'gmedia-global-backend' ), '0.9.1' );
 			wp_localize_script( 'grand-media', 'grandMedia', array(
 				'error3'   => $grandCore->message(__( 'Disable your Popup Blocker and try again.', 'gmLang' )),
@@ -257,7 +257,7 @@ if ( ! class_exists( 'grandLoad' ) ) {
 			wp_register_style('fancybox', $gMediaURL.'/assets/fancybox/jquery.fancybox-1.3.4.css', array(), '1.3.4');
 			wp_register_script('fancybox', $gMediaURL.'/assets/fancybox/jquery.fancybox-1.3.4.pack.js', array( 'jquery', 'easing' ), '1.3.4');
 
-			wp_register_script('jplayer', $gMediaURL.'/assets/jplayer/jquery.jplayer.js', array( 'jquery' ), '2.0.22');
+			wp_register_script('jplayer', $gMediaURL.'/assets/jplayer/jquery.jplayer.js', array( 'jquery' ), '2.5.0');
 			wp_register_script('swfobject', $gMediaURL.'/assets/swf/swfobject.js', array(), '2.2');
 			wp_register_script('swfaddress', $gMediaURL.'/assets/swf/swfaddress.js', array(), '2.4');
 

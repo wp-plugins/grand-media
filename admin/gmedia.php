@@ -78,117 +78,121 @@ function grandMedia() {
 	$url_param['s']         = $s ? '&amp;s=' . $s : '';
 	$gmSelected             = isset( $_COOKIE['gmedia_gm_selected_items'] ) ? $_COOKIE['gmedia_gm_selected_items'] : '';
 	?>
-	<div class="gMediaLibActions">
-		<div class="cb abut">
-			<div class="dropbut"><input class="doaction" type="checkbox" /></div>
-			<div class="dropbox">
-				<span class="total"><?php _e( 'All', 'gmLang' ); ?></span>
-				<span class="none"><?php _e( 'None', 'gmLang' ); ?></span>
-				<span class="image"><?php _e( 'Images', 'gmLang' ); ?></span>
-				<span class="audio"><?php _e( 'Audio', 'gmLang' ); ?></span>
-				<span class="video"><?php _e( 'Video', 'gmLang' ); ?></span>
-				<span class="reverse" title="<?php _e( 'Reverse only visible items', 'gmLang' ); ?>"><?php _e( 'Reverse', 'gmLang' ); ?></span>
+	<div class="gMediaLibActions floatholdviz">
+		<div class="gm-searchdiv">
+			<?php echo $gMDb->query_pager(); ?>
+			<form action="" method="get">
+				<div class="gmSearch">
+					<?php foreach ( $_GET as $key => $value ) {
+						if ( in_array( $key, array( 's', 'pager' ) ) ) continue; ?>
+						<input type="hidden" name="<?php echo $key; ?>" value="<?php echo $value; ?>" />
+					<?php } ?>
+					<span class="loading">Loading... </span>
+					<input id="gMediaLibSearch" type="search" name="s" placeholder="<?php _e( 'Search...', 'gmLang' ); ?>" value="<?php echo $grandCore->_get( 's', '' ); ?>" />
+				</div>
+			</form>
+		</div>
+		<div class="gm-buttonsdiv">
+			<div class="cb abut">
+				<div class="dropbut"><input class="doaction" type="checkbox" /></div>
+				<div class="dropbox">
+					<span class="total"><?php _e( 'All', 'gmLang' ); ?></span>
+					<span class="none"><?php _e( 'None', 'gmLang' ); ?></span>
+					<span class="image"><?php _e( 'Images', 'gmLang' ); ?></span>
+					<span class="audio"><?php _e( 'Audio', 'gmLang' ); ?></span>
+					<span class="video"><?php _e( 'Video', 'gmLang' ); ?></span>
+					<span class="reverse" title="<?php _e( 'Reverse only visible items', 'gmLang' ); ?>"><?php _e( 'Reverse', 'gmLang' ); ?></span>
+				</div>
 			</div>
-		</div>
-		<div class="abuts">
-			<?php $curr_mime = $grandCore->_get( 'mime_type', 'total' ); ?>
-			<a class="total<?php if ( $curr_mime == 'total' ) echo ' active'; ?>" rel="total" href="<?php echo $url['page'] . $url_param['filter'] . $url_param['s']; ?>"><?php _e( 'All', 'gmLang' ); echo $counting['total']; ?></a>
-			<a class="image<?php if ( $curr_mime == 'image' ) echo ' active'; if ( ! $gmDbCount['image'] ) echo ' disabled'; ?>" rel="image" href="<?php echo $url['page'] . '&amp;mime_type=image' . $url_param['filter'] . $url_param['s']; ?>"><?php _e( 'Images', 'gmLang' ); echo $counting['image']; ?></a>
-			<a class="audio<?php if ( $curr_mime == 'audio' ) echo ' active'; if ( ! $gmDbCount['audio'] ) echo ' disabled'; ?>" rel="audio" href="<?php echo $url['page'] . '&amp;mime_type=audio' . $url_param['filter'] . $url_param['s']; ?>"><?php _e( 'Audio', 'gmLang' ); echo $counting['audio']; ?></a>
-			<a class="video<?php if ( $curr_mime == 'video' ) echo ' active'; if ( ! $gmDbCount['video'] ) echo ' disabled'; ?>" rel="video" href="<?php echo $url['page'] . '&amp;mime_type=video' . $url_param['filter'] . $url_param['s']; ?>"><?php _e( 'Video', 'gmLang' ); echo $counting['video']; ?></a>
-			<a class="application<?php if ( $curr_mime == 'application' ) echo ' active'; if ( ! $gmDbCount['application'] ) echo ' disabled'; ?>" rel="application" href="<?php echo $url['page'] . '&amp;mime_type=application' . $url_param['filter'] . $url_param['s']; ?>"><?php _e( 'Other', 'gmLang' ); echo $counting['application']; ?></a>
-			<span class="delete ajaxPost" data-action="gmDoAjax" data-_ajax_nonce="<?php echo $nonce; ?>" data-form="#selectedForm" data-task="gmedia-bulk-delete" data-confirmtxt="<?php _e( "You are about to permanently delete the selected items.\n\r'Cancel' to stop, 'OK' to delete.", "gmLang" ); ?>"><?php _e( 'Delete', 'gmLang' ); ?></span>
-		</div>
-		<div class="more abut">
-			<div class="dropbut"><?php _e( 'Category', 'gmLang' ); ?></div>
-			<div class="dropbox">
-				<strong class="label"><?php _e( 'Move to / Open category', 'gmLang' ); ?>:</strong>
+			<div class="abuts">
+				<?php $curr_mime = $grandCore->_get( 'mime_type', 'total' ); ?>
+				<a class="total<?php if ( $curr_mime == 'total' ) echo ' active'; ?>" rel="total" href="<?php echo $url['page'] . $url_param['filter'] . $url_param['s']; ?>"><?php _e( 'All', 'gmLang' ); echo $counting['total']; ?></a>
+				<a class="image<?php if ( $curr_mime == 'image' ) echo ' active'; if ( ! $gmDbCount['image'] ) echo ' disabled'; ?>" rel="image" href="<?php echo $url['page'] . '&amp;mime_type=image' . $url_param['filter'] . $url_param['s']; ?>"><?php _e( 'Images', 'gmLang' ); echo $counting['image']; ?></a>
+				<a class="audio<?php if ( $curr_mime == 'audio' ) echo ' active'; if ( ! $gmDbCount['audio'] ) echo ' disabled'; ?>" rel="audio" href="<?php echo $url['page'] . '&amp;mime_type=audio' . $url_param['filter'] . $url_param['s']; ?>"><?php _e( 'Audio', 'gmLang' ); echo $counting['audio']; ?></a>
+				<a class="video<?php if ( $curr_mime == 'video' ) echo ' active'; if ( ! $gmDbCount['video'] ) echo ' disabled'; ?>" rel="video" href="<?php echo $url['page'] . '&amp;mime_type=video' . $url_param['filter'] . $url_param['s']; ?>"><?php _e( 'Video', 'gmLang' ); echo $counting['video']; ?></a>
+				<a class="application<?php if ( $curr_mime == 'application' ) echo ' active'; if ( ! $gmDbCount['application'] ) echo ' disabled'; ?>" rel="application" href="<?php echo $url['page'] . '&amp;mime_type=application' . $url_param['filter'] . $url_param['s']; ?>"><?php _e( 'Other', 'gmLang' ); echo $counting['application']; ?></a>
+				<span class="delete ajaxPost" data-action="gmDoAjax" data-_ajax_nonce="<?php echo $nonce; ?>" data-form="#selectedForm" data-task="gmedia-bulk-delete" data-confirmtxt="<?php _e( "You are about to permanently delete the selected items.\n\r'Cancel' to stop, 'OK' to delete.", "gmLang" ); ?>"><?php _e( 'Delete', 'gmLang' ); ?></span>
+			</div>
+			<div class="more abut">
+				<div class="dropbut"><?php _e( 'Category', 'gmLang' ); ?></div>
+				<div class="dropbox">
+					<strong class="label"><?php _e( 'Move to / Open category', 'gmLang' ); ?>:</strong>
 
-				<div id="category_list" class="term_list">
-					<?php
-					$gmTerms = $gMDb->get_terms( 'gmedia_category' );
-					$terms = '';
-					if ( count( $gmTerms ) ) {
-						$children     = $gMDb->_get_term_hierarchy( 'gmedia_category' );
-						$termsHierarr = $grandCore->get_terms_hierarrhically( 'gmedia_category', $gmTerms, $children, $count = 0 );
-						$terms .= '<div class="item"><span class="ajaxPost" data-action="gmDoAjax" data-_ajax_nonce="' . $nonce . '" data-form="#selectedForm" data-task="moveToCategory" data-term_id="0">' . __( 'No Category', 'gmLang' ) . '</span>';
-						$terms .= '<a class="opencat" href="' . $url['page'] . '&amp;cat=0" title="' . __( 'Show gMedia with no category', 'gmLang' ) . '">' . __( 'Show gMedia with no category', 'gmLang' ) . '</a></div>' . "\n";
-						foreach ( $termsHierarr as $termitem ) {
-							$pad = str_repeat( '&#8212; ', max( 0, $termitem->level ) );
-							$terms .= '<div class="item">';
-							$terms .= '<span class="ajaxPost" data-action="gmDoAjax" data-_ajax_nonce="' . $nonce . '" data-form="#selectedForm" data-task="moveToCategory" data-term_id="' . $termitem->term_id . '">' . $pad . $termitem->name . '</span>';
-							$terms .= '<a class="openterm" href="' . $url['page'] . '&amp;cat=' . $termitem->term_id . '" title="' . __( 'Show this category', 'gmLang' ) . '">' . __( 'Show this category', 'gmLang' ) . '</a>';
-							$terms .= '</div>' . "\n";
+					<div id="category_list" class="term_list">
+						<?php
+						$gmTerms = $gMDb->get_terms( 'gmedia_category' );
+						$terms = '';
+						if ( count( $gmTerms ) ) {
+							$children     = $gMDb->_get_term_hierarchy( 'gmedia_category' );
+							$termsHierarr = $grandCore->get_terms_hierarrhically( 'gmedia_category', $gmTerms, $children, $count = 0 );
+							$terms .= '<div class="item"><span class="ajaxPost" data-action="gmDoAjax" data-_ajax_nonce="' . $nonce . '" data-form="#selectedForm" data-task="moveToCategory" data-term_id="0">' . __( 'No Category', 'gmLang' ) . '</span>';
+							$terms .= '<a class="opencat" href="' . $url['page'] . '&amp;cat=0" title="' . __( 'Show gMedia with no category', 'gmLang' ) . '">' . __( 'Show gMedia with no category', 'gmLang' ) . '</a></div>' . "\n";
+							foreach ( $termsHierarr as $termitem ) {
+								$pad = str_repeat( '&#8212; ', max( 0, $termitem->level ) );
+								$terms .= '<div class="item">';
+								$terms .= '<span class="ajaxPost" data-action="gmDoAjax" data-_ajax_nonce="' . $nonce . '" data-form="#selectedForm" data-task="moveToCategory" data-term_id="' . $termitem->term_id . '">' . $pad . $termitem->name . '</span>';
+								$terms .= '<a class="openterm" href="' . $url['page'] . '&amp;cat=' . $termitem->term_id . '" title="' . __( 'Show this category', 'gmLang' ) . '">' . __( 'Show this category', 'gmLang' ) . '</a>';
+								$terms .= '</div>' . "\n";
+							}
 						}
-					}
-					else {
-						$terms = '<a href="' . admin_url( 'admin.php?page=GrandMedia_Tags_and_Categories&tab=gmedia_category' ) . '">' . __( 'Create category', 'gmLang' ) . '</a>';
+						else {
+							$terms = '<a href="' . admin_url( 'admin.php?page=GrandMedia_Tags_and_Categories&tab=gmedia_category' ) . '">' . __( 'Create category', 'gmLang' ) . '</a>';
+						}
+						echo $terms;
+						?>
+					</div>
+				</div>
+			</div>
+			<div class="more abut">
+				<div class="dropbut"><?php _e( 'Labels', 'gmLang' ); ?></div>
+				<div class="dropbox">
+					<strong class="label"><?php _e( 'Add new label', 'gmLang' ); ?>:</strong>
+
+					<div class="inp"><input id="new_label" class="dropchild" type="text" name="label" autocomplete="off" />
+						<span class="button ajaxPost" data-action="gmDoAjax" data-_ajax_nonce="<?php echo $nonce; ?>" data-form="#selectedForm,#new_label" data-task="gm-add-label" title="<?php _e( 'Add labels to selected gmedia', 'gmLang' ); ?>"><?php _e( 'Add', 'gmLang' ); ?></span>
+					</div>
+					<hr />
+
+					<?php
+					$gmTerms = $gMDb->get_terms( 'gmedia_tag' );
+					if ( count( $gmTerms ) ) {
+						$terms = '<form id="tag_list" name="tag_list" action="" method="post"><div class="term_list">' . "\n";
+						foreach ( $gmTerms as $termitem ) {
+							$terms .= '	<div class="item">';
+							$terms .= '		<span class="dropchild"><input type="checkbox" name="label[]" id="l_ch_' . $termitem->term_id . '" value="' . $termitem->term_id . '" /> <label for="l_ch_' . $termitem->term_id . '">' . $termitem->name . '</label></span>';
+							$terms .= '		<a class="openterm" href="' . $url['page'] . '&amp;tag_id=' . $termitem->term_id . '" title="' . __( 'Show gmedia with this label', 'gmLang' ) . '">' . __( 'Show gmedia with this label', 'gmLang' ) . '</a>';
+							$terms .= '	</div>' . "\n";
+						}
+						$terms .= '</div>' . "\n";
+						$terms .= '<div class="buttons floatholder">';
+						$terms .= '	<span class="button alignleft removeLabels ajaxPost" data-action="gmDoAjax" data-_ajax_nonce="' . $nonce . '" data-form="#selectedForm,#tag_list" data-task="gm-remove-label" title="' . __( 'Remove labels from selected gmedia', 'gmLang' ) . '">' . __( 'Remove', 'gmLang' ) . '</span>';
+						$terms .= '	<span class="button alignright addLabels ajaxPost" data-action="gmDoAjax" data-_ajax_nonce="' . $nonce . '" data-form="#selectedForm,#tag_list" data-task="gm-add-label" title="' . __( 'Add labels to selected gmedia', 'gmLang' ) . '">' . __( 'Add', 'gmLang' ) . '</span>';
+						$terms .= '</div></form>' . "\n";
 					}
 					echo $terms;
 					?>
 				</div>
 			</div>
-		</div>
-		<div class="more abut">
-			<div class="dropbut"><?php _e( 'Labels', 'gmLang' ); ?></div>
-			<div class="dropbox">
-				<strong class="label"><?php _e( 'Add new label', 'gmLang' ); ?>:</strong>
+			<div class="msg">
+				<span id="selectedItems"><span class="selectedItems"><?php if ( ! empty( $gmSelected ) ) {
+							echo count( explode( ',', $gmSelected ) );
+						}
+						else {
+							echo '0';
+						} ?></span> <?php _e( 'selected', 'gmLang' ); ?></span>
 
-				<div class="inp"><input id="new_label" class="dropchild" type="text" name="label" autocomplete="off" />
-					<span class="button ajaxPost" data-action="gmDoAjax" data-_ajax_nonce="<?php echo $nonce; ?>" data-form="#selectedForm,#new_label" data-task="gm-add-label" title="<?php _e( 'Add labels to selected gmedia', 'gmLang' ); ?>"><?php _e( 'Add', 'gmLang' ); ?></span>
+				<form id="selectedForm" name="selectedForm" style="display: none;" action="<?php echo $url['page'] . '&amp;filter=selected'; ?>" method="post">
+					<input type="hidden" id="gmSelected" data-key="gm" name="gmSelected" value="<?php echo $gmSelected; ?>" />
+				</form>
+				<!--suppress CheckDtdRefs -->
+				<span class="more">&raquo;</span>
+
+				<div class="actions">
+					<span id="showSelected"><?php _e( 'Show only selected items', 'gmLang' ); ?></span>
+					<span id="clearSelected"><?php _e( 'Clear selected items', 'gmLang' ); ?></span>
 				</div>
-				<hr />
-
-				<?php
-				$gmTerms = $gMDb->get_terms( 'gmedia_tag' );
-				if ( count( $gmTerms ) ) {
-					$terms = '<form id="tag_list" name="tag_list" action="" method="post"><div class="term_list">' . "\n";
-					foreach ( $gmTerms as $termitem ) {
-						$terms .= '	<div class="item">';
-						$terms .= '		<span class="dropchild"><input type="checkbox" name="label[]" id="l_ch_' . $termitem->term_id . '" value="' . $termitem->term_id . '" /> <label for="l_ch_' . $termitem->term_id . '">' . $termitem->name . '</label></span>';
-						$terms .= '		<a class="openterm" href="' . $url['page'] . '&amp;tag_id=' . $termitem->term_id . '" title="' . __( 'Show gmedia with this label', 'gmLang' ) . '">' . __( 'Show gmedia with this label', 'gmLang' ) . '</a>';
-						$terms .= '	</div>' . "\n";
-					}
-					$terms .= '</div>' . "\n";
-					$terms .= '<div class="buttons floatholder">';
-					$terms .= '	<span class="button alignleft removeLabels ajaxPost" data-action="gmDoAjax" data-_ajax_nonce="' . $nonce . '" data-form="#selectedForm,#tag_list" data-task="gm-remove-label" title="' . __( 'Remove labels from selected gmedia', 'gmLang' ) . '">' . __( 'Remove', 'gmLang' ) . '</span>';
-					$terms .= '	<span class="button alignright addLabels ajaxPost" data-action="gmDoAjax" data-_ajax_nonce="' . $nonce . '" data-form="#selectedForm,#tag_list" data-task="gm-add-label" title="' . __( 'Add labels to selected gmedia', 'gmLang' ) . '">' . __( 'Add', 'gmLang' ) . '</span>';
-					$terms .= '</div></form>' . "\n";
-				}
-				echo $terms;
-				?>
 			</div>
 		</div>
-		<div class="msg">
-			<span id="selectedItems"><span class="selectedItems"><?php if ( ! empty( $gmSelected ) ) {
-						echo count( explode( ',', $gmSelected ) );
-					}
-					else {
-						echo '0';
-					} ?></span> <?php _e( 'selected', 'gmLang' ); ?></span>
-
-			<form id="selectedForm" name="selectedForm" style="display: none;" action="<?php echo $url['page'] . '&amp;filter=selected'; ?>" method="post">
-				<input type="hidden" id="gmSelected" data-key="gm" name="gmSelected" value="<?php echo $gmSelected; ?>" />
-			</form>
-			<!--suppress CheckDtdRefs -->
-			<span class="more">&raquo;</span>
-
-			<div class="actions">
-				<span id="showSelected"><?php _e( 'Show only selected items', 'gmLang' ); ?></span>
-				<span id="clearSelected"><?php _e( 'Clear selected items', 'gmLang' ); ?></span>
-			</div>
-		</div>
-		<?php echo $gMDb->query_pager(); ?>
-		<form action="" method="get">
-			<div class="gmSearch">
-				<?php foreach ( $_GET as $key => $value ) {
-					if ( in_array( $key, array( 's', 'pager' ) ) ) continue; ?>
-					<input type="hidden" name="<?php echo $key; ?>" value="<?php echo $value; ?>" />
-				<?php } ?>
-				<span class="loading">Loading... </span>
-				<input id="gMediaLibSearch" type="search" name="s" placeholder="<?php _e( 'Search...', 'gmLang' ); ?>" value="<?php echo $grandCore->_get( 's', '' ); ?>" />
-			</div>
-		</form>
 	</div>
 	<form name="gMediaForm" id="gMediaForm" method="post" action="">
 		<div id="gMediaLibTable">

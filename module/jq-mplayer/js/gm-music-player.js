@@ -1,6 +1,6 @@
 /*
  * Title                   : Music Player Module for Gmedia Gallery plugin
- * Version                 : 1.2
+ * Version                 : 1.3
  * Copyright               : 2013 CodEasily.com
  * Website                 : http://www.codeasily.com
  */
@@ -14,27 +14,27 @@
 			jPlayerInterface: '.jp-interface',
 			playerPrevious: ".jp-interface .jp-previous",
 			playerNext: ".jp-interface .jp-next",
-			trackList:'.tracklist',
-			tracks:'.tracks',
-			track:'.track',
-			trackRating:'.rating-bar',
-			trackInfo:'.track-info',
-			rating:'.rating',
-			ratingLevel:'.rating-level',
-			ratingLevelOn:'.on',
-			title: '.track-title',
-			text: '.track-description',
-			duration: '.duration',
-			button:'.button',
-			buttonNotActive:'.not-active',
-			playing:'.playing',
-			moreButton:'.more',
-			player:'.player',
-			artist:'.artist',
-			artistOuter:'.artist-outer',
-			albumCover:'.img',
-			description:'.description',
-			descriptionShowing:'.showing'
+			trackList:'.gmmp-tracklist',
+			tracks:'.gmmp-tracks',
+			track:'.gmmp-track',
+			trackRating:'.gmmp-rating-bar',
+			trackInfo:'.gmmp-track-info',
+			rating:'.gmmp-rating',
+			ratingLevel:'.gmmp-rating-level',
+			ratingLevelOn:'.gmmp-on',
+			title: '.gmmp-track-title',
+			text: '.gmmp-track-description',
+			duration: '.gmmp-duration',
+			button:'.gmmp-button',
+			buttonNotActive:'.gmmp-not-active',
+			playing:'.gmmp-playing',
+			moreButton:'.gmmp-more',
+			player:'.gmmp-player',
+			artist:'.gmmp-artist',
+			artistOuter:'.gmmp-artist-outer',
+			albumCover:'.gmmp-img',
+			description:'.gmmp-description',
+			descriptionShowing:'.gmmp-showing'
 		};
 
 		defaultOptions = {
@@ -79,15 +79,15 @@
 			var playing = false, markup, $myJplayer = {},$tracks,$tracksWrapper, $more;
 
 			markup = {
-				listItem:'<li class="track"><section>' +
-										 '<span class="maxwidth"><span class="track-title-wrapper">&nbsp;<span class="track-title"></span></span></span>' +
+				listItem:'<li class="gmmp-track"><section>' +
+										 '<span class="gmmp-maxwidth"><span class="gmmp-track-title-wrapper">&nbsp;<span class="gmmp-track-title"></span></span></span>' +
 										 '<span>' +
-											 '<span class="duration">&nbsp;</span>' +
-											 (options.rating ? '<span class="rating"></span>' : '') +
-											 '<a href="#" class="button not-active" target="_blank"></a>' +
+											 '<span class="gmmp-duration">&nbsp;</span>' +
+											 (options.rating ? '<span class="gmmp-rating"></span>' : '') +
+											 '<a href="#" class="gmmp-button gmmp-not-active" target="_blank"></a>' +
 										 '</span>' +
 						'</section></li>',
-				ratingBar:'<span class="rating-level rating-bar"></span>'
+				ratingBar:'<span class="gmmp-rating-level gmmp-rating-bar"></span>'
 			};
 
 			function init(playlistOptions) {
@@ -130,7 +130,7 @@
 
 					$myJplayer.bind($.jPlayer.event.loadeddata, function(event) {
 						if(event.jPlayer.status.duration != 'NaN'){
-							$tracks.eq(current).find('.duration').text($.jPlayer.convertTime( event.jPlayer.status.duration ));
+							$tracks.eq(current).find(cssSelector.duration).text($.jPlayer.convertTime( event.jPlayer.status.duration ));
 						}
 					});
 
@@ -253,7 +253,7 @@
 				if (options.tracksToShow < myPlaylist.length) {
 					var $trackList = $(cssSelector.trackList, $self);
 
-					$trackList.addClass('show-more-button');
+					$trackList.addClass('gmmp-show-more-button');
 
 					$trackList.find(cssSelector.moreButton).click(function() {
 						$more = $(this);
@@ -262,7 +262,7 @@
 					});
 				}
 
-				$tracks.find('.track-title').click(function() {
+				$tracks.find(cssSelector.title).click(function() {
 					playlistAdvance($(this).parents('li').data('index'));
 				});
 			}
@@ -276,7 +276,7 @@
 				var tracks_height = $tracks.eq(0).outerHeight() * myPlaylist.length + 1;
 				$tracksWrapper.animate({height: tracks_height}, 400);
 				$more.removeClass('anim').animate({'height': 0}, 400, function() {
-					$more.parents(cssSelector.trackList).removeClass('show-more-button');
+					$more.parents(cssSelector.trackList).removeClass('gmmp-show-more-button');
 					$more.remove();
 				});
 			}
@@ -307,12 +307,12 @@
 
 				//Handler for when user hovers over a rating
 				$(cssSelector.rating, $self).find(cssSelector.ratingLevel).hover(function() {
-					$(this).addClass('hover').prevAll().addClass('hover').end().nextAll().removeClass('hover');
+					$(this).addClass('gmmp-hover').prevAll().addClass('gmmp-hover').end().nextAll().removeClass('gmmp-hover');
 				});
 
 				//Restores previous rating when user is finished hovering (assuming there is no new rating)
 				$(cssSelector.rating, $self).mouseleave(function() {
-					$(this).find(cssSelector.ratingLevel).removeClass('hover');
+					$(this).find(cssSelector.ratingLevel).removeClass('gmmp-hover');
 				});
 
 				//Set the new rating when the user clicks
@@ -377,28 +377,28 @@
 				//I would normally use the templating plugin for something like this, but I wanted to keep this plugin's footprint as small as possible
 				markup =
 						'<div class="gm-music-player">' +
-								'	<div class="player jp-interface">' +
-								'		<div class="album-cover">' +
-								'			<span class="img"></span>' +
-								'   	<span class="highlight"></span>' +
+								'	<div class="gmmp-player jp-interface">' +
+								'		<div class="gmmp-album-cover">' +
+								'			<span class="gmmp-img"></span>' +
+								'   	<span class="gmmp-highlight"></span>' +
 										(options.rating ?
-								'     <div class="rating">' +
-								'     	<span class="rating-level rating-star on"></span>' +
-								'       <span class="rating-level rating-star on"></span>' +
-								'       <span class="rating-level rating-star on"></span>' +
-								'       <span class="rating-level rating-star on"></span>' +
-								'       <span class="rating-level rating-star"></span>' +
+								'     <div class="gmmp-rating">' +
+								'     	<span class="gmmp-rating-level gmmp-rating-star gmmp-on"></span>' +
+								'       <span class="gmmp-rating-level gmmp-rating-star gmmp-on"></span>' +
+								'       <span class="gmmp-rating-level gmmp-rating-star gmmp-on"></span>' +
+								'       <span class="gmmp-rating-level gmmp-rating-star gmmp-on"></span>' +
+								'       <span class="gmmp-rating-level gmmp-rating-star"></span>' +
 								'     </div>' : '') +
 								'   </div>' +
-								'   <div class="track-title"></div>' +
-								'   <div class="player-controls">' +
-								'   	<div class="main">' +
-								'     	<div class="previous jp-previous"></div>' +
-								'       <div class="play jp-play"></div>' +
-								'       <div class="pause jp-pause"></div>' +
-								'       <div class="next jp-next"></div>' +
+								'   <div class="gmmp-track-title"></div>' +
+								'   <div class="gmmp-player-controls">' +
+								'   	<div class="gmmp-main">' +
+								'     	<div class="gmmp-previous jp-previous"></div>' +
+								'       <div class="gmmp-play jp-play"></div>' +
+								'       <div class="gmmp-pause jp-pause"></div>' +
+								'       <div class="gmmp-next jp-next"></div>' +
 								'<!-- These controls aren\'t used by this plugin, but jPlayer seems to require that they exist -->' +
-								'       <span class="unused-controls">' +
+								'       <span class="gmmp-unused-controls">' +
 								'       	<span class="jp-video-play"></span>' +
 								'         <span class="jp-stop"></span>' +
 								'         <span class="jp-mute"></span>' +
@@ -415,18 +415,18 @@
 								'         <span class="jp-gui"></span>' +
 								'       </span>' +
 								'     </div>' +
-								'     <div class="progress-wrapper">' +
-								'     	<div class="progress jp-seek-bar">' +
-								'       	<div class="elapsed jp-play-bar"></div>' +
+								'     <div class="gmmp-progress-wrapper">' +
+								'     	<div class="gmmp-progress jp-seek-bar">' +
+								'       	<div class="gmmp-elapsed jp-play-bar"></div>' +
 								'       </div>' +
 								'     </div>' +
 								'   </div>' +
-								' 	<div class="track-description"></div>' +
+								' 	<div class="gmmp-track-description"></div>' +
 								' </div>' +
-								' <div class="description"></div>' +
-								' <div class="tracklist">' +
-								' 	<ol class="tracks"></ol>' +
-								'   <div class="more anim">' + options.moreText + '</div>' +
+								' <div class="gmmp-description"></div>' +
+								' <div class="gmmp-tracklist">' +
+								' 	<ol class="gmmp-tracks"></ol>' +
+								'   <div class="gmmp-more gmmp-anim">' + options.moreText + '</div>' +
 								' </div>' +
 								' <div class="jPlayer-container"></div>' +
 								'</div>';

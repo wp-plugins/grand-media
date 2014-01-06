@@ -59,6 +59,7 @@ body.gmDoingAjax div#grandMedia * {
 	background: #abb1bc url(../images/bg.png) 0 0 repeat-x;
 }
 
+#adminmenu #toplevel_page_GrandMedia ul.wp-submenu {display: none;}
 #adminmenu #toplevel_page_GrandMedia .wp-menu-image img {opacity:.9;filter:alpha(opacity=90)}
 #adminmenu #toplevel_page_GrandMedia .wp-not-current-submenu .wp-menu-arrow div {
 	border: none;
@@ -343,6 +344,7 @@ div.grandmedia {
 .grandHeader h2 {
 	margin: 16px 0 0 180px;
 	font: italic 24px/35px Georgia, "Times New Roman", "Bitstream Charter", Times, serif;
+	color: #ffffff;
 }
 
 div.sideLinks {
@@ -355,6 +357,7 @@ div.grandLibrary {
 	position: relative;
 	margin-left: 180px;
 	min-width: 740px;
+	overflow: hidden;
 }
 
 .sideLinks .gm-bufer {
@@ -513,7 +516,7 @@ div#gMediaLibTable p {
 
 div.gMediaLibActions {
 	border: 1px solid #dedede;
-	padding: 5px 22px 3px 7px;
+	padding: 5px 7px 3px 7px;
 	background: #ffffff url(../images/bg_act_bar.png) 0 100% repeat-x;
 	white-space: nowrap;
 	font: 12px/16px Arial;
@@ -526,6 +529,8 @@ div.gMediaLibActions {
 	border-top-left-radius: 4px;
 	border-top-right-radius: 4px;
 }
+
+div.gm-buttonsdiv { float: left; }
 
 input[type="checkbox"], input[type="checkbox"]:focus {
 	-moz-outline: none;
@@ -911,11 +916,17 @@ div.gMediaLibActions .msg .actions span:hover {
 	background-color: #21759B;
 }
 
+div.gm-searchdiv {
+	position: relative;
+	float: right;
+	width: 450px;
+	height: 26px;
+}
 div.gMediaLibActions .gmSearch {
 	display: inline-block;
 	position: absolute;
-	right: 5px;
-	top: 5px;
+	right: 0px;
+	top: 0px;
 }
 
 div.gMediaLibActions .gmSearch .loading {
@@ -1044,8 +1055,8 @@ div#gMediaQuery .tabqueryblock:only-child .gmDelTab {
 .grandPager {
 	display: block;
 	position: absolute;
-	right: 160px;
-	top: 7px;
+	right: 180px;
+	top: 2px;
 	font-size: 11px;
 	line-height: 16px;
 }

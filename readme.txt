@@ -3,8 +3,8 @@ Contributors: Rattus
 Donate link: http://codeasily.com/wordpress-plugins/gmedia-gallery/
 Tags: gallery, image, images, library, files, music, video, slideshow, responsive, admin, Post, posts, easy gallery, iphone gallery, best gallery, portfolio, image gallery, photo gallery, photo, slider, admin, page, relative image
 Requires at least: 3.5
-Tested up to: 3.6.2
-Stable tag: 0.9.3
+Tested up to: 3.8.0
+Stable tag: 0.9.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -87,6 +87,11 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 3. Add to Post - GrandMedia MetaBox
 
 == Changelog ==
+
+= 0.9.4 =
+* Security fix for jplayer library
+* Updated css for Wordpress 3.8
+* Changed Music Player CSS classes for compatibility with some themes
 
 = 0.9.3 =
 * Fix for modern themes compatibility (Music player not worked)
