@@ -1,14 +1,8 @@
-#file_browser {
-	border-bottom: 1px solid #cccccc;
-	margin-bottom: 20px;
-	padding-bottom: 10px;
-	position:relative;
-}
 .browsefiles {margin-left:5px;}
 
 ul.jqueryDirTree {
 	font-family: Verdana, sans-serif;
-	font-size: 11px;
+	font-size: 12px;
 	line-height: 18px;
 	padding: 0px;
 	margin: 0px;

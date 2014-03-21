@@ -70,14 +70,14 @@ class grandLibrary {
 								if ( ! strlen( $term ) )
 									continue;
 
-								if ( ! $term_info = $gMDb->term_exists( $term, $taxonomy ) ) {
+								if ( ! $term_id = $gMDb->term_exists( $term, $taxonomy ) ) {
 									// Skip if a non-existent term ID is passed.
 									if ( is_int( $term ) )
 										continue;
-									$term_info = $gMDb->insert_term( $term, $taxonomy, $args );
+									$term_id = $gMDb->insert_term( $term, $taxonomy, $args );
 								}
-								if ( ! is_wp_error( $term_info ) ) {
-									$term_ids[] = $term_info['term_id'];
+								if ( ! is_wp_error( $term_id ) ) {
+									$term_ids[] = $term_id;
 								}
 							}
 							$this->msg .= $grandCore->message( sprintf( __( "%s terms successfuly added", 'gmLang' ), count( $term_ids ) ), 'info' );
@@ -92,9 +92,9 @@ class grandLibrary {
 						$taxonomy     = trim( $taxonomy );
 						$args['name'] = trim( $term );
 						if ( ! empty( $taxonomy ) && ! empty( $term_id ) ) {
-							$term_info = $gMDb->update_term( $term_id, $taxonomy, $args );
-							if ( ! is_wp_error( $term_info ) ) {
-								$this->msg .= $grandCore->message( sprintf( __( "Term #%s updated successfuly", 'gmLang' ), $term_info['term_id'] ), 'info' );
+							$term_id = $gMDb->update_term( $term_id, $taxonomy, $args );
+							if ( ! is_wp_error( $term_id ) ) {
+								$this->msg .= $grandCore->message( sprintf( __( "Term #%s updated successfuly", 'gmLang' ), $term_id ), 'info' );
 							}
 							else {
 								$this->msg .= $grandCore->message( __( "Error. Can't update term", 'gmLang' ), 'error' );
@@ -113,9 +113,9 @@ class grandLibrary {
 						check_admin_referer( 'grandMedia' );
 						$args     = array( 'name' => $term, 'description' => $grandCore->_post( 'description', '' ) );
 						$taxonomy = 'gmedia_module';
-						if ( ! $term_info = $gMDb->term_exists( $term, $taxonomy ) ) {
-							$term_info = $gMDb->insert_term( $term, $taxonomy, $args );
-							if ( ! is_wp_error( $term_info ) ) {
+						if ( ! $term_id = $gMDb->term_exists( $term, $taxonomy ) ) {
+							$term_id = $gMDb->insert_term( $term, $taxonomy, $args );
+							if ( ! is_wp_error( $term_id ) ) {
 								$default_settings                = $grandCore->gm_get_module_settings( $_POST['module_name'] );
 								$default_settings['module_name'] = $_POST['module_name'];
 								$default_settings['last_edited'] = gmdate( 'Y-m-d H:i:s' );
@@ -134,10 +134,10 @@ class grandLibrary {
 									if ( ! isset( $_POST[$key] ) ) {
 										$_POST[$key] = $value;
 									}
-									$gMDb->update_metadata( 'gmedia_term', $term_info['term_id'], $key, $_POST[$key] );
+									$gMDb->update_metadata( 'gmedia_term', $term_id, $key, $_POST[$key] );
 								}
 								$this->msg .= $grandCore->message( sprintf( __( "%s gallery successfuly added", 'gmLang' ), $term ), 'info' );
-								$this->term_id = $term_info['term_id'];
+								$this->term_id = $term_id;
 							}
 							else {
 								$this->msg .= $grandCore->message( sprintf( __( "Can't create %s gallery", 'gmLang' ), $term ), 'error' );
@@ -158,9 +158,9 @@ class grandLibrary {
 						$taxonomy      = 'gmedia_module';
 						$this->term_id = $term_id = intval( $_POST['term_id'] );
 						$args          = array( 'name' => $term, 'description' => $grandCore->_post( 'description', '' ) );
-						if ( $term_id && $term_info = $gMDb->term_exists( $term_id, $taxonomy ) ) {
-							$term_info = $gMDb->update_term( $term_id, $taxonomy, $args );
-							if ( ! is_wp_error( $term_info ) ) {
+						if ( $term_id && $gMDb->term_exists( $term_id, $taxonomy ) ) {
+							$term_id = $gMDb->update_term( $term_id, $taxonomy, $args );
+							if ( ! is_wp_error( $term_id ) ) {
 								$default_settings                = $grandCore->gm_get_module_settings( $_POST['module_name'] );
 								$default_settings['module_name'] = $_POST['module_name'];
 								$default_settings['last_edited'] = gmdate( 'Y-m-d H:i:s' );
@@ -179,7 +179,7 @@ class grandLibrary {
 									if ( ! isset( $_POST[$key] ) ) {
 										$_POST[$key] = $value;
 									}
-									$gMDb->update_metadata( 'gmedia_term', $term_info['term_id'], $key, $_POST[$key] );
+									$gMDb->update_metadata( 'gmedia_term', $term_id, $key, $_POST[$key] );
 								}
 								$this->msg .= $grandCore->message( sprintf( __( "%s gallery successfuly updated", 'gmLang' ), $term ), 'info' );
 							}
@@ -282,7 +282,7 @@ class grandLibrary {
 				gmSettings();
 				break;
 			case 'GrandMedia_Tags_and_Categories':
-				include_once ( dirname( __FILE__ ) . '/labels.php' );
+				include_once(dirname(__FILE__) . '/terms.php');
 				gmTagsCategories();
 				break;
 			case 'GrandMedia_AddMedia':

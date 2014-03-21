@@ -3,18 +3,18 @@ Contributors: Rattus
 Donate link: http://codeasily.com/wordpress-plugins/gmedia-gallery/
 Tags: gallery, image, images, library, files, music, video, slideshow, responsive, admin, Post, posts, easy gallery, iphone gallery, best gallery, portfolio, image gallery, photo gallery, photo, slider, admin, page, relative image
 Requires at least: 3.5
-Tested up to: 3.8.1
+Tested up to: 3.8.0
 Stable tag: 0.9.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Gmedia Gallery - powerfull media library plugin for creating beautiful galleries and managing files
+Gmedia Gallery - powerfull media library plugin for creating beautiful galleries and managing files.
 
 == Description ==
 
 Manage files, show image galleries and photo slideshows, play music on your site Gmedia Gallery plugin. Gmedia Library provides a comprehensive interface for handling galleries, image and audio files.
 
-With Gmedia plugin you can upload an unlimited number of photo and audio files, create dozens of galleries and playlists, group pictures and other files in categories, and add tags for each file.
+With Gmedia plugin you can upload an unlimited number of photo and audio files, create dozens of galleries and playlists, group pictures and other files in albums, and add tags for each file.
 Handle any file format and link any files with images in few clicks. You can import images with captions from Flagallery plugin and from NextGen Gallery plugin right to Gmedia Library.
 
 Create Slideshow Galleries with using tags and automatically add images to several galleries by assigning these tags to uploaded photos.
@@ -29,21 +29,21 @@ With our versatile plugin you can magically change the look and feel of your pho
 
 See demo of Gmedia Gallery Modules:
 
-*   [Afflux Module](http://codeasily.com/portfolio-item/gmedia-afflux/) with touch/swipe interface on mobile browsers. Multi-categorized professional photo gallery module with autoslideshow feature.
+*   [Afflux Module](http://codeasily.com/portfolio-item/gmedia-afflux/) with touch/swipe interface on mobile browsers. Multi-tab professional photo gallery module with autoslideshow feature.
 *   [Phantom Module](http://codeasily.com/portfolio-item/gmedia-phantom/) is the Wall/Grid Gallery with social sharing - you can easily change thumbnail sizes, colors, navigation, borders, add stylish labels to thumbnails ... and much more. PhotoSwipe like theme on touch devices.. only better.
 *   [PhotoBox Module](http://codeasily.com/portfolio-item/gmedia-photobox/) - a lightweight image gallery which uses only CSS3 for silky-smooth animations and transitions.
 *   [Slider Module](http://codeasily.com/portfolio-item/gmedia-slider/) - shows your images in one line sliding them one by one + LightBox for big images & Link to other pages or files.
 *   [Music Player Module](http://codeasily.com/portfolio-item/gmedia-music-player/) - beautiful audio player with playlist is totally written in jQuery and HTML5.
-*   [Optima Module](http://codeasily.com/portfolio-item/gmedia-optima/) - is multi-categorized premium gallery module with slideshow, background music support, views counter, image like button, etc.
+*   [Optima Module](http://codeasily.com/portfolio-item/gmedia-optima/) - is multi-tab premium gallery module with slideshow, background music support, views counter, image like button, etc.
 
 Help me make it best gallery plugin: test it and [write suggestions](http://codeasily.com/community/forum/gmedia-gallery-wordpress-plugin/) how it could be improved in feature versions.
 
 Features:
 
 *   SEO and mobile friendly, responsive galleries
-*   Add tags and categories to uploaded files
+*   Add tags and albums to uploaded files
 *   Create many galleries with different options
-*   Automatically add uploaded images to gallery related on tags and categories
+*   Automatically add uploaded images to gallery related on tags and albums
 *   Easily adding shortcode to post in one click
 *   Easily adding related images to post in one click
 *   Manage Wordpress Media Library files much easier
@@ -59,18 +59,18 @@ TODO List:
 *   Intergration with social services
 *   Upload ZIP with files
 *   Image Editor with watermark feature
-*   Add drag'n'drop sorting for files in category
+*   Add drag'n'drop sorting for files in album
 *   Add bulk editing
 
 
 == Installation ==
 
-1. Upload `grand-media` folder to the `/wp-content/plugins/` directory
+1. Upload `gm-media` folder to the `/wp-content/plugins/` directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
-3. Go to Gmedia Gallery page and Add Tags & Categories
-4. Add Files to categories and with chosen tags
+3. Go to Gmedia Gallery page and Add Tags & Albums
+4. Add Files to albums and with chosen tags
 5. Go to Manage Galleries... -> Available Modules tab -> choose module and click Create button
-6. Change settings to fit your site -> give gallery the Name -> in Query Builder choose category and other parameters to query images -> click Save button
+6. Change settings to fit your site -> give gallery the Name -> in Query Builder choose album and other parameters to query images -> click Save button
 7. On Edit Post page click created gallery in Gmedia Metabox to insert shortcode in text editor.
 8. When gallery loads first time on the created page or if you've added new images to gallery you'll see progress bar which means creating thumbnails for new images
 

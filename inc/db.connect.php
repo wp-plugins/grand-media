@@ -3,9 +3,11 @@
  * Gmedia Database Class
  *
  */
-class gMDb {
+class GmediaDB {
 
 	var $query; // User passed query
+	var $filter = false; // is there filter for get_gmedias()
+	var $filter_tax = array(); // is there filter by taxonomy for get_gmedias()
 	var $resultPerPage; // Total records in each pages
 	var $totalResult; // Total records in DB
 	var $gmediaCount; // Query gmedia count
@@ -24,7 +26,7 @@ class gMDb {
 	 */
 	function get_wp_media_lib( $arg = array( 'mime_type' => '', 'orderby' => 'ID', 'order' => '', 'limit' => '0', 'filter' => '', 's' => '' ) ) {
 		/** @var $wpdb wpdb */
-		global $wpdb, $grandCore;
+		global $wpdb, $gmCore;
 		/** @var $mime_type
 		 * @var  $orderby
 		 * @var  $order
@@ -133,7 +135,7 @@ class gMDb {
 				$filter = "AND NOT EXISTS ( SELECT * FROM $wpdb->postmeta WHERE ($wpdb->postmeta.post_id = $wpdb->posts.ID) AND meta_key = '_gmedia_hidden' )";
 				break;
 		}
-		$this->openPage      = $grandCore->_get( 'pager', '1' );
+		$this->openPage      = $gmCore->_get( 'pager', '1' );
 		$this->resultPerPage = $limit;
 		if ( $limit > 0 ) {
 			$limit  = intval( $limit );
@@ -229,8 +231,12 @@ class gMDb {
 						SUM(CASE WHEN {$wpdb->prefix}gmedia.mime_type LIKE 'image%' THEN 1 ELSE 0 END) as image,
 						SUM(CASE WHEN {$wpdb->prefix}gmedia.mime_type LIKE 'audio%' THEN 1 ELSE 0 END) as audio,
 						SUM(CASE WHEN {$wpdb->prefix}gmedia.mime_type LIKE 'video%' THEN 1 ELSE 0 END) as video,
+						SUM(CASE WHEN {$wpdb->prefix}gmedia.mime_type LIKE 'text%' THEN 1 ELSE 0 END) as text,
 						SUM(CASE WHEN {$wpdb->prefix}gmedia.mime_type LIKE 'application%' THEN 1 ELSE 0 END) as application
 						FROM {$wpdb->prefix}gmedia $join WHERE 1 = 1 $where", ARRAY_A );
+
+		$count[0]['other'] = (int) $count[0]['text'] + (int) $count[0]['application'];
+
 		return $count[0];
 	}
 
@@ -251,30 +257,31 @@ class gMDb {
 			$next = $this->openPage + 1;
 		$prev   = $this->openPage - 1;
 		$last   = $this->pages;
-		$result = '<form name="grandPager" method="get" class="grandPager" action=""><span class="pager_total_items">' . $this->totalResult . ' ' . __( "items", "gmLang" ) . '</span>';
+		$total  = $this->totalResult;
+		$result = '<div class="btn-toolbar pull-right gmedia-pager">';
+		$result .= '<div class="btn-group btn-group-sm">';
 
-		if ( $this->openPage > 1 ) {
-			$result .= "<a class='pager_first' href='{$self}'>«</a>";
-			$result .= "<a class='pager_prev' href='{$self}&pager=$prev'>‹</a>";
-		}
-		else {
-			$result .= "<span class='pager_first'>«</span>";
-			$result .= "<span class='pager_prev'>‹</span>";
-		}
-		$result .= '<div class="pager_pages">';
+		$li_class = ( $this->openPage > 1 )? '' : ' disabled';
+		$result .= "<a class='btn btn-default{$li_class}' href='{$self}'><span class='glyphicon glyphicon-fast-backward'></span></a>";
+		$result .= "<a class='btn btn-default{$li_class}' href='{$self}&pager=$prev'><span class='glyphicon glyphicon-step-backward'></span></a>";
+
+		$result .= '</div>';
+
+		$result .= '<form name="gmedia-pager" method="get" id="gmedia-pager" class="input-group btn-group input-group-sm" action="">';
+		$result .= '<span class="input-group-addon">' . __( "Page", "gmLang" ) . '</span>';
 		foreach ( $params as $key => $value ) {
 			$result .= '<input type="hidden" name="' . $key . '" value="' . $value . '" />';
 		}
-		$result .= '<input class="pager_current_page" name="pager" type="text" value="' . $this->openPage . '" /><span class="pager_total_pages">' . __( "of", "gmLang" ) . ' ' . $this->pages . '</span></div>';
-		if ( $this->openPage < $this->pages ) {
-			$result .= "<a class='pager_next' href='{$self}&amp;pager=$next'>›</a>";
-			$result .= "<a class='pager_last' href='{$self}&amp;pager=$last'>»</a>";
-		}
-		else {
-			$result .= "<span class='pager_next'>›</span>";
-			$result .= "<span class='pager_last'>»</span>";
-		}
+		$result .= '<input class="form-control pager_current_page" name="pager" type="text" value="' . $this->openPage . '" /><span class="input-group-addon">' . __( "of", "gmLang" ) . ' ' . $this->pages . '</span>';
 		$result .= '</form>';
+
+		$result .= '<div class="btn-group btn-group-sm">';
+		$li_class = ( $this->openPage < $this->pages )? '' : ' disabled';
+		$result .= "<a class='btn btn-default{$li_class}' href='{$self}&amp;pager=$next'><span class='glyphicon glyphicon-step-forward'></span></a>";
+		$result .= "<a class='btn btn-default{$li_class}' href='{$self}&amp;pager=$last'><span class='glyphicon glyphicon-fast-forward'></span></a>";
+		$result .= '</div>';
+
+		$result .= '</div>';
 		return $result;
 	}
 
@@ -289,8 +296,8 @@ class gMDb {
 	 *
 	 * The $object parameter can have the following:
 	 *   'author'    - Default is current user ID. The ID of the user, who added the attachment.
-	 *   'mime_type'    - Will be set to media. Can not override.
-	 *   'gmuid'      - Global Unique ID for referencing the attachment.
+	 *   'mime_type'    - Will be set to media. Do not override!!!
+	 *   'gmuid'      - Filename.
 	 *   'description'  - Media content.
 	 *
 	 * @uses $wpdb
@@ -305,15 +312,15 @@ class gMDb {
 	 */
 	function insert_gmedia( $object ) {
 		/** @var $wpdb wpdb */
-		global $wpdb, $user_ID, $grandCore;
+		global $wpdb, $user_ID, $gmCore;
 
 		// TODO media order and status (all, vip, password)
-		$defaults = array( 'author' => $user_ID, 'mime_type' => '', 'gmuid' => '' );
+		$defaults = array( 'author' => $user_ID );
 		$object   = wp_parse_args( $object, $defaults );
 		//$object   = sanitize_post( $object, 'db' );
 		$object['title'] = strip_tags($object['title'], '<span>');
-		//$object['description'] = $grandCore->sanitize($object['description']);
-		$object['description'] = $grandCore->clean_input($object['description']);
+		//$object['description'] = $gmCore->sanitize($object['description']);
+		$object['description'] = $gmCore->clean_input($object['description']);
 
 		// export array as variables
 		extract( $object, EXTR_SKIP );
@@ -356,11 +363,13 @@ class gMDb {
 		if ( isset( $terms ) && is_array( $terms ) && count( $terms ) ) {
 			foreach ( $terms as $taxonomy => $_terms ) {
 				$taxonomy = trim( $taxonomy );
-				$_terms   = array_filter( array_map( 'trim', explode( ',', $_terms ) ) );
-				if ( ! empty( $taxonomy ) && count( $_terms ) ) {
-					if ( is_numeric( $_terms[0] ) ) {
-						$_terms = array_filter( array_map( 'intval', $_terms ) );
-					}
+				if('gmedia_tag' == $taxonomy){
+					$_terms = explode(',', $_terms);
+				} else {
+					$_terms = array($_terms);
+				}
+				$_terms   = array_filter( array_map( 'trim', $_terms ) );
+				if ( ! empty( $taxonomy ) ) {
 					$this->set_gmedia_terms( $media_ID, $_terms, $taxonomy, $append = 0 );
 				}
 			}
@@ -400,14 +409,14 @@ class gMDb {
 	 */
 	function delete_gmedia( $gmedia_id ) {
 		/** @var $wpdb wpdb */
-		global $wpdb, $grandCore;
+		global $wpdb, $gmGallery, $gmCore, $gmDB;
 
 		if ( ! $gmedia = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}gmedia WHERE ID = %d", $gmedia_id ) ) )
 			return $gmedia;
 
-		$file = $gmedia->gmuid;
+		//$meta  = $gmDB->get_metadata( 'gmedia', $gmedia->ID, '_metadata', true );
 
-		$this->delete_gmedia_term_relationships( $gmedia_id, array( 'gmedia_category', 'gmedia_tag', 'gmedia_module' ) );
+		$this->delete_gmedia_term_relationships( $gmedia_id, array( 'gmedia_album', 'gmedia_tag', 'gmedia_module' ) );
 
 		/* TODO delete object with comments
 		$comment_ids = $wpdb->get_col( $wpdb->prepare( "SELECT comment_ID FROM $wpdb->comments WHERE comment_post_ID = %d", $post_id ));
@@ -417,7 +426,6 @@ class gMDb {
 				wp_delete_comment( $comment_id, true );
 			do_action( 'deleted_comment', $comment_ids );
 		}
-		* TODO delete linked files from meta
 		*/
 
 		$gmedia_meta_ids = $wpdb->get_col( $wpdb->prepare( "SELECT meta_id FROM {$wpdb->prefix}gmedia_meta WHERE gmedia_id = %d ", $gmedia_id ) );
@@ -432,12 +440,6 @@ class gMDb {
 		$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->prefix}gmedia WHERE ID = %d", $gmedia_id ) );
 		do_action( 'deleted_gmedia', $gmedia_id );
 
-		$uploadpath = $grandCore->gm_upload_dir();
-		$gmOptions  = get_option( 'gmediaOptions' );
-		$folder     = $gmOptions['folder']['link'];
-		$filename   = pathinfo( $file, PATHINFO_FILENAME );
-
-		$files = glob( $uploadpath['path'] . $folder . '/' . $filename . '*', GLOB_NOSORT );
 
 		if ( ! empty( $files ) ) {
 			foreach ( $files as $cachefile ) {
@@ -446,12 +448,32 @@ class gMDb {
 			}
 		}
 
-		$folder   = strtok( $gmedia->mime_type, '/' );
-		$filepath = $uploadpath['path'] . $folder . '/' . $file;
-		$filepath = apply_filters( 'gm_delete_file', $filepath );
+		$type   = strtok( $gmedia->mime_type, '/' );
+		if('image' == $type){
+			$folders = array(
+				$gmGallery->options['folder']['image'],
+				$gmGallery->options['folder']['image_thumb'],
+				$gmGallery->options['folder']['image_original']
+			);
+			foreach($folders as $dir){
+				$file = apply_filters('gm_delete_file', $gmCore->upload['path'] . '/' . $dir . '/' . $gmedia->gmuid );
+				@unlink($file);
+			}
+		} else{
+			$dir = $gmCore->upload['path'] . '/' . $gmGallery->options['folder'][$type];
 
-		if ( ! empty( $filepath ) )
-			@ unlink( $filepath );
+			$filepath = $dir . '/' . $gmedia->gmuid;
+			$file = apply_filters('gm_delete_file', $filepath);
+			@unlink($file);
+
+			$files = glob( $filepath . '*', GLOB_NOSORT);
+			if(!empty($files)){
+				foreach($files as $file){
+					$file = apply_filters('gm_delete_file', $file);
+					@unlink($file);
+				}
+			}
+		}
 
 		wp_cache_delete( $gmedia_id, 'gmedias' );
 		wp_cache_delete( $gmedia_id, 'gmedia_meta' );
@@ -477,7 +499,7 @@ class gMDb {
 	 */
 	function delete_gmedia_term_relationships( $object_id, $taxonomies ) {
 		/** @var $wpdb wpdb */
-		global $wpdb, $gMDb;
+		global $wpdb, $gmDB;
 
 		$object_id = (int) $object_id;
 
@@ -485,12 +507,12 @@ class gMDb {
 			$taxonomies = array( $taxonomies );
 
 		foreach ( (array) $taxonomies as $taxonomy ) {
-			$term_ids    = $gMDb->get_gmedia_terms( $object_id, $taxonomy, array( 'fields' => 'term_ids' ) );
+			$term_ids    = $gmDB->get_gmedia_terms( $object_id, $taxonomy, array( 'fields' => 'term_ids' ) );
 			$in_term_ids = "'" . implode( "', '", $term_ids ) . "'";
 			do_action( 'delete_gmedia_term_relationships', $object_id, $term_ids );
 			$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->prefix}gmedia_term_relationships WHERE gmedia_id = %d AND gmedia_term_id IN ($in_term_ids)", $object_id ) );
 			do_action( 'deleted_gmedia_term_relationships', $object_id, $term_ids );
-			$gMDb->update_term_count( $term_ids, $taxonomy );
+			$gmDB->update_term_count( $term_ids, $taxonomy );
 		}
 	}
 
@@ -500,32 +522,58 @@ class gMDb {
 	 * @see wp_generate_attachment_metadata()
 	 *
 	 * @param int    $media_id Gmedia Id to process.
-	 * @param string $file     Filepath of the Gmedia file.
+	 * @param array $fileinfo from fileinfo() function
 	 *
 	 * @return mixed Metadata for media.
 	 */
-	function generate_gmedia_metadata( $media_id, $file ) {
-		global $grandCore;
-		$meida = $this->get_gmedia( $media_id );
+	function generate_gmedia_metadata( $media_id, $fileinfo ) {
+		global $gmGallery, $gmCore;
+		$media = $this->get_gmedia( $media_id );
 
 		$metadata = array();
-		if ( preg_match( '!^image/!', $meida->mime_type ) && file_is_displayable_image( $file ) ) {
-			$imagesize          = getimagesize( $file );
-			$metadata['width']  = $imagesize[0];
-			$metadata['height'] = $imagesize[1];
+		if ( preg_match( '!^image/!', $media->mime_type ) && file_is_displayable_image( $fileinfo['filepath'] ) ) {
+			$imagesize = getimagesize( $fileinfo['filepath'] );
+			$metadata['web'] = array('width'=>$imagesize[0], 'height'=>$imagesize[1]);
+			$imagesize = getimagesize( $fileinfo['filepath_original'] );
+			$metadata['original'] = array('width'=>$imagesize[0], 'height'=>$imagesize[1]);
+			$imagesize = getimagesize( $fileinfo['filepath_thumb'] );
+			$metadata['thumb'] = array('width'=>$imagesize[0], 'height'=>$imagesize[1]);
 
-			$gmOptions = get_option( 'gmediaOptions' );
-			list( $thumb_w, $thumb_h ) = explode( 'x', $gmOptions['thumbnail_size'] );
-			$metadata['sizes']['thumb'] = array('width' => $thumb_w, 'height' => $thumb_h);
+			$metadata['file'] = $this->_gm_relative_upload_path($fileinfo['filepath']);
 
 			// fetch additional metadata from exif/iptc
-			$image_meta = wp_read_image_metadata( $file );
+			$image_meta = wp_read_image_metadata( $fileinfo['filepath_original'] );
 			if ( $image_meta )
 				$metadata['image_meta'] = $image_meta;
 
+		} elseif ( preg_match( '#^video/#', $media->mime_type ) && function_exists('wp_read_video_metadata') ) {
+			$metadata = wp_read_video_metadata( $fileinfo['filepath'] );
+		} elseif ( preg_match( '#^audio/#', $media->mime_type ) && function_exists('wp_read_audio_metadata') ) {
+			$metadata = wp_read_audio_metadata( $fileinfo['filepath'] );
 		}
 
 		return apply_filters( 'generate_gmedia_metadata', $metadata, $media_id );
+	}
+
+	/**
+	 * Return relative path to an uploaded file.
+	 *
+	 * The path is relative to the current upload dir.
+	 *
+	 * @see _wp_relative_upload_path()
+	 *
+	 * @param string $path Full path to the file
+	 * @return string relative path on success, unchanged path on failure.
+	 */
+	function _gm_relative_upload_path( $path ) {
+		global $gmCore;
+
+		if ( 0 === strpos( $path, $gmCore->upload['path'] ) ) {
+			$path = str_replace( $gmCore->upload['path'], '', $path );
+			$path = ltrim( $path, '/' );
+		}
+
+		return $path;
 	}
 
 	/**
@@ -588,12 +636,16 @@ class gMDb {
 	 *
 	 * 'author' (int) - Display or Exclude gmedias from several specific authors
 	 * 'author_name' (string) - Author name (nice_name)
-	 * 'cat' (int) - comma separated list of positive or negative category IDs. Display posts that have  this category(ies)
-	 *         (and any children of that category(ies)), using category id(s)
-	 * 'category_name' (string) - Display posts that have this category (and any children of that category), using category name
-	 * 'category__and' (array) - use category id. Display posts that are in multiple categories.
-	 * 'category__in' (array) - use category id. Same as 'cat', but does not show posts from any children of these categories
+	 * 'cat' (int) - comma separated list of positive or negative category IDs. Display posts that have this category(ies)
+	 * 'category_name' (string) - Display posts that have this category, using category name
+	 * 'category__and' (array) - use category id. Display posts that are in multiple categories
+	 * 'category__in' (array) - use category id. Same as 'cat', but does not accept negative values
 	 * 'category__not_in (array) - use category id. Exclude multiple categories
+	 * 'alb' (int) - comma separated list of positive or negative album IDs. Display posts that have this album(s)
+	 * 'album_name' (string) - Display posts that have this album, using album name
+	 * 'album__and' (array) - use album id. Display posts that are in multiple albums
+	 * 'album__in' (array) - use album id. Same as 'alb'
+	 * 'album__not_in (array) - use album id. Exclude multiple albums
 	 * 'tag' (string) - use tag name. Display posts that have "either" of tags separated by comma.
 	 *         Display posts that have "all" of tags separated by '+'
 	 * 'tag_id' (int) - use tag id.
@@ -677,6 +729,8 @@ class gMDb {
 		, 'author_name'
 		, 'cat'
 		, 'category_name'
+		, 'alb'
+		, 'album_name'
 		, 'tag'
 		, 'tag_id'
 		, 'terms_relation'
@@ -703,7 +757,7 @@ class gMDb {
 				$array[$key] = '';
 		}
 
-		$array_keys = array( 'category__in', 'category__not_in', 'category__and', 'gmedia__in', 'gmedia__not_in',
+		$array_keys = array( 'category__in', 'category__not_in', 'category__and', 'album__in', 'album__not_in', 'album__and', 'gmedia__in', 'gmedia__not_in',
 			'tag__in', 'tag__not_in', 'tag__and', 'tag_name__in', 'tag_name__and', 'meta_query' );
 
 		foreach ( $array_keys as $key ) {
@@ -725,6 +779,7 @@ class gMDb {
 		$q['m']         = absint( $q['m'] );
 		$q['page']      = absint( $q['page'] );
 		$q['cat']       = preg_replace( '|[^0-9,-]|', '', $q['cat'] ); // comma separated list of positive or negative integers
+		$q['alb']       = preg_replace( '|[^0-9,-]|', '', $q['alb'] ); // comma separated list of positive or negative integers
 		$q['name']      = trim( $q['name'] );
 		if ( '' !== $q['hour'] ) $q['hour'] = absint( $q['hour'] );
 		if ( '' !== $q['minute'] ) $q['minute'] = absint( $q['minute'] );
@@ -846,6 +901,18 @@ class gMDb {
 		}
 
 		// Category stuff
+		if(!empty($q['category_name'])){
+			$q['category_name'] = "'" . sanitize_title_for_query($q['category_name']) . "'";
+			$cat = $wpdb->get_var("
+					SELECT term_id
+					FROM {$wpdb->prefix}gmedia_term
+					WHERE taxonomy = 'gmedia_category'
+					AND name = {$q['category_name']}
+				");
+			if($cat){
+				$q['category__in'][] = $cat;
+			}
+		}
 		if ( ! empty( $q['cat'] ) && '0' != $q['cat'] ) {
 			$q['cat']  = '' . urldecode( $q['cat'] ) . '';
 			$q['cat']  = addslashes_gpc( $q['cat'] );
@@ -859,11 +926,9 @@ class gMDb {
 				$cat        = abs( $cat );
 				if ( $in ) {
 					$q['category__in'][] = $cat;
-					$q['category__in']   = array_merge( $q['category__in'], $this->get_term_children( $cat, 'gmedia_category' ) );
 				}
 				else {
 					$q['category__not_in'][] = $cat;
-					$q['category__not_in']   = array_merge( $q['category__not_in'], $this->get_term_children( $cat, 'gmedia_category' ) );
 				}
 			}
 			$q['cat'] = implode( ',', $req_cats );
@@ -915,6 +980,86 @@ class gMDb {
 			);
 		}
 
+		// Album stuff
+		if(!empty($q['album_name'])){
+			$q['album_name'] = "'" . sanitize_title_for_query($q['album_name']) . "'";
+			$alb = $wpdb->get_var("
+					SELECT term_id
+					FROM {$wpdb->prefix}gmedia_term
+					WHERE taxonomy = 'gmedia_album'
+					AND name = {$q['album_name']}
+				");
+			if($alb){
+				$q['album__in'][] = $alb;
+			}
+		}
+		if ( ! empty( $q['alb'] ) && '0' != $q['alb'] ) {
+			$q['alb']  = '' . urldecode( $q['alb'] ) . '';
+			$q['alb']  = addslashes_gpc( $q['alb'] );
+			$alb_array = preg_split( '/[,\s]+/', $q['alb'] );
+			$q['alb']  = '';
+			$req_albs  = array();
+			foreach ( (array) $alb_array as $alb ) {
+				$alb        = intval( $alb );
+				$req_albs[] = $alb;
+				$in         = ( $alb >= 0 );
+				$alb        = abs( $alb );
+				if ( $in ) {
+					$q['album__in'][] = $alb;
+				}
+				else {
+					$q['album__not_in'][] = $alb;
+				}
+			}
+			$q['alb'] = implode( ',', $req_albs );
+		}
+		elseif ( '0' == $q['alb'] ) {
+			$q['album__not_in'] = $this->get_terms( 'gmedia_album', array( 'fields' => 'ids' ) );
+		}
+
+		if ( ! empty( $q['album__in'] ) || '0' == $q['album__in'] ) {
+			$q['album__in'] = wp_parse_id_list( $q['album__in'] );
+			if ( in_array( 0, $q['album__in'] ) ) {
+				$q['album__in']     = array_filter( $q['album__in'] );
+				$q['album__not_in'] = array_diff( $this->get_terms( 'gmedia_album', array( 'fields' => 'ids' ) ), $q['album__in'] );
+				$q['album__in']     = array();
+			}
+		}
+		if ( ! empty( $q['album__not_in'] ) || '0' == $q['album__not_in'] ) {
+			$q['album__not_in'] = wp_parse_id_list( $q['album__not_in'] );
+			if ( in_array( 0, $q['album__not_in'] ) ) {
+				$q['album__not_in'] = array_filter( $q['album__not_in'] );
+				$q['album__in']     = array_diff( $this->get_terms( 'gmedia_album', array( 'fields' => 'ids' ) ), $q['album__not_in'] );
+				$q['album__not_in'] = array();
+			}
+		}
+
+		if ( ! empty( $q['album__in'] ) ) {
+			$tax_query[] = array(
+				'taxonomy' => 'gmedia_album',
+				'terms'    => $q['album__in'],
+				'operator' => 'IN'
+			);
+		}
+
+		if ( ! empty( $q['album__not_in'] ) ) {
+			$tax_query[] = array(
+				'taxonomy' => 'gmedia_album',
+				'terms'    => $q['album__not_in'],
+				'operator' => 'NOT IN'
+			);
+		}
+
+		if ( ! empty( $q['album__and'] ) ) {
+			$q['album__and'] = wp_parse_id_list( $q['album__and'] );
+			$q['album__and'] = array_filter( $q['album__and'] );
+			$tax_query[]        = array(
+				'taxonomy' => 'gmedia_album',
+				'terms'    => $q['album__and'],
+				'operator' => 'AND'
+			);
+		}
+
 		// Tag stuff
 		if ( '' != $q['tag'] ) {
 			if ( strpos( $q['tag'], ',' ) !== false ) {
@@ -923,7 +1068,7 @@ class gMDb {
 					$q['tag_name__in'][] = $tag;
 				}
 			}
-			else if ( preg_match( '/[+\s]+/', $q['tag'] ) || ! empty( $q['cat'] ) ) {
+			else if ( preg_match( '/[+\s]+/', $q['tag'] ) || ! empty( $q['alb'] ) ) {
 				$tags = preg_split( '/[+\s]+/', $q['tag'] );
 				foreach ( (array) $tags as $tag ) {
 					$q['tag_name__and'][] = $tag;
@@ -1024,6 +1169,8 @@ class gMDb {
 				 * @var  $include_children
 				 */
 				extract( $query );
+
+				$this->filter_tax[$taxonomy] = true;
 
 				if ( 'IN' == $operator ) {
 
@@ -1344,6 +1491,10 @@ class gMDb {
 			$gmedias = $wpdb->get_col( $request );
 
 			return $gmedias;
+		}
+
+		if(!empty($clauses['where']) || !empty($clauses['whichmimetype'])){
+			$this->filter = true;
 		}
 
 		$gmedias = $wpdb->get_results( $request );
@@ -1769,7 +1920,7 @@ class gMDb {
 	 *
 	 * 'get_$taxonomy' hook - Takes two parameters the term Object and the taxonomy
 	 * name. Must return term object. $taxonomy will be the taxonomy name, so for
-	 * example, if 'gmedia_category', it would be 'get_gmedia_category' as the filter name. Useful
+	 * example, if 'gmedia_album', it would be 'get_gmedia_album' as the filter name. Useful
 	 * for custom taxonomies or plugging into default taxonomies.
 	 *
 	 * @uses $wpdb
@@ -1828,6 +1979,22 @@ class gMDb {
 		else {
 			return $_term;
 		}
+	}
+
+	/**
+	 * Retrieve the name of a album from its ID.
+	 *
+	 * @see get_cat_name()
+	 *
+	 * @param int $alb_id Album ID
+	 * @return string Album name, or an empty string if album doesn't exist.
+	 */
+	function get_alb_name( $alb_id ) {
+		$alb_id = (int) $alb_id;
+		$album = $this->get_term( $alb_id, 'gmedia_album' );
+		if ( ! $album || is_wp_error( $album ) )
+			return '';
+		return $album->name;
 	}
 
 	/**
@@ -1914,7 +2081,7 @@ class gMDb {
 	 */
 	function get_terms( $taxonomies, $args = array() ) {
 		/** @var $wpdb wpdb */
-		global $wpdb, $gMDb;
+		global $wpdb, $gmDB;
 		$empty_array = array();
 
 		$single_taxonomy = false;
@@ -1933,25 +2100,16 @@ class gMDb {
 
 		$defaults = array( 'orderby'      => 'name', 'order' => 'ASC', 'hide_empty' => false,
 											 'exclude'      => array(), 'exclude_tree' => array(), 'include' => array(),
-											 'get'          => '', 'number' => '', 'fields' => 'all', 'global' => '',
-											 'hierarchical' => true, 'child_of' => 0, 'name__like' => '',
-											 'pad_counts'   => false, 'offset' => '', 'search' => '' );
+											 'get'          => '', 'number' => '', 'fields' => 'all', 'name__like' => '',
+											 'offset' => '', 'search' => '', 'global' => '' );
 		// $args can be whatever, only use the args defined in defaults
 		$args           = array_intersect_key( $args, $defaults );
 		$args           = wp_parse_args( $args, $defaults );
 		$args['number'] = absint( $args['number'] );
 		$args['offset'] = absint( $args['offset'] );
-		if ( ! $single_taxonomy || ! $gmOptions['taxonomies'][$taxonomies[0]]['hierarchical'] || '' !== $args['global'] ) {
-			$args['child_of']     = 0;
-			$args['hierarchical'] = false;
-			$args['pad_counts']   = false;
-		}
 
 		if ( 'all' == $args['get'] ) {
-			$args['child_of']     = 0;
 			$args['hide_empty']   = 0;
-			$args['hierarchical'] = false;
-			$args['pad_counts']   = false;
 		}
 
 		$args = apply_filters( 'gmedia_get_terms_args', $args, $taxonomies );
@@ -1963,28 +2121,13 @@ class gMDb {
 		 * @var  $include
 		 * @var  $number
 		 * @var  $fields
-		 * @var  $global
-		 * @var  $child_of
-		 * @var  $hierarchical
-		 * @var  $pad_counts
 		 * @var  $get
 		 * @var  $name_like
 		 * @var  $offset
 		 * @var  $search
+		 * @var  $global
 		 * */
 		extract( $args, EXTR_SKIP );
-
-		if ( $child_of ) {
-			$hierarchy = $gMDb->_get_term_hierarchy( $taxonomies[0] );
-			if ( ! isset( $hierarchy[$child_of] ) )
-				return $empty_array;
-		}
-
-		if ( $global ) {
-			$hierarchy = $gMDb->_get_term_hierarchy( $taxonomies[0] );
-			if ( ! isset( $hierarchy[$global] ) )
-				return $empty_array;
-		}
 
 		$key          = md5( serialize( compact( array_keys( $defaults ) ) ) . serialize( $taxonomies ) );
 		$last_changed = wp_cache_get( 'last_changed', 'gmedia_terms' );
@@ -2048,7 +2191,7 @@ class gMDb {
 		if ( ! empty( $exclude_tree ) ) {
 			$excluded_trunks = wp_parse_id_list( $exclude_tree );
 			foreach ( $excluded_trunks as $extrunk ) {
-				$excluded_children   = (array) $gMDb->get_terms( $taxonomies[0], array( 'child_of' => intval( $extrunk ), 'fields' => 'ids', 'hide_empty' => 0 ) );
+				$excluded_children   = (array) $gmDB->get_terms( $taxonomies[0], array( 'child_of' => intval( $extrunk ), 'fields' => 'ids', 'hide_empty' => 0 ) );
 				$excluded_children[] = $extrunk;
 				foreach ( $excluded_children as $exterm ) {
 					if ( empty( $exclusions ) )
@@ -2087,8 +2230,7 @@ class gMDb {
 		if ( $hide_empty )
 			$where .= ' AND t.count > 0';
 
-		// don't limit the query results when we have to descend the family tree
-		if ( ! empty( $number ) && ! $hierarchical && empty( $child_of ) && '' === $global ) {
+		if ( ! empty( $number ) ) {
 			if ( $offset )
 				$limits = 'LIMIT ' . $offset . ',' . $number;
 			else
@@ -2153,34 +2295,7 @@ class gMDb {
 			return $terms;
 		}
 
-		if ( $child_of ) {
-			$children = $gMDb->_get_term_hierarchy( $taxonomies[0] );
-			if ( ! empty( $children ) )
-				$terms = & $gMDb->_get_term_children( $child_of, $terms, $taxonomies[0] );
-		}
-
-		// Update term counts to include children.
-		if ( $pad_counts && 'all' == $fields )
-			$gMDb->_pad_term_counts( $terms, $taxonomies[0] );
-
-		// Make sure we show empty categories that have children.
-		if ( $hierarchical && $hide_empty && is_array( $terms ) ) {
-			foreach ( $terms as $k => $term ) {
-				if ( ! $term->count ) {
-					$children = $gMDb->_get_term_children( $term->term_id, $terms, $taxonomies[0] );
-					if ( is_array( $children ) )
-						foreach ( $children as $child ) {
-							if ( $child->count )
-								continue 2;
-						}
-
-					// It really is empty
-					unset( $terms[$k] );
-				}
-			}
-		}
 		reset( $terms );
-
 		$_terms = array();
 		if ( 'id=>global' == $fields ) {
 			while ( $term = array_shift( $terms ) ) {
@@ -2246,11 +2361,11 @@ class gMDb {
 	 * @param string       $taxonomy The taxonomy to which to add the term
 	 * @param array|string $args     Change the values of the inserted term
 	 *
-	 * @return array|WP_Error The Term ID array('term_id'=>$term_id)
+	 * @return int|WP_Error The Term ID array('term_id'=>$term_id)
 	 */
 	function insert_term( $term, $taxonomy, $args = array() ) {
 		/** @var $wpdb wpdb */
-		global $wpdb, $gMDb;
+		global $wpdb, $gmDB;
 
 		$gmOptions = get_option( 'gmediaOptions' );
 		if ( ! isset( $gmOptions['taxonomies'][$taxonomy] ) )
@@ -2281,9 +2396,9 @@ class gMDb {
 		$name        = stripslashes( $name );
 		$description = stripslashes( $description );
 
-		if ( $exists = $this->term_exists( $name, $taxonomy, $global ) ) {
+		if ( $term_id = $this->term_exists( $name, $taxonomy, $global ) ) {
 			// Same name, same global.
-			return new WP_Error( 'gm_term_exists', __( 'A term with the name provided already exists.' ), $exists['term_id'] );
+			return new WP_Error( 'gm_term_exists', __( 'A term with the name provided already exists.' ), $term_id );
 		}
 		else {
 			// This term does not exist, Create it.
@@ -2297,11 +2412,11 @@ class gMDb {
 		$term_id = apply_filters( 'gmedia_term_id_filter', $term_id );
 
 		// ? maybe move function to plugin core (refactor!)
-		$gMDb->clean_term_cache( $term_id, $taxonomy, false );
+		$gmDB->clean_term_cache( $term_id, $taxonomy, false );
 
 		do_action( "created_gmedia_term", $term_id, $taxonomy );
 
-		return array( 'term_id' => $term_id );
+		return $term_id;
 	}
 
 	/**
@@ -2336,11 +2451,11 @@ class gMDb {
 	 * @param string       $taxonomy The context in which to relate the term to the object.
 	 * @param array|string $args     Overwrite term field values
 	 *
-	 * @return array|WP_Error Returns Term ID
+	 * @return int|WP_Error Returns Term ID
 	 */
 	function update_term( $term_id, $taxonomy, $args = array() ) {
 		/** @var $wpdb wpdb */
-		global $wpdb, $gMDb;
+		global $wpdb, $gmDB;
 
 		$gmOptions = get_option( 'gmediaOptions' );
 		if ( ! isset( $gmOptions['taxonomies'][$taxonomy] ) )
@@ -2349,7 +2464,7 @@ class gMDb {
 		$term_id = (int) $term_id;
 
 		// First, get all of the original args
-		$term = $gMDb->get_term( $term_id, $taxonomy, ARRAY_A );
+		$term = $gmDB->get_term( $term_id, $taxonomy, ARRAY_A );
 
 		if ( is_wp_error( $term ) )
 			return $term;
@@ -2376,9 +2491,6 @@ class gMDb {
 		if ( '' == trim( $name ) )
 			return new WP_Error( 'gm_empty_term_name', __( 'A name is required for term' ) );
 
-		// Check $global to see if it will cause a hierarchy loop
-		$parent = apply_filters( 'update_gmedia_term_global', $global, $term_id, $taxonomy, compact( array_keys( $args ) ), $args );
-
 		$term_id = $wpdb->get_var( $wpdb->prepare( "SELECT t.term_id FROM {$wpdb->prefix}gmedia_term AS t WHERE t.taxonomy = %s AND t.term_id = %d", $taxonomy, $term_id ) );
 		do_action( "edit_gmedia_term", $term_id, $taxonomy );
 		$wpdb->update( $wpdb->prefix . 'gmedia_term', compact( 'term_id', 'name', 'taxonomy', 'description', 'global' ), array( 'term_id' => $term_id ) );
@@ -2388,12 +2500,12 @@ class gMDb {
 
 		$term_id = apply_filters( 'gmedia_term_id_filter', $term_id );
 
-		$gMDb->clean_term_cache( $term_id, $taxonomy );
+		$gmDB->clean_term_cache( $term_id, $taxonomy );
 
 		do_action( "edited_gmedia_term", $term_id, $taxonomy );
 		do_action( "edited_$taxonomy", $term_id );
 
-		return array( 'term_id' => $term_id );
+		return $term_id;
 	}
 
 	/**
@@ -2408,22 +2520,22 @@ class gMDb {
 	 *
 	 * @param int|string $term     The term to check
 	 * @param string     $taxonomy The taxonomy name to use
-	 * @param int        $global   ID of parent term under which to confine the exists search.
+	 * @param int        $global   global parameter under which to confine the exists search.
 	 *
-	 * @return mixed Get the term id or Term Object, if exists.
+	 * @return int Get the term id or Term Object, if exists.
 	 */
 	function term_exists( $term, $taxonomy = '', $global = 0 ) {
 		/** @var $wpdb wpdb */
-		global $wpdb;
+		global $wpdb, $gmCore;
 
 		$select = "SELECT term_id FROM {$wpdb->prefix}gmedia_term AS t WHERE ";
 
-		if ( is_int( $term ) ) {
+		if ( $gmCore->is_digit( $term ) ) {
 			if ( 0 == $term )
 				return 0;
 			$where = 't.term_id = %d';
 			if ( ! empty( $taxonomy ) )
-				return $wpdb->get_row( $wpdb->prepare( $select . $where . " AND t.taxonomy = %s", $term, $taxonomy ), ARRAY_A );
+				return $wpdb->get_var( $wpdb->prepare( $select . $where . " AND t.taxonomy = %s", $term, $taxonomy ) );
 			else
 				return $wpdb->get_var( $wpdb->prepare( $select . $where, $term ) );
 		}
@@ -2442,7 +2554,7 @@ class gMDb {
 
 			$where_fields[] = $taxonomy;
 
-			return $wpdb->get_row( $wpdb->prepare( "SELECT t.term_id FROM {$wpdb->prefix}gmedia_term AS t WHERE $where AND t.taxonomy = %s", $where_fields ), ARRAY_A );
+			return $wpdb->get_var( $wpdb->prepare( "SELECT t.term_id FROM {$wpdb->prefix}gmedia_term AS t WHERE $where AND t.taxonomy = %s", $where_fields ) );
 		}
 
 		return $wpdb->get_var( $wpdb->prepare( "SELECT term_id FROM {$wpdb->prefix}gmedia_term AS t WHERE $where", $where_fields ) );
@@ -2472,12 +2584,18 @@ class gMDb {
 	 */
 	function set_gmedia_terms( $object_id, $terms, $taxonomy, $append = 0 ) {
 		/** @var $wpdb wpdb */
-		global $wpdb;
+		global $wpdb, $gmCore, $gmGallery;
 
-		$gmOptions = get_option( 'gmediaOptions' );
 		$object_id = (int) $object_id;
-		if ( ! isset( $gmOptions['taxonomies'][$taxonomy] ) )
+		if ( ! isset( $gmGallery->options['taxonomies'][$taxonomy] ) )
 			return new WP_Error( 'gm_invalid_taxonomy', __( 'Invalid Taxonomy' ) );
+
+		if('gmedia_category' == $taxonomy){
+			$object = $this->get_gmedia($object_id);
+			if( !in_array($object->mime_type, array('image/jpeg','image/png','image/gif')) ){
+				return false;
+			}
+		}
 
 		if ( ! is_array( $terms ) )
 			$terms = array( $terms );
@@ -2494,15 +2612,14 @@ class gMDb {
 			if ( ! strlen( trim( $term ) ) )
 				continue;
 
-			if ( ! $term_info = $this->term_exists( $term, $taxonomy ) ) {
+			if ( ! $term_id = $this->term_exists( $term, $taxonomy ) ) {
 				// Skip if a non-existent term ID is passed.
-				if ( is_int( $term ) || $append < 0 )
+				if ( $gmCore->is_digit( $term ) || ($append < 0) || ('gmedia_category' == $taxonomy && !array_key_exists($term, $gmGallery->options['taxonomies']['gmedia_category'])) )
 					continue;
-				$term_info = $this->insert_term( $term, $taxonomy );
+				$term_id = $this->insert_term( $term, $taxonomy );
 			}
-			if ( is_wp_error( $term_info ) )
-				return $term_info;
-			$term_id    = $term_info['term_id'];
+			if ( is_wp_error( $term_id ) )
+				return $term_id;
 			$term_ids[] = $term_id;
 
 			if ( $append < 0 )
@@ -2533,7 +2650,7 @@ class gMDb {
 			}
 		}
 
-		// TODO sort terms (categories)
+		// TODO sort terms (albums)
 		$sort = ('gmedia_tag' == $taxonomy)? true : false;
 		if ( ! $append && $sort ) {
 				$values = array();
@@ -2685,7 +2802,7 @@ class gMDb {
 
 		if ( 'all' == $fields || 'all_with_object_id' == $fields ) {
 			$terms = array_merge( $terms, $wpdb->get_results( $query ) );
-			// ? maybe move function to plugin core
+			// todo ? maybe move function to plugin core
 			update_term_cache( $terms );
 		}
 		else if ( 'ids' == $fields || 'names' == $fields ) {
@@ -2719,49 +2836,35 @@ class gMDb {
 	 *       hooks, passing term object, term id. 'gm_delete_term' gets an additional
 	 *       parameter with the $taxonomy parameter.
 	 *
-	 * @param int          $term     Term ID
+	 * @param int          $term_id     Term ID
 	 * @param string       $taxonomy Taxonomy Name
 	 * @param array|string $args     Optional. Change 'default' term id and override found term ids.
 	 *
 	 * @return bool|WP_Error Returns false if not term; term_id if completes delete action.
 	 */
-	function delete_term( $term, $taxonomy, $args = array() ) {
+	function delete_term( $term_id, $taxonomy, $args = array() ) {
 		/** @var $wpdb wpdb */
-		global $wpdb, $gMDb;
+		global $wpdb, $gmDB;
 
-		$term = (int) $term;
+		$term_id = (int) $term_id;
 
-		if ( ! $ids = $gMDb->term_exists( $term, $taxonomy ) )
+		if ( ! $term_id = $gmDB->term_exists( $term_id, $taxonomy ) )
 			return false;
-		if ( is_wp_error( $ids ) )
-			return $ids;
+		if ( is_wp_error( $term_id ) )
+			return $term_id;
 
 		extract( $args, EXTR_SKIP );
 
-		// Update children to point to new parent
-		$gmOptions = get_option( 'gmediaOptions' );
-		if ( isset( $gmOptions['taxonomies'][$taxonomy]['hierarchical'] ) ) {
-			$term_obj = $gMDb->get_term( $term, $taxonomy );
-			if ( is_wp_error( $term_obj ) )
-				return $term_obj;
-			$global = $term_obj->global;
-
-			$edit_t_ids = $wpdb->get_col( "SELECT `term_id` FROM {$wpdb->prefix}gmedia_term WHERE `global` = " . (int) $term_obj->term_id );
-			do_action( 'edit_gmedia_terms', $edit_t_ids );
-			$wpdb->update( $wpdb->prefix . 'gmedia_term', compact( 'global' ), array( 'global' => $term_obj->term_id ) + compact( 'taxonomy' ) );
-			do_action( 'edited_gmedia_terms', $edit_t_ids );
-		}
-
-		$objects = $wpdb->get_col( $wpdb->prepare( "SELECT gmedia_id FROM {$wpdb->prefix}gmedia_term_relationships WHERE gmedia_term_id = %d", $term ) );
+		$objects = $wpdb->get_col( $wpdb->prepare( "SELECT gmedia_id FROM {$wpdb->prefix}gmedia_term_relationships WHERE gmedia_term_id = %d", $term_id ) );
 
 		foreach ( (array) $objects as $object ) {
-			$terms = $gMDb->get_gmedia_terms( $object, $taxonomy, array( 'fields' => 'ids', 'orderby' => 'none' ) );
-			$terms = array_diff( $terms, array( $term ) );
+			$terms = $gmDB->get_gmedia_terms( $object, $taxonomy, array( 'fields' => 'ids', 'orderby' => 'none' ) );
+			$terms = array_diff( $terms, array( $term_id ) );
 			$terms = array_map( 'intval', $terms );
-			$gMDb->set_gmedia_terms( $object, $terms, $taxonomy );
+			$gmDB->set_gmedia_terms( $object, $terms, $taxonomy );
 		}
 
-		$gmedia_term_meta_ids = $wpdb->get_col( $wpdb->prepare( "SELECT meta_id FROM {$wpdb->prefix}gmedia_term_meta WHERE gmedia_term_id = %d ", $term ) );
+		$gmedia_term_meta_ids = $wpdb->get_col( $wpdb->prepare( "SELECT meta_id FROM {$wpdb->prefix}gmedia_term_meta WHERE gmedia_term_id = %d ", $term_id ) );
 		if ( ! empty( $gmedia_term_meta_ids ) ) {
 			do_action( 'delete_gmedia_term_meta', $gmedia_term_meta_ids );
 			$in_gmedia_term_meta_ids = "'" . implode( "', '", $gmedia_term_meta_ids ) . "'";
@@ -2769,15 +2872,15 @@ class gMDb {
 			do_action( 'deleted_gmedia_term_meta', $gmedia_term_meta_ids );
 		}
 
-		do_action( 'delete_gmedia_term', $term );
-		$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->prefix}gmedia_term WHERE term_id = %d", $term ) );
-		do_action( 'deleted_gmedia_term', $term );
+		do_action( 'delete_gmedia_term', $term_id );
+		$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->prefix}gmedia_term WHERE term_id = %d", $term_id ) );
+		do_action( 'deleted_gmedia_term', $term_id );
 
-		$gMDb->clean_term_cache( $term, $taxonomy );
+		$gmDB->clean_term_cache( $term_id, $taxonomy );
 
-		do_action( "delete_$taxonomy", $term );
+		do_action( "delete_$taxonomy", $term_id );
 
-		return $term;
+		return $term_id;
 	}
 
 	/**
@@ -2792,7 +2895,7 @@ class gMDb {
 	 */
 	function clean_term_cache( $ids, $taxonomy = '', $clean_taxonomy = true ) {
 		/** @var $wpdb wpdb */
-		global $wpdb, $gMDb;
+		global $wpdb, $gmDB;
 		static $cleaned = array();
 
 		if ( ! is_array( $ids ) )
@@ -2829,12 +2932,6 @@ class gMDb {
 			if ( $clean_taxonomy ) {
 				wp_cache_delete( 'all_ids', $taxonomy );
 				wp_cache_delete( 'get', $taxonomy );
-				$gmOptions                                      = get_option( 'gmediaOptions' );
-				$gmOptions['taxonomies'][$taxonomy]['children'] = null;
-				unset( $gmOptions['taxonomies'][$taxonomy]['children'] );
-				update_option( 'gmediaOptions', $gmOptions );
-				// Regenerate {$taxonomy}_children
-				$gMDb->_get_term_hierarchy( $taxonomy );
 			}
 
 			do_action( 'clean_gmedia_term_cache', $ids, $taxonomy );
@@ -2843,48 +2940,6 @@ class gMDb {
 		wp_cache_set( 'last_changed', time(), 'gmedia_terms' );
 	}
 
-	/**
-	 * Merge all term children into a single array of their IDs.
-	 *
-	 * This recursive function will merge all of the children of $term into the same
-	 * array of term IDs. Only useful for taxonomies which are hierarchical.
-	 *
-	 * Will return an empty array if $term does not exist in $taxonomy.
-	 *
-	 * @uses $wpdb
-	 * @uses _get_term_hierarchy()
-	 * @uses get_term_children() Used to get the children of both $taxonomy and the parent $term
-	 * @see  get_term_children()
-	 *
-	 * @param string $term_id  ID of Term to get children
-	 * @param string $taxonomy Taxonomy Name
-	 *
-	 * @return array|WP_Error List of Term Objects. WP_Error returned if $taxonomy does not exist
-	 */
-	function get_term_children( $term_id, $taxonomy ) {
-		$gmOptions = get_option( 'gmediaOptions' );
-		if ( ! isset( $gmOptions['taxonomies'][$taxonomy] ) )
-			return new WP_Error( 'gm_invalid_taxonomy', __( 'Invalid Taxonomy' ) );
-
-		$term_id = intval( $term_id );
-
-		if ( $term_id == 0 )
-			return array();
-
-		$terms = $this->_get_term_hierarchy( $taxonomy );
-
-		if ( ! isset( $terms[$term_id] ) )
-			return array();
-
-		$children = $terms[$term_id];
-
-		foreach ( (array) $terms[$term_id] as $child ) {
-			if ( isset( $terms[$child] ) )
-				$children = array_merge( $children, $this->get_term_children( $child, $taxonomy ) );
-		}
-
-		return $children;
-	}
 
 	/**
 	 * Call major cache updating functions for list of Post objects.
@@ -3068,188 +3123,31 @@ class gMDb {
 	 * @uses $wpdb
 	 *
 	 * @param array  $terms    List of Term taxonomy IDs
-	 * @param object $taxonomy Current taxonomy object of terms
+	 * @param string $taxonomy Current taxonomy object of terms
 	 *
 	 * @return bool Always true when complete.
 	 */
 	function update_term_count( $terms, $taxonomy ) {
 		/** @var $wpdb wpdb */
-		global $wpdb, $gMDb;
+		global $wpdb, $gmDB;
 
 		if ( ! is_array( $terms ) )
 			$terms = array( $terms );
 
-		foreach ( (array) $terms as $term ) {
-			$count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}gmedia_term_relationships WHERE gmedia_term_id = %d", $term ) );
+		foreach ( (array) $terms as $term_id ) {
+			$count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}gmedia_term_relationships WHERE gmedia_term_id = %d", $term_id ) );
 
-			do_action( 'edit_gmedia_term_taxonomy', $term, $taxonomy );
-			$wpdb->update( $wpdb->prefix . 'gmedia_term', compact( 'count' ), array( 'term_id' => $term ) );
-			do_action( 'edited_gmedia_term_taxonomy', $term, $taxonomy );
+			do_action( 'edit_gmedia_term_taxonomy', $term_id, $taxonomy );
+			$wpdb->update( $wpdb->prefix . 'gmedia_term', compact( 'count' ), array( 'term_id' => $term_id ) );
+			do_action( 'edited_gmedia_term_taxonomy', $term_id, $taxonomy );
 		}
 
-		$gMDb->clean_term_cache( $terms, $taxonomy, false );
+		$gmDB->clean_term_cache( $terms, $taxonomy, false );
 
 		return true;
 	}
 
-	/**
-	 * Retrieves children of taxonomy as Term IDs.
-	 *
-	 * @see  _get_term_hierarchy()
-	 * @uses update_option() Stores all of the children in "gmediaOptions['taxonomies'][$taxonomy]['children']"
-	 *       option. That is the name of the taxonomy, immediately followed by 'children'.
-	 *
-	 * @param string $taxonomy Taxonomy Name
-	 *
-	 * @return array Empty if $taxonomy isn't hierarchical or returns children as Term IDs.
-	 */
-	function _get_term_hierarchy( $taxonomy ) {
-		global $gMDb;
-		$gmOptions = get_option( 'gmediaOptions' );
-		if ( ! isset( $gmOptions['taxonomies'][$taxonomy]['hierarchical'] ) )
-			return array();
-
-		/*
-		$children = false;
-		if ( isset($gmOptions['taxonomies'][$taxonomy]['children']) )
-			$children = $gmOptions['taxonomies'][$taxonomy]['children'];
-		if ( is_array($children) )
-			return $children;
-		*/
-
-		$children = array();
-		$terms    = $gMDb->get_terms( $taxonomy, array( 'get' => 'all', 'orderby' => 'id', 'fields' => 'id=>global' ) );
-		foreach ( $terms as $term_id => $parent ) {
-			if ( $parent > 0 )
-				$children[$parent][] = $term_id;
-		}
-		$gmOptions['taxonomies'][$taxonomy]['children'] = $children;
-		update_option( 'gmediaOptions', $gmOptions );
-
-		return $children;
-	}
-
-	/**
-	 * Get the subset of $terms that are descendants of $term_id.
-	 *
-	 * If $terms is an array of objects, then _get_term_children returns an array of objects.
-	 * If $terms is an array of IDs, then _get_term_children returns an array of IDs.
-	 *
-	 * @see _get_term_children()
-	 *
-	 * @param int    $term_id  The ancestor term: all returned terms should be descendants of $term_id.
-	 * @param array  $terms    The set of terms---either an array of term objects or term IDs---from which those that are descendants of $term_id will be chosen.
-	 * @param string $taxonomy The taxonomy which determines the hierarchy of the terms.
-	 *
-	 * @return array The subset of $terms that are descendants of $term_id.
-	 */
-	function _get_term_children( $term_id, $terms, $taxonomy ) {
-		global $gMDb;
-
-		$empty_array = array();
-		if ( empty( $terms ) )
-			return $empty_array;
-
-		$term_list    = array();
-		$has_children = $gMDb->_get_term_hierarchy( $taxonomy );
-
-		if ( ( 0 != $term_id ) && ! isset( $has_children[$term_id] ) )
-			return $empty_array;
-
-		foreach ( (array) $terms as $term ) {
-			$use_id = false;
-			if ( ! is_object( $term ) ) {
-				$term = $gMDb->get_term( $term, $taxonomy );
-				if ( is_wp_error( $term ) )
-					return $term;
-				$use_id = true;
-			}
-
-			if ( $term->term_id == $term_id )
-				continue;
-
-			if ( $term->global == $term_id ) {
-				if ( $use_id )
-					$term_list[] = $term->term_id;
-				else
-					$term_list[] = $term;
-
-				if ( ! isset( $has_children[$term->term_id] ) )
-					continue;
-
-				if ( $children = $gMDb->_get_term_children( $term->term_id, $terms, $taxonomy ) )
-					$term_list = array_merge( $term_list, $children );
-			}
-		}
-
-		return $term_list;
-	}
-
-	/**
-	 * Add count of children to parent count.
-	 *
-	 * Recalculates term counts by including items from child terms. Assumes all
-	 * relevant children are already in the $terms argument.
-	 *
-	 * @uses $wpdb
-	 * @see  _pad_term_counts()
-	 *
-	 * @param array  $terms    List of Term IDs
-	 * @param string $taxonomy Term Context
-	 *
-	 * @return null Will break from function if conditions are not met.
-	 */
-	function _pad_term_counts( &$terms, $taxonomy ) {
-		/** @var $wpdb wpdb */
-		global $wpdb, $gMDb;
-
-		// This function only works for hierarchical taxonomies like post categories.
-		$gmOptions = get_option( 'gmediaOptions' );
-		if ( ! isset( $gmOptions['taxonomies'][$taxonomy]['hierarchical'] ) )
-			return;
-
-		$term_hier = $gMDb->_get_term_hierarchy( $taxonomy );
-
-		if ( empty( $term_hier ) )
-			return;
-
-		$term_items = array();
-
-		/** @var $terms_by_id
-		 * @var  $term_ids
-		 */
-		foreach ( (array) $terms as $key => $term ) {
-			$terms_by_id[$term->term_id] = & $terms[$key];
-			$term_ids[$term->term_id]    = $term->term_id;
-		}
-
-		// Get the object and term ids and stick them in a lookup table
-		$results = $wpdb->get_results( "SELECT gmedia_id, gmedia_term_id FROM {$wpdb->prefix}gmedia_term_relationships WHERE gmedia_term_id IN (" . implode( ',', array_keys( $term_ids ) ) . ")" );
-		foreach ( $results as $row ) {
-			$id                               = $term_ids[$row->gmedia_term_id];
-			$term_items[$id][$row->gmedia_id] = isset( $term_items[$id][$row->gmedia_id] ) ? ++$term_items[$id][$row->gmedia_id] : 1;
-		}
-
-		// Touch every ancestor's lookup row for each post in each term
-		foreach ( $term_ids as $term_id ) {
-			$child = $term_id;
-			while ( ! empty( $terms_by_id[$child] ) && $global = $terms_by_id[$child]->global ) {
-				if ( ! empty( $term_items[$term_id] ) )
-					foreach ( $term_items[$term_id] as $item_id => $touches ) {
-						$term_items[$global][$item_id] = isset( $term_items[$global][$item_id] ) ? ++$term_items[$global][$item_id] : 1;
-					}
-				$child = $global;
-			}
-		}
-
-		// Transfer the touched cells
-		foreach ( (array) $term_items as $id => $items ) {
-			if ( isset( $terms_by_id[$id] ) )
-				$terms_by_id[$id]->count = count( $items );
-		}
-	}
-
 }
 
-global $gMDb;
-$gMDb = new gMDb;
+global $gmDB;
+$gmDB = new GmediaDB;

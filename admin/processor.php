@@ -206,14 +206,14 @@ class GmediaProcessor {
 								if ( ! strlen( $term ) )
 									continue;
 
-								if ( ! $term_info = $gmDB->term_exists( $term, $taxonomy ) ) {
+								if ( ! $term_id = $gmDB->term_exists( $term, $taxonomy ) ) {
 									// Skip if a non-existent term ID is passed.
 									if ( is_int( $term ) )
 										continue;
-									$term_info = $gmDB->insert_term( $term, $taxonomy, $args );
+									$term_id = $gmDB->insert_term( $term, $taxonomy, $args );
 								}
-								if ( ! is_wp_error( $term_info ) ) {
-									$term_ids[] = $term_info['term_id'];
+								if ( ! is_wp_error( $term_id ) ) {
+									$term_ids[] = $term_id;
 								}
 							}
 							$this->msg .= sprintf( __( "%s terms successfuly added", 'gmLang' ), count( $term_ids ) );
@@ -228,9 +228,9 @@ class GmediaProcessor {
 						$taxonomy     = trim( $taxonomy );
 						$args['name'] = trim( $term );
 						if ( ! empty( $taxonomy ) && ! empty( $term_id ) ) {
-							$term_info = $gmDB->update_term( $term_id, $taxonomy, $args );
-							if ( ! is_wp_error( $term_info ) ) {
-								$this->msg .= sprintf( __( "Term #%s updated successfuly", 'gmLang' ), $term_info['term_id'] );
+							$term_id = $gmDB->update_term( $term_id, $taxonomy, $args );
+							if ( ! is_wp_error( $term_id ) ) {
+								$this->msg .= sprintf( __( "Term #%s updated successfuly", 'gmLang' ), $term_id );
 							}
 							else {
 								$this->msg .= __( "Error. Can't update term", 'gmLang' );
@@ -249,9 +249,9 @@ class GmediaProcessor {
 						check_admin_referer( 'grandMedia' );
 						$args     = array( 'name' => $term, 'description' => $gmCore->_post( 'description', '' ) );
 						$taxonomy = 'gmedia_module';
-						if ( ! $term_info = $gmDB->term_exists( $term, $taxonomy ) ) {
-							$term_info = $gmDB->insert_term( $term, $taxonomy, $args );
-							if ( ! is_wp_error( $term_info ) ) {
+						if ( ! $term_id = $gmDB->term_exists( $term, $taxonomy ) ) {
+							$term_id = $gmDB->insert_term( $term, $taxonomy, $args );
+							if ( ! is_wp_error( $term_id ) ) {
 								$default_settings                = $gmCore->gm_get_module_settings( $_POST['module_name'] );
 								$default_settings['module_name'] = $_POST['module_name'];
 								$default_settings['last_edited'] = gmdate( 'Y-m-d H:i:s' );
@@ -270,10 +270,10 @@ class GmediaProcessor {
 									if ( ! isset( $_POST[$key] ) ) {
 										$_POST[$key] = $value;
 									}
-									$gmDB->update_metadata( 'gmedia_term', $term_info['term_id'], $key, $_POST[$key] );
+									$gmDB->update_metadata( 'gmedia_term', $term_id, $key, $_POST[$key] );
 								}
 								$this->msg .= sprintf( __( "%s gallery successfuly added", 'gmLang' ), $term );
-								$this->term_id = $term_info['term_id'];
+								$this->term_id = $term_id;
 							}
 							else {
 								$this->msg .= sprintf( __( "Can't create %s gallery", 'gmLang' ), $term );
@@ -294,9 +294,9 @@ class GmediaProcessor {
 						$taxonomy      = 'gmedia_module';
 						$this->term_id = $term_id = intval( $_POST['term_id'] );
 						$args          = array( 'name' => $term, 'description' => $gmCore->_post( 'description', '' ) );
-						if ( $term_id && $term_info = $gmDB->term_exists( $term_id, $taxonomy ) ) {
-							$term_info = $gmDB->update_term( $term_id, $taxonomy, $args );
-							if ( ! is_wp_error( $term_info ) ) {
+						if ( $term_id && $gmDB->term_exists( $term_id, $taxonomy ) ) {
+							$term_id = $gmDB->update_term( $term_id, $taxonomy, $args );
+							if ( ! is_wp_error( $term_id ) ) {
 								$default_settings                = $gmCore->gm_get_module_settings( $_POST['module_name'] );
 								$default_settings['module_name'] = $_POST['module_name'];
 								$default_settings['last_edited'] = gmdate( 'Y-m-d H:i:s' );
@@ -315,7 +315,7 @@ class GmediaProcessor {
 									if ( ! isset( $_POST[$key] ) ) {
 										$_POST[$key] = $value;
 									}
-									$gmDB->update_metadata( 'gmedia_term', $term_info['term_id'], $key, $_POST[$key] );
+									$gmDB->update_metadata( 'gmedia_term', $term_id, $key, $_POST[$key] );
 								}
 								$this->msg .= sprintf( __( "%s gallery successfuly updated", 'gmLang' ), $term );
 							}

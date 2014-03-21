@@ -198,6 +198,27 @@ jQuery(function($){
 					console.log(data);
 				});
 			});
+
+			gmedia_DOM.on('click', '.gm-toggle-cb', function(e){
+				var checkBoxes = $(this).attr('href');
+				$(checkBoxes + ' :checkbox').each(function(){
+					$(this).prop("checked", !$(this).prop("checked"));
+				});
+				e.preventDefault();
+			});
+
+			$('.gmedia-import').click(function(e){
+				$('#import-action').val($(this).attr('name'));
+				$('#importModal').modal({
+					backdrop: 'static',
+					show: true
+				}).on('shown.bs.modal', function(){
+					$('#import_form').submit();
+				}).on('hidden.bs.modal', function(){
+					$('#import-done').button('reset').prop('disabled', true);
+					$('#import_window').attr('src', 'about:blank');
+				});
+			});
 		}
 	};
 
@@ -219,12 +240,6 @@ jQuery(function($){
 		});
 	}
 
-	gmedia_DOM.on('click', '.gm_toggle_checklist', function(){
-		var checkBoxes = $(this).parent().find('.gm_checklist :checkbox');
-		checkBoxes.each(function(){
-			$(this).prop("checked", !$(this).prop("checked"));
-		});
-	});
 
 
 	// here we declare the parameters to send along with the request
@@ -270,12 +285,6 @@ jQuery(function($){
 			case 'gm-get-key':
 				gmMessage('info', grandMedia.wait);
 				break;
-			case 'gmedia-update':
-			case 'updateMedia':
-				if(typeof($.fn.qtip) != 'undefined'){
-					$(this).closest('tr').prev('tr').find('td.file img, a.fancy-listen, a.fancy-watch').qtip('destroy');
-				}
-				break;
 		}
 		//noinspection JSUnresolvedVariable,JSUnusedGlobalSymbols
 		/** @namespace edata.task
@@ -299,48 +308,6 @@ jQuery(function($){
 				}
 				var domel;
 				switch(edata.task){
-					case 'gmedia-edit':
-						domel = $('tr.gmedia-edit-row');
-						domel.prev().show();
-						domel.remove();
-						node = $(event.target).closest('tr');
-						domel = $('tr', msg);
-						domel.find('fieldset').append($('#gmedia-MetaBox').clone().attr('id', 'gm_metabox'));
-						node.hide().after(domel);
-						break;
-					case 'gmedia-update':
-						node = $(event.target).closest('tr');
-						if(msg.stat == 'OK'){
-							node.prev().replaceWith(msg.content);
-							gmTableImageTip(node.prev().find('td.file img').get(0));
-							gmTableActionTip(node.prev().find('a.fancy-listen, a.fancy-watch').get(0));
-						} else if(msg.stat == 'KO'){
-							node.prev().show();
-						}
-						node.remove();
-						break;
-					case 'gmedia-delete':
-						if(msg.stat == 'OK'){
-							$('#gmUpdateMessage').val(msg.postmsg).next('#gmUpdateStatus').val(msg.stat).parent('#gmUpdateContent').submit();
-						}
-						break;
-					case 'gmedia-bulk-delete':
-						if(msg.stat == 'OK'){
-							arr = $('#gmSelected').val().split(',');
-							node = $.map(arr, function(i){
-								return document.getElementById('item_' + i);
-							});
-							count = node.length;
-							$(node).addClass(edata.task).fadeTo('slow', '0.7', function(){
-								if(!--count){
-									GmediaSelect.chk_none('');
-									$('#gmSelected').val('');
-									GmediaSelect.msg_selected(true);
-									$('#gmUpdateMessage').val(msg.postmsg).next('#gmUpdateStatus').val(msg.stat).parent('#gmUpdateContent').submit();
-								}
-							});
-						}
-						break;
 					case 'term-edit':
 						domel = $('tr.gmedia-edit-row');
 						domel.prev().show();
@@ -372,13 +339,6 @@ jQuery(function($){
 								gmMessage(msg.stat, msg.postmsg, true);
 							}
 						});
-						break;
-					case 'moveToAlbum':
-					case 'gm-add-label':
-					case 'gm-remove-label':
-						if(msg.stat == 'OK'){
-							$('#gmUpdateMessage').val(msg.postmsg).next('#gmUpdateStatus').val(msg.stat).parent('#gmUpdateContent').submit();
-						}
 						break;
 					case 'gm-install-module':
 					case 'gm-update-module':
