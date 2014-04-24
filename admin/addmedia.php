@@ -11,7 +11,7 @@ if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])){
 function gmedia_AddMedia(){
 	global $gmCore;
 	$tab = $gmCore->_get('tab', 'upload');
-	$extra_tools = (defined('GMEDIA_IFRAME_TOOL') && GMEDIA_IFRAME_TOOL)? false : true;
+	$extra_tools = (defined('GMEDIA_IFRAME') && GMEDIA_IFRAME)? false : true;
 	?>
 	<div class="panel panel-default">
 		<div class="panel-heading clearfix">
@@ -24,7 +24,7 @@ function gmedia_AddMedia(){
 				</div>
 			<?php } ?>
 			<div id="total-progress-info" class="progress pull-right">
-				<?php
+				<?php $msg = '';
 				if($tab == 'upload'){
 					$msg = __('Add files to the upload queue and click the start button', 'gmLang');
 				}
@@ -86,7 +86,7 @@ function gmedia_upload_files(){
 				$terms_category = '';
 				if(count($gm_terms)){
 					foreach($gm_terms as $term_name => $term_title){
-						$terms_category .= '<option value="' . $term_name . '">' . $term_title . '</option>' . "\n";
+						$terms_category .= '<option value="' . $term_name . '">' . esc_html($term_title) . '</option>' . "\n";
 					}
 				}
 				?>
@@ -105,7 +105,7 @@ function gmedia_upload_files(){
 				$terms_album = '';
 				if(count($gm_terms)){
 					foreach($gm_terms as $term){
-						$terms_album .= '<option value="' . $term->name . '">' . $term->name . '</option>' . "\n";
+						$terms_album .= '<option value="' . esc_attr($term->name) . '">' . esc_html($term->name) . '</option>' . "\n";
 					}
 				}
 				?>
@@ -131,8 +131,8 @@ function gmedia_upload_files(){
 						create: true,
 						persist: false
 					});
-					var gm_terms = <?php echo json_encode($gm_terms); ?>,
-						items = gm_terms.map(function(x){
+					var gm_terms = <?php echo json_encode($gm_terms); ?>;
+					var items = gm_terms.map(function(x){
 						return { item: x };
 					});
 					$('#combobox_gmedia_tag').selectize({
@@ -253,7 +253,7 @@ function gmedia_upload_files(){
 
 function gmedia_import(){
 	global $wpdb, $gmCore, $gmGallery, $gmDB;
-	$gMediaURL = plugins_url(GMEDIA_FOLDER);
+	$gmediaURL = plugins_url(GMEDIA_FOLDER);
 	$url = $gmCore->get_admin_url();
 	?>
 	<form class="row" id="import_form" name="import_form" target="import_window" action="<?php echo $gmCore->gmedia_url; ?>/admin/import.php" method="POST" accept-charset="utf-8" style="padding:20px 0 10px;">
@@ -269,7 +269,7 @@ function gmedia_import(){
 					$terms_category = '';
 					if(count($gm_terms)){
 						foreach($gm_terms as $term_name => $term_title){
-							$terms_category .= '<option value="' . $term_name . '">' . $term_title . '</option>' . "\n";
+							$terms_category .= '<option value="' . $term_name . '">' . esc_html($term_title) . '</option>' . "\n";
 						}
 					}
 					?>
@@ -288,7 +288,7 @@ function gmedia_import(){
 					$terms_album = '';
 					if(count($gm_terms)){
 						foreach($gm_terms as $term){
-							$terms_album .= '<option value="' . $term->name . '">' . $term->name . '</option>' . "\n";
+							$terms_album .= '<option value="' . esc_attr($term->name) . '">' . esc_html($term->name) . '</option>' . "\n";
 						}
 					}
 					?>
@@ -314,8 +314,8 @@ function gmedia_import(){
 							create: true,
 							persist: false
 						});
-						var gm_terms = <?php echo json_encode($gm_terms); ?>,
-							items = gm_terms.map(function(x){
+						var gm_terms = <?php echo json_encode($gm_terms); ?>;
+						var items = gm_terms.map(function(x){
 								return { item: x };
 							});
 						$('#combobox_gmedia_tag').selectize({
@@ -350,8 +350,8 @@ function gmedia_import(){
 			</ul>
 			<div class="tab-content">
 				<fieldset id="import_folder" class="tab-pane active">
-					<?php echo "<style type='text/css'>@import url('{$gMediaURL}/assets/jqueryFileTree/jqueryFileTree.css');</style>\n"; ?>
-					<?php echo "<script type='text/javascript' src='{$gMediaURL}/assets/jqueryFileTree/jqueryFileTree.js'></script>\n"; ?>
+					<?php echo "<style type='text/css'>@import url('{$gmediaURL}/assets/jqueryFileTree/jqueryFileTree.css');</style>\n"; ?>
+					<?php echo "<script type='text/javascript' src='{$gmediaURL}/assets/jqueryFileTree/jqueryFileTree.js'></script>\n"; ?>
 					<input type="hidden" id="folderpath" name="path" value="/"/>
 
 					<div class="tab-inside">
@@ -389,7 +389,7 @@ function gmedia_import(){
 							<div id="toggle-flaggalery">
 								<?php foreach($import['flagallery'] as $gallery){ ?>
 									<div class="checkbox">
-										<label><input type="checkbox" name="gallery[]" value="<?php echo $gallery->gid ?>"/> <span><?php echo $gallery->title; ?></span></label>
+										<label><input type="checkbox" name="gallery[]" value="<?php echo $gallery->gid ?>"/> <span><?php echo esc_html($gallery->title); ?></span></label>
 										<?php /* if(!empty($gallery->galdesc)){
 											echo '<div class="help-block"> ' . stripslashes($gallery->galdesc) . '</div>';
 										} */ ?>
@@ -418,7 +418,7 @@ function gmedia_import(){
 							<div id="toggle-nextgen">
 								<?php foreach($import['nextgen'] as $gallery){ ?>
 									<div class="checkbox">
-										<label><input type="checkbox" name="gallery[]" value="<?php echo $gallery->gid ?>"/> <span><?php echo $gallery->title; ?></span></label>
+										<label><input type="checkbox" name="gallery[]" value="<?php echo $gallery->gid ?>"/> <span><?php echo esc_html($gallery->title); ?></span></label>
 										<?php /* if(!empty($gallery->galdesc)){
 											echo '<div class="help-block"> ' . stripslashes($gallery->galdesc) . '</div>';
 										} */ ?>
@@ -438,31 +438,28 @@ function gmedia_import(){
 			<div class="clear"></div>
 		</div>
 	</form>
-	<script type="text/javascript">
-		function gmedia_import_done(){
-			if(jQuery('#importModal').is(':visible')){
-				jQuery('#import-done').button('complete').prop('disabled', false);
-			}
-		}
-		jQuery(function($){
-		});
-	</script>
 
 	<div class="modal fade gmedia-modal" id="importModal" tabindex="-1" role="dialog" aria-hidden="true">
 		<div class="modal-dialog">
-			<form class="modal-content" autocomplete="off" method="post">
+			<div class="modal-content">
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 					<h4 class="modal-title"><?php _e('Import'); ?></h4>
 				</div>
 				<div class="modal-body">
+					<script type="text/javascript">
+						function gmedia_import_done(){
+							if(jQuery('#importModal').is(':visible')){
+								jQuery('#import-done').button('complete').prop('disabled', false);
+							}
+						}
+					</script>
 					<iframe name="import_window" id="import_window" src="about:blank" width="100%" height="300" onload="gmedia_import_done()"></iframe>
 				</div>
 				<div class="modal-footer">
 					<button type="button" id="import-done" class="btn btn-primary" data-dismiss="modal" data-complete-text="<?php _e( 'Close', 'gmLang' ); ?>" disabled="disabled"><?php _e( 'Working...', 'gmLang' ); ?></button>
 				</div>
-			</form><!-- /.modal-content -->
-
+			</div><!-- /.modal-content -->
 		</div>
 	</div>
 <?php

@@ -1,0 +1,347 @@
+<?php
+// If not called from WordPress, then exit
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+function gmedia_update_admin_notice(){
+	?>
+	<div id="message" class="updated gmedia-message">
+		<p><?php _e( '<strong>GmediaGallery Data Update Required</strong> &#8211; We need to update your install to the latest version.', 'gmLang' ); ?></p>
+		<p><?php _e( '<strong>Important:</strong> &#8211; GmediaGallery plugin was fully rewritten, so after update you need to check all your created galleries and update modules.', 'gmLang' ); ?></p>
+		<p><?php _e( 'The update process may take a little while, so please be patient.', 'gmLang' ); ?></p>
+		<p class="submit"><a href="<?php echo add_query_arg( 'do_update', 'gmedia', admin_url('admin.php?page=GrandMedia') ); ?>" class="gm-update-now button-primary"><?php _e( 'Run the updater', 'gmLang' ); ?></a></p>
+	</div>
+	<script type="text/javascript">
+		jQuery('.gm-update-now').click('click', function(){
+			return confirm( '<?php _e( 'It is strongly recommended that you backup your database before proceeding. Are you sure you wish to run the updater now?', 'gmedia' ); ?>' );
+		});
+	</script>
+<?php
+}
+
+function gmedia_wait_admin_notice(){
+	?>
+	<div id="message" class="updated gmedia-message">
+		<p><?php _e( '<strong>GmediaGallery Updating:</strong> &#8211; GmediaGallery plugin was fully rewritten, so after update you need to check all your created galleries and update modules.', 'gmLang' ); ?></p>
+		<p><?php _e( 'The update process may take a little while, so please be patient.', 'gmLang' ); ?></p>
+	</div>
+<?php
+}
+
+function gmedia_do_update(){
+	global $wpdb, $gmDB, $gmCore, $gmGallery;
+
+	if (ob_get_level() == 0) {
+		ob_start();
+	}
+
+	// upgrade function changed in WordPress 2.3
+	require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+
+	// add charset & collate like wp core
+	$charset_collate = '';
+
+	if($wpdb->has_cap('collation')){
+		if(!empty($wpdb->charset)){
+			$charset_collate = "DEFAULT CHARACTER SET $wpdb->charset";
+		}
+		if(!empty($wpdb->collate)){
+			$charset_collate .= " COLLATE $wpdb->collate";
+		}
+	}
+
+	$gmedia = $wpdb->prefix . 'gmedia';
+	$gmedia_term = $wpdb->prefix . 'gmedia_term';
+	$gmedia_term_relationships = $wpdb->prefix . 'gmedia_term_relationships';
+
+	$sql = "
+	CREATE TABLE {$gmedia} (
+		ID BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+		author BIGINT(20) UNSIGNED NOT NULL DEFAULT '0',
+		date DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
+		description LONGTEXT NOT NULL,
+		title TEXT NOT NULL,
+		gmuid VARCHAR(255) NOT NULL DEFAULT '',
+		link VARCHAR(255) NOT NULL DEFAULT '',
+		modified DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
+		mime_type VARCHAR(100) NOT NULL DEFAULT '',
+		status VARCHAR(20) NOT NULL DEFAULT 'public',
+		PRIMARY KEY  (ID),
+		KEY gmuid (gmuid),
+		KEY type_status_date (mime_type,status,date,ID),
+		KEY author (author)
+	) {$charset_collate};
+	CREATE TABLE {$gmedia_term} (
+		term_id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+		name VARCHAR(200) NOT NULL DEFAULT '',
+		taxonomy VARCHAR(32) NOT NULL DEFAULT '',
+		description LONGTEXT NOT NULL,
+		global BIGINT(20) UNSIGNED NOT NULL DEFAULT '0',
+		count BIGINT(20) NOT NULL DEFAULT '0',
+		status VARCHAR(20) NOT NULL DEFAULT 'public',
+		PRIMARY KEY  (term_id),
+		KEY taxonomy (taxonomy),
+		KEY name (name)
+	) {$charset_collate};
+	CREATE TABLE {$gmedia_term_relationships} (
+		gmedia_id BIGINT(20) UNSIGNED NOT NULL DEFAULT '0',
+		gmedia_term_id BIGINT(20) UNSIGNED NOT NULL DEFAULT '0',
+		term_order INT(11) NOT NULL DEFAULT '0',
+		gmedia_order INT(11) NOT NULL DEFAULT '0',
+		PRIMARY KEY  (gmedia_id,gmedia_term_id),
+		KEY gmedia_term_id (gmedia_term_id)
+	) {$charset_collate}
+	";
+	dbDelta($sql);
+
+	echo '<p>'.__('Gmedia database tables updated...', 'gmLang').'</p><br>';
+	echo '<script type="text/javascript">
+var scroll_down = true;
+function ScrollDown() {
+	if(scroll_down){
+		window.scrollTo(0,document.body.scrollHeight);
+		scrolldelay = setTimeout(function(){ ScrollDown(); },100);
+	}
+}
+ScrollDown();
+window.onload = function() {
+	ScrollDown();
+  scroll_down = false;
+}
+</script>';
+	echo '<p>'.__('Start update images...', 'gmLang').'</p>';
+	wp_ob_end_flush_all();
+
+
+	$gmedias = $gmDB->get_gmedias(array('mime_type' => 'image/*'));
+	$options = get_option('gmediaOptions');
+	$files = array();
+	foreach($gmedias as $gmedia){
+		$files[] = array(
+			'id' => $gmedia->ID,
+			'file' => $gmCore->upload['path'].'/'.$options['folder']['image'].'/'.$gmedia->gmuid
+		);
+	}
+	if(!empty($files)){
+		gmedia_images_update($files);
+	}
+	$gmCore->delete_folder($gmCore->upload['path'].'/link');
+
+	$wpdb->update($wpdb->prefix.'gmedia_term', array('taxonomy' => 'gmedia_album'), array('taxonomy' => 'gmedia_category'));
+	$wpdb->update($wpdb->prefix.'gmedia_term', array('taxonomy' => 'gmedia_gallery'), array('taxonomy' => 'gmedia_module'));
+
+	$gmedias = $gmDB->get_gmedias(array('no_found_rows' => true, 'meta_key' => 'link'));
+	foreach($gmedias as $gmedia){
+		$link = $gmDB->get_metadata('gmedia', $gmedia->ID, 'link', true);
+		if($link){
+			$wpdb->update($wpdb->prefix.'gmedia', array('link' => $link), array('ID' => $gmedia->ID));
+		}
+	}
+	$wpdb->delete($wpdb->prefix.'gmedia_meta', array('meta_key' => 'link'));
+	//$gmDB->delete_metadata('gmedia', 0, 'link', false, true);
+
+	$wpdb->update($wpdb->prefix.'gmedia_meta', array('meta_key' => 'cover'), array('meta_key' => 'preview'));
+
+	if(isset($options['product_name'])){
+		$options['license_name'] = $options['product_name'];
+		$options['license_key'] = $options['gmedia_key'];
+		$options['license_key2'] = $options['gmedia_key2'];
+		unset($options['product_name'],$options['gmedia_key'],$options['gmedia_key2']);
+		update_option('gmediaOptions', $options);
+	}
+
+	echo '<p>'.__('Gmedia database data updated...', 'gmLang').'</p>';
+	wp_ob_end_flush_all();
+
+	$galleries = $gmDB->get_terms('gmedia_gallery');
+	if($galleries){
+		foreach($galleries as $gallery){
+			$old_meta = $gmDB->get_metadata( 'gmedia_term', $gallery->term_id );
+			if($old_meta){
+				$old_meta = array_map( 'reset', $old_meta );
+				$old_meta = array_map( 'maybe_unserialize', $old_meta );
+				$old_meta_keys = array_keys($old_meta);
+				foreach($old_meta_keys as $key){
+					$wpdb->delete($wpdb->prefix.'gmedia_term_meta', array('gmedia_term_id' => $gallery->term_id, 'meta_key' => $key));
+					//$gmDB->delete_metadata('gmedia_term', $gallery->term_id, $key);
+				}
+				$gmedia_category = $gmedia_tag = array();
+				foreach($old_meta['gMediaQuery'] as $tab){
+					if(isset($tab['cat']) && !empty($tab['cat'])){
+						$gmedia_category[] = $tab['cat'];
+					}
+					if(isset($tab['tag__in']) && !empty($tab['tag__in'])){
+						$gmedia_tag = array_merge($gmedia_tag, $tab['tag__in']);
+					}
+				}
+				$query = array();
+				if(!empty($gmedia_category)){
+					$query = array('gmedia_album' => $gmedia_category);
+				} elseif(!empty($gmedia_tag)){
+					$query = array('gmedia_tag' => $gmedia_tag);
+				}
+				$gallery_meta = array(
+					 'edited' => $old_meta['last_edited']
+					,'module' => $old_meta['module_name']
+					,'query' => $query
+				);
+				foreach($gallery_meta as $key => $value){
+					$gmDB->add_metadata('gmedia_term', $gallery->term_id, $key, $value);
+				}
+			}
+		}
+	}
+
+	echo '<p>'.__('Gmedia Galleries updated...', 'gmLang').'</p><br><br>';
+	wp_ob_end_flush_all();
+
+	update_option("gmediaDbVersion", GMEDIA_DBVERSION);
+	update_option("gmediaVersion", GMEDIA_VERSION);
+
+	echo '<p>'.__('GmediaGallery plugin update complete.', 'gmLang').'</p>';
+
+}
+
+function gmedia_images_update($files){
+	global $gmCore, $gmGallery;
+
+	if (ob_get_level() == 0) {
+		ob_start();
+	}
+
+	$eol = '</pre>'.PHP_EOL;
+	$c = count($files);
+	$i = 0;
+	foreach($files as $file){
+
+		/**
+		 * @var $file
+		 * @var $id
+		 */
+		if(is_array($file)){
+			if(isset($file['file'])){
+				extract($file);
+			} else{
+				_e('Something went wrong...', 'gmLang');
+				die();
+			}
+		}
+
+		$i++;
+		$prefix = "\n<pre style='display:block;'>$i/$c - ";
+		$prefix_ko = "\n<pre style='display:block;color:darkred;'>$i/$c - ";
+
+		if(!is_file($file)){
+			echo $prefix_ko . sprintf(__('File not exists: %s', 'gmLang'), $file) . $eol;
+			continue;
+		}
+
+
+		$fileinfo = $gmCore->fileinfo($file, false);
+
+		if('image' == $fileinfo['dirname']){
+			$size = @getimagesize($fileinfo['filepath']);
+			if($size && file_is_displayable_image($fileinfo['filepath'])){
+				if(!wp_mkdir_p($fileinfo['dirpath_thumb'])){
+					echo $prefix_ko . sprintf(__('Unable to create directory `%s`. Is its parent directory writable by the server?', 'gmLang'), $fileinfo['dirpath_thumb']) . $eol;
+					continue;
+				}
+				if(!is_writable($fileinfo['dirpath_thumb'])){
+					@chmod($fileinfo['dirpath_thumb'], 0755);
+					if(!is_writable($fileinfo['dirpath_thumb'])){
+						echo $prefix_ko . sprintf(__('Directory `%s` is not writable by the server.', 'gmLang'), $fileinfo['dirpath_thumb']) . $eol;
+						continue;
+					}
+				}
+				if(!wp_mkdir_p($fileinfo['dirpath_original'])){
+					echo $prefix_ko . sprintf(__('Unable to create directory `%s`. Is its parent directory writable by the server?', 'gmLang'), $fileinfo['dirpath_original']) . $eol;
+					continue;
+				}
+				if(!is_writable($fileinfo['dirpath_original'])){
+					@chmod($fileinfo['dirpath_original'], 0755);
+					if(!is_writable($fileinfo['dirpath_original'])){
+						echo $prefix_ko . sprintf(__('Directory `%s` is not writable by the server.', 'gmLang'), $fileinfo['dirpath_original']) . $eol;
+						continue;
+					}
+				}
+
+				// Optimized image
+				$webimg = $gmGallery->options['image'];
+				$thumbimg = $gmGallery->options['thumb'];
+
+				$webimg['resize'] = (($webimg['width'] < $size[0]) || ($webimg['height'] < $size[1]))? true : false;
+				$thumbimg['resize'] = (($thumbimg['width'] < $size[0]) || ($thumbimg['height'] < $size[1]))? true : false;
+
+				if($webimg['resize']){
+					rename($fileinfo['filepath'], $fileinfo['filepath_original']);
+				} else{
+					copy($fileinfo['filepath'], $fileinfo['filepath_original']);
+				}
+				if($webimg['resize'] || $thumbimg['resize']){
+					$editor = wp_get_image_editor($fileinfo['filepath_original']);
+					if(is_wp_error($editor)){
+						echo $prefix_ko . $fileinfo['basename']. " (wp_get_image_editor): ". $editor->get_error_message();
+						continue;
+					}
+
+					$crop = 0;
+
+					if($webimg['resize']){
+						$editor->set_quality($webimg['quality']);
+
+						$resized = $editor->resize($webimg['width'], $webimg['height'], $webimg['crop']);
+						if(is_wp_error($resized)){
+							echo $prefix_ko . $fileinfo['basename']. " (".$resized->get_error_code()." | editor->resize->webimage({$webimg['width']}, {$webimg['height']}, {$webimg['crop']})): ". $resized->get_error_message() . $eol;
+							continue;
+						}
+
+						$saved = $editor->save($fileinfo['filepath']);
+						if(is_wp_error($saved)){
+							echo $prefix_ko . $fileinfo['basename']. " (".$saved->get_error_code()." | editor->save->webimage): ". $saved->get_error_message() . $eol;
+							continue;
+						}
+					}
+
+					// Thumbnail
+					$editor->set_quality($thumbimg['quality']);
+
+					$resized = $editor->resize($thumbimg['width'], $thumbimg['height'], $thumbimg['crop']);
+					if(is_wp_error($resized)){
+						echo $prefix_ko . $fileinfo['basename']. " (".$resized->get_error_code()." | editor->resize->thumb({$thumbimg['width']}, {$thumbimg['height']}, {$thumbimg['crop']})): ". $resized->get_error_message() . $eol;
+						continue;
+					}
+
+					$saved = $editor->save($fileinfo['filepath_thumb']);
+					if(is_wp_error($saved)){
+						echo $prefix_ko . $fileinfo['basename'] . " (".$saved->get_error_code()." | editor->save->thumb): ". $saved->get_error_message() . $eol;
+						continue;
+					}
+				} else{
+					copy($fileinfo['filepath'], $fileinfo['filepath_thumb']);
+				}
+			} else{
+				echo $prefix_ko . $fileinfo['basename']. ": " . __("Could not read image size.", 'gmLang') . $eol;
+				continue;
+			}
+		} else{
+			echo $prefix_ko . $fileinfo['basename']. ": " . __("Invalid image.", 'gmLang') . $eol;
+			continue;
+		}
+
+		global $gmDB;
+		// Save the data
+		$gmDB->update_metadata($meta_type = 'gmedia', $id, $meta_key = '_metadata', $gmDB->generate_gmedia_metadata($id, $fileinfo));
+
+		echo $prefix . $fileinfo['basename']. ': <span  style="color:darkgreen;">' . sprintf(__('success (ID #%s)', 'gmLang'), $id) . '</span>' . $eol;
+
+
+		wp_ob_end_flush_all();
+	}
+
+	echo '<p>'.__('Image update process complete...', 'gmLang').'</p>';
+
+	wp_ob_end_flush_all();
+}
+
+?>

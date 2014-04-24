@@ -1,6 +1,7 @@
 .gmPhotoBox:before, .gmPhotoBox:after{content:"";display:table;}
 .gmPhotoBox:after{clear:both;}
 .gmPhotoBox {zoom:1;}
+ul.gmPhotoBox {margin:0;padding:20px;border:none;}
 ul.gmPhotoBox li{list-style: none; background: none; padding: 0; margin: 0; perspective:100px; -webkit-perspective:100px; margin:1px; float:left; position:relative; transition:.1s; -webkit-transition:0.1s; }
 .gmPhotoBox li.video::before{ content:'\25BA'; color:#FFF; font-size:20px; height:20px; width:20px; line-height:0.9; position:absolute; bottom:3px; left:4px; z-index:1; background:rgba(0,0,0,0.4); box-shadow:0 0 0 3px rgba(0,0,0,0.4); border-radius:0 3px 0 0; pointer-events:none; opacity:0; transition:.5s 0.2s; }
 .gmPhotoBox li.loaded.video::before{ opacity:1; }

@@ -30,25 +30,29 @@
 			overlay, closeBtn, image, video, prevBtn, nextBtn, keyBtn = '', caption, captionText, pbLoader, autoplayBtn, thumbs, wrapper,
 
 			defaults = {
+				keys:      {
+					close: '27, 88, 67',    // keycodes to close Picbox, default: Esc (27), 'x' (88), 'c' (67)
+					prev:  '37, 80',        // keycodes to navigate to the previous image, default: Left arrow (37), 'p' (80)
+					next:  '39, 78'         // keycodes to navigate to the next image, default: Right arrow (39), 'n' (78)
+				}
+			},
+			defaults_bool = {
 				loop:      true,   // Allows to navigate between first and last images
 				thumbs:    true,   // Show gallery thumbnails below the presented photo
 				counter:   true,   // Counter text (example [24/62])
 				title:     true,   // show the original alt or title attribute of the image's thumbnail
 				caption:   true,   // show the description of the image
 				autoplay:  false,  // should autoplay on first time or not
-				time:      3000,   // autoplay interna, in miliseconds (less than 1000 will hide the autoplay button)
 				history:   true,   // should use history hashing if possible (HTML5 API)
 				hideFlash: true,   // Hides flash elements on the page when photobox is activated. NOTE: flash elements must have wmode parameter set to "opaque" or "transparent" if this is set to false
-				zoomable:  true,   // disable/enable mousewheel image zooming
-				keys:      {
-					close: '27, 88, 67',    // keycodes to close Picbox, default: Esc (27), 'x' (88), 'c' (67)
-					prev:  '37, 80',        // keycodes to navigate to the previous image, default: Left arrow (37), 'p' (80)
-					next:  '39, 78'         // keycodes to navigate to the next image, default: Right arrow (39), 'n' (78)
-				}
+				zoomable:  true    // disable/enable mousewheel image zooming
+			},
+			defaults_int = {
+				time:      3000    // autoplay interna, in miliseconds (less than 1000 will hide the autoplay button)
 			};
 
 	// DOM structure
-	if(!gMediaGlobalVar.gmediaKey || ( gMediaGlobalVar.gmediaKey != gmCreateKey(win.location.hostname.replace('www.',''), gMediaGlobalVar.gmediaKey.split('-',2)[0]) ) ){
+	if(!gmediaGlobalVar.gmediaKey || ( gmediaGlobalVar.gmediaKey != gmCreateKey(win.location.hostname.replace('www.',''), gmediaGlobalVar.gmediaKey.split('-',2)[0]) ) ){
 		keyBtn = $('<div style="background: transparent; position:absolute; z-index:10; height:auto; width:100%; padding:0; margin:0; box-sizing:border-box; -moz-box-sizing:border-box; top:0; left:0; text-align: center;"><a href="http://codeasily.com/" target="_blank" style="background:rgba(216,255,22,0.8); margin: 0 auto; padding: 4px 10px; width: auto; height: auto; text-indent: 0; display:inline-block; font-size:14px; color:#123456; border-radius: 0 0 4px 4px; font-weight:bold;">Unregistered version. Built on Gmedia Gallery Plugin.</a></div>');
 	}
 	overlay = $('<div id="pbOverlay">').append(
@@ -133,8 +137,15 @@
 			return this;
 		}
 
-		var _options = $.extend({}, defaults, settings || {}),
-				pb = new Photobox(_options, this, target);
+		var _options = $.extend({}, defaults, defaults_bool, defaults_int, settings || {});
+		$.each(_options, function(key, val){
+			if(key in defaults_bool){
+				_options[key] = (!(!val || val == '0' || val == 'false'));
+			} else if(key in defaults_int){
+				_options[key] = parseInt(val);
+			}
+		});
+		var pb = new Photobox(_options, this, target);
 
 		// Saves the insance on the gallery's target element
 		$(this).data('_photobox', pb);

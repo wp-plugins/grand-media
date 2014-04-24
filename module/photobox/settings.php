@@ -1,268 +1,99 @@
 <?php
-$module_ot = array(
-	'settings' => array(
-
-		'general_default' => array(
-
-			'title'  => 'Basic Setup',
-			'fields' => array(
-				array(
-					'id'    => 'general_notes',
-					'label' => 'Welcome!',
-					'desc'  => 'Welcome to the Module Options page! From this panel, you\'ll be able to select the custom options that will fit your site. Have Fun!',
-					'std'   => '',
-					'type'  => 'textblock',
-					'param' => '',
-					'class' => ''
-				),
-				array(
-					'id'    => 'name',
-					'label' => 'Gallery Name',
-					'desc'  => '',
-					'std'   => '',
-					'type'  => 'text',
-					'param' => '',
-					'class' => ''
-				),
-				array(
-					'id'    => 'description',
-					'label' => 'Gallery Description',
-					'desc'  => '',
-					'std'   => '',
-					'type'  => 'textarea',
-					'param' => '10',
-					'class' => ''
-				),
-				array(
-					'id'    => 'gMediaQuery',
-					'label' => 'Query Builder',
-					'desc'  => 'Create query to show gmedia based on various selection criteria. You can use this to display gmedia from a album, with specified tags, random gmedia etc. ',
-					'std'   => array(),
-					'type'  => 'query_vis',
-					'param' => array(
-						'mime_type' => 'image',
-						'multitab'  => 'false'
-					),
-					'class' => ''
-				)
-			)
-		),
-		'section1'        => array(
-
-			'title'  => 'Gallery Settings',
-			'fields' => array(
-				array(
-					'id'      => 'history',
-					'label'   => 'Browser History',
-					'desc'    => 'Enable/disable HTML5 history using hash urls',
-					'std'     => 'true',
-					'type'    => 'select',
-					'param'   => '',
-					'class'   => '',
-					'choices' => array(
-						array(
-							'value' => 'true',
-							'label' => 'True'
-						),
-						array(
-							'value' => 'false',
-							'label' => 'False'
-						)
-					)
-				),
-				array(
-					'id'    => 'time',
-					'label' => 'Slideshow Delay',
-					'desc'  => '(default: 3000) minimum 1000ms allowed. The time in miliseconds when autoplaying a gallery. Set as \'0\' to hide the autoplay button completely.',
-					'std'   => '3000',
-					'type'  => 'text',
-					'param' => array('type'=>'number','min'=>'0','step'=>'1000'),
-					'class' => ''
-				),
-				array(
-					'id'      => 'autoplay',
-					'label'   => 'Auto Slideshow',
-					'desc'    => 'Should the gallery autoplay on start or not.',
-					'std'     => 'false',
-					'type'    => 'select',
-					'param'   => '',
-					'class'   => '',
-					'choices' => array(
-						array(
-							'value' => 'true',
-							'label' => 'True'
-						),
-						array(
-							'value' => 'false',
-							'label' => 'False'
-						)
-					)
-				),
-				array(
-					'id'      => 'loop',
-					'label'   => 'Gallery Loop',
-					'desc'    => 'Loop back to last image before the first one and to the first image after last one.',
-					'std'     => 'true',
-					'type'    => 'select',
-					'param'   => '',
-					'class'   => '',
-					'choices' => array(
-						array(
-							'value' => 'true',
-							'label' => 'True'
-						),
-						array(
-							'value' => 'false',
-							'label' => 'False'
-						)
-					)
-				),
-				array(
-					'id'      => 'thumbs',
-					'label'   => 'Thumbnails in Modal',
-					'desc'    => 'Show thumbs of all the images in the gallery at the bottom.',
-					'std'     => 'true',
-					'type'    => 'select',
-					'param'   => '',
-					'class'   => '',
-					'choices' => array(
-						array(
-							'value' => 'true',
-							'label' => 'True'
-						),
-						array(
-							'value' => 'false',
-							'label' => 'False'
-						)
-					)
-				),
-				array(
-					'id'      => 'image_title',
-					'label'   => 'Image Title',
-					'desc'    => 'Show the title of the image.',
-					'std'     => 'true',
-					'type'    => 'select',
-					'param'   => '',
-					'class'   => '',
-					'choices' => array(
-						array(
-							'value' => 'true',
-							'label' => 'True'
-						),
-						array(
-							'value' => 'false',
-							'label' => 'False'
-						)
-					)
-				),
-				array(
-					'id'      => 'counter',
-					'label'   => 'Image Counter',
-					'desc'    => 'Show the current image index position relative to the whole.',
-					'std'     => 'true',
-					'type'    => 'select',
-					'param'   => '',
-					'class'   => '',
-					'choices' => array(
-						array(
-							'value' => 'true',
-							'label' => 'True'
-						),
-						array(
-							'value' => 'false',
-							'label' => 'False'
-						)
-					)
-				),
-				array(
-					'id'      => 'image_description',
-					'label'   => 'Image Description',
-					'desc'    => 'Show the caption of the image.',
-					'std'     => 'true',
-					'type'    => 'select',
-					'param'   => '',
-					'class'   => '',
-					'choices' => array(
-						array(
-							'value' => 'true',
-							'label' => 'True'
-						),
-						array(
-							'value' => 'false',
-							'label' => 'False'
-						)
-					)
-				),
-				array(
-					'id'      => 'zoomable',
-					'label'   => 'Mouse Wheel Image Zoom',
-					'desc'    => 'Enable/Disable mousewheel zooming over images',
-					'std'     => 'true',
-					'type'    => 'select',
-					'param'   => '',
-					'class'   => '',
-					'choices' => array(
-						array(
-							'value' => 'true',
-							'label' => 'True'
-						),
-						array(
-							'value' => 'false',
-							'label' => 'False'
-						)
-					)
-				),
-				array(
-					'id'      => 'hideFlash',
-					'label'   => 'Hide Flash',
-					'desc'    => 'Hide flash instances when viewing an image in the gallery.',
-					'std'     => 'true',
-					'type'    => 'select',
-					'param'   => '',
-					'class'   => '',
-					'choices' => array(
-						array(
-							'value' => 'true',
-							'label' => 'True'
-						),
-						array(
-							'value' => 'false',
-							'label' => 'False'
-						)
-					)
-				)
-			)
-		),
-		'section7'        => array(
-
-			'title'  => 'Advanced Settings',
-			'fields' => array(
-				array(
-					'id'    => 'customCSS',
-					'label' => 'Custom CSS',
-					'desc'  => 'You can enter custom style rules into this box if you\'d like. IE: <i>a{color: red !important;}</i><br />This is an advanced option! This is not recommended for users not fluent in CSS... but if you do know CSS, anything you add here will override the default styles.',
-					'std'   => '',
-					'type'  => 'textarea-simple',
-					'param' => '10',
-					'class' => ''
-				),
-				array(
-					'id'      => 'loveLink',
-					'label'   => 'Display LoveLink?',
-					'desc'    => 'Selecting "Yes" will show the lovelink icon (codeasily.com) somewhere on the gallery.',
-					'std'     => '',
-					'type'    => 'checkbox',
-					'param'   => '',
-					'class'   => '',
-					'choices' => array(
-						array(
-							'value' => '1',
-							'label' => 'Yes'
-						)
-					)
-				)
+$default_options = array(
+	'history' => '1',
+	'time' => '3000',
+	'autoplay' => '0',
+	'loop' => '1',
+	'thumbs' => '1',
+	'title' => '1',
+	'counter' => '1',
+	'caption' => '1',
+	'zoomable' => '1',
+	'hideFlash' => '1',
+	'customCSS' => ''
+);
+$options_tree = array(
+	array(
+		'label' => 'Gallery Settings',
+		'fields' => array(
+			'history' => array(
+				'label' => 'Browser History',
+				'tag' => 'checkbox',
+				'attr' => '',
+				'text' => 'Enable/disable HTML5 history using hash urls',
+			),
+			'time' => array(
+				'label' => 'Slideshow Delay',
+				'tag' => 'input',
+				'attr' => 'type="number" min="0" step="500"',
+				'text' => 'The time in miliseconds when autoplaying a gallery. Set \'0\' to hide the autoplay button completely'
+			),
+			'autoplay' => array(
+				'label' => 'Auto Slideshow',
+				'tag' => 'checkbox',
+				'attr' => '',
+				'text' => 'Should the gallery autoplay on start or not',
+			),
+			'loop' => array(
+				'label' => 'Gallery Loop',
+				'tag' => 'checkbox',
+				'attr' => '',
+				'text' => 'Loop back to last image before the first one and to the first image after last one',
+			),
+			'thumbs' => array(
+				'label' => 'Thumbnails in Modal',
+				'tag' => 'checkbox',
+				'attr' => '',
+				'text' => 'Show thumbs of all the images in the gallery at the bottom',
+			),
+			'title' => array(
+				'label' => 'Image Title',
+				'tag' => 'checkbox',
+				'attr' => '',
+				'text' => 'Show the title of the image',
+			),
+			'counter' => array(
+				'label' => 'Image Counter',
+				'tag' => 'checkbox',
+				'attr' => '',
+				'text' => 'Show the current image index position relative to the whole.',
+			),
+			'caption' => array(
+				'label' => 'Image Description',
+				'tag' => 'checkbox',
+				'attr' => '',
+				'text' => 'Show the caption of the image.',
+			),
+			'zoomable' => array(
+				'label' => 'Mouse Wheel Image Zoom',
+				'tag' => 'checkbox',
+				'attr' => '',
+				'text' => 'Enable/Disable mousewheel zooming over images',
+			),
+			'hideFlash' => array(
+				'label' => 'Hide Flash',
+				'tag' => 'checkbox',
+				'attr' => '',
+				'text' => 'Hide flash instances when viewing an image in the gallery',
 			)
 		)
-
+	),
+	array(
+		'label' => 'Advanced Settings',
+		'fields' => array(
+			'customCSS' => array(
+				'label' => 'Custom CSS',
+				'tag' => 'textarea',
+				'attr' => 'cols="20" rows="10"',
+				'text' => 'You can enter custom style rules into this box if you\'d like. IE: <i>a{color: red !important;}</i><br />This is an advanced option! This is not recommended for users not fluent in CSS... but if you do know CSS, anything you add here will override the default styles'
+			)
+			/*,
+			'loveLink' => array(
+				'label' => 'Display LoveLink?',
+				'tag' => 'checkbox',
+				'attr' => '',
+				'text' => 'Selecting "Yes" will show the lovelink icon (codeasily.com) somewhere on the gallery',
+			)*/
+		)
 	)
 );

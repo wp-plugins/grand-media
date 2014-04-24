@@ -203,6 +203,7 @@ function gmedia_import_files($files, $terms, $move){
 		}
 		if(!isset($title) || empty($title)){ $title = $fileinfo['title']; }
 		if(!isset($description)){ $description = ''; }
+		if(!isset($link)){ $link = ''; }
 
 		$_terms = $terms;
 		if(!$is_webimage){
@@ -210,7 +211,7 @@ function gmedia_import_files($files, $terms, $move){
 		}
 
 		// Construct the media_data array
-		$media_data = array('mime_type' => $fileinfo['mime_type'], 'gmuid' => $fileinfo['basename'], 'title' => $title, 'description' => $description, 'terms' => $_terms);
+		$media_data = array('mime_type' => $fileinfo['mime_type'], 'gmuid' => $fileinfo['basename'], 'title' => $title, 'link' => $link, 'description' => $description, 'terms' => $_terms);
 
 		unset($title, $description);
 
@@ -227,12 +228,12 @@ function gmedia_import_files($files, $terms, $move){
 
 	}
 
-	echo '<p><b>'.__('Category').':</b> '. $gmGallery->options['taxonomies']['gmedia_category'][$terms['gmedia_category']] . PHP_EOL;
-	echo '<br /><b>'.__('Album').':</b> '. $terms['gmedia_album'] . PHP_EOL;
-	echo '<br /><b>'.__('Tags').':</b> '. str_replace(',', ', ', $terms['gmedia_tag']) .'</p>' . PHP_EOL;
+	echo '<p><b>'.__('Category').':</b> '. esc_html($gmGallery->options['taxonomies']['gmedia_category'][$terms['gmedia_category']]) . PHP_EOL;
+	echo '<br /><b>'.__('Album').':</b> '. esc_html($terms['gmedia_album']) . PHP_EOL;
+	echo '<br /><b>'.__('Tags').':</b> '. esc_html(str_replace(',', ', ', $terms['gmedia_tag'])) .'</p>' . PHP_EOL;
 
 	wp_ob_end_flush_all();
-	flush();
+	//flush();
 }
 
 if (ob_get_level() == 0) {
@@ -278,7 +279,7 @@ if('import-folder' == $import){
 
 		$album = empty($terms['gmedia_album'])? false : true;
 		foreach($gallery as $gid){
-			$flag_gallery = $wpdb->get_row($wpdb->prepare("SELECT gid, path, title, galdesc FROM `{$wpdb->prefix}flag_gallery` WHERE gid = %d", $gid), ARRAY_A);
+			$flag_gallery = $wpdb->get_row($wpdb->prepare("SELECT gid, path, title, galdesc, link FROM `{$wpdb->prefix}flag_gallery` WHERE gid = %d", $gid), ARRAY_A);
 			if(empty($flag_gallery))
 				continue;
 
@@ -338,6 +339,29 @@ if('import-folder' == $import){
 		}
 	} else {
 		echo __( 'No gallery chosen', 'gmLang' ) . PHP_EOL;
+	}
+} elseif('import-wpmedia' == $import){
+	global $user_ID, $gmDB;
+
+	echo str_pad('<h4 style="margin: 0 0 10px">'.__('Import from WP Media Library').":</h4>",4096) . PHP_EOL;
+
+	$wpMediaLib = $gmDB->get_wp_media_lib(array('filter'=>'selected', 'selected'=>$gmCore->_post('selected')));
+
+	if(!empty($wpMediaLib)){
+
+		$wp_media = array();
+		foreach($wpMediaLib as $item){
+			$wp_media[] = array(
+				'file' => get_attached_file($item->ID),
+				'title' => $item->post_title,
+				'description' => $item->post_content
+			);
+		}
+		echo '<pre>' . print_r($wp_media, true) . '</pre>';
+		gmedia_import_files($wp_media, $terms, false);
+
+	} else {
+		echo __( 'No items chosen', 'gmLang' ) . PHP_EOL;
 	}
 }
 

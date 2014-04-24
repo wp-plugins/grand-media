@@ -1,5 +1,6 @@
 @charset "utf-8";
 body.gmPhantom_zoom * { -webkit-user-select: none; }
+.phantom_module {position:relative;}
 .gmPhantom_Container * { -moz-box-sizing: content-box; box-sizing: content-box; }
 .gmPhantom_Container {
 	direction: ltr;
@@ -32,7 +33,7 @@ div.gmPhantom_Container img {
 	text-align: left;
 	overflow: hidden;
 	padding: 0;
-	position: absolute;
+	position: relative;
 	z-index: 200;
 }
 
@@ -100,6 +101,9 @@ div.gmPhantom_Container img {
 	-webkit-transform: translateZ(0);
 	-webkit-user-select: none;
 	-moz-user-select:none;
+}
+.gmPhantom_Container .gmPhantom_LightboxWrapper {
+	position: absolute;
 }
 .gmPhantom_LightboxWrapper * { -webkit-user-select: none; }
 .gmPhantom_bodyBg { display: none; position: absolute; left: 0; top: 0; bottom: 0; right: 0; width: 100%; height: 100%; z-index: 150000; }
@@ -215,7 +219,7 @@ div.gmPhantom_Container img {
 
 .gmPhantom_counter {
 	position: absolute;
-	z-index: 30;
+	z-index: 100;
 	right: 0; bottom: 0;
 	white-space: nowrap; padding: 0.1em 0.6em; line-height: 100%;
 	font: 1.2em Arial;
@@ -373,33 +377,6 @@ div.gmPhantom_Container img {
 .msie7 .gmPhantom_LightboxContainer { display: inline; }
 #at15s {
 	position: fixed !important;
-}
-
-.gmPhantom_ProgressBar .gmProgress { overflow:hidden; height:20px; position: relative; text-align: center; line-height: 20px; color: #222222; font-size: 12px;
-	background-color:#f7f7f7;
-	background-image:-moz-linear-gradient(top, #f5f5f5, #f9f9f9);
-	background-image:-webkit-gradient(linear,0 0,0 100%,from( #f5f5f5),to( #f9f9f9));
-	background-image:-webkit-linear-gradient(top, #f5f5f5, #f9f9f9);
-	background-image:-o-linear-gradient(top, #f5f5f5, #f9f9f9);
-	background-image:linear-gradient(to bottom, #f5f5f5, #f9f9f9);
-	background-repeat:repeat-x;
-	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff5f5f5', endColorstr='#fff9f9f9', GradientType=0);
-	box-shadow:inset 0 1px 2px rgba(0,0,0,.1);
-	border-radius:4px;
-}
-.gmPhantom_ProgressBar .gmProgress .gmCounter { position: relative; z-index: 1; }
-.gmPhantom_ProgressBar .gmProgress .gmBar { position: absolute; left: 0; top: 0; display: block; width:0; height:100%; z-index: 0;
-	background-color:#5eb95e;
-	background-image:-moz-linear-gradient(top, #62c462, #57a957);
-	background-image:-webkit-gradient(linear,0 0,0 100%,from( #62c462),to( #57a957));
-	background-image:-webkit-linear-gradient(top, #62c462, #57a957);
-	background-image:-o-linear-gradient(top, #62c462, #57a957);
-	background-image:linear-gradient(to bottom, #62c462, #57a957);
-	background-repeat:repeat-x;
-	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff62c462', endColorstr='#ff57a957', GradientType=0);
-	box-shadow:inset 0 -1px 0 rgba(0,0,0,.15);
-	box-sizing:border-box;
-	border-radius:4px;
 }
 
 /* for touch devices */
