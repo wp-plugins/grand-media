@@ -1,7 +1,7 @@
 /**
- * gMedia Globals
- * @var gMediaGlobalVar
+ * Gmedia Globals
+ * @var gmediaGlobalVar
  */
 if(!ajaxurl){
-	var ajaxurl = gMediaGlobalVar.ajaxurl;
+	var ajaxurl = gmediaGlobalVar.ajaxurl;
 }

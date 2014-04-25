@@ -1,7 +1,7 @@
 <?php
 // Stop direct call
-if ( preg_match( '#' . basename( __FILE__ ) . '#', $_SERVER['PHP_SELF'] ) ) {
-	die( 'You are not allowed to call this page directly.' );
+if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])){
+	die('You are not allowed to call this page directly.');
 }
 
 /**
@@ -10,26 +10,76 @@ if ( preg_match( '#' . basename( __FILE__ ) . '#', $_SERVER['PHP_SELF'] ) ) {
  * @access internal
  * @return array
  */
-function grand_default_options() {
+function gmedia_default_options(){
 
-	$grand['folder']['image']       = 'image'; // default path to the media files relative to wp-content dir
-	$grand['folder']['audio']       = 'audio';
-	$grand['folder']['video']       = 'video';
-	$grand['folder']['application'] = 'application';
-	$grand['folder']['link']        = 'link';
-	$grand['folder']['module']      = 'module';
-	$grand['thumbnail_size']        = '150x150';
+	$gm['uninstall_dropfiles'] = 'dropfiles';
 
-	$grand['gmedia_key']  = '';
+	$gm['folder']['image'] = 'image';
+	$gm['folder']['image_thumb'] = 'image/thumb';
+	$gm['folder']['image_original'] = 'image/original';
+	$gm['folder']['audio'] = 'audio';
+	$gm['folder']['video'] = 'video';
+	$gm['folder']['text'] = 'text';
+	$gm['folder']['application'] = 'application';
+	$gm['folder']['module'] = 'module';
 
-	$grand['taxonomies']['gmedia_tag']      = array( 'hierarchical' => false );
-	$grand['taxonomies']['gmedia_category'] = array( 'hierarchical' => true );
-	$grand['taxonomies']['gmedia_module']   = array( 'hierarchical' => true );
+	$gm['thumb'] = array('width' => 300, 'height' => 300, 'quality' => 70, 'crop' => 0);
+	$gm['image'] = array('width' => 1600, 'height' => 1600, 'quality' => 85, 'crop' => 0);
 
-	$grand['per_page_gmedia']       = 30;
-	$grand['per_page_wpmedia']      = 30;
+	$gm['modules_xml'] = 'http://dl.dropbox.com/u/6295502/gmedia_modules/modules_v1.xml';
+	$gm['license_name'] = '';
+	$gm['license_key'] = '';
+	$gm['license_key2'] = '';
 
-	return $grand;
+	$gm['taxonomies']['gmedia_category'] = array(
+		'abstract' => __('Abstract', 'gmLang'),
+		'animals' => __('Animals', 'gmLang'),
+		'black-and-white' => __('Black and White', 'gmLang'),
+		'celebrities' => __('Celebrities', 'gmLang'),
+		'city-and-architecture' => __('City & Architecture', 'gmLang'),
+		'commercial' => __('Commercial', 'gmLang'),
+		'concert' => __('Concert', 'gmLang'),
+		'family' => __('Family', 'gmLang'),
+		'fashion' => __('Fashion', 'gmLang'),
+		'film' => __('Film', 'gmLang'),
+		'fine-art' => __('Fine Art', 'gmLang'),
+		'food' => __('Food', 'gmLang'),
+		'journalism' => __('Journalism', 'gmLang'),
+		'landscapes' => __('Landscapes', 'gmLang'),
+		'macro' => __('Macro', 'gmLang'),
+		'nature' => __('Nature', 'gmLang'),
+		'nude' => __('Nude', 'gmLang'),
+		'people' => __('People', 'gmLang'),
+		'performing-arts' => __('Performing Arts', 'gmLang'),
+		'sport' => __('Sport', 'gmLang'),
+		'still-life' => __('Still Life', 'gmLang'),
+		'street' => __('Street', 'gmLang'),
+		'transportation' => __('Transportation', 'gmLang'),
+		'travel' => __('Travel', 'gmLang'),
+		'underwater' => __('Underwater', 'gmLang'),
+		'urban-exploration' => __('Urban Exploration', 'gmLang'),
+		'wedding' => __('Wedding', 'gmLang')
+	);
+	$gm['taxonomies']['gmedia_tag'] = array();
+	$gm['taxonomies']['gmedia_album'] = array();
+
+	$gm['taxonomies']['gmedia_filter'] = array(); // not linked with gmedia_term_relationships table
+	$gm['taxonomies']['gmedia_gallery'] = array(); // not linked with gmedia_term_relationships table
+
+	$gm['gm_screen_options']['per_page_gmedia'] = 30;
+	$gm['gm_screen_options']['orderby_gmedia'] = 'ID';
+	$gm['gm_screen_options']['sortorder_gmedia'] = 'DESC';
+
+	$gm['gm_screen_options']['per_page_wpmedia'] = 30;
+	$gm['gm_screen_options']['orderby_wpmedia'] = 'ID';
+	$gm['gm_screen_options']['sortorder_wpmedia'] = 'DESC';
+
+	$gm['gm_screen_options']['uploader_runtime'] = 'auto';
+	$gm['gm_screen_options']['uploader_chunking'] = 'true';
+	$gm['gm_screen_options']['uploader_chunk_size'] = 8; // in Mb
+	$gm['gm_screen_options']['uploader_urlstream_upload'] = 'false';
+
+	return $gm;
 
 }
 
@@ -40,128 +90,137 @@ function grand_default_options() {
  * @access internal
  * @return void
  **/
-function grand_install() {
+function gmedia_install(){
 	/** @var $wpdb wpdb */
-	global $wpdb, $grandCore;
+	global $wpdb, $gmGallery, $gmCore;
 
 	// Check for capability
-	if ( ! current_user_can( 'activate_plugins' ) )
+	if(!current_user_can('activate_plugins')){
 		return;
+	}
 
 	// upgrade function changed in WordPress 2.3	
-	require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+	require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 
 	// add charset & collate like wp core
 	$charset_collate = '';
 
-	if ( $wpdb->has_cap( 'collation' ) ) {
-		if ( ! empty( $wpdb->charset ) ) $charset_collate = "DEFAULT CHARACTER SET $wpdb->charset";
-		if ( ! empty( $wpdb->collate ) ) $charset_collate .= " COLLATE $wpdb->collate";
+	if($wpdb->has_cap('collation')){
+		if(!empty($wpdb->charset)){
+			$charset_collate = "DEFAULT CHARACTER SET $wpdb->charset";
+		}
+		if(!empty($wpdb->collate)){
+			$charset_collate .= " COLLATE $wpdb->collate";
+		}
 	}
 
-	$gmedia                    = $wpdb->prefix . 'gmedia';
-	$gmedia_meta               = $wpdb->prefix . 'gmedia_meta';
-	$gmedia_term               = $wpdb->prefix . 'gmedia_term';
-	$gmedia_term_meta          = $wpdb->prefix . 'gmedia_term_meta';
+	$gmedia = $wpdb->prefix . 'gmedia';
+	$gmedia_meta = $wpdb->prefix . 'gmedia_meta';
+	$gmedia_term = $wpdb->prefix . 'gmedia_term';
+	$gmedia_term_meta = $wpdb->prefix . 'gmedia_term_meta';
 	$gmedia_term_relationships = $wpdb->prefix . 'gmedia_term_relationships';
 
-	if ( $wpdb->get_var( "show tables like '$gmedia'" ) != $gmedia ) {
+	if($wpdb->get_var("show tables like '$gmedia'") != $gmedia){
 		$sql = "CREATE TABLE {$gmedia} (
-			`ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-			`author` bigint(20) unsigned NOT NULL DEFAULT '0',
-			`date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-			`description` longtext NOT NULL,
-			`title` text NOT NULL,
-			`gmuid` varchar(255) NOT NULL DEFAULT '',
-			`modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-			`mime_type` varchar(100) NOT NULL DEFAULT '',
-			PRIMARY KEY (`ID`),
-			KEY `gmuid` (`gmuid`),
-			KEY `type_date` (`mime_type`,`date`,`ID`),
-			KEY `author` (`author`)
+			ID BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+			author BIGINT(20) UNSIGNED NOT NULL DEFAULT '0',
+			date DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
+			description LONGTEXT NOT NULL,
+			title TEXT NOT NULL,
+			gmuid VARCHAR(255) NOT NULL DEFAULT '',
+			link VARCHAR(255) NOT NULL DEFAULT '',
+			modified DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
+			mime_type VARCHAR(100) NOT NULL DEFAULT '',
+			status VARCHAR(20) NOT NULL DEFAULT 'public',
+			PRIMARY KEY  (ID),
+			KEY gmuid (gmuid),
+			KEY type_status_date (mime_type,status,date,ID),
+			KEY author (author)
 		) {$charset_collate}";
-		dbDelta( $sql );
+		dbDelta($sql);
 	}
 
-	if ( $wpdb->get_var( "show tables like '$gmedia_meta'" ) != $gmedia_meta ) {
+	if($wpdb->get_var("show tables like '$gmedia_meta'") != $gmedia_meta){
 		$sql = "CREATE TABLE {$gmedia_meta} (
-			`meta_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-			`gmedia_id` bigint(20) unsigned NOT NULL DEFAULT '0',
-			`meta_key` varchar(255) DEFAULT NULL,
-			`meta_value` longtext,
-			PRIMARY KEY (`meta_id`),
-			KEY `gmedia_id` (`gmedia_id`),
-			KEY `meta_key` (`meta_key`)
+			meta_id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+			gmedia_id BIGINT(20) UNSIGNED NOT NULL DEFAULT '0',
+			meta_key VARCHAR(255) DEFAULT NULL,
+			meta_value LONGTEXT,
+			PRIMARY KEY  (meta_id),
+			KEY gmedia_id (gmedia_id),
+			KEY meta_key (meta_key)
 		) {$charset_collate}";
-		dbDelta( $sql );
+		dbDelta($sql);
 	}
 
-	if ( $wpdb->get_var( "show tables like '$gmedia_term'" ) != $gmedia_term ) {
+	if($wpdb->get_var("show tables like '$gmedia_term'") != $gmedia_term){
 		$sql = "CREATE TABLE {$gmedia_term} (
-			`term_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-			`name` varchar(200) NOT NULL DEFAULT '',
-			`taxonomy` varchar(32) NOT NULL DEFAULT '',
-			`description` longtext NOT NULL,
-			`global` bigint(20) unsigned NOT NULL DEFAULT '0',
-			`count` bigint(20) NOT NULL DEFAULT '0',
-			PRIMARY KEY (`term_id`),
-			KEY `taxonomy` (`taxonomy`),
-			KEY `name` (`name`)
+			term_id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+			name VARCHAR(200) NOT NULL DEFAULT '',
+			taxonomy VARCHAR(32) NOT NULL DEFAULT '',
+			description LONGTEXT NOT NULL,
+			global BIGINT(20) UNSIGNED NOT NULL DEFAULT '0',
+			count BIGINT(20) NOT NULL DEFAULT '0',
+			status VARCHAR(20) NOT NULL DEFAULT 'public',
+			PRIMARY KEY  (term_id),
+			KEY taxonomy (taxonomy),
+			KEY name (name)
 		) {$charset_collate}";
-		dbDelta( $sql );
+		dbDelta($sql);
 	}
 
-	if ( $wpdb->get_var( "show tables like '$gmedia_term_meta'" ) != $gmedia_term_meta ) {
+	if($wpdb->get_var("show tables like '$gmedia_term_meta'") != $gmedia_term_meta){
 		$sql = "CREATE TABLE {$gmedia_term_meta} (
-			`meta_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-			`gmedia_term_id` bigint(20) unsigned NOT NULL DEFAULT '0',
-			`meta_key` varchar(255) DEFAULT NULL,
-			`meta_value` longtext,
-			PRIMARY KEY (`meta_id`),
-			KEY `gmedia_term_id` (`gmedia_term_id`),
-			KEY `meta_key` (`meta_key`)
+			meta_id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+			gmedia_term_id BIGINT(20) UNSIGNED NOT NULL DEFAULT '0',
+			meta_key VARCHAR(255) DEFAULT NULL,
+			meta_value LONGTEXT,
+			PRIMARY KEY  (meta_id),
+			KEY gmedia_term_id (gmedia_term_id),
+			KEY meta_key (meta_key)
 		) {$charset_collate}";
-		dbDelta( $sql );
+		dbDelta($sql);
 	}
 
-	if ( $wpdb->get_var( "show tables like '$gmedia_term_relationships'" ) != $gmedia_term_relationships ) {
+	if($wpdb->get_var("show tables like '$gmedia_term_relationships'") != $gmedia_term_relationships){
 		$sql = "CREATE TABLE {$gmedia_term_relationships} (
-			`gmedia_id` bigint(20) unsigned NOT NULL DEFAULT '0',
-			`gmedia_term_id` bigint(20) unsigned NOT NULL DEFAULT '0',
-			`term_order` int(11) NOT NULL DEFAULT '0',
-			PRIMARY KEY (`gmedia_id`,`gmedia_term_id`),
-			KEY `gmedia_term_id` (`gmedia_term_id`)
+			gmedia_id BIGINT(20) UNSIGNED NOT NULL DEFAULT '0',
+			gmedia_term_id BIGINT(20) UNSIGNED NOT NULL DEFAULT '0',
+			term_order INT(11) NOT NULL DEFAULT '0',
+			gmedia_order INT(11) NOT NULL DEFAULT '0',
+			PRIMARY KEY  (gmedia_id,gmedia_term_id),
+			KEY gmedia_term_id (gmedia_term_id)
 		) {$charset_collate}";
-		dbDelta( $sql );
+		dbDelta($sql);
 	}
 
 	// check one table again, to be sure
-	if ( $wpdb->get_var( "show tables like '$gmedia'" ) != $gmedia ) {
-		update_option( "gmediaInitCheck", __( 'GRAND Media: Tables could not created, please check your database settings', 'gmLang' ) );
+	if($wpdb->get_var("show tables like '$gmedia'") != $gmedia){
+		update_option("gmediaInitCheck", __('GRAND Media: Tables could not created, please check your database settings', 'gmLang'));
+
 		return;
 	}
 
-	$gmOptions = get_option( 'gmediaOptions' );
-	// set the default settings, if we didn't upgrade
-	if ( empty( $gmOptions ) ) {
-		$gmOptions = grand_default_options();
-		update_option( 'gmediaOptions', $gmOptions );
-	}
-	else {
-		$default_options   = grand_default_options();
-		$grand_new_options = array_diff_key( $default_options, $gmOptions );
-		$gmOptions         = array_merge( $gmOptions, $grand_new_options );
-		update_option( 'gmediaOptions', $gmOptions );
+	// Set installation date
+	if(empty($gmGallery->options['installDate'])){
+		$gmGallery->options['installDate'] = time();
 	}
 
-	// if all is passed, save the DBVERSION
-	add_option( "gmediaDbVersion", GRAND_DBVERSION );
-	add_option( "gmediaVersion", GRAND_VERSION );
+	// set the default settings, if we didn't upgrade
+	if(empty($gmGallery->options)){
+		$gmGallery->options = gmedia_default_options();
+		update_option('gmediaOptions', $gmGallery->options);
+	} else{
+		$default_options = gmedia_default_options();
+		unset($gmGallery->options['folder'], $gmGallery->options['taxonomies']);
+		$new_options = $gmCore->array_diff_key_recursive($default_options, $gmGallery->options);
+		$gmGallery->options = array_merge_recursive($gmGallery->options, $new_options);
+		update_option('gmediaOptions', $gmGallery->options);
+	}
 
 	// try to make gallery dirs if not exists
-	$assets_dir = $grandCore->gm_upload_dir();
-	foreach ( $gmOptions['folder'] as $folder ) {
-		wp_mkdir_p( $assets_dir['path'] . $folder );
+	foreach($gmGallery->options['folder'] as $folder){
+		wp_mkdir_p($gmCore->upload['path'] . '/' . $folder);
 	}
 }
 
@@ -171,9 +230,9 @@ function grand_install() {
  * @access internal
  * @return void
  */
-function grand_deactivate() {
+function gmedia_deactivate(){
 	// remove & reset the init check option
-	delete_option( 'gmediaInitCheck' );
+	delete_option('gmediaInitCheck');
 }
 
 /**
@@ -183,29 +242,31 @@ function grand_deactivate() {
  * @access internal
  * @return void
  */
-function grand_uninstall() {
-	//if uninstall not called from WordPress exit
-	//if ( !defined( 'WP_UNINSTALL_PLUGIN' ) )
-		//exit ();
-
-	//if(get_option('gmediaVersion'))
-		//return;
-
-	/** @var $wpdb wpdb */
-	global $wpdb;
+/*
+function gmedia_uninstall(){
+	global $wpdb, $gmCore;
 
 	// first remove all tables
-	$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}gmedia" );
-	$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}gmedia_meta" );
-	$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}gmedia_term" );
-	$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}gmedia_term_meta" );
-	$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}gmedia_term_relationships" );
+	$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}gmedia");
+	$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}gmedia_meta");
+	$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}gmedia_term");
+	$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}gmedia_term_meta");
+	$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}gmedia_term_relationships");
 
+	$options = get_option('gmediaOptions');
 	// then remove all options
-	delete_option( 'gmediaOptions' );
-	delete_option( 'gmediaDbVersion' );
-	delete_option( 'gmediaVersion' );
-	delete_option( 'gmediaTemp' );
-	$wpdb->query( "DELETE FROM $wpdb->usermeta WHERE meta_key=`gm_screen_options`" );
+	delete_option('gmediaOptions');
+	delete_option('gmediaDbVersion');
+	delete_option('gmediaVersion');
+	delete_option('gmediaTemp');
+	delete_metadata('user', 0, 'gm_screen_options', '', true);
 
+	if($options['uninstall_dropfiles']){
+		$files_folder = $gmCore->upload['path'];
+		$delete_files = $gmCore->delete_folder($files_folder);
+	} else{
+		$files_folder = $gmCore->upload['path'].'/'.$options['folder']['module'];
+		$delete_files = $gmCore->delete_folder($files_folder);
+	}
 }
+*/

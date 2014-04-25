@@ -18,12 +18,12 @@ if ( (false === strpos( $ref, get_home_url() )) && (false === strpos( $ref, get_
 
 if ( isset($_POST['hit']) && ($gmID = intval($_POST['hit'])) ) {
 	/** @var $wpdb wpdb */
-	global $wpdb, $gMDb;
-	if(null === $gMDb->get_gmedia($gmID)){
+	global $wpdb, $gmDB;
+	if(null === $gmDB->get_gmedia($gmID)){
 		die('0');
 	}
-	$meta['views'] = $gMDb->get_metadata('gmedia', $gmID, 'views', true);
-	$meta['likes'] = $gMDb->get_metadata('gmedia', $gmID, 'likes', true);
+	$meta['views'] = $gmDB->get_metadata('gmedia', $gmID, 'views', true);
+	$meta['likes'] = $gmDB->get_metadata('gmedia', $gmID, 'likes', true);
 
 	$meta = array_map('intval', $meta);
 	$meta = gm_hitcounter($gmID, $meta);
@@ -38,14 +38,14 @@ if ( isset($_POST['hit']) && ($gmID = intval($_POST['hit'])) ) {
  */
 function gm_hitcounter($gmID, $meta) {
 	/** @var wpdb $wpdb */
-	global $wpdb, $gMDb;
+	global $wpdb, $gmDB;
 	if( isset($_POST['vote']) ) {
 		$meta['likes'] +=1;
-		$gMDb->update_metadata('gmedia', $gmID, 'likes', $meta['likes']);
+		$gmDB->update_metadata('gmedia', $gmID, 'likes', $meta['likes']);
 	}
 	else {
 		$meta['views'] +=1;
-		$gMDb->update_metadata('gmedia', $gmID, 'views', $meta['views']);
+		$gmDB->update_metadata('gmedia', $gmID, 'views', $meta['views']);
 	}
 	return $meta;
 }

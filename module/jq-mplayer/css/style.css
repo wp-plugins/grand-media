@@ -16,6 +16,8 @@
 /** Album Cover **/
 .gm-music-player .gmmp-album-cover {
 	position: relative;
+	overflow: hidden;
+	text-align:center;
 	float: left;
 	margin: 0 20px 10px 0;
 	background: #333 url(../img/album-cover-bg.jpg) no-repeat 0 0 scroll;;
@@ -31,6 +33,10 @@
 	background-position:center center;
 	background-repeat:no-repeat;
 	background-color:transparent;
+	height:125px;
+	display:inline-block;
+	position:relative;
+	left:50%;
 }
 
 .gm-music-player .gmmp-album-cover .gmmp-highlight {
@@ -44,21 +50,25 @@
 }
 
 .gm-music-player .gmmp-album-cover,
-.gm-music-player .gmmp-album-cover .gmmp-img,
 .gm-music-player .gmmp-album-cover .gmmp-highlight {
 	display: block;
 	height: 125px;
 	width: 125px;
 }
 
-.gm-music-player .gmmp-album-cover img,
-.gm-music-player .gmmp-album-cover .gmmp-img,
 .gm-music-player .gmmp-album-cover .gmmp-highlight {
 	position: absolute;
 	top: 0;
 	left: 0;
 	height:125px;
 	width:125px;
+}
+.gm-music-player .gmmp-album-cover img {
+	display:block;
+	margin:0 0 0 -50%;
+	border:none;
+	height:125px;
+	width:auto;
 }
 
 /** Track Info **/

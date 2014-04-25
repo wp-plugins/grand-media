@@ -4,70 +4,65 @@ if ( preg_match( '#' . basename( __FILE__ ) . '#', $_SERVER['PHP_SELF'] ) ) {
 }
 
 /**
- * grandDashboard()
+ * gmSettings()
  *
  * @return mixed content
  */
 function gmSettings() {
-	global $grandCore;
-	/*
-	include_once( dirname( dirname( __FILE__ ) ) . '/setup.php' );
-	$grandOptions = grand_default_options();
-	update_option( 'gmediaOptions', $grandOptions );
-	*/
-	$gmOptions = get_option( 'gmediaOptions' );
-	$url = $grandCore->get_admin_url();
-	$nonce = wp_create_nonce( 'grandMedia' );
+	global $gmGallery;
 
 	?>
-	<div id="gmedia_settings"><form id="gmedia_settings_form" action="<?php echo $url['page']; ?>" method="post">
-		<div class="gMediaLibActions">
-			<div class="abuts">
-				<a href="#" class="gm_action_button"><?php _e( 'Reset to Default Settings', 'gmLang' ); ?></a>
-				<span class="gm_action_button gm_action_submit"><input type="submit" name="gmedia_settings_save" value="<?php _e( 'Save', 'gmLang' ); ?>" /></span>
-			</div>
-			<div class="msg0"><?php _e( 'Gmedia Global Settings', 'gmLang' ) ?></div>
-		</div>
-		<div class="gmediaSettings">
-			<div class="gm-metabox-wrapper">
-				<div class="ui-tabs">
-					<ul class="ui-tabs-nav">
-						<li><a href="#section_general"><?php _e( 'General', 'gmLang' ) ?></a></li>
-						<li><a href="#section_other"><?php _e( 'Other', 'gmLang' ) ?></a></li>
-					</ul>
-					<div id="poststuff" class="metabox-holder">
-						<div id="post-body">
-							<div id="post-body-content">
 
-								<div id="section_general" class="postbox ui-tabs-panel">
-									<div class="format-settings block-text">
-										<label for="gmedia_key" class="format-setting-label" id="gmedia_key_label"><?php _e( 'License Key', 'gmLang' ) ?><span>: <i><?php if(isset($gmOptions['product_name'])){ echo $gmOptions['product_name']; } ?></i></span></label>
-										<div class="format-setting type-text wide-desc">
-											<div class="format-setting-inner" id="gmedia_license"><input type="text" name="set[gmedia_key]" id="gmedia_key" value="<?php if(isset($gmOptions['gmedia_key'])){ echo $gmOptions['gmedia_key']; } ?>" class="gmedia-ui-input" /></div>
-											<input type="hidden" value="<?php if(isset($gmOptions['product_name'])){ echo $gmOptions['product_name']; } ?>" name="set[product_name]" id="product_name" />
-											<input type="hidden" value="<?php if(isset($gmOptions['gmedia_key2'])){ echo $gmOptions['gmedia_key2']; } ?>" name="set[gmedia_key2]" id="gmedia_key2" />
-											<span class="hide-if-no-js button button-green ajaxPost" data-action="gmDoAjax" data-_ajax_nonce="<?php echo $nonce; ?>" data-form="#gmedia_license" data-task="gm-get-key"><?php _e( 'Activate Key', 'gmLang' ) ?></span>
-											<div class="description"><?php _e('Enter License Key to remove backlink label from premium gallery modules.') ?></div>
-											<div id="console"></div>
-										</div>
-									</div>
-								</div>
-
-								<div id="section_other" class="postbox ui-tabs-panel"><?php _e( 'Under Development', 'gmLang' ) ?></div>
-
-							</div>
-							<div class="clear"></div>
-						</div>
-					</div>
-					<div class="clear"></div>
+	<form class="panel panel-default" method="post">
+		<div class="panel-heading clearfix">
+			<div class="btn-toolbar pull-left">
+				<div class="btn-group">
+					<button type="submit" name="gmedia_settings_reset" class="btn btn-default" data-confirm="<?php _e('Reset all Gmedia settings?') ?>"><?php _e('Reset Settings', 'gmLang'); ?></button>
+					<button type="submit" name="gmedia_settings_save" class="btn btn-primary"><?php _e('Update', 'gmLang'); ?></button>
+					<?php
+					wp_nonce_field('GmediaSettings');
+					?>
 				</div>
 			</div>
-			<?php
-			/* Use nonce for verification */
-			wp_nonce_field( 'grandMedia' );
-			wp_original_referer_field( true, 'previous' );
-			?>
 		</div>
-	</form></div>
+		<div class="panel-body" id="gmedia-msg-panel"></div>
+		<div class="container-fluid">
+			<div class="tabable tabs-left">
+				<ul class="nav nav-tabs" style="padding:10px 0;">
+					<li class="active"><a href="#gmedia_premium" data-toggle="tab"><?php _e('Premium Settings', 'gmLang'); ?></a></li>
+					<li><a href="#gmedia_settings1" data-toggle="tab"><?php _e('Other Settings', 'gmLang'); ?></a></li>
+				</ul>
+				<div class="tab-content" style="padding-top:21px;">
+					<fieldset id="gmedia_premium" class="tab-pane active">
+						<p><?php _e('Enter License Key to remove backlink label from premium gallery modules.') ?></p>
+						<div class="row">
+							<div class="form-group col-xs-5">
+								<label><?php _e( 'License Key', 'gmLang' ) ?>: <?php if(isset($gmGallery->options['license_name'])){ echo '<em>'.$gmGallery->options['license_name'].'</em>'; } ?></label>
+								<input type="text" name="set[license_key]" id="license_key" class="form-control input-sm" value="<?php if(isset($gmGallery->options['license_key'])){ echo $gmGallery->options['license_key']; } ?>"/>
+								<input type="hidden" name="set[license_name]" id="license_name" value="<?php echo $gmGallery->options['license_name']; ?>"/>
+								<input type="hidden" name="set[license_key2]" id="license_key2" value="<?php echo $gmGallery->options['license_key2']; ?>"/>
+							</div>
+							<div class="form-group col-xs-7">
+								<label>&nbsp;</label>
+								<button style="display:block;" class="btn btn-success btn-sm" type="submit" name="license-key-activate"><?php _e('Activate Key', 'gmLang'); ?></button>
+							</div>
+						</div>
+					</fieldset>
+					<fieldset id="gmedia_settings1" class="tab-pane">
+						<div class="form-group">
+							<label><?php _e( 'Delete uploaded files when delete (uninstall) plugin?', 'gmLang' ) ?>:</label>
+							<div class="checkbox" style="margin:0;">
+								<input type="hidden" name="set[uninstall_dropfiles]" value=""/>
+								<label><input type="checkbox" name="set[uninstall_dropfiles]" value="dropfiles"<?php checked($gmGallery->options['uninstall_dropfiles'], 'dropfiles'); ?> /> <?php _e('delete', 'gmLang'); ?></label>
+								<p class="help-block"><?php _e('Note: Database tables will be deleted anyway', 'gmLang'); ?></p>
+							</div>
+						</div>
+						<p><?php _e('Under constraction...') ?></p>
+					</fieldset>
+				</div>
+				<div class="clear"></div>
+			</div>
+		</div>
+	</form>
 <?php
 }

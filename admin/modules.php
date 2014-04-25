@@ -1,468 +1,189 @@
 <?php
-if ( preg_match( '#' . basename( __FILE__ ) . '#', $_SERVER['PHP_SELF'] ) ) {
-	die( 'You are not allowed to call this page directly.' );
+if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])){
+	die('You are not allowed to call this page directly.');
 }
 
 /**
- * gmedia_manage_modules()
+ * gmediaModules()
  *
  * @return mixed content
  */
-function gmedia_manage_modules() {
-	global $grandCore;
-	$gmOptions = get_option( 'gmediaOptions' );
-	$upload    = $grandCore->gm_upload_dir();
-	$url       = $grandCore->get_admin_url();
-	$nonce     = wp_create_nonce( 'grandMedia' );
+function gmediaModules(){
+	global $gmCore, $gmProcessor, $gmGallery;
+
+	$url = add_query_arg(array('page' => $gmProcessor->page), admin_url('admin.php'));
+
+	$modules = array();
+	if($plugin_modules = glob(GMEDIA_ABSPATH . 'module/*', GLOB_ONLYDIR | GLOB_NOSORT)){
+		foreach($plugin_modules as $path){
+			$mfold = basename($path);
+			$modules[$mfold] = array(
+				'place' => 'plugin',
+				'module_name' => $mfold,
+				'module_url' => $gmCore->gmedia_url . "/module/{$mfold}",
+				'module_path' => $path
+			);
+		}
+	}
+	if($upload_modules = glob($gmCore->upload['path'].'/'.$gmGallery->options['folder']['module'].'/*', GLOB_ONLYDIR | GLOB_NOSORT)){
+		foreach($upload_modules as $path){
+			$mfold = basename($path);
+			$modules[$mfold] = array(
+				'place' => 'upload',
+				'module_name' => $mfold,
+				'module_url' => $gmCore->upload['url'] . "/{$gmGallery->options['folder']['module']}/{$mfold}",
+				'module_path' => $path
+			);
+		}
+	}
+	// not installed modules
+	$xml = array();
+	$get_xml = wp_remote_get($gmGallery->options['modules_xml']);
+	if(!is_wp_error($get_xml) && (200 == $get_xml['response']['code'])){
+		$xml = @simplexml_load_string($get_xml['body']);
+	} else{
+		$alert = array(__('Error loading remote xml...', 'gmLang'));
+		if(is_wp_error($get_xml)){
+			$alert[] = $get_xml->get_error_message();
+		}
+		echo $gmProcessor->alert('danger', $alert);
+	}
+
+	if(!empty($xml)){
+		foreach($xml as $m){
+			$name = (string)$m->name;
+			$xml_modules[$name] = get_object_vars($m);
+		}
+	}
 
 	?>
-	<div class="gMediaLibActions">
-		<div class="abuts">
-			<?php $curr_tab = $grandCore->_get( 'tab', 'galleries' ); ?>
-			<a class="galleries<?php if ( $curr_tab == 'galleries' ) echo ' active'; ?>" href="<?php echo $url['page'] . '&amp;tab=galleries'; ?>"><?php _e( 'Manage Galleries', 'gmLang' ); ?></a>
-			<a class="modules<?php if ( $curr_tab == 'modules' ) echo ' active'; ?>" href="<?php echo $url['page'] . '&amp;tab=modules'; ?>"><?php _e( 'Available Modules', 'gmLang' ); ?></a>
+<div id="gmedia_modules">
+	<div class="panel panel-default">
+		<div class="panel-heading clearfix">
+			<a href="#installModuleModal" class="btn btn-primary pull-right" data-toggle="modal"><?php _e('Install Module ZIP'); ?></a>
+			<h3 class="panel-title"><?php _e('Installed Modules', 'gmLang'); ?></h3>
 		</div>
-		<?php if ( $curr_tab == 'modules' ) {
-			echo '<div class="msg0">' . __( 'Installed Modules', 'gmLang' ) . '</div>';
-		} ?>
+		<div class="panel-body" id="gmedia-msg-panel"></div>
+		<div class="panel-body">
+			<?php
+			// installed modules
+			if(!empty($modules)){
+				foreach($modules as $m){
+					/**
+					 * @var $place
+					 * @var $module_name
+					 * @var $module_url
+					 * @var $module_path
+					 */
+					extract($m);
+
+					// todo: get broken modules folders and delete them with files in modules root
+					if(!file_exists($module_path . '/index.php')){
+						continue;
+					}
+
+					$module_info = array();
+					include($module_path . '/index.php');
+					if(empty($module_info)){
+						continue;
+					}
+
+					$m = isset($xml_modules[$module_name])? array_merge($module_info, $xml_modules[$module_name]) : $module_info;
+					$mclass = ' module-'.$m['type'].' module-'.$m['status'];
+
+					$update_button = '';
+					if(isset($xml_modules[$module_name])){
+						if(version_compare((float)$xml_modules[$module_name]['version'], (float)$module_info['version'], '>')){
+							$update_button = '<a class="btn btn-warning module_install" data-module="'.$module_name.'" data-loading-text="'.__('Loading...', 'gmLang').'" href="'.esc_url($xml_modules[$module_name]['download']).'">'.__('Update Module', 'gmLang')." (v{$xml_modules[$module_name]['version']})</a>";
+							$mclass .= ' module-update';
+						} else{
+							unset($xml_modules[$module_name]);
+						}
+					}
+					?>
+					<div class="media<?php echo $mclass; ?>">
+						<div class="thumbnail pull-left">
+							<img class="media-object" src="<?php echo $module_url.'/screenshot.png'; ?>" alt="<?php echo esc_attr($m['title']); ?>" width="320" height="240"/>
+						</div>
+						<div class="media-body">
+							<h4 class="media-heading"><?php echo $m['title']; ?></h4>
+							<p class="version"><?php echo __('Version', 'gmLang') . ': ' . $module_info['version']; ?></p>
+							<div class="description"><?php echo str_replace("\n", '<br />', (string) $m['description']); ?></div>
+							<hr />
+							<p class="buttons">
+								<?php if(!empty($m['demo']) && $m['demo'] != '#'){ ?>
+									<a class="btn btn-default" target="_blank" href="<?php echo $m['demo']; ?>"><?php _e('View Demo', 'gmLang') ?></a>
+								<?php } ?>
+								<a class="btn btn-success" href="<?php echo $gmCore->get_admin_url(array('page'=>'GrandMedia_Galleries','gallery_module'=>$module_name), array(), true); ?>"><?php _e('Create Gallery', 'gmLang'); ?></a>
+								<?php echo $update_button; ?>
+							</p>
+						</div>
+					</div>
+				<?php
+				}
+			}
+			?>
+		</div>
 	</div>
 
-	<?php
-	/* ---------------------------------------GALLERIES--------------------------------------- */
-	if ( $curr_tab == 'galleries' ) {
-		global $gMDb, $grandAdmin;
-
-		$arg = array(
-			'orderby'    => $grandCore->_get( 'orderby', 'name' ),
-			'order'      => $grandCore->_get( 'order', 'ASC' ),
-			'search'     => $grandCore->_get( 's', '' ),
-			'number'     => 0,
-			'hide_empty' => 0,
-			'page'       => 1
-		);
-		/** @var $orderby
-		 * @var  $order
-		 * @var  $search
-		 * @var  $page
-		 * @var  $number
-		 * @var  $hide_empty
-		 */
-		extract( $arg );
-		$arg['offset'] = $offset = ( $page - 1 ) * $number;
-
-		$taxonomy    = 'gmedia_module';
-		$gMediaTerms = $gMDb->get_terms( $taxonomy, $arg );
-
-
-		/** @var $orderby
-		 * @var  $order
-		 * @var  $search
-		 * @var  $include
-		 */
-		extract( $arg );
-
-		$children             = array();
-		$order                = $grandCore->_get( 'order', 'ASC' );
-		$sort                 = 'ASC';
-		$url_param['tab']     = '&amp;tab=' . $curr_tab;
-		$url_param['orderby'] = '&amp;orderby=' . $orderby;
-		$url_param['order']   = '&amp;order=' . $order;
-		$url_param['s']       = $search ? '&amp;s=' . $search : '';
-		?>
-
-		<div id="gMediaLibTable" class="<?php echo $taxonomy; ?>">
-			<table class="gMediaLibTable" cellspacing="0">
-				<col class="bufer" />
-				<col class="module_preview" />
-				<col class="id" />
-				<col class="name" />
-				<col class="descr" />
-				<col class="count" />
-				<col class="last_edited" />
-				<col class="actions" />
-				<thead>
-				<tr>
-					<th class="bufer"><span></span></th>
-					<th class="module_preview"><span><?php _e( 'Preview Image', 'gmLang' ); ?></span></th>
-					<th class="id <?php if ( $orderby == 'id' ) {
-						echo $order;
-						$sort = ( $order == 'DESC' ) ? 'ASC' : 'DESC';
-					} ?>" title="<?php _e( 'Sort by ID', 'gmLang' ); ?>">
-						<a href="<?php echo $url['page'] . $url_param['tab'] . '&amp;orderby=id&amp;order=' . $sort . $url_param['s']; $sort = 'ASC'; ?>"><?php _e( 'ID', 'gmLang' ); ?></a>
-					</th>
-					<th class="name <?php if ( $orderby == 'name' ) {
-						echo $order;
-						$sort = ( $order == 'DESC' ) ? 'ASC' : 'DESC';
-					} ?>" title="<?php _e( 'Sort by name', 'gmLang' ); ?>">
-						<a href="<?php echo $url['page'] . $url_param['tab'] . '&amp;orderby=name&amp;order=' . $sort . $url_param['s']; $sort = 'ASC'; ?>"><?php _e( 'Name', 'gmLang' ); ?></a>
-					</th>
-					<th class="descr"><span><?php _e( 'Description', 'gmLang' ); ?></span></th>
-					<th class="count"><?php _e( 'Count', 'gmLang' ); ?></th>
-					<th class="last_edited"><span><?php _e( 'Last Edited', 'gmLang' ); ?></span></th>
-					<th class="actions"><span><?php _e( 'Actions', 'gmLang' ); ?></span></th>
-				</tr>
-				</thead>
-				<tbody class="gmLib">
-				<?php
-				if ( count( $gMediaTerms ) ) {
-					$filter = ( empty( $arg['search'] ) ) ? false : true;
-					//$count = 0;
-					//$termsHierarr = $grandCore->get_terms_hierarrhically( $taxonomy, $gMediaTerms, $children, $count, $offset, $number, 0, 0, $filter );
-					foreach ( $gMediaTerms as $termitem ) {
-						$grandAdmin->gm_term_row( $termitem );
-					}
-				}
-				else {
-					echo '<tr class="emptydb"><td colspan="8">' . __( 'No Galleries.', 'gmLang' ) . ' <a href="' . admin_url( 'admin.php?page=GrandMedia_Modules&amp;tab=modules' ) . '">' . __( 'Create', 'gmLang' ) . '</a></td></tr>';
-				}
-				?>
-				</tbody>
-			</table>
-			<?php wp_original_referer_field( true, 'previous' ); ?>
+	<?php if(!empty($xml_modules)){ ?>
+	<div class="panel panel-default">
+		<div class="panel-heading clearfix">
+			<h3 class="panel-title"><?php _e('Not Installed Modules', 'gmLang'); ?></h3>
 		</div>
-
-	<?php
-	}
-	/* ---------------------------------------MODULES--------------------------------------- */
-	if ( $curr_tab == 'modules' ) {
-		?>
-		<div class="gmediaModules">
+		<div class="panel-body" id="gmedia-msg-panel"></div>
+		<div class="panel-body">
 			<?php
-			// not installed modules
-			$dropbox_public = 'http://dl.dropbox.com/u/6295502/gmedia_modules/';
-			$modules_xml = @simplexml_load_file( $dropbox_public.'modules.xml', 'SimpleXMLElement', LIBXML_NOCDATA );
-			if( empty($modules_xml) ){
-				$ch = curl_init($dropbox_public.'modules.xml');
-				curl_setopt($ch, CURLOPT_HEADER, 0);
-				curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-				curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-				$modules_xml = curl_exec($ch);
-				$modules_xml = @simplexml_load_string($modules_xml);
-				curl_close ($ch);
-			}
-			$all_modules = $modules_by_type = $available_modules = array();
-			$modules_xml_message = '';
-			if ( !empty( $modules_xml ) ) {
-				foreach ( $modules_xml as $m ) {
-					$muid               = (string) $m->uid;
-					$type               = (string) $m->type;
-					$all_modules[$muid] = get_object_vars( $m );
-					//$modules_by_type[$type][$muid] = $all_modules[$muid];
+			$xml_dirpath = dirname($gmGallery->options['modules_xml']);
+			foreach($xml_modules as $name => $m){
+				if(empty($m)){
+					continue;
 				}
-				$modules_xml_message = __( 'All available modules are already installed...', 'flag' );
-			}
-			else {
-				$modules_xml_message = __( 'Error loading remote modules or cURL library is not installed on your server...', 'flag' ) . ' <a class="ext" href="http://codeasily.com/community/topic/gmedia-faq/">' . __( 'more', 'gmLang' ) . '</a>';
-			}
-
-			// plugin's module folder
-			$modules = glob( GRAND_ABSPATH . 'module/*', GLOB_NOSORT );
-			if ( ! empty( $modules ) ) {
-				$modules = array_filter( $modules, 'is_dir' );
-				foreach ( $modules as $moduledir ) {
-					$module = array();
-					include( $moduledir . '/details.php' );
-					$moduledir = basename( $moduledir );
-					if ( ! empty( $module ) ) {
-						$muid                     = $module['uid'];
-						$available_modules[$muid] = $module;
-						$mclass                   = $module['type'] . ' ' . $module['status'];
-						$update                   = '';
-						if ( isset( $all_modules[$muid] ) && (string) $all_modules[$muid]['uid'] == $module['uid'] ) {
-							if ( version_compare( (float) $all_modules[$muid]['version'], (float) $module['version'], '>' ) ) {
-								$update = '<p class="msg">' . __( 'New version available. Module will be updated with latest version of plugin.' ) . '</p>';
-								$mclass .= ' update';
-							}
-							$module['demo'] = $all_modules[$muid]['demo'];
-							unset( $all_modules[$muid] );
-						}
-						?>
-						<div class="module <?php echo $mclass; ?>" id="<?php echo $muid; ?>">
-							<div class="screenshot">
-								<img src="<?php echo plugins_url( GRAND_FOLDER . "/module/$moduledir/screenshot.png" ); ?>" alt="<?php echo $module['title']; ?>" width="320" height="240" />
-							</div>
-							<div class="content">
-								<h3><?php echo $module['title']; ?></h3>
-								<span class="version"><?php echo __( 'Version', 'gmLang' ) . ': ' . $module['version']; ?></span>
-
-								<div class="description"><?php echo str_replace("\n", '<br />', $module['description']); ?></div>
-								<div class="links">
-									<?php if(!empty($module['demo']) && $module['demo'] != '#'){ ?>
-									<a class="module_preview button" target="_blank" href="<?php echo $module['demo']; ?>"><?php _e( 'View Demo', 'gmLang' ) ?></a>
-									|
-									<?php }
-									switch($module['type']){
-										case 'gallery':
-											$create_txt = __( 'Create Gallery', 'gmLang' );
-										break;
-										case 'music':
-										case 'video':
-											$create_txt = __( 'Create Playlist', 'gmLang' );
-										break;
-										default:
-											$create_txt = __( 'Create...', 'gmLang' );
-									}
-									?>
-									<a class="module_create button-primary" href="<?php echo wp_nonce_url( 'admin.php?page=GrandMedia_Modules&amp;module=' . $moduledir, 'grandMedia' ); ?>"><?php echo $create_txt; ?></a>
-									<?php echo $update; ?>
-								</div>
-							</div>
-						</div>
-					<?php
-					}
-				}
-			}
-
-			// installed modules
-			$modules = glob( $upload['path'] . $gmOptions['folder']['module'] . '/*', GLOB_NOSORT );
-			if ( ! empty( $modules ) ) {
-				$modules = array_filter( $modules, 'is_dir' );
-				foreach ( $modules as $moduledir ) {
-					$module = array();
-					include( $moduledir . '/details.php' );
-					$moduledir = basename( $moduledir );
-					if ( $module ) {
-						$muid                     = $module['uid'];
-						$available_modules[$muid] = $module;
-						$mclass                   = $module['type'] . ' ' . $module['status'];
-						$update                   = '';
-						if ( isset( $all_modules[$muid] ) && (string) $all_modules[$muid]['uid'] == $module['uid'] ) {
-							if ( version_compare( (float) $all_modules[$muid]['version'], (float) $module['version'], '>' ) ) {
-								$update = '| <a class="module_update button button-green ajaxPost" data-action="gmDoAjax" data-_ajax_nonce="' . $nonce . '" data-post="modulezip=' . urlencode($all_modules[$muid]['download']) . '&moduledir=' . $moduledir . '&modulename=' . urlencode($all_modules[$muid]['title']) . '" data-task="gm-update-module" href="'.$all_modules[$muid]['download'].'">' . __( 'Update Module', 'gmLang' ) . " (v{$all_modules[$muid]['version']})</a>";
-								$mclass .= ' module_update';
-							}
-							$module['demo'] = $all_modules[$muid]['demo'];
-							unset( $all_modules[$muid] );
-						}
-						?>
-						<div class="module <?php echo $mclass; ?>" id="<?php echo $muid; ?>">
-							<div class="screenshot">
-								<img src="<?php echo content_url( GRAND_FOLDER . "/module/$moduledir/screenshot.png" ); ?>" alt="<?php echo $module['title']; ?>" width="320" height="240" />
-							</div>
-							<div class="content">
-								<h3><?php echo $module['title']; ?></h3>
-								<span class="version"><?php echo __( 'Version', 'gmLang' ) . ': ' . $module['version']; ?></span>
-
-								<div class="description"><?php echo str_replace("\n", '<br />', $module['description']); ?></div>
-								<div class="links">
-									<a class="module_delete button button-red ajaxPost" data-action="gmDoAjax" data-_ajax_nonce="<?php echo $nonce; ?>" data-post="module=<?php echo $moduledir; ?>" data-task="gm-delete-module" data-confirmtxt="<?php echo sprintf( __( "Are you sure want to delete %s module?\n\r'Cancel' to stop, 'OK' to delete.", "gmLang" ), $module['title'] ); ?>" href="<?php echo $url['page'] . '&amp;delete_module=' . urlencode( $moduledir ) . '&amp;_wpnonce=' . $nonce; ?>"><?php _e( 'Delete Module', 'gmLang' ) ?></a>
-									|
-									<?php if(!empty($module['demo']) && $module['demo'] != '#'){ ?>
-									<a class="module_preview button" target="_blank" href="<?php echo $module['demo']; ?>"><?php _e( 'View Demo', 'gmLang' ) ?></a>
-									|
-									<?php } ?>
-									<a class="module_create button-primary" href="<?php echo wp_nonce_url( 'admin.php?page=GrandMedia_Modules&amp;module=' . $moduledir, 'grandMedia' ); ?>"><?php _e( 'Create Gallery', 'gmLang' ) ?></a>
-									<?php echo $update; ?>
-								</div>
-							</div>
-						</div>
-					<?php
-					}
-				}
-			}
-			?>
-		</div>
-		<div class="gMediaLibActions" style="margin-top: 20px;">
-			<div class="msg0"><?php _e( 'Not Installed Modules', 'gmLang' ) ?></div>
-		</div>
-		<div class="gmediaModules">
-			<?php
-			if ( ! empty( $all_modules ) ) {
+				$mclass = ' module-'.$m['type'].' module-'.$m['status'];
 				?>
-				<?php foreach ( $all_modules as $module ) { ?>
-					<div class="module <?php echo $module['type'] . ' ' . $module['status']; ?>" id="<?php echo $module['uid']; ?>">
-						<div class="screenshot">
-							<img src="<?php echo $dropbox_public.$module['filename']; ?>.png" alt="<?php echo $module['title']; ?>" width="320" height="240" />
-						</div>
-						<div class="content">
-							<h3><?php echo $module['title']; ?></h3>
-							<span class="version"><?php echo __( 'Version', 'gmLang' ) . ': ' . $module['version']; ?></span>
-
-							<div class="description"><?php echo str_replace("\n", '<br />', $module['description']); ?></div>
-							<div class="links">
-								<?php if(!empty($module['demo']) && $module['demo'] != '#'){ ?>
-								<a class="module_preview button" target="_blank" href="<?php echo $module['demo']; ?>"><?php _e( 'View Demo', 'gmLang' ) ?></a>
-								|
-								<?php } ?>
-								<a class="install ajaxPost button-primary" data-action="gmDoAjax" data-_ajax_nonce="<?php echo $nonce; ?>" data-post="modulezip=<?php echo urlencode($module['download']); ?>&modulename=<?php echo urlencode($module['title']); ?>" data-task="gm-install-module" href="<?php echo $module['download']; ?>"><?php _e( 'Install Module', 'gmLang' ) ?></a>
-							</div>
-						</div>
+				<div class="media<?php echo $mclass; ?>">
+					<div class="thumbnail pull-left">
+						<img class="media-object" src="<?php echo $xml_dirpath.'/'.$m['name']; ?>.png" alt="<?php echo esc_attr($m['title']); ?>" width="320" height="240"/>
 					</div>
-				<?php
-				}
-			}
-			else {
-				?>
-				<div class="module nomodules"><?php echo $modules_xml_message; ?></div>
-			<?php
-			}
-			?>
-		</div>
-	<?php
-	}
-
-}
-
-
-/**
- * gmedia_module_settings()
- *
- * @param string $module_folder
- * @param int    $term_id
- *
- * @return mixed content
- */
-function gmedia_module_settings( $module_folder, $term_id = 0 ) {
-	global $grandCore, $gMDb;
-
-	// check for correct capability
-	if ( ! current_user_can( 'edit_posts' ) )
-		die( '-1' );
-
-	$url   = $grandCore->get_admin_url();
-	$nonce = wp_create_nonce( 'grandMedia' );
-
-	// module folder
-	$module_dir = $grandCore->get_module_path( $module_folder );
-	$module_ot  = array();
-	if ( is_dir( $module_dir['path'] ) ) {
-		include( $module_dir['path'] . '/settings.php' );
-	}
-
-	$field_values = array();
-	$submit_name  = 'gmedia_module_create';
-	$load_default = 1;
-	$term_id      = $term_id ? intval( $term_id ) : $grandCore->_get( 'term_id', 0 );
-	if ( $term_id ) {
-		$load_default = 2;
-		/* get current module meta data */
-		if ( ! isset( $_GET['settings_default'] ) ) {
-			$load_default = 0;
-			$field_values = $gMDb->get_metadata( 'gmedia_term', $term_id );
-			if ( ! empty( $field_values ) ) {
-				$field_values = array_map( array( $grandCore, 'maybe_array_0' ), $field_values );
-				$field_values = array_map( 'maybe_unserialize', $field_values );
-			}
-		} else {
-			$field_values['gMediaQuery'] = $gMDb->get_metadata( 'gmedia_term', $term_id, 'gMediaQuery', true );
-		}
-		$field_values = array_map( 'maybe_unserialize', $field_values );
-
-		$term_general = $gMDb->get_term( $term_id, 'gmedia_module', ARRAY_A );
-		$field_values = array_merge( $term_general, $field_values );
-		$submit_name  = 'gmedia_module_update';
-	}
-	include( GRAND_ABSPATH . '/inc/module.settings.php' );
-
-	$backlink = $url['page'];
-	$gm_hash  = '';
-	if ( substr_count( $url['query'], 'term_id=' ) ) {
-		if ( substr_count( $url['query'], 'settings_default=' ) ) {
-			$backlink = remove_query_arg( 'settings_default' );
-			$gm_hash  = ' gm_add_hash';
-		}
-	}
-	else {
-		$backlink = $url['page'] . '&amp;tab=modules';
-	}
-	?>
-	<form id="gm_module_settings_form" action="<?php echo $url['page'] . '&module=' . $module_folder . ( $term_id ? '&term_id=' . $term_id : '' ); ?>" method="post">
-		<div class="gMediaLibActions">
-			<div class="abuts">
-				<a class="gm_action_back<?php echo $gm_hash; ?>" href="<?php echo $backlink; ?>"><b>&laquo;</b> <?php _e( 'Back', 'gmLang' ); ?>
-				</a>
-			</div>
-			<div class="abuts">
-				<a href="<?php echo remove_query_arg( array( 'doing_wp_cron', '_wpnonce', 'settings_default' ) ) . '&amp;settings_default=' . rand() . '&amp;_wpnonce=' . $nonce; ?>" class="gm_action_button ui-tab-link"><?php _e( 'Load Default Settings', 'gmLang' ); ?></a>
-				<span class="gm_action_button gm_action_submit"><input type="submit" name="<?php echo $submit_name; ?>" value="<?php _e( 'Save', 'gmLang' ); ?>" /></span>
-			</div>
-			<div class="msg0"><?php _e( 'Gallery Settings', 'gmLang' ) ?></div>
-		</div>
-		<div class="gmediaSettings">
-			<div class="gm-metabox-wrapper">
-				<div class="ui-tabs">
-					<?php
-					/* check for sections */
-					if ( isset( $module_ot['settings'] ) && count( $module_ot['settings'] ) > 0 ) {
-
-						echo '<ul class="ui-tabs-nav">';
-
-						/* loop through page sections */
-						foreach ( $module_ot['settings'] as $key => $section ) {
-							echo '<li><a href="#' . $key . '">' . $section['title'] . '</a></li>';
-						}
-						echo '</ul>';
-
-					} ?>
-					<div id="poststuff" class="metabox-holder">
-						<div id="post-body">
-							<div id="post-body-content">
-								<?php foreach ( $module_ot['settings'] as $key => $section ) { ?>
-									<div id="<?php echo $key; ?>" class="postbox ui-tabs-panel">
-										<div class="inside">
-											<?php
-											/* loop through meta box fields */
-											foreach ( $section['fields'] as $field ) {
-												/* set default to standard value */
-												if ( $load_default == 1 ) {
-													$field_value = $field['std'];
-												}
-												else {
-													$field_value = isset( $field_values[$field['id']] ) ? $field_values[$field['id']] : $field['std'];
-												}
-												/* build the arguments array */
-												$_args = array(
-													'type'           => $field['type'],
-													'field_id'       => $field['id'],
-													'field_name'     => $field['id'],
-													'field_value'    => $field_value,
-													'field_desc'     => isset( $field['desc'] ) ? $field['desc'] : '',
-													'field_std'      => isset( $field['std'] ) ? $field['std'] : '',
-													'field_class'    => isset( $field['class'] ) ? $field['class'] : '',
-													'field_choices'  => isset( $field['choices'] ) ? $field['choices'] : array(),
-													'field_settings' => isset( $field['settings'] ) && ! empty( $field['settings'] ) ? $field['settings'] : array(),
-													'param'          => isset( $field['param'] ) ? $field['param'] : '',
-													'term_id'        => $term_id,
-													'meta'           => true
-												);
-												?>
-												<div class="format-settings block-<?php if ( $_args['type'] == 'text' && ! empty( $_args['param'] ) ) {
-													echo $_args['param'];
-												}
-												else {
-													echo $_args['type'];
-												} ?>">
-													<div class="format-setting-label">
-														<?php if ( in_array( $field['type'], array( 'textblock', 'query' ) ) ) { ?>
-															<h3 class="label"><?php echo $field['label']; ?></h3>
-														<?php }
-														else { ?>
-															<label for="<?php echo $_args['field_id']; ?>" class="label"><?php echo $field['label']; ?></label>
-														<?php } ?>
-													</div>
-													<?php gm_return_func_by_type( $_args ); ?>
-												</div>
-
-											<?php } ?>
-										</div>
-									</div>
-								<?php } ?>
-							</div>
-							<div class="clear"></div>
-						</div>
+					<div class="media-body">
+						<h4 class="media-heading"><?php echo $m['title']; ?></h4>
+						<p class="version"><?php echo __('Version', 'gmLang') . ': ' . $m['version']; ?></p>
+						<div class="description"><?php echo str_replace("\n", '<br />', (string) $m['description']); ?></div>
+						<hr />
+						<p class="buttons">
+							<?php if(!empty($m['demo']) && $m['demo'] != '#'){ ?>
+								<a class="btn btn-default" target="_blank" href="<?php echo $m['demo']; ?>"><?php _e('View Demo', 'gmLang') ?></a>
+							<?php } ?>
+							<a class="btn btn-primary module_install" data-module="<?php echo $m['name']; ?>" data-loading-text="<?php _e('Loading...', 'gmLang'); ?>" href="<?php echo $m['download']; ?>"><?php _e('Install Module', 'gmLang'); ?></a>
+						</p>
 					</div>
-					<div class="clear"></div>
 				</div>
-			</div>
-			<input type="hidden" name="module_name" value="<?php echo $module_folder; ?>" />
-			<input type="hidden" name="term_id" value="<?php echo $term_id; ?>" />
-			<?php
-			/* Use nonce for verification */
-			wp_nonce_field( 'grandMedia' );
-			wp_original_referer_field( true, 'previous' );
-			?>
+			<?php } ?>
 		</div>
-	</form>
+	</div>
+	<?php } ?>
+</div>
+	<!-- Modal -->
+	<div class="modal fade gmedia-modal" id="installModuleModal" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog">
+			<form class="modal-content" method="post" enctype="multipart/form-data" action="<?php echo $url; ?>">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title"><?php _e('Install a plugin in .zip format'); ?></h4>
+				</div>
+				<div class="modal-body">
+					<p class="install-help"><?php _e('If you have a module in a .zip format, you may install it by uploading it here.'); ?></p>
+					<?php wp_nonce_field( 'GmediaModule'); ?>
+					<label class="screen-reader-text" for="modulezip"><?php _e('Module zip file'); ?></label>
+					<input type="file" id="modulezip" name="modulezip" />
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal"><?php _e('Cancel', 'gmLang'); ?></button>
+					<button type="submit" class="btn btn-primary"><?php _e('Install', 'gmLang'); ?></button>
+				</div>
+			</form>
+		</div>
+	</div>
 <?php
 }
+

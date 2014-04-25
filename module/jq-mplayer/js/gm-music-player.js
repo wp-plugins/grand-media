@@ -6,7 +6,7 @@
  */
 (function($) {
 	$.fn.gmMusicPlayer = function(playlist, userOptions) {
-		var $self = this, defaultOptions, options, cssSelector, appMgr, playlistMgr, interfaceMgr, ratingsMgr,
+		var $self = this, opt_str, opt_int, opt_bool, opt_obj, options, cssSelector, appMgr, playlistMgr, interfaceMgr, ratingsMgr,
 				layout, ratings, myPlaylist, current;
 
 		cssSelector = {
@@ -37,19 +37,33 @@
 			descriptionShowing:'.gmmp-showing'
 		};
 
-		defaultOptions = {
+		opt_str = {
 			width:'auto',
-			rating:false,
 			linkText:'Download',
-			moreText:'View More...',
-			tracksToShow:5,
-			autoPlay:false,
+			moreText:'View More...'
+		};
+		opt_int = {
+			maxwidth:0,
+			tracksToShow:5
+		};
+		opt_bool = {
+			rating:false,
+			autoplay:false
+		};
+		opt_obj = {
 			jPlayer:{
 				swfPath: userOptions.pluginUrl + '/assets/jplayer'
 			}
 		};
 
-		options = $.extend(true, {}, defaultOptions, userOptions);
+		options = $.extend(true, {}, opt_str, opt_int, opt_bool, opt_obj, userOptions);
+		$.each(options, function(key, val){
+			if(key in opt_bool){
+				options[key] = (!(!val || val == '0' || val == 'false'));
+			} else if(key in opt_int){
+				options[key] = parseInt(val);
+			}
+		});
 
 		myPlaylist = playlist;
 
@@ -431,7 +445,8 @@
 								' <div class="jPlayer-container"></div>' +
 								'</div>';
 
-				$interface = $(markup).css({display:'none', opacity:0, width: options.width}).appendTo($self).slideDown('slow', function() {
+				var mw = (0 == options.maxwidth)? 'none' : options.maxwidth;
+				$interface = $(markup).css({display:'none', opacity:0, width: options.width, 'max-width': mw}).appendTo($self).slideDown('slow', function() {
 					$interface.animate({opacity:1});
 
 					$self.trigger('mbInterfaceBuilt');
