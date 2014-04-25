@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="JSHintConfiguration" version="2.3.0" use-config-file="false">
+    <option boss="true" />
+    <option debug="true" />
+    <option eqnull="true" />
+    <option evil="true" />
+    <option laxbreak="true" />
+    <option loopfunc="true" />
+    <option maxerr="50" />
+  </component>
+</project>
+
