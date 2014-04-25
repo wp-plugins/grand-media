@@ -200,10 +200,9 @@ class GmediaCore {
 					} elseif(false !== filter_var($cover, FILTER_VALIDATE_URL)){
 						return $cover;
 					}
+				} elseif(false !== $default){
+					return $default;
 				}
-			}
-			if(false !== $default){
-				return $default;
 			}
 		}
 
