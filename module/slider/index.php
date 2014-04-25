@@ -18,7 +18,7 @@ $module_info = array(
 );
 if(isset($_GET['info'])){
 	echo '<pre>' . print_r($module_info, true) . '</pre>';
-} elseif(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])){
+} elseif(preg_match('#' . basename(dirname(__FILE__)).'/'.basename(__FILE__) . '#', $_SERVER['PHP_SELF'])){
 	header("Location: {$module_info['demo']}");
 	die();
 }

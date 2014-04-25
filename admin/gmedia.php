@@ -366,7 +366,7 @@ function gmediaLib(){
 						</div>
 					</div>
 					<div class="col-lg-6">
-						<div class="form-group">
+						<div class="form-group hidden">
 							<label><?php _e('Author', 'gmLang'); ?></label>
 							<?php $user_ids = $gmCore->get_editable_user_ids($user_ID);
 							wp_dropdown_users(array('include' => $user_ids, 'include_selected' => true,

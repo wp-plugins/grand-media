@@ -82,7 +82,7 @@ function gmedia_shortcode($atts, $content = ''){
 				} elseif('gmedia_album' == $tax){
 					$term_meta = $gmDB->get_metadata('gmedia_term', $term_id);
 					$term_meta = array_map('reset', $term_meta);
-					$term_meta = array_merge( array('orderby' => 'ID', 'order' => 'DESC', 'status' => 'public'), $term_meta);
+					$term_meta = array_merge( array('orderby' => 'ID', 'order' => 'DESC'), $term_meta);
 					$args = array('album__in' => $term_id, 'orderby' => $term_meta['orderby'], 'order' => $term_meta['order']);
 					$gmedia[$term_id] = $gmDB->get_gmedias($args);
 				} elseif('gmedia_tag' == $tax){

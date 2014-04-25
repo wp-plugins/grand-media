@@ -438,6 +438,7 @@ class GmediaProcessor{
 				break;
 			case 'GrandMedia_Settings':
 				if(isset($_POST['license-key-activate'])){
+					check_admin_referer('GmediaSettings');
 					$license_key = $gmCore->_post('set');
 					if(!empty($license_key['license_key'])){
 						global $wp_version;
@@ -479,10 +480,11 @@ class GmediaProcessor{
 
 				if(isset($_POST['gmedia_settings_save'])){
 					check_admin_referer('GmediaSettings');
-					$set = array();
-					$set['license_name'] = $_POST['set']['license_name'];
-					$set['license_key'] = $_POST['set']['license_key'];
-					$set['license_key2'] = $_POST['set']['license_key2'];
+					$set = $gmCore->_post('set', array());
+					if(empty($set['license_key2'])){
+						$set['license_key'] = '';
+						$this->error[] = __('License Key not Activated', 'gmLang');
+					}
 					foreach($set as $key => $val){
 						$gmGallery->options[$key] = $val;
 					}
@@ -491,8 +493,13 @@ class GmediaProcessor{
 				}
 
 				if(isset($_POST['gmedia_settings_reset'])){
+					check_admin_referer('GmediaSettings');
 					include_once(dirname(dirname(__FILE__)) . '/setup.php');
+					$_temp_options = $gmGallery->options;
 					$gmGallery->options = gmedia_default_options();
+					$gmGallery->options['license_name'] = $_temp_options['license_name'];
+					$gmGallery->options['license_key'] = $_temp_options['license_key'];
+					$gmGallery->options['license_key2'] = $_temp_options['license_key2'];
 					delete_metadata('user', 0, 'gm_screen_options', '', true);
 					update_option('gmediaOptions', $gmGallery->options);
 					$this->msg[] .= __('All settings set to default', 'gmLang');

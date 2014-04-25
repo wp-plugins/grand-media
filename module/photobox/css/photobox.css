@@ -8,7 +8,8 @@ ul.gmPhotoBox li{list-style: none; background: none; padding: 0; margin: 0; pers
 .gmPhotoBox li a{ padding: 0; margin: 0; border: none; display:block; width:75px; height:68px; vertical-align:bottom; overflow:hidden; background:rgba(0,0,0,0.1);
 	transition:.4s ease-out; -webkit-transition:0.4s ease-out; -webkit-transform:rotateX(90deg) translate(-50px,-50%); transform:rotateX(90deg) translate(-50px,-50%); }
 .gmPhotoBox li a:active, .gmPhotoBox li a:focus{ outline:none; }
-.gmPhotoBox li a img{ padding: 0; margin: 0; border: none; min-height:100%; width:100%; transition:.3s ease-out; -webkit-transition:0.3s ease-out; }
+.gmPhotoBox li a img{ padding: 0; margin: 0; border: none; height:100%; min-width:100%; transition:.3s ease-out; -webkit-transition:0.3s ease-out; }
+.gmPhotoBox li a img.portrait{ height:auto; min-height:100%; width:100%; }
 .gmPhotoBox li.loaded a{ -webkit-transform:rotateX(0deg) translate(0,0); transform:rotateX(0deg) translate(0,0); }
 .gmPhotoBox li.loaded:hover{ z-index:2; transform:scale(1.5); -webkit-transform:scale(1.5); }
 .gmPhotoBox li.loaded a:hover{ box-shadow:0 0 0 2px #FFF, 0 0 20px 5px #000; transition:.1s; -webkit-transition:0.1s; }

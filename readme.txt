@@ -3,8 +3,8 @@ Contributors: Rattus
 Donate link: http://codeasily.com/wordpress-plugins/gmedia-gallery/
 Tags: gallery, image, images, library, files, music, video, slideshow, responsive, admin, Post, posts, easy gallery, iphone gallery, best gallery, portfolio, image gallery, photo gallery, photo, slider, admin, page, relative image
 Requires at least: 3.5
-Tested up to: 3.8.0
-Stable tag: 0.9.4
+Tested up to: 3.9.1
+Stable tag: 0.9.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -15,17 +15,19 @@ Gmedia Gallery - powerfull media library plugin for creating beautiful galleries
 Manage files, show image galleries and photo slideshows, play music on your site Gmedia Gallery plugin. Gmedia Library provides a comprehensive interface for handling galleries, image and audio files.
 
 With Gmedia plugin you can upload an unlimited number of photo and audio files, create dozens of galleries and playlists, group pictures and other files in albums, and add tags for each file.
-Handle any file format and link any files with images in few clicks. You can import images with captions from Flagallery plugin and from NextGen Gallery plugin right to Gmedia Library.
+Handle any file format and link any files with images in few clicks. You can import images with captions from Worpress Media Library, Flagallery plugin and from NextGen Gallery plugin right to Gmedia Library.
 
 Create Slideshow Galleries with using tags and automatically add images to several galleries by assigning these tags to uploaded photos.
 
-Easily add related photos from Gmedia Library to the Post by using Gmedia Gallery MetaBox. One click for inserting image or gallery right in your page.
+Easily add related photos from Gmedia Library to the Post by using Add Media -> Gmedia Gallery tab MetaBox. One click for inserting image or gallery right in your page.
 
 Friendly for iPad and iPhone. Doesn’t slow down your website. **Unlimited galleries** on your website with **unlimited customizations** for each gallery.
 
 With our versatile plugin you can magically change the look and feel of your photo gallery, a huge selection of modules will help you embed the gallery in your posts and web pages making them feel complete. You will appreciate user friendly interface of admin panel, making the creation of unique and contemporary style gallery an easy and funny process, and attracting increasing attention from viewers.
 
 **[Home Page](http://codeasily.com/), [More Info and Screens](http://codeasily.com/wordpress-plugins/gmedia-gallery/), [Skins Portfolio](http://codeasily.com/portfolio/), [Support Forum](http://codeasily.com/community/forum/gmedia-gallery-wordpress-plugin/)**
+
+Gmedia Gallery is the result of hundreds of hours of working to bring you the ultimate photo managing tool. With a lot of features, flexible options and a wide range of customizations, editing and publishing galleries, Gmedia Gallery is a smart addition to any blogger's arsenal. Whether you're photographer or a blogger, you'll like the Gmedia Gallery plugin.
 
 See demo of Gmedia Gallery Modules:
 
@@ -40,13 +42,14 @@ Help me make it best gallery plugin: test it and [write suggestions](http://code
 
 Features:
 
-*   SEO and mobile friendly, responsive galleries
-*   Add tags and albums to uploaded files
+*   Mobile friendly, responsive galleries
+*   Add tags, assign categories and group images in albums
+*   Drag'n'drop sorting for files in Album
+*   Easy bulk editing media files data with Edit Mode
 *   Create many galleries with different options
-*   Automatically add uploaded images to gallery related on tags and albums
 *   Easily adding shortcode to post in one click
-*   Easily adding related images to post in one click
-*   Manage Wordpress Media Library files much easier
+*   Easily adding images from Gmedia Library to post
+*   Import Wordpress Media Library files
 *   Uses WordPress' native Image Resizer
 *   Import files from server folder or from others gallery plugins
 
@@ -55,24 +58,17 @@ TODO List:
 
 *   More modules for creating photo gallery, audio playlist, video playlist
 *   Easily add to Post audio and video files with tags related to post tags
-*   Import from/to Wordpress Media Library
 *   Intergration with social services
-*   Upload ZIP with files
 *   Image Editor with watermark feature
-*   Add drag'n'drop sorting for files in album
-*   Add bulk editing
 
 
 == Installation ==
 
 1. Upload `gm-media` folder to the `/wp-content/plugins/` directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
-3. Go to Gmedia Gallery page and Add Tags & Albums
-4. Add Files to albums and with chosen tags
-5. Go to Manage Galleries... -> Available Modules tab -> choose module and click Create button
-6. Change settings to fit your site -> give gallery the Name -> in Query Builder choose album and other parameters to query images -> click Save button
-7. On Edit Post page click created gallery in Gmedia Metabox to insert shortcode in text editor.
-8. When gallery loads first time on the created page or if you've added new images to gallery you'll see progress bar which means creating thumbnails for new images
+3. Go to Gmedia Gallery Add / Import Files and upload images (assign tags or album to uploaded images right in place)
+4. Go to Create / Manage Galleries... -> click Create button -> choose module -> choose albums or tags to grab images from -> Save
+5. On Edit Post page click GmediaGallery button -> in popup click on gallery to insert shortcode in text editor.
 
 == Frequently Asked Questions ==
 
@@ -87,6 +83,12 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 3. Add to Post - GrandMedia MetaBox
 
 == Changelog ==
+
+= 0.9.5 =
+* Whole new design
+* Plugin was rewrited from scratch
+* More intuitive interface
+* Backup before updating. After update plugin go to Manage Modules page and update modules to latest versions. Then check your galleries.
 
 = 0.9.4 =
 * Security fix for jplayer library
@@ -170,6 +172,11 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 * First public release
 
 == Upgrade Notice ==
+
+= 0.9.5 =
+Backup before updating.
+After update plugin go to Manage Modules page and update modules to latest versions.
+Then check your galleries on Create / Manage Galleries page -> edit options and check on frontend.
 
 = 0.8.5 =
 If you've bought License Key: go to Settings page -> click Activate Key -> Save settings

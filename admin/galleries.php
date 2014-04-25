@@ -448,8 +448,10 @@ function gmediaGalleryEdit() {
 								<label><?php _e('Status', 'gmLang'); ?></label>
 								<select name="gallery[status]" class="form-control input-sm">
 									<option value="public"<?php selected($gallery['status'], 'public'); ?>><?php _e('Public', 'gmLang'); ?></option>
+								<?php /* ?>
 									<option value="private"<?php selected($gallery['status'], 'private'); ?>><?php _e('Private', 'gmLang'); ?></option>
 									<option value="draft"<?php selected($gallery['status'], 'draft'); ?>><?php _e('Draft', 'gmLang'); ?></option>
+								<?php */ ?>
 								</select>
 							</div>
 							<div class="form-group">

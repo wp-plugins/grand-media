@@ -11,6 +11,7 @@ if(typeof jQuery.fn.gmPhantom == 'undefined'){
 				ID = '',
 				Content,
 				tempVar,
+				ratio,
 				opt,
 
 				opt_str = {
@@ -94,6 +95,7 @@ if(typeof jQuery.fn.gmPhantom == 'undefined'){
 						opt.initialRows = opt.thumbRows;
 						opt.thumbWidthDesktop = opt.thumbWidth;
 						opt.thumbHeightDesktop = opt.thumbHeight;
+						opt.ratio = opt.thumbWidth / opt.thumbHeight;
 
 						Content = arguments[0];
 						methods.parseContent();
@@ -307,12 +309,24 @@ if(typeof jQuery.fn.gmPhantom == 'undefined'){
 					loadThumb: function(no){// Load a thumbnail
 						methods.initThumb(no);
 						var img = new Image();
-
+						var img_w, img_h, img_r, set_w = opt.thumbWidth, set_h = opt.thumbHeight, set_m;
 						$(img).load(function(){
-							$('.gmPhantom_Thumb', '#gmPhantom_ThumbContainer_' + ID + '-' + no, Container).html(this);
+							img_w = this.width;
+							img_h = this.height;
+							img_r = img_w/img_h;
+							if(opt.ratio > img_r){
+								set_w = '100%';
+								set_h = 'auto';
+								set_m = '-'+ Math.floor((opt.thumbWidth/img_r - opt.thumbHeight)/opt.thumbHeight*25) +'% 0 0 0';
+							} else{
+								set_w = 'auto';
+								set_h = '100%';
+								set_m = '0 0 0 -'+ Math.floor((opt.thumbHeight*img_r - opt.thumbWidth)/opt.thumbWidth*50) +'%';
+							}
+							$('.gmPhantom_Thumb', '#gmPhantom_ThumbContainer_' + ID + '-' + no, Container).html(this).find('img').css({width:set_w, height:set_h, margin:set_m});
 
 							methods.loadCompleteThumb(no);
-						}).attr({src: Thumbs[no - 1], alt: CaptionTitle[no - 1], width: opt.thumbWidth, height: opt.thumbHeight}).css('opacity', 0);
+						}).attr({src: Thumbs[no - 1], alt: CaptionTitle[no - 1]}).css('opacity', 0);
 					},
 					initThumb: function(no){// Init thumbnail before loading
 						var ThumbHTML = [];

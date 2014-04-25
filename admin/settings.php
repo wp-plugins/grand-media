@@ -19,6 +19,9 @@ function gmSettings() {
 				<div class="btn-group">
 					<button type="submit" name="gmedia_settings_reset" class="btn btn-default" data-confirm="<?php _e('Reset all Gmedia settings?') ?>"><?php _e('Reset Settings', 'gmLang'); ?></button>
 					<button type="submit" name="gmedia_settings_save" class="btn btn-primary"><?php _e('Update', 'gmLang'); ?></button>
+					<?php
+					wp_nonce_field('GmediaSettings');
+					?>
 				</div>
 			</div>
 		</div>

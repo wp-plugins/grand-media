@@ -432,7 +432,7 @@ function gmediaAlbumEdit(){
 		$term_meta = $gmDB->get_metadata('gmedia_term', $term->term_id);
 		$term_meta = array_map('reset', $term_meta);
 		$term_meta = array_merge( array('orderby' => 'ID', 'order' => 'DESC'), $term_meta);
-		$per_page = 4;
+		$per_page = 30;
 		$pager = '';
 		$mousesort = ('drag-n-drop' === $gmCore->_get('sort'))? true : false;
 
@@ -521,8 +521,10 @@ function gmediaAlbumEdit(){
 							<label><?php _e('Status', 'gmLang'); ?></label>
 							<select name="term[status]" class="form-control input-sm">
 								<option value="public"<?php selected($term->status, 'public'); ?>><?php _e('Public', 'gmLang'); ?></option>
+								<?php /* ?>
 								<option value="private"<?php selected($term->status, 'private'); ?>><?php _e('Private', 'gmLang'); ?></option>
 								<option value="draft"<?php selected($term->status, 'draft'); ?>><?php _e('Draft', 'gmLang'); ?></option>
+ 								<?php */ ?>
 							</select>
 						</div>
 						<div class="form-group col-xs-6">
@@ -575,7 +577,7 @@ function gmediaAlbumEdit(){
 						forcePlaceholderSize: true,
 						//revert: true,
 						stop: function( event, ui ) {
-							items = $('.gm-img-thumbnail',this),
+							items = $('.gm-img-thumbnail',this);
 							var	qty = items.length - 1;
 							items.each(function(i){
 								var order = img_order_asc? i : (qty - i);

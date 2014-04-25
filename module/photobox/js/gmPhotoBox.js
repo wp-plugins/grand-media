@@ -228,7 +228,6 @@
 		}
 		b = c.extend({}, ta, ta_bool, ta_int, b || {});
 		c.each(b, function(key, val){if(key in ta_bool){b[key]=(!(!val||(val=='0')||(val=='false')));}else if(key in ta_int){b[key]=parseInt(val);}});
-		console.log(b);
 		a = new M(b, this, a);
 		c(this).data("_photobox", a);
 		a.callback = d;
@@ -251,7 +250,10 @@
 				g.appendChild(this);
 				setTimeout(function() {
 					c(h).addClass("loaded")
-				}, 25 * f++)
+				}, 25 * f++);
+				if(1>this.width/this.height){
+					c(this).addClass("portrait")
+				}
 			};
 			d.src = e.libraryUrl + b.thumb;
 			d.alt = b.title;

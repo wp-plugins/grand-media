@@ -30,7 +30,7 @@ class GmediaCore {
 	 * Check POST data
 	 *
 	 * @param string $var
-	 * @param bool   $def
+	 * @param bool|mixed   $def
 	 *
 	 * @return mixed
 	 */
