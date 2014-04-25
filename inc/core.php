@@ -251,15 +251,17 @@ class GmediaCore {
 		/** @var $wpdb wpdb */
 		global $wpdb, $gmGallery;
 
-		$file = strtolower(basename($file));
-		$filetype = wp_check_filetype($file, $mimes = null);
+		$file = basename($file);
+		$file_lower = strtolower($file);
+		$filetype = wp_check_filetype($file_lower, $mimes = null);
 		$title = pathinfo($file, PATHINFO_FILENAME);
 		$pathinfo = pathinfo(preg_replace('/[^a-z0-9_\.-]+/i', '_', $file));
+		$pathinfo['extension'] = strtolower($pathinfo['extension']);
 		$suffix = ((false !== $exists) && absint($exists))? "_$exists" : '';
 
 		$fileinfo['extension'] = (empty($filetype['ext']))? $pathinfo['extension'] : $filetype['ext'];
 		$fileinfo['filename'] = $pathinfo['filename'].$suffix;
-		$fileinfo['basename'] = $suffix? $pathinfo['filename'].$suffix.'.'.$fileinfo['extension'] : $pathinfo['basename'];
+		$fileinfo['basename'] = $fileinfo['filename'].'.'.$fileinfo['extension'];
 		$fileinfo['title'] = ucwords(str_replace('_', ' ', mysql_real_escape_string($title)));
 		$fileinfo['mime_type'] = (empty($filetype['type']))? 'application/'.$fileinfo['extension'] : $filetype['type'];
 		list($dirname) = explode('/', $fileinfo['mime_type']);

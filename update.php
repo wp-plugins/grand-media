@@ -114,19 +114,39 @@ window.onload = function() {
 	wp_ob_end_flush_all();
 
 
-	$gmedias = $gmDB->get_gmedias(array('mime_type' => 'image/*'));
 	$options = get_option('gmediaOptions');
+	require_once(dirname(__FILE__). '/setup.php');
+	$default_options = gmedia_default_options();
+	unset($options['folder']);
+	unset($options['taxonomies']);
+	$new_options = $gmCore->array_diff_key_recursive($default_options, $options);
+	$gmGallery->options = array_merge_recursive($options, $new_options);
+	update_option('gmediaOptions', $gmGallery->options);
+
+	$fix_files = glob($gmCore->upload['path'].'/*.*', GLOB_NOSORT);
+	if(!empty($fix_files)){
+		foreach($fix_files as $ff){
+			@rename($ff, $gmCore->upload['path'].'/image/'.basename($ff));
+		}
+	}
+
+	$gmedias = $gmDB->get_gmedias(array('mime_type' => 'image/*'));
 	$files = array();
 	foreach($gmedias as $gmedia){
 		$files[] = array(
 			'id' => $gmedia->ID,
-			'file' => $gmCore->upload['path'].'/'.$options['folder']['image'].'/'.$gmedia->gmuid
+			'file' => $gmCore->upload['path'].'/image/'.$gmedia->gmuid,
 		);
 	}
 	if(!empty($files)){
 		gmedia_images_update($files);
 	}
 	$gmCore->delete_folder($gmCore->upload['path'].'/link');
+
+	// try to make gallery dirs if not exists
+	foreach($gmGallery->options['folder'] as $folder){
+		wp_mkdir_p($gmCore->upload['path'] . '/' . $folder);
+	}
 
 	$wpdb->update($wpdb->prefix.'gmedia_term', array('taxonomy' => 'gmedia_album'), array('taxonomy' => 'gmedia_category'));
 	$wpdb->update($wpdb->prefix.'gmedia_term', array('taxonomy' => 'gmedia_gallery'), array('taxonomy' => 'gmedia_module'));
@@ -162,6 +182,9 @@ window.onload = function() {
 				$old_meta = array_map( 'reset', $old_meta );
 				$old_meta = array_map( 'maybe_unserialize', $old_meta );
 				$old_meta_keys = array_keys($old_meta);
+				if(!isset($old_meta['gMediaQuery'])){
+					continue;
+				}
 				foreach($old_meta_keys as $key){
 					$wpdb->delete($wpdb->prefix.'gmedia_term_meta', array('gmedia_term_id' => $gallery->term_id, 'meta_key' => $key));
 					//$gmDB->delete_metadata('gmedia_term', $gallery->term_id, $key);
@@ -204,7 +227,7 @@ window.onload = function() {
 }
 
 function gmedia_images_update($files){
-	global $gmCore, $gmGallery;
+	global $wpdb, $gmCore, $gmGallery;
 
 	if (ob_get_level() == 0) {
 		ob_start();
@@ -228,6 +251,8 @@ function gmedia_images_update($files){
 			}
 		}
 
+		wp_ob_end_flush_all();
+
 		$i++;
 		$prefix = "\n<pre style='display:block;'>$i/$c - ";
 		$prefix_ko = "\n<pre style='display:block;color:darkred;'>$i/$c - ";
@@ -237,12 +262,16 @@ function gmedia_images_update($files){
 			continue;
 		}
 
-
+		$file_File = $file;
 		$fileinfo = $gmCore->fileinfo($file, false);
+		if($file_File != $fileinfo['filepath']){
+			@rename($file_File, $fileinfo['filepath']);
+			$wpdb->update($wpdb->prefix.'gmedia', array('gmuid' => $fileinfo['basename']), array('gmuid' => basename($file_File)));
+		}
 
 		if('image' == $fileinfo['dirname']){
 			$size = @getimagesize($fileinfo['filepath']);
-			if($size && file_is_displayable_image($fileinfo['filepath'])){
+			if(!file_exists($fileinfo['filepath_thumb']) && file_is_displayable_image($fileinfo['filepath'])){
 				if(!wp_mkdir_p($fileinfo['dirpath_thumb'])){
 					echo $prefix_ko . sprintf(__('Unable to create directory `%s`. Is its parent directory writable by the server?', 'gmLang'), $fileinfo['dirpath_thumb']) . $eol;
 					continue;
@@ -321,7 +350,8 @@ function gmedia_images_update($files){
 					copy($fileinfo['filepath'], $fileinfo['filepath_thumb']);
 				}
 			} else{
-				echo $prefix_ko . $fileinfo['basename']. ": " . __("Could not read image size.", 'gmLang') . $eol;
+				//echo $prefix_ko . $fileinfo['basename']. ": " . __("Could not read image size.", 'gmLang') . $eol;
+				echo $prefix . $fileinfo['basename']. ": " . __("Ignored", 'gmLang') . $eol;
 				continue;
 			}
 		} else{
@@ -336,7 +366,6 @@ function gmedia_images_update($files){
 		echo $prefix . $fileinfo['basename']. ': <span  style="color:darkgreen;">' . sprintf(__('success (ID #%s)', 'gmLang'), $id) . '</span>' . $eol;
 
 
-		wp_ob_end_flush_all();
 	}
 
 	echo '<p>'.__('Image update process complete...', 'gmLang').'</p>';

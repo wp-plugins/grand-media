@@ -4,7 +4,7 @@ Donate link: http://codeasily.com/wordpress-plugins/gmedia-gallery/
 Tags: gallery, image, images, library, files, music, video, slideshow, responsive, admin, Post, posts, easy gallery, iphone gallery, best gallery, portfolio, image gallery, photo gallery, photo, slider, admin, page, relative image
 Requires at least: 3.5
 Tested up to: 3.9.1
-Stable tag: 0.9.4
+Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -84,7 +84,7 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 
 == Changelog ==
 
-= 0.9.5 =
+= 0.9.6 =
 * Whole new design
 * Plugin was rewrited from scratch
 * More intuitive interface
@@ -173,7 +173,7 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 
 == Upgrade Notice ==
 
-= 0.9.5 =
+= 0.9.6 =
 Backup before updating.
 After update plugin go to Manage Modules page and update modules to latest versions.
 Then check your galleries on Create / Manage Galleries page -> edit options and check on frontend.
