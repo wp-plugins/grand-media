@@ -84,6 +84,9 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 
 == Changelog ==
 
+= 0.9.7 =
+* Added ability to edit broken galleries
+
 = 0.9.6 =
 * Whole new design
 * Plugin was rewrited from scratch

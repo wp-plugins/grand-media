@@ -154,11 +154,7 @@ function gmediaGalleries() {
 							</label>
 							<div class="media-body">
 								<p class="media-title">
-									<?php if(!$broken){ ?>
-										<a href="<?php echo add_query_arg(array('edit_gallery' => $term->term_id), $url); ?>"><?php echo esc_html($term->name); ?></a>
-									<?php } else{ ?>
-										<?php echo esc_html($term->name); ?>
-									<?php } ?>
+									<a href="<?php echo add_query_arg(array('edit_gallery' => $term->term_id), $url); ?>"><?php echo esc_html($term->name); ?></a>
 								</p>
 								<p class="media-caption"><?php echo esc_html($term->description); ?></p>
 								<p class="media-meta" title="<?php _e('Shortcode', 'gmLang'); ?>" style="font-weight:bold">
@@ -364,23 +360,31 @@ function gmediaGalleryEdit() {
 	 * @var $module_url
 	 * @var $module_path
 	 */
-	if($module_name && isset($modules[$module_name])){
-		extract($modules[$module_name]);
+	if($module_name){
+		if(isset($modules[$module_name])){
+			extract($modules[$module_name]);
 
-		/**
-		 * @var $module_info
-		 *
-		 * @var $default_options
-		 * @var $options_tree
-		 */
-		if(file_exists($module_path . '/index.php') && file_exists($module_path . '/settings.php')){
-			include($module_path . '/index.php');
-			include($module_path . '/settings.php');
+			/**
+			 * @var $module_info
+			 *
+			 * @var $default_options
+			 * @var $options_tree
+			 */
+			if(file_exists($module_path . '/index.php') && file_exists($module_path . '/settings.php')){
+				include($module_path . '/index.php');
+				include($module_path . '/settings.php');
+			} else{
+				$alert[] = sprintf(__('Module `%s` is broken. Choose another module from the list and save settings'), $module_name);
+			}
 		} else{
-			$alert[] = sprintf(__('Module `%s` is broken. Choose another module from the list and save settings'), $module_name);
+			$alert[] = sprintf(__('Can\'t get module with name `%s`. Choose module from the list and save settings'), $module_name);
 		}
 	} else{
-		$alert[] = sprintf(__('Can\'t get module with name `%s`. Choose module from the list and save settings'), $module_name);
+		$alert[] = sprintf(__('Module is not selected for this gallery. Choose module from the list and save settings'), $module_name);
+	}
+
+	if(!empty($alert)){
+		echo $gmProcessor->alert('danger', $alert);
 	}
 
 	if(isset($gallery['settings'][$module_name])){
@@ -560,6 +564,10 @@ function gmediaGalleryEdit() {
 			</div>
 			<script type="text/javascript">
 				jQuery(function($){
+					<?php if(!empty($alert)){ ?>
+					$('#chooseModuleModal').modal('show');
+					<?php } ?>
+
 					$('.gmedia-combobox').selectize({
 						create: false,
 						hideSelected: true
@@ -624,7 +632,12 @@ function gmediaGalleryEdit() {
 					<h4 class="modal-title"><?php _e('Choose Module for Gallery'); ?></h4>
 				</div>
 				<div class="modal-body linkblock">
-					<?php $current_module = $module_name;
+					<?php
+					if(!empty($alert)){
+						echo $gmProcessor->alert('danger', $alert);
+					}
+
+					$current_module = $module_name;
 					if(!empty($modules)){
 						foreach($modules as $m){
 							/**
