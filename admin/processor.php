@@ -393,6 +393,30 @@ class GmediaProcessor{
 
 				}
 
+				if(!empty($this->selected_items)){
+					if('selected' == $gmCore->_get('delete')){
+						global $user_ID;
+						check_admin_referer('gmedia_delete');
+						if(!current_user_can('delete_posts')){
+							wp_die(__('You are not allowed to delete this post.'));
+						}
+						$taxonomy = 'gmedia_gallery';
+						$count = count($this->selected_items);
+						foreach($this->selected_items as $item){
+							$delete = $gmDB->delete_term($item, $taxonomy);
+							if(is_wp_error($delete)){
+								$this->error[] = $delete->get_error_message();
+								$count--;
+							}
+						}
+						if($count){
+							$this->msg[] = sprintf(__('%d items deleted successfuly', 'gmLang'), $count);
+						}
+						unset($_COOKIE["gmedia_u{$user_ID}_{$taxonomy}"]);
+						setcookie($_COOKIE["gmedia_u{$user_ID}_{$taxonomy}"], '', time() - 3600);
+						$this->selected_items = array();
+					}
+				}
 
 				break;
 			case 'GrandMedia_Modules':

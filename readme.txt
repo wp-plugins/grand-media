@@ -84,6 +84,9 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 
 == Changelog ==
 
+= 0.9.8 =
+* Fixed Gallery Delete action
+
 = 0.9.7 =
 * Added ability to edit broken galleries
 
