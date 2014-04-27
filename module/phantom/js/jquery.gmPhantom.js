@@ -1,6 +1,6 @@
 /*
  * Title                   : gmPhantom
- * Version                 : 1.3
+ * Version                 : 1.6
  * Copyright               : 2013 CodEasily.com
  * Website                 : http://www.codeasily.com
  */
@@ -90,6 +90,7 @@ if(typeof jQuery.fn.gmPhantom == 'undefined'){
 								opt[key] = parseInt(val);
 							}
 						});
+						ID = opt.ID;
 						opt.initialHeight = opt.maxheight;
 						opt.initialCols = opt.thumbCols;
 						opt.initialRows = opt.thumbRows;

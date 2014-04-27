@@ -84,6 +84,9 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 
 == Changelog ==
 
+= 0.9.10 =
+* Fixed Phantom Module
+
 = 0.9.9 =
 * Fixed styles for FireFox and IE
 * In Library Edit Mode images and music now opens in thickbox

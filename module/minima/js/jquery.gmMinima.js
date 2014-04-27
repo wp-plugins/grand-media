@@ -1,6 +1,6 @@
 /*
  * Title                   : Minima Gallery Module
- * Version                 : 1.3
+ * Version                 : 2.0
  * Copyright               : 2013 CodEasily.com
  * Website                 : http://www.codeasily.com
  */
