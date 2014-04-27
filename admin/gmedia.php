@@ -159,7 +159,7 @@ function gmediaLib(){
 		<div class="list-group-item row<?php echo $is_selected? ' active' : ''; ?>" id="list-item-<?php echo $item->ID; ?>" data-id="<?php echo $item->ID; ?>" data-type="<?php echo $type[0]; ?>">
 			<div class="gmedia_id">#<?php echo $item->ID; ?></div>
 			<div class="col-sm-6">
-				<label class="cb_media-object" style="width:310px;">
+				<label class="cb_media-object">
 					<input name="doaction[]" type="checkbox"<?php echo $is_selected? ' checked="checked"' : ''; ?> data-type="<?php echo $type[0]; ?>" class="hidden" value="<?php echo $item->ID; ?>"/>
 					<span data-target="<?php echo $item_url; ?>" class="thumbnail">
 						<img src="<?php echo $gmCore->gm_get_media_image($item, 'thumb'); ?>" alt=""/>
@@ -251,14 +251,20 @@ function gmediaLib(){
 	<?php } else{ ?>
 
 		<form class="list-group-item row edit-gmedia" id="list-item-<?php echo $item->ID; ?>" data-id="<?php echo $item->ID; ?>" data-type="<?php echo $type[0]; ?>" role="form">
-			<div class="col-sm-4">
+			<div class="col-sm-4" style="max-width:350px;">
 				<input name="ID" type="hidden" value="<?php echo $item->ID; ?>"/>
-				<a href="<?php echo $item_url; ?>" class="thumbnail">
-					<img src="<?php echo $gmCore->gm_get_media_image($item, 'thumb'); ?>" alt=""/>
-					<?php if(('image' != $type[0]) && isset($meta['cover'][0]) && !empty($meta['cover'][0])){ ?>
-						<img class="gmedia-typethumb" src="<?php echo $gmCore->gm_get_media_image($item, 'thumb', false); ?>" alt=""/>
-					<?php } ?>
-				</a>
+				<?php if(('image' == $type[0])){ ?>
+					<a href="<?php echo $item_url; ?>" class="thumbnail thickbox" title="<?php echo esc_attr($item->title); ?>">
+						<img src="<?php echo $gmCore->gm_get_media_image($item, 'thumb'); ?>" alt=""/>
+					</a>
+				<?php } else{ ?>
+					<a href="<?php echo $item_url; ?>?TB_iframe=true" class="thumbnail thickbox" title="<?php echo esc_attr($item->title); ?>">
+						<img src="<?php echo $gmCore->gm_get_media_image($item, 'thumb'); ?>" alt=""/>
+						<?php if(isset($meta['cover'][0]) && !empty($meta['cover'][0])){ ?>
+							<img class="gmedia-typethumb" src="<?php echo $gmCore->gm_get_media_image($item, 'thumb', false); ?>" alt=""/>
+						<?php } ?>
+					</a>
+				<?php } ?>
 			</div>
 			<div class="col-sm-8">
 				<div class="row">

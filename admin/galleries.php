@@ -152,7 +152,7 @@ function gmediaGalleries() {
 									<div class="bg-danger text-center"><?php _e('Module broken <br>Reinstall module', 'gmLang') ?></div>
 								<?php } ?>
 							</label>
-							<div class="media-body">
+							<div class="media-body" style="margin-left:145px;">
 								<p class="media-title">
 									<a href="<?php echo add_query_arg(array('edit_gallery' => $term->term_id), $url); ?>"><?php echo esc_html($term->name); ?></a>
 								</p>
@@ -251,7 +251,7 @@ function gmediaGalleries() {
 								<a href="<?php echo add_query_arg(array('gallery_module' => $module_name), $url); ?>" class="thumbnail pull-left">
 									<img class="media-object" src="<?php echo $module_url.'/screenshot.png'; ?>" alt="<?php echo esc_attr($module_info['title']); ?>" width="160" height="120"/>
 								</a>
-								<div class="media-body">
+								<div class="media-body" style="margin-left:180px;">
 									<h4 class="media-heading"><?php echo $module_info['title']; ?></h4>
 									<p class="version"><?php echo __('Version', 'gmLang') . ': ' . $module_info['version']; ?></p>
 									<div class="description"><?php echo str_replace("\n", '<br />', $module_info['description']); ?></div>
@@ -660,7 +660,7 @@ function gmediaGalleryEdit() {
 								<a href="<?php echo add_query_arg(array('edit_gallery' => $gallery_id, 'gallery_module' => $module_name), $url); ?>" class="thumbnail pull-left">
 									<img class="media-object" src="<?php echo $module_url.'/screenshot.png'; ?>" alt="<?php echo esc_attr($module_info['title']); ?>" width="160" height="120"/>
 								</a>
-								<div class="media-body">
+								<div class="media-body" style="margin-left:180px;">
 									<h4 class="media-heading"><?php echo $module_info['title']; ?></h4>
 									<p class="version"><?php echo __('Version', 'gmLang') . ': ' . $module_info['version']; ?></p>
 									<div class="description"><?php echo str_replace("\n", '<br />', $module_info['description']); ?></div>

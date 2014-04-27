@@ -105,7 +105,7 @@ function gmediaModules(){
 						<div class="thumbnail pull-left">
 							<img class="media-object" src="<?php echo $module_url.'/screenshot.png'; ?>" alt="<?php echo esc_attr($m['title']); ?>" width="320" height="240"/>
 						</div>
-						<div class="media-body">
+						<div class="media-body" style="margin-left:340px;">
 							<h4 class="media-heading"><?php echo $m['title']; ?></h4>
 							<p class="version"><?php echo __('Version', 'gmLang') . ': ' . $module_info['version']; ?></p>
 							<div class="description"><?php echo str_replace("\n", '<br />', (string) $m['description']); ?></div>
@@ -145,7 +145,7 @@ function gmediaModules(){
 					<div class="thumbnail pull-left">
 						<img class="media-object" src="<?php echo $xml_dirpath.'/'.$m['name']; ?>.png" alt="<?php echo esc_attr($m['title']); ?>" width="320" height="240"/>
 					</div>
-					<div class="media-body">
+					<div class="media-body" style="margin-left:340px;">
 						<h4 class="media-heading"><?php echo $m['title']; ?></h4>
 						<p class="version"><?php echo __('Version', 'gmLang') . ': ' . $m['version']; ?></p>
 						<div class="description"><?php echo str_replace("\n", '<br />', (string) $m['description']); ?></div>

@@ -2,6 +2,7 @@ html { background:#708090; }
 #adminmenu #toplevel_page_GrandMedia ul.wp-submenu { display:none; }
 #wpfooter { color:#ffffff; }
 #wpfooter a { color:lightblue; }
+#TB_caption { height:auto; }
 a { color:#0074a2; }
 input[type="checkbox"] { margin-top:2px; margin-right:2px }
 form {margin:0;}
@@ -92,11 +93,11 @@ form.list-group-item.row:hover { background-color:#fcfcfc; }
 .list-group-item.row.active { background-color:rgb(250, 255, 245); box-shadow:inset -1px 0 0 2px rgb(250, 255, 245), inset 7px 0 0 0 #1e8cbe; }
 .list-group-item.row.active:hover { background-color:rgb(245, 255, 240); box-shadow:inset -1px 0 0 2px rgb(245, 255, 240), inset 7px 0 0 0 #1e8cbe; }
 
-label.cb_media-object { margin-right:15px; float:left; }
-label.cb_media-object .thumbnail { margin-bottom:0; }
+.cb_media-object { margin-right:15px; float:left; width:310px; }
+.cb_media-object .thumbnail { margin-bottom:0; }
 .active .thumbnail { border-color:#428bca; }
-.thumbnail { position:relative; display:inline-block; }
-.thumbnail .gmedia-typethumb { position:absolute; right:5px; bottom:7px; height:75px; width:auto; }
+.thumbnail { position:relative; display:inline-block; max-width:100%; }
+.thumbnail .gmedia-typethumb { position:absolute; right:5px; bottom:7px; height:75px; max-height:60%; width:auto; }
 
 .media-title { font-weight:bold; }
 .media-meta { width:100%; overflow:hidden; text-overflow:ellipsis; /*white-space:nowrap;*/ }

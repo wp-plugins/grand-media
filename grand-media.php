@@ -3,7 +3,7 @@
 Plugin Name: Gmedia Gallery
 Plugin URI: http://wordpress.org/extend/plugins/grand-media/
 Description: Gmedia Gallery - powerfull media library plugin for creating beautiful galleries and managing files.
-Version: 0.9.8
+Version: 0.9.9
 Author: Rattus
 Author URI: http://codeasily.com/
 
@@ -36,7 +36,7 @@ if ( preg_match( '#' . basename( __FILE__ ) . '#', $_SERVER['PHP_SELF'] ) ) {
 if ( ! class_exists( 'Gmedia' ) ) {
 	class Gmedia {
 
-		var $version = '0.9.8';
+		var $version = '0.9.9';
 		var $dbversion = '0.9.6';
 		var $minium_WP = '3.5';
 		var $options = '';
@@ -150,17 +150,21 @@ if ( ! class_exists( 'Gmedia' ) ) {
 			$current_version = get_option( 'gmediaVersion', null );
 			$current_db_version = get_option( 'gmediaDbVersion', null );
 
+			require_once( dirname( __FILE__ ) . '/update.php' );
 			if ( (null !== $current_db_version) && version_compare( $current_db_version, GMEDIA_DBVERSION, '<' )) {
-				require_once( dirname( __FILE__ ) . '/update.php' );
 				if(isset($_GET['do_update']) && ('gmedia' == $_GET['do_update'])){
 					add_action( 'admin_notices', 'gmedia_wait_admin_notice' );
 				} else{
 					add_action( 'admin_notices', 'gmedia_update_admin_notice' );
 				}
 			} else {
+				if ( (null !== $current_version) && version_compare( $current_version, GMEDIA_VERSION, '<' )) {
+					gmedia_quite_update();
+				}
 				update_option("gmediaDbVersion", GMEDIA_DBVERSION);
 				update_option("gmediaVersion", GMEDIA_VERSION);
 			}
+
 		}
 
 		function define_tables() {
@@ -233,7 +237,7 @@ if ( ! class_exists( 'Gmedia' ) ) {
 				'pluginPath' => $gmCore->gmedia_url
 			) );
 
-			wp_register_style('grand-media', $gmCore->gmedia_url . '/admin/css/grand-media.css', array(), '0.9.5', 'all' );
+			wp_register_style('grand-media', $gmCore->gmedia_url . '/admin/css/grand-media.css', array(), '0.9.9', 'all' );
 			wp_register_script( 'grand-media', $gmCore->gmedia_url . '/admin/js/grand-media.js', array( 'jquery', 'gmedia-global-backend' ), '0.9.6' );
 			wp_localize_script( 'grand-media', 'grandMedia', array(
 				'error3'   => __( 'Disable your Popup Blocker and try again.', 'gmLang' ),

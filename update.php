@@ -373,4 +373,16 @@ function gmedia_images_update($files){
 	wp_ob_end_flush_all();
 }
 
+function gmedia_quite_update(){
+	$current_version = get_option( 'gmediaVersion', null );
+	$current_db_version = get_option( 'gmediaDbVersion', null );
+	if ( (null !== $current_version) && version_compare( $current_version, '0.9.9', '<' )) {
+		$options = get_option('gmediaOptions');
+		require_once(dirname(__FILE__). '/setup.php');
+		$default_options = gmedia_default_options();
+		$options['modules_xml'] = $default_options['modules_xml'];
+		update_option('gmediaOptions', $options);
+	}
+}
+
 ?>

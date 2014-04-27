@@ -26,7 +26,7 @@ function gmedia_default_options(){
 	$gm['thumb'] = array('width' => 300, 'height' => 300, 'quality' => 70, 'crop' => 0);
 	$gm['image'] = array('width' => 1600, 'height' => 1600, 'quality' => 85, 'crop' => 0);
 
-	$gm['modules_xml'] = 'http://dl.dropbox.com/u/6295502/gmedia_modules/modules_v1.xml';
+	$gm['modules_xml'] = 'https://dl.dropboxusercontent.com/u/6295502/gmedia_modules/modules_v1.xml';
 	$gm['license_name'] = '';
 	$gm['license_key'] = '';
 	$gm['license_key2'] = '';

@@ -164,7 +164,7 @@ function grandWPMedia(){
 			<col class="file" style="width:100px;"/>
 			<col class="type" style="width:80px;"/>
 			<col class="title"/>
-			<col class="descr"/>
+			<col class="descr hidden-xs"/>
 			<thead>
 			<tr>
 				<th class="cb"><span>#</span></th>
@@ -182,7 +182,7 @@ function grandWPMedia(){
 					<?php $new_order = ('title' == $arg['orderby'])? (('DESC' == $arg['order'])? 'ASC' : 'DESC') : 'DESC'; ?>
 					<a href="<?php echo $gmCore->get_admin_url(array('orderby' => 'title', 'order' => $new_order)); ?>"><?php _e('Title', 'gmLang'); ?></a>
 				</th>
-				<th class="descr"><span><?php _e('Description', 'gmLang'); ?></span></th>
+				<th class="descr hidden-xs"><span><?php _e('Description', 'gmLang'); ?></span></th>
 			</tr>
 			</thead>
 			<tbody>
@@ -207,7 +207,7 @@ function grandWPMedia(){
 					<td class="file"><span><a href="<?php echo admin_url( 'media.php?action=edit&amp;attachment_id=' . $item->ID ); ?>"><?php echo $image; ?></a></span></td>
 					<td class="type"><span><?php echo $file_info['extension']; ?></span></td>
 					<td class="title"><span><?php echo esc_html($item->post_title); ?></span></td>
-					<td class="descr">
+					<td class="descr hidden-xs">
 						<div><?php echo esc_html($item->post_content); ?></div>
 					</td>
 				</tr>
