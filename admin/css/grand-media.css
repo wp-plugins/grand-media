@@ -93,7 +93,7 @@ form.list-group-item.row:hover { background-color:#fcfcfc; }
 .list-group-item.row.active { background-color:rgb(250, 255, 245); box-shadow:inset -1px 0 0 2px rgb(250, 255, 245), inset 7px 0 0 0 #1e8cbe; }
 .list-group-item.row.active:hover { background-color:rgb(245, 255, 240); box-shadow:inset -1px 0 0 2px rgb(245, 255, 240), inset 7px 0 0 0 #1e8cbe; }
 
-.cb_media-object { margin-right:15px; float:left; width:310px; }
+label.cb_media-object { margin-right:15px; float:left; width:310px; }
 .cb_media-object .thumbnail { margin-bottom:0; }
 .active .thumbnail { border-color:#428bca; }
 .thumbnail { position:relative; display:inline-block; max-width:100%; }

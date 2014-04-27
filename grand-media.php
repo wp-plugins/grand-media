@@ -237,7 +237,7 @@ if ( ! class_exists( 'Gmedia' ) ) {
 				'pluginPath' => $gmCore->gmedia_url
 			) );
 
-			wp_register_style('grand-media', $gmCore->gmedia_url . '/admin/css/grand-media.css', array(), '0.9.9', 'all' );
+			wp_register_style('grand-media', $gmCore->gmedia_url . '/admin/css/grand-media.css', array(), '0.9.10', 'all' );
 			wp_register_script( 'grand-media', $gmCore->gmedia_url . '/admin/js/grand-media.js', array( 'jquery', 'gmedia-global-backend' ), '0.9.6' );
 			wp_localize_script( 'grand-media', 'grandMedia', array(
 				'error3'   => __( 'Disable your Popup Blocker and try again.', 'gmLang' ),
