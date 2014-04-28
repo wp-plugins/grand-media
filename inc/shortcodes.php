@@ -101,11 +101,11 @@ function gmedia_shortcode($atts, $content = ''){
 	$out = '<div class="gmedia_gallery ' . $gallery['module'] . '_module" id="GmediaGallery_' . $id . '" data-gallery="' . $id . '" data-module="' . $gallery['module'] . '">';
 	$out .= $content;
 
-	if(isset($gallery_meta['settings']['customCSS']) && ('' != trim($gallery_meta['settings']['customCSS']))){
+	if(isset($settings['customCSS']) && ('' != trim($settings['customCSS']))){
 		$out .= "
 <style type='text/css' scoped='scoped'>
 		/**** Begin Custom CSS {$gallery['module']} #{$id} ****/
-		" . $$gallery_meta['settings']['customCSS'] . "
+		" . $settings['customCSS'] . "
 		/**** End Custom CSS {$gallery['module']} #{$id} ****/
 </style>";
 	}
