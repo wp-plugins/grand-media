@@ -483,6 +483,7 @@ class GmediaDB {
 			$file = apply_filters('gm_delete_file', $filepath);
 			@unlink($file);
 
+			/*
 			$files = glob( $filepath . '*', GLOB_NOSORT);
 			if(!empty($files)){
 				foreach($files as $file){
@@ -490,6 +491,7 @@ class GmediaDB {
 					@unlink($file);
 				}
 			}
+			*/
 		}
 
 		wp_cache_delete( $gmedia_id, 'gmedias' );
@@ -786,7 +788,11 @@ class GmediaDB {
 		}
 
 		$args = func_get_args();
-		$q    = array_merge( $array, $args[0] );
+		if(isset($args[0])){
+			$q    = array_merge( $array, $args[0] );
+		} else{
+			$q = $array;
+		}
 
 		if ( ! empty( $q['robots'] ) )
 			$is_robots = true;

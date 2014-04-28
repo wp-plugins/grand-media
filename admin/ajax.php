@@ -507,7 +507,7 @@ function gmedia_ftp_browser() {
 			echo "<ul class=\"jqueryDirTree\" style=\"display: none;\">";
 			// return only directories
 			foreach( $files as $file ) {
-				if ( in_array( $file, array('wp-admin', 'wp-includes', GMEDIA_FOLDER, 'plugins', 'themes', 'thumb', 'thumbs') ) )
+				if ( in_array( $file, array('wp-admin', 'wp-includes', 'plugins', 'themes', 'thumb', 'thumbs') ) )
 					continue;
 
 				if ( file_exists($root . $dir . $file) && $file != '.' && $file != '..' && is_dir($root . $dir . $file) ) {

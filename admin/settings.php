@@ -9,7 +9,7 @@ if ( preg_match( '#' . basename( __FILE__ ) . '#', $_SERVER['PHP_SELF'] ) ) {
  * @return mixed content
  */
 function gmSettings() {
-	global $gmGallery;
+	global $gmCore, $gmGallery;
 
 	?>
 
@@ -58,6 +58,22 @@ function gmSettings() {
 							</div>
 						</div>
 						<p><?php _e('Under constraction...') ?></p>
+
+						<?php
+						if($gmCore->_get('showdb')){
+							global $wpdb, $gmDB;
+							$gmedia = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}gmedia");
+							$terms = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}gmedia_term");
+							$relation = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}gmedia_term_relationships");
+							$images['grand-media'] = glob($gmCore->upload['path'].'/*', GLOB_NOSORT);
+							$images['images'] = glob($gmCore->upload['path'].'/image/*', GLOB_NOSORT);
+							$images['thumbs'] = glob($gmCore->upload['path'].'/thumb/*', GLOB_NOSORT);
+							echo '<pre style="max-height:400px; overflow:auto;">' . print_r($gmedia, true) . '</pre>';
+							echo '<pre style="max-height:400px; overflow:auto;">' . print_r($images, true) . '</pre>';
+							echo '<pre style="max-height:400px; overflow:auto;">' . print_r($terms, true) . '</pre>';
+							echo '<pre style="max-height:400px; overflow:auto;">' . print_r($relation, true) . '</pre>';
+						}
+						?>
 					</fieldset>
 				</div>
 				<div class="clear"></div>

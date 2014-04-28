@@ -114,16 +114,18 @@ window.onload = function() {
 	wp_ob_end_flush_all();
 
 
-	$options = get_option('gmediaOptions');
+	$old_options = get_option('gmediaOptions');
 	require_once(dirname(__FILE__). '/setup.php');
-	$default_options = gmedia_default_options();
-	unset($options['folder']);
-	unset($options['taxonomies']);
-	$new_options = $gmCore->array_diff_key_recursive($default_options, $options);
-	$gmGallery->options = array_merge_recursive($options, $new_options);
-	update_option('gmediaOptions', $gmGallery->options);
+	$options = gmedia_default_options();
+	if(isset($old_options['product_name'])){
+		$options['license_name'] = $old_options['product_name'];
+		$options['license_key'] = $old_options['gmedia_key'];
+		$options['license_key2'] = $old_options['gmedia_key2'];
+	}
+	update_option('gmediaOptions', $options);
+	$gmGallery->options = $options;
 
-	$fix_files = glob($gmCore->upload['path'].'/*.*', GLOB_NOSORT);
+	$fix_files = glob($gmCore->upload['path'].'/?*.?*', GLOB_NOSORT);
 	if(!empty($fix_files)){
 		foreach($fix_files as $ff){
 			@rename($ff, $gmCore->upload['path'].'/image/'.basename($ff));
@@ -162,14 +164,6 @@ window.onload = function() {
 	//$gmDB->delete_metadata('gmedia', 0, 'link', false, true);
 
 	$wpdb->update($wpdb->prefix.'gmedia_meta', array('meta_key' => 'cover'), array('meta_key' => 'preview'));
-
-	if(isset($options['product_name'])){
-		$options['license_name'] = $options['product_name'];
-		$options['license_key'] = $options['gmedia_key'];
-		$options['license_key2'] = $options['gmedia_key2'];
-		unset($options['product_name'],$options['gmedia_key'],$options['gmedia_key2']);
-		update_option('gmediaOptions', $options);
-	}
 
 	echo '<p>'.__('Gmedia database data updated...', 'gmLang').'</p>';
 	wp_ob_end_flush_all();

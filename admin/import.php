@@ -2,7 +2,7 @@
 
 ini_set('display_errors', 1);
 ini_set('error_reporting', 1);
-
+ini_set('max_execution_time', 600);
 /*
 @apache_setenv('no-gzip', 1);
 @ini_set('zlib.output_compression', 0);
@@ -27,7 +27,7 @@ if(!current_user_can('upload_files')){
 check_admin_referer('GmediaImport');
 
 // 5 minutes execution time
-@set_time_limit(5 * 60);
+@set_time_limit(10 * 60);
 
 // fake upload time
 usleep(10);
@@ -37,7 +37,7 @@ global $gmCore, $gmGallery;
 $import = $gmCore->_post('import');
 $terms = $gmCore->_post('terms');
 
-function gmedia_import_files($files, $terms, $move){
+function gmedia_import_files($files, $terms, $move, $exists = 0){
 	global $gmCore, $gmGallery;
 
 	$eol = '</pre>'.PHP_EOL;
@@ -67,7 +67,7 @@ function gmedia_import_files($files, $terms, $move){
 		}
 
 
-		$fileinfo = $gmCore->fileinfo($file);
+		$fileinfo = $gmCore->fileinfo($file, $exists);
 
 		// try to make grand-media dir if not exists
 		if(!wp_mkdir_p($fileinfo['dirpath'])){
@@ -251,17 +251,31 @@ if (ob_get_level() == 0) {
 <?php
 if('import-folder' == $import){
 
+	$path = $gmCore->_post('path');
 	echo str_pad('<h4 style="margin: 0 0 10px">'.__('Import Server Folder')." `$path`:</h4>",4096) . PHP_EOL;
 
-	$path = $gmCore->_post('path');
 	if($path){
 		$path = trim(urldecode($path),'/');
 		if(!empty($path)) {
 			$fullpath = ABSPATH.trailingslashit ( $path );
-			$files = glob($fullpath.'*.*', GLOB_NOSORT);
+			$files = glob($fullpath.'?*.?*', GLOB_NOSORT);
 			if(!empty($files)) {
-				$move = $gmCore->_post('delete_source');
-				gmedia_import_files($files, $terms, $move);
+				if(('grand-media' == basename(dirname(dirname($path)))) || ('grand-media' == basename(dirname($path)))){
+					global $wpdb;
+					$gmedias = $wpdb->get_col("SELECT gmuid FROM {$wpdb->prefix}gmedia");
+					foreach($files as $i => $filepath){
+						$gmuid = basename($filepath);
+						if(in_array($gmuid, $gmedias)){
+							unset($files[$i]);
+						}
+					}
+					$move = false;
+					$exists = false;
+				} else{
+					$move = $gmCore->_post('delete_source');
+					$exists = 0;
+				}
+				gmedia_import_files($files, $terms, $move, $exists);
 			} else {
 				echo sprintf( __( 'Folder `%s` is empty', 'gmLang' ), $path ) . PHP_EOL;
 			}
