@@ -371,14 +371,20 @@ function gmedia_quite_update(){
 	global $gmCore;
 	$current_version = get_option( 'gmediaVersion', null );
 	$current_db_version = get_option( 'gmediaDbVersion', null );
-	if ( (null !== $current_version) && version_compare( $current_version, '0.10.9', '<' )) {
+	if((null !== $current_version)) {
 		$options = get_option('gmediaOptions');
-		require_once(dirname(__FILE__). '/setup.php');
-		$default_options = gmedia_default_options();
-		$options['modules_xml'] = $default_options['modules_xml'];
-		update_option('gmediaOptions', $options);
+		if(version_compare( $current_version, '0.10.11', '<' )){
+			require_once(dirname(__FILE__). '/setup.php');
+			$default_options = gmedia_default_options();
+			if(isset($options['product_name'])){
+				$default_options['license_name'] = $options['product_name'];
+				$default_options['license_key'] = $options['gmedia_key'];
+				$default_options['license_key2'] = $options['gmedia_key2'];
+			}
+			update_option('gmediaOptions', $default_options);
 
-		$gmCore->delete_folder($gmCore->upload['path'].'/module/phantom');
+			$gmCore->delete_folder($gmCore->upload['path'].'/module/phantom');
+		}
 	}
 }
 

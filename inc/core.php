@@ -143,8 +143,7 @@ class GmediaCore {
 
 	function delete_folder($path) {
 		$path = rtrim($path, '/');
-
-		return is_file($path)? @unlink($path) : array_map(array($this, 'delete_folder'), glob($path.'/*', GLOB_NOSORT)) == @rmdir($path);
+		return is_file($path)? @unlink($path) : (is_dir($path)? (array_map(array($this, 'delete_folder'), glob($path.'/*', GLOB_NOSORT)) == @rmdir($path)) : null);
 	}
 
 	/**

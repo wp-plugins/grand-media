@@ -1,6 +1,6 @@
 /*
  * Title                   : Minima Gallery Module
- * Version                 : 2.0
+ * Version                 : 2.1
  * Copyright               : 2013 CodEasily.com
  * Website                 : http://www.codeasily.com
  */
@@ -124,7 +124,11 @@ if(typeof jQuery.fn.gmMinima == 'undefined'){
 
 							$.each(Content, function(index){
 								$.each(this.data, function(index){
-									ratio = Math.max(ratio, (this.w / this.h));
+									if(ratio){
+										ratio = Math.min(ratio, (this.w / this.h));
+									} else{
+										ratio = (this.w / this.h);
+									}
 								});
 							});
 							// set responsive gallery height
@@ -136,9 +140,10 @@ if(typeof jQuery.fn.gmMinima == 'undefined'){
 										w = Math.min(opt.maxwidth, w);
 									}
 									h = Math.floor(w / ratio + bars_height);
+									h = Math.min($(window).height(), h);
 									if((0 != opt.maxheight) && (opt.maxheight < h)){
 										h = opt.maxheight;
-										w = Math.floor((h - bars_height) * ratio);
+										//w = Math.floor((h - bars_height) * ratio);
 									}
 									return [w, h];
 								};
@@ -195,9 +200,10 @@ if(typeof jQuery.fn.gmMinima == 'undefined'){
 									w = Math.min(opt.maxwidth, w);
 								}
 								h = Math.floor(w / ratio + bars_height);
+								h = Math.min($(window).height(), h);
 								if((0 != opt.maxheight) && (opt.maxheight < h)){
 									h = opt.maxheight;
-									w = Math.floor((h - bars_height) * ratio);
+									//w = Math.floor((h - bars_height) * ratio);
 								}
 								return [w, h];
 							};

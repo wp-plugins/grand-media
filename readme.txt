@@ -84,6 +84,10 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 
 == Changelog ==
 
+= 0.9.11 =
+* Improved plugin Update and Import functions
+* Updated Minima, Afflux, Optima, Slider modules
+
 = 0.9.10 =
 * Fixed Phantom Module
 
