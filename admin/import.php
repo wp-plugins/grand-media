@@ -26,7 +26,7 @@ if(!current_user_can('upload_files')){
 
 check_admin_referer('GmediaImport');
 
-// 5 minutes execution time
+// 10 minutes execution time
 @set_time_limit(10 * 60);
 
 // fake upload time

@@ -32,6 +32,9 @@ function gmedia_wait_admin_notice(){
 function gmedia_do_update(){
 	global $wpdb, $gmDB, $gmCore, $gmGallery;
 
+	// 10 minutes execution time
+	@set_time_limit(10 * 60);
+
 	if (ob_get_level() == 0) {
 		ob_start();
 	}
