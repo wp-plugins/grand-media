@@ -78,11 +78,22 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 
 == Screenshots ==
 
-1. Admin Area
-2. Afflux Module
-3. Add to Post - GrandMedia MetaBox
+1. Admin Area - Gmedia Library Edit Mode
+2. Admin Area - Create Gallery with Afflux Module
+3. Admin Area - Add shortcode to Post - Gmedia MetaBox
+4. Admin Area - Upload images to Gmedia Library
+5. Admin Area - Import galleries from Flagallery plugin
+6. Admin Area - Process of import galleries from Flagallery plugin
+7. Admin Area - Gmedia Library
+8. Admin Area - Gmedia Library Filters
 
 == Changelog ==
+
+= 0.9.12 =
+* Fix Import from Flagallery plugin
+* Fix update settings with empty key
+* Fix PHP Notices
+* Fix uninstall function
 
 = 0.9.11 =
 * Improved plugin Update and Import functions

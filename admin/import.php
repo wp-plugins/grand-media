@@ -293,7 +293,7 @@ if('import-folder' == $import){
 
 		$album = empty($terms['gmedia_album'])? false : true;
 		foreach($gallery as $gid){
-			$flag_gallery = $wpdb->get_row($wpdb->prepare("SELECT gid, path, title, galdesc, link FROM `{$wpdb->prefix}flag_gallery` WHERE gid = %d", $gid), ARRAY_A);
+			$flag_gallery = $wpdb->get_row($wpdb->prepare("SELECT gid, path, title, galdesc FROM `{$wpdb->prefix}flag_gallery` WHERE gid = %d", $gid), ARRAY_A);
 			if(empty($flag_gallery))
 				continue;
 
@@ -308,7 +308,7 @@ if('import-folder' == $import){
 
 			echo '<h5 style="margin: 10px 0 5px">'.sprintf( __( 'Import `%s` gallery', 'gmLang' ), $flag_gallery['title'] ).":</h5>" . PHP_EOL;
 
-			$flag_pictures = $wpdb->get_results($wpdb->prepare("SELECT CONCAT('%s', filename) AS file, description, alttext AS title FROM `{$wpdb->prefix}flag_pictures` WHERE galleryid = %d", $path, $flag_gallery['gid']), ARRAY_A);
+			$flag_pictures = $wpdb->get_results($wpdb->prepare("SELECT CONCAT('%s', filename) AS file, description, alttext AS title, link FROM `{$wpdb->prefix}flag_pictures` WHERE galleryid = %d", $path, $flag_gallery['gid']), ARRAY_A);
 			if(empty($flag_pictures)){
 				echo '<pre>'.__( 'gallery contains 0 images', 'gmLang' ).'</pre>';
 				continue;

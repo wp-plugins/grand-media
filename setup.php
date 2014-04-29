@@ -235,38 +235,3 @@ function gmedia_deactivate(){
 	delete_option('gmediaInitCheck');
 }
 
-/**
- * Uninstall all settings and tables
- * Called via Setup and register_unstall hook
- *
- * @access internal
- * @return void
- */
-/*
-function gmedia_uninstall(){
-	global $wpdb, $gmCore;
-
-	// first remove all tables
-	$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}gmedia");
-	$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}gmedia_meta");
-	$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}gmedia_term");
-	$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}gmedia_term_meta");
-	$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}gmedia_term_relationships");
-
-	$options = get_option('gmediaOptions');
-	// then remove all options
-	delete_option('gmediaOptions');
-	delete_option('gmediaDbVersion');
-	delete_option('gmediaVersion');
-	delete_option('gmediaTemp');
-	delete_metadata('user', 0, 'gm_screen_options', '', true);
-
-	if($options['uninstall_dropfiles']){
-		$files_folder = $gmCore->upload['path'];
-		$delete_files = $gmCore->delete_folder($files_folder);
-	} else{
-		$files_folder = $gmCore->upload['path'].'/'.$options['folder']['module'];
-		$delete_files = $gmCore->delete_folder($files_folder);
-	}
-}
-*/

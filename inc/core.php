@@ -118,9 +118,12 @@ class GmediaCore {
 	 * 'error' - set to false.
 	 * @see  wp_upload_dir()
 	 * @uses apply_filters() Calls 'gm_upload_dir' on returned array.
+	 *
+	 * @param bool $create
+	 *
 	 * @return array See above for description.
 	 */
-	function gm_upload_dir() {
+	function gm_upload_dir($create = true) {
 		$slash = '/';
 		// If multisite (and if not the main site)
 		if(is_multisite() && ! is_main_site()){
@@ -132,10 +135,14 @@ class GmediaCore {
 
 		$uploads = apply_filters('gm_upload_dir', array('path' => $dir, 'url' => $url, 'error' => false));
 
-		// Make sure we have an uploads dir
-		if(! wp_mkdir_p($uploads['path'])){
-			$message = sprintf(__('Unable to create directory %s. Is its parent directory writable by the server?'), $uploads['path']);
-			$uploads['error'] = $message;
+		if($create){
+			// Make sure we have an uploads dir
+			if(! wp_mkdir_p($uploads['path'])){
+				$message = sprintf(__('Unable to create directory %s. Is its parent directory writable by the server?'), $uploads['path']);
+				$uploads['error'] = $message;
+			}
+		} elseif(!is_dir($uploads['path'])){
+			$uploads['error'] = true;
 		}
 
 		return $uploads;
@@ -143,7 +150,16 @@ class GmediaCore {
 
 	function delete_folder($path) {
 		$path = rtrim($path, '/');
-		return is_file($path)? @unlink($path) : (is_dir($path)? (array_map(array($this, 'delete_folder'), glob($path.'/*', GLOB_NOSORT)) == @rmdir($path)) : null);
+		if(is_file($path)){
+			return @unlink($path);
+		} elseif(is_dir($path)){
+			$files = glob($path.'/*', GLOB_NOSORT);
+			if(!empty($files) && is_array($files)){
+				array_map(array($this, 'delete_folder'), $files);
+			}
+			return @rmdir($path);
+		}
+		return null;
 	}
 
 	/**

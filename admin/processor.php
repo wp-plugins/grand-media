@@ -505,7 +505,7 @@ class GmediaProcessor{
 				if(isset($_POST['gmedia_settings_save'])){
 					check_admin_referer('GmediaSettings');
 					$set = $gmCore->_post('set', array());
-					if(empty($set['license_key2'])){
+					if(!empty($set['license_key']) && empty($set['license_key2'])){
 						$set['license_key'] = '';
 						$this->error[] = __('License Key not Activated', 'gmLang');
 					}

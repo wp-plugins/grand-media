@@ -3,6 +3,7 @@
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	exit;
 }
+require_once(dirname(__FILE__).'/constants.php');
 require_once(dirname(__FILE__).'/inc/core.php');
 
 if (function_exists('is_multisite') && is_multisite()) {
@@ -32,6 +33,9 @@ function gmedia_uninstall(){
 	/** @var $wpdb wpdb */
 	global $wpdb, $gmCore;
 
+	$options = get_option('gmediaOptions');
+	$upload = $gmCore->gm_upload_dir(false);
+
 	// first remove all tables
 	$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}gmedia");
 	$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}gmedia_meta");
@@ -39,19 +43,19 @@ function gmedia_uninstall(){
 	$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}gmedia_term_meta");
 	$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}gmedia_term_relationships");
 
-	$options = get_option('gmediaOptions');
 	// then remove all options
 	delete_option('gmediaOptions');
 	delete_option('gmediaDbVersion');
 	delete_option('gmediaVersion');
-	delete_option('gmediaTemp');
 	delete_metadata('user', 0, 'gm_screen_options', '', true);
 
-	if($options['uninstall_dropfiles']){
-		$files_folder = $gmCore->upload['path'];
-		$delete_files = $gmCore->delete_folder($files_folder);
-	} else{
-		$files_folder = $gmCore->upload['path'].'/'.$options['folder']['module'];
-		$delete_files = $gmCore->delete_folder($files_folder);
+	if(!$upload['error']){
+		if($options['uninstall_dropfiles']){
+			$files_folder = $upload['path'];
+			$delete_files = $gmCore->delete_folder($files_folder);
+		} else{
+			$files_folder = $upload['path'].'/'.$options['folder']['module'];
+			$delete_files = $gmCore->delete_folder($files_folder);
+		}
 	}
 }

@@ -172,17 +172,19 @@ window.onload = function() {
 	if($galleries){
 		foreach($galleries as $gallery){
 			$old_meta = $gmDB->get_metadata( 'gmedia_term', $gallery->term_id );
-			if($old_meta){
+			if(!empty($old_meta)){
 				$old_meta = array_map( 'reset', $old_meta );
 				$old_meta = array_map( 'maybe_unserialize', $old_meta );
 				$old_meta_keys = array_keys($old_meta);
 				if(!isset($old_meta['gMediaQuery'])){
 					continue;
 				}
+				/*
 				foreach($old_meta_keys as $key){
 					$wpdb->delete($wpdb->prefix.'gmedia_term_meta', array('gmedia_term_id' => $gallery->term_id, 'meta_key' => $key));
 					//$gmDB->delete_metadata('gmedia_term', $gallery->term_id, $key);
 				}
+				*/
 				$gmedia_category = $gmedia_tag = array();
 				foreach($old_meta['gMediaQuery'] as $tab){
 					if(isset($tab['cat']) && !empty($tab['cat'])){
@@ -204,7 +206,7 @@ window.onload = function() {
 					,'query' => $query
 				);
 				foreach($gallery_meta as $key => $value){
-					$gmDB->add_metadata('gmedia_term', $gallery->term_id, $key, $value);
+					$gmDB->update_metadata('gmedia_term', $gallery->term_id, $key, $value);
 				}
 			}
 		}
