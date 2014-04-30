@@ -97,7 +97,7 @@ function gmediaTerms(){
 						</ul>
 					</div>
 
-					<form class="btn-group" id="gm-selected-btn" name="gm-selected-form" action="<?php echo add_query_arg(array('filter' => 'selected'), $url); ?>" method="post">
+					<form class="btn-group" id="gm-selected-btn" name="gm-selected-form" action="<?php echo add_query_arg(array('term' => $taxonomy, 'filter' => 'selected'), $url); ?>" method="post">
 						<button type="submit" class="btn btn<?php echo ('selected' == $gmCore->_req('filter'))? '-success' : '-info' ?>"><?php printf(__('%s selected', 'gmLang'), '<span id="gm-selected-qty">' . count($gmProcessor->selected_items) . '</span>'); ?></button>
 						<button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown"><span class="caret"></span> <span class="sr-only"><?php _e('Toggle Dropdown', 'gmLang'); ?></span></button>
 						<input type="hidden" id="gm-selected" data-userid="<?php echo $user_ID; ?>" data-key="<?php echo $taxonomy; ?>" name="selected_items" value="<?php echo implode(',', $gmProcessor->selected_items); ?>"/>

@@ -74,24 +74,28 @@ function gmedia_shortcode($atts, $content = ''){
 	$gmedia = array();
 	if(!empty($gallery['query'])){
 		foreach ( $gallery['query'] as $tax => $term_ids ) {
-			foreach($term_ids as $term_id){
-				$terms[$term_id] = $gmDB->get_term($term_id, $tax);
-				if(!empty($terms[$term_id]) && !is_wp_error($terms[$term_id]) && $terms[$term_id]->count){
-					if('gmedia_category' == $tax){
-						$terms[$term_id]->name = $gmGallery->options['taxonomies']['gmedia_category'][$terms[$term_id]->name];
-						$gmedia[$term_id] = $gmDB->get_gmedias( array('category__in' => $term_id) );
-					} elseif('gmedia_album' == $tax){
-						$term_meta = $gmDB->get_metadata('gmedia_term', $term_id);
-						$term_meta = array_map('reset', $term_meta);
-						$term_meta = array_merge( array('orderby' => 'ID', 'order' => 'DESC'), $term_meta);
-						$args = array('album__in' => $term_id, 'orderby' => $term_meta['orderby'], 'order' => $term_meta['order']);
-						$gmedia[$term_id] = $gmDB->get_gmedias($args);
-					} elseif('gmedia_tag' == $tax){
-						$gmedia[$term_id] = $gmDB->get_gmedias( array('tag__in' => $term_id) );
+			if(!empty($term_ids)){
+				foreach($term_ids as $term_id){
+					$terms[$term_id] = $gmDB->get_term($term_id, $tax);
+					if(!empty($terms[$term_id]) && !is_wp_error($terms[$term_id]) && $terms[$term_id]->count){
+						if('gmedia_category' == $tax){
+							$terms[$term_id]->name = $gmGallery->options['taxonomies']['gmedia_category'][$terms[$term_id]->name];
+							$gmedia[$term_id] = $gmDB->get_gmedias( array('category__in' => $term_id) );
+						} elseif('gmedia_album' == $tax){
+							$term_meta = $gmDB->get_metadata('gmedia_term', $term_id);
+							$term_meta = array_map('reset', $term_meta);
+							$term_meta = array_merge( array('orderby' => 'ID', 'order' => 'DESC'), $term_meta);
+							$args = array('album__in' => $term_id, 'orderby' => $term_meta['orderby'], 'order' => $term_meta['order']);
+							$gmedia[$term_id] = $gmDB->get_gmedias($args);
+						} elseif('gmedia_tag' == $tax){
+							$gmedia[$term_id] = $gmDB->get_gmedias( array('tag__in' => $term_id) );
+						}
+					} else{
+						unset($terms[$term_id]);
 					}
-				} else{
-					unset($terms[$term_id]);
 				}
+			} else{
+				return '<div class="gmedia_gallery gmediaShortcodeError">#' . $id . ': ' . sprintf(__('Choose gallery source, please.'), $gallery['module']) . '<br />' . $content . '</div>';
 			}
 		}
 	} else{
