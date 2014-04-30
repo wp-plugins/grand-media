@@ -322,11 +322,11 @@ class GmediaCore {
 	 */
 	function clean_input($input) {
 		$search = array(
-			/*'@<[\/\!]*?[^<>]*?>@si',*/ /* Strip out HTML tags */
-			'@<script[^>]*?>.*?</script>@si', /* Strip out javascript */
-			'@<style[^>]*?>.*?</style>@siU', /* Strip style tags properly */
-			'@<![\s\S]*?--[ \t\n\r]*>@', /* Strip multi-line comments */
-			'/\s{2,}/'
+			/*'@<[\/\!]*?[^<>]*?>@si'*/ /* Strip out HTML tags */
+			 '@<script[^>]*?>.*?</script>@si' /* Strip out javascript */
+			,'@<style[^>]*?>.*?</style>@siU' /* Strip style tags properly */
+			,'@<![\s\S]*?--[ \t\n\r]*>@' /* Strip multi-line comments */
+			//,'/\s{3,}/'
 		);
 
 		$output = preg_replace($search, '', $input);

@@ -89,6 +89,14 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 
 == Changelog ==
 
+= 0.9.13 =
+* Fix for Gallery source order not saved
+* Add drag and drop to sort gallery source
+* Add color picker for gallery colors settings
+* Delete tags in selected items action now show only tags from selected items
+* Fix gmedia item description not save multiline
+* Small fixes and improvements
+
 = 0.9.12 =
 * Fix Import from Flagallery plugin
 * Fix update settings with empty key

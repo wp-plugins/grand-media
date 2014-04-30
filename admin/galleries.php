@@ -479,14 +479,14 @@ function gmediaGalleryEdit() {
 								$terms_items = '';
 								if(count($gm_terms)){
 									foreach($gm_terms as $id => $term){
-										//if(!$term->count){ continue; }
 										$selected = (isset($gallery['query'][$term_type]) && in_array($id, $gallery['query'][$term_type]))? ' selected="selected"' : '';
 										$terms_items .= '<option value="' . $id . '"'.$selected.'>' . esc_html($gm_terms_all[$term['name']]) . ' (' . $term['count'] . ')</option>' . "\n";
 									}
 								}
+								$setvalue = isset($gallery['query'][$term_type])? 'data-setvalue="'.implode(',',$gallery['query'][$term_type]).'"' : '';
 								?>
 								<label><?php _e('Choose Categories', 'gmLang'); ?></label>
-								<select data-gmedia_query="is:gmedia_category" id="gmedia_category" name="gallery[query][gmedia_category][]" class="gmedia-combobox form-control input-sm" multiple="multiple" placeholder="<?php echo esc_attr(__('Choose Categories...', 'gmLang')); ?>">
+								<select data-gmedia_query="is:gmedia_category" <?php echo $setvalue; ?> id="gmedia_category" name="gallery[query][gmedia_category][]" class="gmedia-combobox form-control input-sm" multiple="multiple" placeholder="<?php echo esc_attr(__('Choose Categories...', 'gmLang')); ?>">
 									<option value=""><?php _e('Choose Categories...', 'gmLang'); ?></option>
 									<?php echo $terms_items; ?>
 								</select>
@@ -500,14 +500,14 @@ function gmediaGalleryEdit() {
 								$terms_items = '';
 								if(count($gm_terms)){
 									foreach($gm_terms as $id => $term){
-										//if(!$term->count){ continue; }
 										$selected = (isset($gallery['query'][$term_type]) && in_array($id, $gallery['query'][$term_type]))? ' selected="selected"' : '';
 										$terms_items .= '<option value="' . $id . '"'.$selected.'>' . esc_html($term['name']) . ' (' . $term['count'] . ')</option>' . "\n";
 									}
 								}
+								$setvalue = isset($gallery['query'][$term_type])? 'data-setvalue="'.implode(',',$gallery['query'][$term_type]).'"' : '';
 								?>
 								<label><?php _e('Choose Tags', 'gmLang'); ?> </label>
-								<select data-gmedia_query="is:gmedia_tag" id="gmedia_tag" name="gallery[query][gmedia_tag][]" class="gmedia-combobox form-control input-sm" multiple="multiple" placeholder="<?php echo esc_attr(__('Choose Tags...', 'gmLang')); ?>">
+								<select data-gmedia_query="is:gmedia_tag" <?php echo $setvalue; ?> id="gmedia_tag" name="gallery[query][gmedia_tag][]" class="gmedia-combobox form-control input-sm" multiple="multiple" placeholder="<?php echo esc_attr(__('Choose Tags...', 'gmLang')); ?>">
 									<option value=""><?php echo __('Choose Tags...', 'gmLang'); ?></option>
 									<?php echo $terms_items; ?>
 								</select>
@@ -526,9 +526,10 @@ function gmediaGalleryEdit() {
 										$terms_items .= '<option value="' . $id . '"'.$selected.'>' . esc_html($term['name']) . ' &nbsp; (' . $term['count'] . ')</option>' . "\n";
 									}
 								}
+								$setvalue = isset($gallery['query'][$term_type])? 'data-setvalue="'.implode(',',$gallery['query'][$term_type]).'"' : '';
 								?>
 								<label><?php _e('Choose Albums', 'gmLang'); ?> </label>
-								<select data-gmedia_query="is:gmedia_album" id="gmedia_album" name="gallery[query][gmedia_album][]" class="gmedia-combobox form-control input-sm" multiple="multiple" placeholder="<?php echo esc_attr(__('Choose Albums...', 'gmLang')); ?>">
+								<select data-gmedia_query="is:gmedia_album" <?php echo $setvalue; ?> id="gmedia_album" name="gallery[query][gmedia_album][]" class="gmedia-combobox form-control input-sm" multiple="multiple" placeholder="<?php echo esc_attr(__('Choose Albums...', 'gmLang')); ?>">
 									<option value=""><?php echo __('Choose Albums...', 'gmLang'); ?></option>
 									<?php echo $terms_items; ?>
 								</select>
@@ -568,12 +569,39 @@ function gmediaGalleryEdit() {
 					$('#chooseModuleModal').modal('show');
 					<?php } ?>
 
-					$('.gmedia-combobox').selectize({
-						create: false,
-						hideSelected: true
+					$('.gmedia-combobox').each(function(){
+						var select = $(this).selectize({
+							plugins: ['drag_drop'],
+							create: false,
+							hideSelected: true
+						});
+						var val = $(this).data('setvalue');
+						if(val){
+							val = val.toString().split(',');
+							select[0].selectize.setValue(val);
+						}
 					});
 
 					var main = $('#gallery_options_block');
+
+					$('input', main).filter('[data-type="color"]').minicolors({
+						animationSpeed: 50,
+						animationEasing: 'swing',
+						change: null,
+						changeDelay: 0,
+						control: 'hue',
+						//defaultValue: '',
+						hide: null,
+						hideSpeed: 100,
+						inline: false,
+						letterCase: 'lowercase',
+						opacity: false,
+						position: 'bottom left',
+						show: null,
+						showSpeed: 100,
+						theme: 'bootstrap'
+					});
+
 					$('[data-watch]', main).each(function(){
 						var el = $(this);
 						gmedia_options_conditional_logic(el, 0);

@@ -140,11 +140,17 @@ function gmedia_terms_modal(){
 			}
 			break;
 		case 'delete_tags':
+			global $gmProcessor;
+
 			$button_class = 'btn-danger';
-			$gm_terms = $gmDB->get_terms( 'gmedia_tag' );
 			$modal_title = __( 'Delete Tags from Selected Items', 'gmLang' );
 			$modal_content = '';
 			$modal_button = __( 'Delete Tags', 'gmLang' );
+			$gm_terms = array();
+			//$gm_terms = $gmDB->get_terms( 'gmedia_tag' );
+			if(!empty($gmProcessor->selected_items)){
+				$gm_terms = $gmDB->get_gmedia_terms($gmProcessor->selected_items, 'gmedia_tag');
+			}
 			if ( count( $gm_terms ) ) {
 				foreach ( $gm_terms as $term ) {
 					$modal_content .= '<div class="checkbox"><label><input type="checkbox" name="tag_id[]" value="' . $term->term_id . '"> ' . esc_html($term->name) . '</label><span class="badge pull-right">' . $term->count . '</span></div>';

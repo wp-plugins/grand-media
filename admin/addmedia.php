@@ -129,6 +129,7 @@ function gmedia_upload_files(){
 				jQuery(function($){
 					$('#combobox_gmedia_album').selectize({
 						create: true,
+						createOnBlur: true,
 						persist: false
 					});
 					var gm_terms = <?php echo json_encode($gm_terms); ?>;
@@ -138,10 +139,13 @@ function gmedia_upload_files(){
 					$('#combobox_gmedia_tag').selectize({
 						delimiter: ',',
 						maxItems: null,
+						createOnBlur: true,
+						openOnFocus: false,
 						persist: false,
 						options: items,
 						labelField: 'item',
 						valueField: 'item',
+						hideSelected: true,
 						create: function(input){
 							return {
 								item: input
@@ -312,6 +316,7 @@ function gmedia_import(){
 					jQuery(function($){
 						$('#combobox_gmedia_album').selectize({
 							create: true,
+							createOnBlur: true,
 							persist: false
 						});
 						var gm_terms = <?php echo json_encode($gm_terms); ?>;
@@ -321,10 +326,13 @@ function gmedia_import(){
 						$('#combobox_gmedia_tag').selectize({
 							delimiter: ',',
 							maxItems: null,
+							createOnBlur: true,
+							openOnFocus: false,
 							persist: false,
 							options: items,
 							labelField: 'item',
 							valueField: 'item',
+							hideSelected: true,
 							create: function(input){
 								return {
 									item: input

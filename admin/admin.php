@@ -260,8 +260,10 @@ class GmediaAdmin {
 				case "GrandMedia_Galleries" :
 					if(isset($_GET['gallery_module']) || isset($_GET['edit_gallery'])){
 						wp_enqueue_style( 'selectize', $gmCore->gmedia_url . '/assets/selectize/selectize.bootstrap3.css', array('gmedia-bootstrap'), '0.8.5', 'screen' );
-						wp_enqueue_script('selectize', $gmCore->gmedia_url . '/assets/selectize/selectize.min.js', array('jquery'), '0.8.5');
-						//wp_enqueue_script( 'jscolor' );
+						wp_enqueue_script('selectize', $gmCore->gmedia_url . '/assets/selectize/selectize.min.js', array('jquery','jquery-ui-sortable'), '0.8.5');
+
+						wp_enqueue_style( 'jquery.minicolors', $gmCore->gmedia_url . '/assets/minicolors/jquery.minicolors.css', array('gmedia-bootstrap'), '0.9.13');
+						wp_enqueue_script( 'jquery.minicolors', $gmCore->gmedia_url . '/assets/minicolors/jquery.minicolors.js', array('jquery'), '0.9.13');
 					}
 					break;
 			}

@@ -1,6 +1,6 @@
 /*
  * Title                   : Afflux Gallery Module
- * Version                 : 3.1
+ * Version                 : 3.2
  * Copyright               : 2013 CodEasily.com
  * Website                 : http://www.codeasily.com
  */

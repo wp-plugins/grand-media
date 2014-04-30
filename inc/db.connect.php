@@ -526,7 +526,7 @@ class GmediaDB {
 			$taxonomies = array( $taxonomies );
 
 		foreach ( (array) $taxonomies as $taxonomy ) {
-			$term_ids    = $gmDB->get_gmedia_terms( $object_id, $taxonomy, array( 'fields' => 'term_ids' ) );
+			$term_ids    = $gmDB->get_gmedia_terms( $object_id, $taxonomy, array( 'fields' => 'ids' ) );
 			$in_term_ids = "'" . implode( "', '", $term_ids ) . "'";
 			do_action( 'delete_gmedia_term_relationships', $object_id, $term_ids );
 			$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->prefix}gmedia_term_relationships WHERE gmedia_id = %d AND gmedia_term_id IN ($in_term_ids)", $object_id ) );
@@ -2678,7 +2678,7 @@ class GmediaDB {
 			$terms = array( $terms );
 
 		if ( $append == 0 )
-			$old_term_ids = $this->get_gmedia_terms( $object_id, $taxonomy, array( 'fields' => 'term_ids', 'orderby' => 'none' ) );
+			$old_term_ids = $this->get_gmedia_terms( $object_id, $taxonomy, array( 'fields' => 'ids', 'orderby' => 'none' ) );
 		else
 			$old_term_ids = array();
 
@@ -2732,7 +2732,7 @@ class GmediaDB {
 		if ( ! $append && $sort ) {
 				$values = array();
 				$term_order = 0;
-				$final_term_ids = $this->get_gmedia_terms($object_id, $taxonomy, array('fields' => 'term_ids'));
+				$final_term_ids = $this->get_gmedia_terms($object_id, $taxonomy, array('fields' => 'ids'));
 				foreach ( $term_ids as $term_id )
 						if ( in_array($term_id, $final_term_ids) )
 								$values[] = $wpdb->prepare( "(%d, %d, %d)", $object_id, $term_id, ++$term_order);
@@ -2794,7 +2794,7 @@ class GmediaDB {
 	 *
 	 * The final argument supported is called, 'fields' and has the default value of
 	 * 'all'. There are multiple other options that can be used instead. Supported
-	 * values are as follows: 'all', 'ids', 'term_ids', 'names', and finally
+	 * values are as follows: 'all', 'ids', 'names', and finally
 	 * 'all_with_object_id'.
 	 *
 	 * The fields argument also decides what will be returned. If 'all' or
@@ -2828,7 +2828,7 @@ class GmediaDB {
 			$object_ids = array( $object_ids );
 		$object_ids = array_map( 'intval', $object_ids );
 
-		$defaults = array( 'orderby' => 'name', 'order' => 'ASC', 'fields' => 'all' );
+		$defaults = array( 'orderby' => 'name', 'order' => 'ASC', 'fields' => 'all', 'unique' => true );
 		$args     = wp_parse_args( $args, $defaults );
 
 		$terms = array();
@@ -2836,8 +2836,15 @@ class GmediaDB {
 		/** @var $orderby
 		 * @var  $order
 		 * @var  $fields
+		 * @var  $unique
 		 */
 		extract( $args, EXTR_SKIP );
+
+		if($unique){
+			$groupby = 'GROUP BY t.term_id';
+		} else{
+			$groupby = '';
+		}
 
 		if ( 'count' == $orderby )
 			$orderby = 't.count';
@@ -2855,10 +2862,6 @@ class GmediaDB {
 			$orderby = 't.term_id';
 		}
 
-		// term_ids queries can only be none or tr.gmedia_term_id
-		if ( ( 'term_ids' == $fields ) && ! empty( $orderby ) )
-			$orderby = 'tr.gmedia_term_id';
-
 		if ( ! empty( $orderby ) )
 			$orderby = "ORDER BY $orderby";
 
@@ -2872,10 +2875,12 @@ class GmediaDB {
 			$select_this = 't.term_id';
 		else if ( 'names' == $fields )
 			$select_this = 't.name';
-		else if ( 'all_with_object_id' == $fields )
+		else if ( 'all_with_object_id' == $fields ){
 			$select_this = 't.*, tr.gmedia_id';
+			$groupby = '';
+		}
 
-		$query = "SELECT $select_this FROM {$wpdb->prefix}gmedia_term AS t INNER JOIN {$wpdb->prefix}gmedia_term_relationships AS tr ON tr.gmedia_term_id = t.term_id WHERE t.taxonomy IN ($taxonomies) AND tr.gmedia_id IN ($object_ids) $orderby $order";
+		$query = "SELECT $select_this FROM {$wpdb->prefix}gmedia_term AS t INNER JOIN {$wpdb->prefix}gmedia_term_relationships AS tr ON tr.gmedia_term_id = t.term_id WHERE t.taxonomy IN ($taxonomies) AND tr.gmedia_id IN ($object_ids) $groupby $orderby $order";
 
 		if ( 'all' == $fields || 'all_with_object_id' == $fields ) {
 			$terms = array_merge( $terms, $wpdb->get_results( $query ) );
@@ -2884,9 +2889,6 @@ class GmediaDB {
 		}
 		else if ( 'ids' == $fields || 'names' == $fields ) {
 			$terms = array_merge( $terms, $wpdb->get_col( $query ) );
-		}
-		else if ( 'term_ids' == $fields ) {
-			$terms = $wpdb->get_col( "SELECT tr.gmedia_term_id FROM {$wpdb->prefix}gmedia_term_relationships AS tr INNER JOIN {$wpdb->prefix}gmedia_term AS t ON tr.gmedia_term_id = t.term_id WHERE tr.gmedia_id IN ($object_ids) AND t.taxonomy IN ($taxonomies) $orderby $order" );
 		}
 
 		if ( ! $terms )
