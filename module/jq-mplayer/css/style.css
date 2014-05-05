@@ -11,6 +11,9 @@
 .gm-music-player .gmmp-player {
 	width: 100%;
 	overflow: hidden;
+	height: auto;
+	border: none;
+	background: transparent none;
 }
 
 /** Album Cover **/
