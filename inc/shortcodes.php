@@ -3,7 +3,7 @@
 /** Shortcodes Declarations **/
 /** *********************** **/
 add_shortcode('gmedia', 'gmedia_shortcode');
-add_filter('the_content', 'do_shortcode');
+//add_filter('the_content', 'do_shortcode');
 
 
 /** ******************************* **/

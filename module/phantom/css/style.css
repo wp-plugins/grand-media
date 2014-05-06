@@ -108,7 +108,7 @@ div.gmPhantom_Container img {
 .gmPhantom_Container .gmPhantom_LightboxWrapper {
 	position: absolute;
 }
-.gmPhantom_LightboxWrapper * { -webkit-user-select: none; }
+.gmPhantom_LightboxWrapper * { -webkit-user-select: none; -moz-box-sizing: border-box; box-sizing: border-box; }
 .gmPhantom_bodyBg { display: none; position: absolute; left: 0; top: 0; bottom: 0; right: 0; width: 100%; height: 100%; z-index: 150000; }
 .gmPhantom_LightboxWrapper.gm_show + .gmPhantom_bodyBg { display: block; }
 
