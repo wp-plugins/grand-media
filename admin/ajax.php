@@ -61,111 +61,46 @@ function gmedia_terms_modal(){
 		die( '-1' );
 
 	$button_class = 'btn-primary';
+	$gm_terms = array();
 	$modal = $gmCore->_post('modal');
 	switch ( $modal ) {
+		case 'quick_gallery':
+			$modal_title = __( 'Quick Gallery from selected items', 'gmLang' );
+			$modal_button = __( 'Create Quick Gallery', 'gmLang' );
+			break;
 		case 'filter_categories':
-			$gm_terms = $gmDB->get_terms( 'gmedia_category' );
 			$modal_title = __( 'Show Images from Categories', 'gmLang' );
-			$modal_content = '<div class="checkbox"><label><input type="checkbox" name="cat[]" value="0"> ' . __( 'Uncategorized', 'gmLang' ) . '</label></div>';
 			$modal_button = __( 'Show Selected', 'gmLang' );
-			if ( count( $gm_terms ) ) {
-				foreach ($gm_terms as $term ) {
-					if($term->count)
-						$modal_content .= '<div class="checkbox"><label><input type="checkbox" name="cat[]" value="' . $term->term_id . '"> ' . esc_html($term->name) . '</label><span class="badge pull-right">' . $term->count . '</span></div>';
-				}
-			}
 			break;
 		case 'assign_category':
-			$term_type = 'gmedia_category';
-			$gm_terms = $gmGallery->options['taxonomies'][$term_type];
 			$modal_title = __('Assign Category for Selected Images', 'gmLang');
-			$modal_content = '<div class="radio"><label><input type="radio" name="cat" value="0"> ' . __('Uncategorized', 'gmLang') . '</label></div>';
 			$modal_button = __('Assign Category', 'gmLang');
-			if ( count( $gm_terms ) ) {
-				foreach ($gm_terms as $term_name => $term_title ) {
-					$modal_content .= '<div class="radio"><label><input type="radio" name="cat" value="' . $term_name . '"> ' . esc_html($term_title) . '</label></div>';
-				}
-			}
 			break;
 		case 'filter_albums':
-			$gm_terms = $gmDB->get_terms( 'gmedia_album' );
 			$modal_title = __( 'Filter Albums', 'gmLang' );
-			$modal_content = '<div class="checkbox"><label><input type="checkbox" name="alb[]" value="0"> ' . __( 'No Album', 'gmLang' ) . '</label></div>';
 			$modal_button = __( 'Show Selected', 'gmLang' );
-			if ( count( $gm_terms ) ) {
-				foreach ($gm_terms as $term ) {
-					$modal_content .= '<div class="checkbox"><label><input type="checkbox" name="alb[]" value="' . $term->term_id . '"> ' . esc_html($term->name) . '</label><span class="badge pull-right">' . $term->count . '</span></div>';
-				}
-			} else {
-				$modal_button = false;
-			}
 			break;
 		case 'assign_album':
-			$gm_terms = $gmDB->get_terms( 'gmedia_album' );
 			$modal_title = __( 'Assign Album for Selected Items', 'gmLang' );
-			$modal_content = '<div class="radio"><label><input type="radio" name="alb" value="0"> ' . __( 'No Album', 'gmLang' ) . '</label></div>';
 			$modal_button = __( 'Assign Album', 'gmLang' );
-			if ( count( $gm_terms ) ) {
-				foreach ($gm_terms as $term ) {
-					$modal_content .= '<div class="radio"><label><input type="radio" name="alb" value="' . $term->term_id . '"> ' . esc_html($term->name) . '</label><span class="badge pull-right">' . $term->count . '</span></div>';
-				}
-			}
 			break;
 		case 'filter_tags':
-			$gm_terms = $gmDB->get_terms( 'gmedia_tag' );
 			$modal_title = __( 'Filter by Tags', 'gmLang' );
-			$modal_content = '';
 			$modal_button = __( 'Show Selected', 'gmLang' );
-			if ( count( $gm_terms ) ) {
-				foreach ( $gm_terms as $term ) {
-					$modal_content .= '<div class="checkbox"><label><input type="checkbox" name="tag_id[]" value="' . $term->term_id . '"> ' . esc_html($term->name) . '</label><span class="badge pull-right">' . $term->count . '</span></div>';
-				}
-			} else {
-				$modal_content .= '<p class="notags">' . __( 'No tags', 'gmLang' ) . '</p>';
-				$modal_button = false;
-			}
 			break;
 		case 'add_tags':
-			$gm_terms = $gmDB->get_terms( 'gmedia_tag' );
 			$modal_title = __( 'Add Tags to Selected Items', 'gmLang' );
-			$modal_content = '';
 			$modal_button = __( 'Add Tags', 'gmLang' );
-			if ( count( $gm_terms ) ) {
-				foreach ( $gm_terms as $term ) {
-					$modal_content .= '<div class="checkbox"><label><input type="checkbox" name="tag_id[]" value="' . $term->term_id . '"> ' . esc_html($term->name) . '</label><span class="badge pull-right">' . $term->count . '</span></div>';
-				}
-			} else {
-				$modal_content .= '<p class="notags">' . __( 'No tags', 'gmLang' ) . '</p>';
-				$modal_button = false;
-			}
 			break;
 		case 'delete_tags':
-			global $gmProcessor;
-
 			$button_class = 'btn-danger';
 			$modal_title = __( 'Delete Tags from Selected Items', 'gmLang' );
-			$modal_content = '';
 			$modal_button = __( 'Delete Tags', 'gmLang' );
-			$gm_terms = array();
-			//$gm_terms = $gmDB->get_terms( 'gmedia_tag' );
-			if(!empty($gmProcessor->selected_items)){
-				$gm_terms = $gmDB->get_gmedia_terms($gmProcessor->selected_items, 'gmedia_tag');
-			}
-			if ( count( $gm_terms ) ) {
-				foreach ( $gm_terms as $term ) {
-					$modal_content .= '<div class="checkbox"><label><input type="checkbox" name="tag_id[]" value="' . $term->term_id . '"> ' . esc_html($term->name) . '</label><span class="badge pull-right">' . $term->count . '</span></div>';
-				}
-			} else {
-				$modal_content .= '<p class="notags">' . __( 'No tags', 'gmLang' ) . '</p>';
-				$modal_button = false;
-			}
 			break;
 		default:
 			$modal_title = ' ';
-			$modal_content = __('Ops! Something wrong.', 'gmLang');
 			$modal_button = false;
 			break;
-
 	}
 ?>
 	<form class="modal-content" autocomplete="off" method="post">
@@ -174,7 +109,241 @@ function gmedia_terms_modal(){
 			<h4 class="modal-title"><?php echo $modal_title; ?></h4>
 		</div>
 		<div class="modal-body">
-			<?php echo $modal_content; ?>
+			<?php
+			switch ( $modal ) {
+				case 'quick_gallery':
+					global $user_ID;
+					$ckey = "gmedia_u{$user_ID}_library";
+					$selected = isset($_COOKIE[$ckey])? $_COOKIE[$ckey] : '';
+					if(empty($selected)){
+						_e('No selected Gmedia. Select at least one item in library.', 'gmLang');
+						break;
+					}
+					$modules = array();
+					if($plugin_modules = glob(GMEDIA_ABSPATH . 'module/*', GLOB_ONLYDIR | GLOB_NOSORT)){
+						foreach($plugin_modules as $path){
+							$mfold = basename($path);
+							$modules[$mfold] = array(
+								'place' => 'plugin',
+								'module_name' => $mfold,
+								'module_url' => "{$gmCore->gmedia_url}/module/{$mfold}",
+								'module_path' => $path
+							);
+						}
+					}
+					if($upload_modules = glob($gmCore->upload['path'].'/'.$gmGallery->options['folder']['module'].'/*', GLOB_ONLYDIR | GLOB_NOSORT)){
+						foreach($upload_modules as $path){
+							$mfold = basename($path);
+							$modules[$mfold] = array(
+								'place' => 'upload',
+								'module_name' => $mfold,
+								'module_url' => "{$gmCore->upload['url']}/{$gmGallery->options['folder']['module']}/{$mfold}",
+								'module_path' => $path
+							);
+						}
+					}
+					?>
+					<div class="form-group">
+						<label><?php _e('Gallery Name', 'gmLang'); ?></label>
+						<input type="text" class="form-control input-sm" name="gallery[name]" placeholder="<?php echo esc_attr(__('Gallery Name', 'gmLang')); ?>" value="" required="required" />
+					</div>
+					<div class="form-group">
+						<label><?php _e('Modue', 'gmLang'); ?></label>
+						<select class="form-control input-sm" name="gallery[module]">
+							<?php
+							if(!empty($modules)){
+								foreach($modules as $m){
+									/**
+									 * @var $module_name
+									 * @var $module_url
+									 * @var $module_path
+									 */
+									extract($m);
+									if(!file_exists($module_path . '/index.php')){
+										continue;
+									}
+									$module_info = array();
+									include($module_path . '/index.php');
+									if(empty($module_info)){
+										continue;
+									}
+									?>
+									<option value="<?php echo $module_name; ?>"><?php echo $module_info['title']; ?></option>
+									<?php
+								}
+							}
+							?>
+						</select>
+					</div>
+					<div class="form-group">
+						<label><?php _e('Selected IDs', 'gmLang'); ?></label>
+						<input type="text" name="gallery[query][gmedia__in][]" class="form-control input-sm" value="<?php echo $selected; ?>" required="required" />
+					</div>
+					<?php
+					break;
+				case 'filter_categories':
+					$gm_terms = $gmDB->get_terms( 'gmedia_category' );
+					?>
+					<div class="checkbox"><label><input type="checkbox" name="cat[]" value="0"> <?php _e( 'Uncategorized', 'gmLang' ); ?></label></div>
+					<?php if ( count( $gm_terms ) ) {
+						foreach ($gm_terms as $term ) {
+							if($term->count){ ?>
+								<div class="checkbox">
+									<label><input type="checkbox" name="cat[]" value="<?php echo $term->term_id; ?>"> <?php echo esc_html($term->name); ?></label>
+									<span class="badge pull-right"><?php echo $term->count; ?></span>
+								</div>
+							<?php }
+						}
+					}
+					break;
+				case 'assign_category':
+					$term_type = 'gmedia_category';
+					$gm_terms = $gmGallery->options['taxonomies'][$term_type];
+					?>
+					<div class="radio"><label><input type="radio" name="cat" value="0"> <?php _e('Uncategorized', 'gmLang'); ?></label></div>
+					<?php if ( count( $gm_terms ) ) {
+						foreach ($gm_terms as $term_name => $term_title ) {
+							echo '<div class="radio"><label><input type="radio" name="cat" value="' . $term_name . '"> ' . esc_html($term_title) . '</label></div>';
+						}
+					}
+					break;
+				case 'filter_albums':
+					$gm_terms = $gmDB->get_terms( 'gmedia_album' );
+					?>
+					<div class="checkbox"><label><input type="checkbox" name="alb[]" value="0"> <?php _e( 'No Album', 'gmLang' ); ?></label></div>
+					<?php if ( count( $gm_terms ) ) {
+						foreach ($gm_terms as $term ) { ?>
+							<div class="checkbox">
+								<label><input type="checkbox" name="alb[]" value="<?php echo $term->term_id; ?>"> <?php echo esc_html($term->name); ?></label>
+								<span class="badge pull-right"><?php echo $term->count; ?></span>
+							</div>
+						<?php }
+					} else {
+						$modal_button = false;
+					}
+					break;
+				case 'assign_album':
+					$gm_terms = $gmDB->get_terms( 'gmedia_album' );
+					?>
+					<div class="radio">
+						<label><input type="radio" name="alb"> <?php _e( 'Create Album', 'gmLang' ); ?></label>
+						<input type="text" class="form-control input-sm" name="alb" value="" />
+					</div>
+					<div class="radio"><label><input type="radio" name="alb" value="0"> <?php _e( 'No Album', 'gmLang' ); ?></label></div>
+					<?php if ( count( $gm_terms ) ) {
+						foreach ($gm_terms as $term ) { ?>
+							<div class="radio">
+								<label><input type="radio" name="alb" value="<?php echo $term->term_id; ?>"> <?php echo esc_html($term->name); ?></label>
+								<span class="badge pull-right"><?php echo $term->count; ?></span></div>
+						<?php }
+					}
+					break;
+				case 'filter_tags':
+					$gm_terms = $gmDB->get_terms( 'gmedia_tag', array('fields' => 'names_count') );
+					$gm_terms = array_values($gm_terms);
+					if ( count( $gm_terms ) ) { ?>
+						<div class="form-group"><input id="combobox_gmedia_tag" name="tag_ids" class="form-control input-sm" value="" placeholder="<?php _e('Filter Tags...', 'gmLang'); ?>" /></div>
+						<script type="text/javascript">
+							jQuery(function($){
+								var gm_terms = <?php echo json_encode($gm_terms); ?>;
+								var items = gm_terms.map(function(x){
+									return { id: x.term_id, name: x.name, count: x.count };
+								});
+								$('#combobox_gmedia_tag').selectize({
+									delimiter: ',',
+									maxItems: null,
+									openOnFocus: false,
+									labelField: 'name',
+									hideSelected: true,
+									options: items,
+									searchField: ['name'],
+									valueField: 'id',
+									create: false,
+									render: {
+										item: function(item, escape) {
+											return '<div>' + escape(item.name) + '</div>';
+										},
+										option: function(item, escape) {
+											return '<div>' + escape(item.name) + ' <span class="badge">' + escape(item.count) + '</span></div>';
+										}
+									}
+								});
+							});
+						</script>
+					<?php } else {
+						$modal_button = false; ?>
+						<p class="notags"><?php _e( 'No tags', 'gmLang' ); ?></p>
+						<?php
+					}
+					break;
+				case 'add_tags':
+					$gm_terms = $gmDB->get_terms( 'gmedia_tag', array('fields' => 'names_count') );
+					$gm_terms = array_values($gm_terms);
+					if ( count( $gm_terms ) ) { ?>
+						<div class="form-group"><input id="combobox_gmedia_tag" name="tag_names" class="form-control input-sm" value="" placeholder="<?php _e('Add Tags...', 'gmLang'); ?>" /></div>
+						<script type="text/javascript">
+							jQuery(function($){
+								var gm_terms = <?php echo json_encode($gm_terms); ?>;
+								var items = gm_terms.map(function(x){
+									return { id: x.term_id, name: x.name, count: x.count };
+								});
+								$('#combobox_gmedia_tag').selectize({
+									delimiter: ',',
+									maxItems: null,
+									openOnFocus: false,
+									labelField: 'name',
+									hideSelected: true,
+									options: items,
+									searchField: ['name'],
+									valueField: 'name',
+									createOnBlur: true,
+									persist: false,
+									create: function(input){
+										return {
+											name: input
+										}
+									},
+									render: {
+										item: function(item, escape) {
+											return '<div>' + escape(item.name) + '</div>';
+										},
+										option: function(item, escape) {
+											return '<div>' + escape(item.name) + ' <span class="badge">' + escape(item.count) + '</span></div>';
+										}
+									}
+								});
+							});
+						</script>
+					<?php } else {
+						$modal_button = false; ?>
+						<p class="notags"><?php _e( 'No tags', 'gmLang' ); ?></p>
+						<?php
+					}
+					break;
+				case 'delete_tags':
+					global $gmProcessor;
+					$modal_content = '';
+					if(!empty($gmProcessor->selected_items)){
+						$gm_terms = $gmDB->get_gmedia_terms($gmProcessor->selected_items, 'gmedia_tag');
+					}
+					if ( count( $gm_terms ) ) {
+						foreach ( $gm_terms as $term ) { ?>
+							<div class="checkbox">
+								<label><input type="checkbox" name="tag_id[]" value="<?php echo $term->term_id; ?>"> <?php echo esc_html($term->name); ?></label>
+								<span class="badge pull-right"><?php echo $term->count; ?></span>
+							</div>
+						<?php }
+					} else {
+						$modal_button = false; ?>
+						<p class="notags"><?php _e( 'No tags', 'gmLang' ); ?></p>
+					<?php
+					}
+					break;
+				default:
+					_e('Ops! Something wrong.', 'gmLang');
+					break;
+			}
+			?>
 		</div>
 		<div class="modal-footer">
 			<button type="button" class="btn btn-default" data-dismiss="modal"><?php _e( 'Cancel', 'gmLang' ); ?></button>

@@ -81,6 +81,46 @@ class GmediaProcessor{
 		$gmOptions = get_option('gmediaOptions');
 		switch($this->page){
 			case 'GrandMedia':
+				if(isset($_POST['quick_gallery'])){
+					do{
+						$gallery = $gmCore->_post('gallery');
+						$gallery['name'] = trim($gallery['name']);
+						if(empty($gallery['name'])){
+							$this->error[] = __('Gallery Name is not specified', 'gmLang');
+							break;
+						}
+						if($gmCore->is_digit($gallery['name'])){
+							$this->error[] = __("Gallery name can't be only digits", 'gmLang');
+							break;
+						}
+						if(empty($gallery['query']['gmedia__in'])){
+							$this->error[] = __('Choose gmedia from library for quick gallery', 'gmLang');
+							break;
+						}
+						$taxonomy = 'gmedia_gallery';
+						if($term_id = $gmDB->term_exists($gallery['name'], $taxonomy)){
+							$this->error[] = __('A term with the name provided already exists', 'gmLang');
+							break;
+						}
+						$term_id = $gmDB->insert_term($gallery['name'], $taxonomy);
+						if(is_wp_error($term_id)){
+							$this->error[] = $term_id->get_error_message();
+							break;
+						}
+
+						$gallery_meta = array(
+							'edited' => gmdate('Y-m-d H:i:s')
+							,'module' => $gallery['module']
+							,'query' => array('gmedia__in' => $gallery['query']['gmedia__in'])
+							,'settings' => array($gallery['module'] => array())
+						);
+						foreach($gallery_meta as $key => $value){
+							$gmDB->add_metadata('gmedia_term', $term_id, $key, $value);
+						}
+						$this->msg[] = sprintf(__('Gallery "%s" successfuly saved. Shortcode: [gmedia id=%d]', 'gmLang'), esc_attr($gallery['name']), $term_id);
+					} while(0);
+				}
+
 				if(isset($_POST['filter_categories'])){
 					if($term = $gmCore->_post('cat')){
 						$location = add_query_arg(array('page' => $this->page, 'mode' => $this->mode, 'category__in' => implode(',', $term)), admin_url('admin.php'));
@@ -94,51 +134,72 @@ class GmediaProcessor{
 					}
 				}
 				if(isset($_POST['filter_tags'])){
-					if($term = $gmCore->_post('tag_id')){
-						$location = add_query_arg(array('page' => $this->page, 'mode' => $this->mode, 'tag__in' => implode(',', $term)), admin_url('admin.php'));
+					if($term = $gmCore->_post('tag_ids')){
+						$location = add_query_arg(array('page' => $this->page, 'mode' => $this->mode, 'tag__in' => $term), admin_url('admin.php'));
 						wp_redirect($location);
 					}
 				}
 				if(!empty($this->selected_items)){
 					if(isset($_POST['assign_category'])){
-						if($term = $gmCore->_post('cat')){
+						$term = $gmCore->_post('cat');
+						if(false !== $term){
 							$count = count($this->selected_items);
-							foreach($this->selected_items as $item){
-								$result = $gmDB->set_gmedia_terms($item, $term, 'gmedia_category', $append = 0);
-								if(is_wp_error($result)){
-									$this->error[] = $result;
-									$count--;
-								} elseif(!$result){
-									$count--;
+							if(0 == $term){
+								foreach($this->selected_items as $item){
+									$gmDB->delete_gmedia_term_relationships($item, 'gmedia_category');
 								}
-							}
-							if(isset($gmGallery->options['taxonomies']['gmedia_category'][$term])){
-								$cat_name = $gmGallery->options['taxonomies']['gmedia_category'][$term];
-								$this->msg[] = sprintf(__("Category `%s` assigned to %d images.", 'gmLang'), esc_html($cat_name), $count);
+								$this->msg[] = sprintf(__('%d items updated with "Uncategorized"', 'gmLang'), $count);
 							} else{
-								$this->error[] = sprintf(__("Category `%s` can't be assigned.", 'gmLang'), $term);;
+								foreach($this->selected_items as $item){
+									$result = $gmDB->set_gmedia_terms($item, $term, 'gmedia_category', $append = 0);
+									if(is_wp_error($result)){
+										$this->error[] = $result;
+										$count--;
+									} elseif(!$result){
+										$count--;
+									}
+								}
+								if(isset($gmGallery->options['taxonomies']['gmedia_category'][$term])){
+									$cat_name = $gmGallery->options['taxonomies']['gmedia_category'][$term];
+									$this->msg[] = sprintf(__("Category `%s` assigned to %d images.", 'gmLang'), esc_html($cat_name), $count);
+								} else{
+									$this->error[] = sprintf(__("Category `%s` can't be assigned.", 'gmLang'), $term);;
+								}
 							}
 						}
 					}
 					if(isset($_POST['assign_album'])){
-						if($term = $gmCore->_post('alb')){
+						$term = $gmCore->_post('alb');
+						if(false !== $term){
 							$count = count($this->selected_items);
-							foreach($this->selected_items as $item){
-								$result = $gmDB->set_gmedia_terms($item, $term, 'gmedia_album', $append = 0);
-								if(is_wp_error($result)){
-									$this->error[] = $result;
-									$count--;
-								} elseif(!$result){
-									$count--;
+							if(0 == $term){
+								foreach($this->selected_items as $item){
+									$gmDB->delete_gmedia_term_relationships($item, 'gmedia_album');
 								}
+								$this->msg[] = sprintf(__('%d items updated with "No Album"', 'gmLang'), $count);
+							} else{
+								foreach($this->selected_items as $item){
+									$result = $gmDB->set_gmedia_terms($item, $term, 'gmedia_album', $append = 0);
+									if(is_wp_error($result)){
+										$this->error[] = $result;
+										$count--;
+									} elseif(!$result){
+										$count--;
+									}
+								}
+								if($gmCore->is_digit($term)){
+									$alb_name = $gmDB->get_alb_name($term);
+								} else{
+									$alb_name = $term;
+								}
+								$this->msg[] = sprintf(__('Album `%s` assigned to %d items', 'gmLang'), esc_html($alb_name), $count);
 							}
-							$alb_name = $gmDB->get_alb_name($term);
-							$this->msg[] = sprintf(__('Album `%s` assigned to %d items', 'gmLang'), esc_html($alb_name), $count);
 						}
+
 					}
 					if(isset($_POST['add_tags'])){
-						if($term = $gmCore->_post('tag_id')){
-							$term = array_map('intval', $term);
+						if($term = $gmCore->_post('tag_names')){
+							$term = explode(',', $term);
 							$count = count($this->selected_items);
 							foreach($this->selected_items as $item){
 								$result = $gmDB->set_gmedia_terms($item, $term, 'gmedia_tag', $append = 1);

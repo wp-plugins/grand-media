@@ -172,31 +172,38 @@ function gmediaGalleries() {
 								<?php
 								$gallery_tabs = reset($term_meta['query']);
 								$tax_tabs = key($term_meta['query']);
-								$tabs = $gmDB->get_terms($tax_tabs, array('include' => $gallery_tabs));
-								$terms_source = array();
-								if('gmedia_category' == $tax_tabs){
-									_e('Categories', 'gmLang');
-									foreach($tabs as $t){
-										$terms_source[] = sprintf('<a class="category" href="%s">%s</a>', esc_url(add_query_arg(array('cat' => $t->term_id), $lib_url)), esc_html($gmGallery->options['taxonomies']['gmedia_category'][$t->name]));
+								if('gmedia__in' == $tax_tabs){
+									_e('Selected Gmedia', 'gmLang');
+									$gmedia_ids = wp_parse_id_list($gallery_tabs[0]);
+									$gal_source = sprintf('<a class="selected__in" href="%s">'.__('Show %d items in Gmedia Library','gmLang').'</a>', esc_url(add_query_arg(array('gmedia__in' => implode(',', $gmedia_ids)), $lib_url)), count($gmedia_ids));
+									echo " ($gal_source)";
+								} else{
+									$tabs = $gmDB->get_terms($tax_tabs, array('include' => $gallery_tabs));
+									$terms_source = array();
+									if('gmedia_category' == $tax_tabs){
+										_e('Categories', 'gmLang');
+										foreach($tabs as $t){
+											$terms_source[] = sprintf('<a class="category" href="%s">%s</a>', esc_url(add_query_arg(array('cat' => $t->term_id), $lib_url)), esc_html($gmGallery->options['taxonomies']['gmedia_category'][$t->name]));
+										}
+									} elseif('gmedia_album' == $tax_tabs){
+										_e('Albums', 'gmLang');
+										foreach($tabs as $t){
+											$terms_source[] = sprintf('<a class="album" href="%s">%s</a>', esc_url(add_query_arg(array('alb' => $t->term_id), $lib_url)), esc_html($t->name));
+										}
+									} elseif('gmedia_tag' == $tax_tabs){
+										_e('Tags', 'gmLang');
+										foreach($tabs as $t){
+											$terms_source[] = sprintf('<a class="tag" href="%s">%s</a>', esc_url(add_query_arg(array('tag_id' => $t->term_id), $lib_url)), esc_html($t->name));
+										}
+									} elseif('gmedia_filter' == $tax_tabs){
+										_e('Filters', 'gmLang');
+										foreach($tabs as $t){
+											$terms_source[] = sprintf('<a class="filter" href="%s">%s</a>', esc_url(add_query_arg(array('stack_id' => $t->term_id), $lib_url)), esc_html($t->name));
+										}
 									}
-								} elseif('gmedia_album' == $tax_tabs){
-									_e('Albums', 'gmLang');
-									foreach($tabs as $t){
-										$terms_source[] = sprintf('<a class="album" href="%s">%s</a>', esc_url(add_query_arg(array('alb' => $t->term_id), $lib_url)), esc_html($t->name));
+									if(!empty($terms_source)){
+										echo ' ('.join(', ', $terms_source).')';
 									}
-								} elseif('gmedia_tag' == $tax_tabs){
-									_e('Tags', 'gmLang');
-									foreach($tabs as $t){
-										$terms_source[] = sprintf('<a class="tag" href="%s">%s</a>', esc_url(add_query_arg(array('tag_id' => $t->term_id), $lib_url)), esc_html($t->name));
-									}
-								} elseif('gmedia_filter' == $tax_tabs){
-									_e('Filters', 'gmLang');
-									foreach($tabs as $t){
-										$terms_source[] = sprintf('<a class="filter" href="%s">%s</a>', esc_url(add_query_arg(array('stack_id' => $t->term_id), $lib_url)), esc_html($t->name));
-									}
-								}
-								if(!empty($terms_source)){
-									echo ' ('.join(', ', $terms_source).')';
 								}
 								?>
 							</p>
@@ -465,6 +472,7 @@ function gmediaGalleryEdit() {
 									<option value="gmedia_album"<?php selected($gallery['term'], 'gmedia_album'); ?>><?php _e('Albums', 'gmLang'); ?></option>
 									<option value="gmedia_tag"<?php selected($gallery['term'], 'gmedia_tag'); ?>><?php _e('Tags', 'gmLang'); ?></option>
 									<option value="gmedia_category"<?php selected($gallery['term'], 'gmedia_category'); ?>><?php _e('Categories', 'gmLang'); ?></option>
+									<option value="gmedia__in"<?php selected($gallery['term'], 'gmedia__in'); ?>><?php _e('Selected Gmedia', 'gmLang'); ?></option>
 									<!-- <option value="gmedia_filter"<?php selected($gallery['term'], 'gmedia_filter'); ?>><?php _e('Filter', 'gmLang'); ?></option> -->
 								</select>
 							</div>
@@ -533,6 +541,12 @@ function gmediaGalleryEdit() {
 									<option value=""><?php echo __('Choose Albums...', 'gmLang'); ?></option>
 									<?php echo $terms_items; ?>
 								</select>
+							</div>
+
+							<div class="form-group" id="div_gmedia__in">
+								<label><?php _e('Selected Gmedia IDs <small class="text-muted">separated by comma</small>', 'gmLang'); ?> </label>
+								<?php	$value = isset($gallery['query']['gmedia__in'][0])? implode(',', wp_parse_id_list($gallery['query']['gmedia__in'][0])) : ''; ?>
+								<textarea data-gmedia_query="is:gmedia__in" id="gmedia__in" name="gallery[query][gmedia__in][]" rows="1" class="form-control input-sm" style="resize:vertical;" placeholder="<?php echo esc_attr(__('Gmedia IDs...', 'gmLang')); ?>"><?php echo $value; ?></textarea>
 							</div>
 
 							<div class="form-group">
@@ -626,17 +640,17 @@ function gmediaGalleryEdit() {
 									case '=':
 									case 'is':
 										if(val == key[1]){
-											$(this).prop('disabled',false).parent().slideDown(slide, function(){ $(this).css({display:'block'}); });
+											$(this).prop('disabled',false).closest('.form-group').slideDown(slide, function(){ $(this).css({display:'block'}); });
 										} else{
-											$(this).prop('disabled',true).parent().slideUp(slide, function(){ $(this).css({display:'none'}); });
+											$(this).prop('disabled',true).closest('.form-group').slideUp(slide, function(){ $(this).css({display:'none'}); });
 										}
 										break;
 									case '!=':
 									case 'not':
 										if(val != key[1]){
-											$(this).prop('disabled',false).parent().slideDown(slide, function(){ $(this).css({display:'block'}); });
+											$(this).prop('disabled',false).closest('.form-group').slideDown(slide, function(){ $(this).css({display:'block'}); });
 										} else{
-											$(this).prop('disabled',true).parent().slideUp(slide, function(){ $(this).css({display:'none'}); });
+											$(this).prop('disabled',true).closest('.form-group').slideUp(slide, function(){ $(this).css({display:'none'}); });
 										}
 										break;
 								}

@@ -2365,7 +2365,7 @@ class GmediaDB {
 		}
 		elseif ( 'names_count' == $fields ) {
 			while ( $term = array_shift( $terms ) ) {
-				$_terms[$term->term_id] = array('name'=>$term->name, 'count'=>$term->count);
+				$_terms[$term->term_id] = array('name'=>$term->name, 'count'=>$term->count, 'term_id'=>$term->term_id);
 			}
 			$terms = $_terms;
 		}

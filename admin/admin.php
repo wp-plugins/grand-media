@@ -209,10 +209,10 @@ class GmediaAdmin {
 		if ( isset( $_GET['page'] ) ) {
 			switch ( $_GET['page'] ) {
 				case "GrandMedia" :
-					if($gmProcessor->mode){
-						wp_enqueue_style('selectize', $gmCore->gmedia_url . '/assets/selectize/selectize.bootstrap3.css', array('gmedia-bootstrap'), '0.8.5', 'screen');
-						wp_enqueue_script('selectize', $gmCore->gmedia_url . '/assets/selectize/selectize.min.js', array('jquery'), '0.8.5');
+					wp_enqueue_style('selectize', $gmCore->gmedia_url . '/assets/selectize/selectize.bootstrap3.css', array('gmedia-bootstrap'), '0.8.5', 'screen');
+					wp_enqueue_script('selectize', $gmCore->gmedia_url . '/assets/selectize/selectize.min.js', array('jquery'), '0.8.5');
 
+					if($gmProcessor->mode){
 						wp_enqueue_script( 'alphanum', $gmCore->gmedia_url . '/assets/jq-plugins/jquery.alphanum.js', array( 'jquery' ), '1.0.16' );
 
 						wp_enqueue_script( 'moment', $gmCore->gmedia_url . '/assets/bootstrap-datetimepicker/moment.min.js', array( 'jquery' ), '2.5.1' );

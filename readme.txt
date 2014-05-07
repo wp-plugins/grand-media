@@ -89,6 +89,15 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 
 == Changelog ==
 
+= 0.9.14 =
+* Added "Create Quick Gallery"
+* Added gallery source - Gmedia IDs
+* Improved assign albums
+* Improved assign tags
+* Improved delete tags
+* Fixed assign no album
+* Fixed assign no category
+
 = 0.9.13 =
 * Fix for Gallery source order not saved
 * Add drag and drop to sort gallery source

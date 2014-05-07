@@ -201,7 +201,7 @@ jQuery(function($){
 				$.post(ajaxurl, post_data, function(data, textStatus, jqXHR){
 					$('.modal-dialog', modal_div).html(data);
 					modal_div.modal({
-						//backdrop: false,
+						backdrop: 'static',
 						show: true
 					}).on('hidden.bs.modal', function(e){
 						$('.modal-dialog', this).empty();

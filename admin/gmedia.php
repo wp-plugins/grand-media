@@ -19,15 +19,21 @@ function gmediaLib(){
 	}
 	$gm_screen_options = array_merge($gmGallery->options['gm_screen_options'], $gm_screen_options);
 
-
-	$gmedia__in = ('selected' == $gmCore->_req('filter'))? $gmProcessor->selected_items : null;
-	$args = array('mime_type' => $gmCore->_get('mime_type', null), 'orderby' => $gm_screen_options['orderby_gmedia'],
-				  'order' => $gm_screen_options['sortorder_gmedia'],
-				  'per_page' => $gm_screen_options['per_page_gmedia'], 'page' => $gmCore->_get('pager', 1),
-				  'tag_id' => $gmCore->_get('tag_id', null), 'tag__in' => $gmCore->_get('tag__in', null),
-				  'cat' => $gmCore->_get('cat', null), 'category__in' => $gmCore->_get('category__in', null),
-				  'alb' => $gmCore->_get('alb', null), 'album__in' => $gmCore->_get('album__in', null),
-				  'gmedia__in' => $gmedia__in, 's' => $gmCore->_get('s', null));
+	$gmedia__in = $gmCore->_get('gmedia__in', null);
+	$orderby = $gm_screen_options['orderby_gmedia'];
+	$order = $gm_screen_options['sortorder_gmedia'];
+	if('selected' == $gmCore->_req('filter')){
+		$gmedia__in = $gmProcessor->selected_items;
+		$orderby = 'gmedia__in';
+		$order = 'ASC';
+	}
+	$args = array('mime_type' => $gmCore->_get('mime_type', null),
+								'orderby' => $orderby, 'order' => $order,
+								'per_page' => $gm_screen_options['per_page_gmedia'], 'page' => $gmCore->_get('pager', 1),
+								'tag_id' => $gmCore->_get('tag_id', null), 'tag__in' => $gmCore->_get('tag__in', null),
+								'cat' => $gmCore->_get('cat', null), 'category__in' => $gmCore->_get('category__in', null),
+								'alb' => $gmCore->_get('alb', null), 'album__in' => $gmCore->_get('album__in', null),
+								'gmedia__in' => $gmedia__in, 's' => $gmCore->_get('s', null));
 	$gmediaQuery = $gmDB->get_gmedias($args);
 
 	$gm_qty = array('total' => '', 'image' => '', 'audio' => '', 'video' => '', 'text' => '', 'application' => '',
@@ -108,12 +114,14 @@ function gmediaLib(){
 				<ul class="dropdown-menu" role="menu">
 					<?php if(!$gmProcessor->mode){ ?>
 						<li><a href="<?php echo $gmCore->get_admin_url(array('mode' => 'edit')); ?>"><?php _e('Enter Edit Mode', 'gmLang'); ?></a></li>
+						<li class="divider"></li>
+						<li class="<?php echo $rel_selected_show; ?>"><a href="#termsModal" data-modal="quick_gallery" data-action="gmedia_terms_modal" class="gmedia-modal"><?php _e('Quick Gallery from Selected', 'gmLang'); ?></a></li>
 						<li class="<?php echo $rel_selected_show; ?>"><a href="#termsModal" data-modal="assign_category" data-action="gmedia_terms_modal" class="gmedia-modal"><?php _e('Assign Category...', 'gmLang'); ?></a></li>
 						<li class="<?php echo $rel_selected_show; ?>"><a href="#termsModal" data-modal="assign_album" data-action="gmedia_terms_modal" class="gmedia-modal"><?php _e('Move to Album...', 'gmLang'); ?></a></li>
 						<li class="<?php echo $rel_selected_show; ?>"><a href="#termsModal" data-modal="add_tags" data-action="gmedia_terms_modal" class="gmedia-modal"><?php _e('Add Tags...', 'gmLang'); ?></a></li>
 						<li class="<?php echo $rel_selected_show; ?>"><a href="#termsModal" data-modal="delete_tags" data-action="gmedia_terms_modal" class="gmedia-modal"><?php _e('Delete Tags...', 'gmLang'); ?></a></li>
 						<li class="<?php echo $rel_selected_show; ?>"><a href="<?php echo wp_nonce_url($gmCore->get_admin_url(array('delete' => 'selected'), array('filter')), 'gmedia_delete') ?>" class="gmedia-delete" data-confirm="<?php _e("You are about to permanently delete the selected items.\n\r'Cancel' to stop, 'OK' to delete.", "gmLang"); ?>"><?php _e('Delete Selected Items', 'gmLang'); ?></a></li>
-						<li class="divider <?php echo $rel_selected_hide; ?>"></li>
+
 						<li class="dropdown-header <?php echo $rel_selected_hide; ?>"><span><?php _e("Select items to see more actions", "gmLang"); ?></span></li>
 					<?php } else{ ?>
 						<li><a href="<?php echo $gmCore->get_admin_url(array(), array('mode')); ?>"><?php _e('Exit Edit Mode', 'gmLang'); ?></a></li>
@@ -130,6 +138,7 @@ function gmediaLib(){
 				<ul class="dropdown-menu" role="menu">
 					<li><a id="gm-selected-show" href="#show"><?php _e('Show only selected items', 'gmLang'); ?></a></li>
 					<li><a id="gm-selected-clear" href="#clear"><?php _e('Clear selected items', 'gmLang'); ?></a></li>
+					<li><a href="#termsModal" data-modal="quick_gallery" data-action="gmedia_terms_modal" class="gmedia-modal"><?php _e('Quick Gallery from Selected', 'gmLang'); ?></a></li>
 				</ul>
 			</form>
 

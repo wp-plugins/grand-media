@@ -23,6 +23,7 @@ function gmedia_shortcode($atts, $content = ''){
 	}
 
 	$gallery = array(
+		'term_id' => 0,
 		'name' => '',
 		'description' => '',
 		'status' => 'public',
@@ -75,6 +76,13 @@ function gmedia_shortcode($atts, $content = ''){
 	if(!empty($gallery['query'])){
 		foreach ( $gallery['query'] as $tax => $term_ids ) {
 			if(!empty($term_ids)){
+				if('gmedia__in' == $tax){
+					$term_id = (int) $gallery['term_id'];
+					$terms[$term_id] = $gmDB->get_term($term_id, 'gmedia_gallery');
+					$term_ids = implode(',', wp_parse_id_list($term_ids[0]));
+					$gmedia[$term_id] = $gmDB->get_gmedias( array('gmedia__in' => $term_ids, 'orderby' => 'gmedia__in', 'order' => 'ASC') );
+					continue;
+				}
 				foreach($term_ids as $term_id){
 					$terms[$term_id] = $gmDB->get_term($term_id, $tax);
 					if(!empty($terms[$term_id]) && !is_wp_error($terms[$term_id]) && $terms[$term_id]->count){
@@ -101,8 +109,6 @@ function gmedia_shortcode($atts, $content = ''){
 	} else{
 		return '<div class="gmedia_gallery gmediaShortcodeError">#' . $id . ': ' . sprintf(__('Choose gallery source, please.'), $gallery['module']) . '<br />' . $content . '</div>';
 	}
-
-
 
 	$gmGallery->do_module[$gallery['module']] = $module;
 
