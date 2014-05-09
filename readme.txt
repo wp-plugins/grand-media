@@ -89,6 +89,9 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 
 == Changelog ==
 
+= 0.9.15 =
+* Fixed Import from NextGen plugin
+
 = 0.9.14 =
 * Added "Create Quick Gallery"
 * Added gallery source - Gmedia IDs

@@ -40,6 +40,9 @@ $terms = $gmCore->_post('terms');
 function gmedia_import_files($files, $terms, $move, $exists = 0){
 	global $gmCore, $gmGallery;
 
+	if (ob_get_level() == 0) {
+		ob_start();
+	}
 	$eol = '</pre>'.PHP_EOL;
 	$c = count($files);
 	$i = 0;
@@ -233,13 +236,17 @@ function gmedia_import_files($files, $terms, $move, $exists = 0){
 	echo '<br /><b>'.__('Tags').':</b> '. esc_html(str_replace(',', ', ', $terms['gmedia_tag'])) .'</p>' . PHP_EOL;
 
 	wp_ob_end_flush_all();
-	//flush();
+	flush();
 }
 
 if (ob_get_level() == 0) {
 	ob_start();
 }
-?><html>
+echo str_pad(' ',4096) . PHP_EOL;
+wp_ob_end_flush_all();
+flush();
+?>
+<html>
 <style type="text/css">
 	* {margin:0; padding:0;}
 	pre { display:block; }
@@ -252,7 +259,7 @@ if (ob_get_level() == 0) {
 if('import-folder' == $import){
 
 	$path = $gmCore->_post('path');
-	echo str_pad('<h4 style="margin: 0 0 10px">'.__('Import Server Folder')." `$path`:</h4>",4096) . PHP_EOL;
+	echo '<h4 style="margin: 0 0 10px">'.__('Import Server Folder')." `$path`:</h4>" . PHP_EOL;
 
 	if($path){
 		$path = trim(urldecode($path),'/');
@@ -285,7 +292,7 @@ if('import-folder' == $import){
 	}
 } elseif('import-flagallery' == $import){
 
-	echo str_pad('<h4 style="margin: 0 0 10px">'.__('Import from Flagallery plugin').":</h4>",4096) . PHP_EOL;
+	echo '<h4 style="margin: 0 0 10px">'.__('Import from Flagallery plugin').":</h4>" . PHP_EOL;
 
 	$gallery = $gmCore->_post('gallery');
 	if(!empty($gallery)){
@@ -321,7 +328,7 @@ if('import-folder' == $import){
 	}
 } elseif('import-nextgen' == $import){
 
-	echo str_pad('<h4 style="margin: 0 0 10px">'.__('Import from NextGen plugin').":</h4>",4096) . PHP_EOL;
+	echo '<h4 style="margin: 0 0 10px">'.__('Import from NextGen plugin').":</h4>" . PHP_EOL;
 
 	$gallery = $gmCore->_post('gallery');
 	if(!empty($gallery)){
@@ -344,7 +351,7 @@ if('import-folder' == $import){
 
 			echo '<h5 style="margin: 10px 0 5px">'.sprintf( __( 'Import `%s` gallery', 'gmLang' ), $ngg_gallery['title'] ).":</h5>" . PHP_EOL;
 
-			$ngg_pictures = $wpdb->get_results($wpdb->prepare("SELECT CONCAT('%s', filename) AS file, description, alttext AS title FROM `{$wpdb->prefix}flag_pictures` WHERE galleryid = %d", $path, $ngg_gallery['gid']), ARRAY_A);
+			$ngg_pictures = $wpdb->get_results($wpdb->prepare("SELECT CONCAT('%s', filename) AS file, description, alttext AS title FROM `{$wpdb->prefix}ngg_pictures` WHERE galleryid = %d", $path, $ngg_gallery['gid']), ARRAY_A);
 			if(empty($ngg_pictures)){
 				echo '<pre>'.__( 'gallery contains 0 images', 'gmLang' ).'</pre>';
 				continue;
@@ -357,7 +364,7 @@ if('import-folder' == $import){
 } elseif('import-wpmedia' == $import){
 	global $user_ID, $gmDB;
 
-	echo str_pad('<h4 style="margin: 0 0 10px">'.__('Import from WP Media Library').":</h4>",4096) . PHP_EOL;
+	echo '<h4 style="margin: 0 0 10px">'.__('Import from WP Media Library').":</h4>" . PHP_EOL;
 
 	$wpMediaLib = $gmDB->get_wp_media_lib(array('filter'=>'selected', 'selected'=>$gmCore->_post('selected')));
 
@@ -378,8 +385,8 @@ if('import-folder' == $import){
 		echo __( 'No items chosen', 'gmLang' ) . PHP_EOL;
 	}
 }
-
-ob_end_flush();
 ?>
 </body>
 </html>
+<?php
+ob_end_flush();
