@@ -420,6 +420,28 @@ class GmediaCore {
 		return $diff;
 	}
 
+	function process_gmedit_image($photo) {
+		$type = null;
+		if (preg_match('/^data:image\/(jpg|jpeg|png|gif)/i', $photo, $matches)) {
+			$type = $matches[1];
+		} else {
+			return false;
+		}
+
+		// Remove the mime-type header
+		$data = reset(array_reverse(explode('base64,', $photo)));
+
+		// Use strict mode to prevent characters from outside the base64 range
+		$image = base64_decode($data, true);
+
+		if (!$image) { return false; }
+
+		return array(
+			'data' => $image,
+			'type' => $type
+		);
+	}
+
 }
 
 global $gmCore;

@@ -45,7 +45,7 @@ function gmediaLib(){
 	}
 
 	?>
-	<div class="panel panel-default">
+	<div class="panel panel-default" id="gmedia-panel">
 	<div class="panel-heading clearfix">
 		<form class="form-inline gmedia-search-form" role="search">
 			<div class="form-group">
@@ -105,7 +105,16 @@ function gmediaLib(){
 			</div>
 
 			<div class="btn-group">
-				<a class="btn btn-default" title="<?php _e('Toggle Edit Mode', 'gmLang'); ?>" href="<?php if(!$gmProcessor->mode){ echo $gmCore->get_admin_url(array('mode' => 'edit')); } else{ echo $gmCore->get_admin_url(array(), array('mode')); } ?>"><?php _e('Action', 'gmLang'); ?></a>
+				<?php if(!$gmProcessor->mode){
+					$args = array('mode' => 'edit');
+					$edit_mode_href = $gmCore->get_admin_url($args);
+					$args2 = array('mode' => 'edit', 'filter' => 'selected', 'pager' => false);
+					$edit_mode_data = 'data-href="'.$edit_mode_href.'" data-href_sel="'.$gmCore->get_admin_url($args2).'"';
+				} else{
+					$edit_mode_href = $gmCore->get_admin_url(array(), array('mode'));
+					$edit_mode_data = '';
+				} ?>
+				<a class="btn btn-default edit-mode-link" title="<?php _e('Toggle Edit Mode', 'gmLang'); ?>" href="<?php echo $edit_mode_href; ?>" <?php echo $edit_mode_data; ?>><?php _e('Action', 'gmLang'); ?></a>
 				<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret"></span> <span class="sr-only"><?php _e('Toggle Dropdown', 'gmLang'); ?></span></button>
 				<?php
 				$rel_selected_show = 'rel-selected-show';
@@ -113,7 +122,7 @@ function gmediaLib(){
 				?>
 				<ul class="dropdown-menu" role="menu">
 					<?php if(!$gmProcessor->mode){ ?>
-						<li><a href="<?php echo $gmCore->get_admin_url(array('mode' => 'edit')); ?>"><?php _e('Enter Edit Mode', 'gmLang'); ?></a></li>
+						<li><a class="edit-mode-link" href="<?php echo $edit_mode_href; ?>" <?php echo $edit_mode_data; ?>><?php _e('Enter Edit Mode', 'gmLang'); ?></a></li>
 						<li class="divider"></li>
 						<li class="<?php echo $rel_selected_show; ?>"><a href="#termsModal" data-modal="quick_gallery" data-action="gmedia_terms_modal" class="gmedia-modal"><?php _e('Quick Gallery from Selected', 'gmLang'); ?></a></li>
 						<li class="<?php echo $rel_selected_show; ?>"><a href="#termsModal" data-modal="assign_category" data-action="gmedia_terms_modal" class="gmedia-modal"><?php _e('Assign Category...', 'gmLang'); ?></a></li>
@@ -124,19 +133,29 @@ function gmediaLib(){
 
 						<li class="dropdown-header <?php echo $rel_selected_hide; ?>"><span><?php _e("Select items to see more actions", "gmLang"); ?></span></li>
 					<?php } else{ ?>
-						<li><a href="<?php echo $gmCore->get_admin_url(array(), array('mode')); ?>"><?php _e('Exit Edit Mode', 'gmLang'); ?></a></li>
+						<li><a href="<?php echo $edit_mode_href; ?>"><?php _e('Exit Edit Mode', 'gmLang'); ?></a></li>
 					<?php }
 					do_action('gmedia_action_list');
 					?>
 				</ul>
 			</div>
 
-			<form class="btn-group" id="gm-selected-btn" name="gm-selected-form" action="<?php echo add_query_arg(array('filter' => 'selected'), $url); ?>" method="post">
-				<button type="submit" class="btn btn<?php echo ('selected' == $gmCore->_req('filter'))? '-success' : '-info' ?>"><?php printf(__('%s selected', 'gmLang'), '<span id="gm-selected-qty">' . count($gmProcessor->selected_items) . '</span>'); ?></button>
+			<?php
+			$filter_selected = $gmCore->_req('filter');
+			$filter_selected_arg = $filter_selected? false : 'selected';
+			?>
+			<form class="btn-group" id="gm-selected-btn" name="gm-selected-form" action="<?php echo add_query_arg(array('filter' => $filter_selected_arg), $url); ?>" method="post">
+				<button type="submit" class="btn btn<?php echo ('selected' == $filter_selected)? '-success' : '-info' ?>"><?php printf(__('%s selected', 'gmLang'), '<span id="gm-selected-qty">' . count($gmProcessor->selected_items) . '</span>'); ?></button>
 				<button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown"><span class="caret"></span> <span class="sr-only"><?php _e('Toggle Dropdown', 'gmLang'); ?></span></button>
 				<input type="hidden" id="gm-selected" data-userid="<?php echo $user_ID; ?>" data-key="library" name="selected_items" value="<?php echo implode(',', $gmProcessor->selected_items); ?>"/>
 				<ul class="dropdown-menu" role="menu">
-					<li><a id="gm-selected-show" href="#show"><?php _e('Show only selected items', 'gmLang'); ?></a></li>
+					<li><a id="gm-selected-show" href="#show"><?php
+							if(!$filter_selected){
+								_e('Show only selected items', 'gmLang');
+							} else{
+								_e('Show all gmedia items', 'gmLang');
+							}
+							?></a></li>
 					<li><a id="gm-selected-clear" href="#clear"><?php _e('Clear selected items', 'gmLang'); ?></a></li>
 					<li><a href="#termsModal" data-modal="quick_gallery" data-action="gmedia_terms_modal" class="gmedia-modal"><?php _e('Quick Gallery from Selected', 'gmLang'); ?></a></li>
 				</ul>
@@ -155,9 +174,13 @@ function gmediaLib(){
 		$item_url = $gmCore->upload['url'] . '/' . $gmGallery->options['folder'][$type[0]] . '/' . $item->gmuid;
 		$item_path = $gmCore->upload['path'] . '/' . $gmGallery->options['folder'][$type[0]] . '/' . $item->gmuid;
 
-		$is_webimage = (('image' == $type[0]) && in_array(exif_imagetype($item_path), array(IMAGETYPE_GIF,
+		if (function_exists('exif_imagetype')) {
+			$is_webimage = (('image' == $type[0]) && in_array(exif_imagetype($item_path), array(IMAGETYPE_GIF,
 																							IMAGETYPE_JPEG,
 																							IMAGETYPE_PNG)))? true : false;
+		} else{
+			$is_webimage = (('image' == $type[0]) && in_array($type[1], array('jpeg', 'png', 'gif')))? true : false;
+		}
 
 		$tags = $gmDB->get_the_gmedia_terms($item->ID, 'gmedia_tag');
 		$albs = $gmDB->get_the_gmedia_terms($item->ID, 'gmedia_album');
@@ -165,20 +188,20 @@ function gmediaLib(){
 		?>
 		<?php if(!$gmProcessor->mode){
 		$is_selected = in_array($item->ID, $gmProcessor->selected_items)? true : false; ?>
-		<div class="list-group-item row<?php echo $is_selected? ' active' : ''; ?>" id="list-item-<?php echo $item->ID; ?>" data-id="<?php echo $item->ID; ?>" data-type="<?php echo $type[0]; ?>">
+		<div class="list-group-item d-row clearfix<?php echo $is_selected? ' active' : ''; ?>" id="list-item-<?php echo $item->ID; ?>" data-id="<?php echo $item->ID; ?>" data-type="<?php echo $type[0]; ?>">
 			<div class="gmedia_id">#<?php echo $item->ID; ?></div>
-			<div class="col-sm-6">
-				<label class="cb_media-object">
-					<input name="doaction[]" type="checkbox"<?php echo $is_selected? ' checked="checked"' : ''; ?> data-type="<?php echo $type[0]; ?>" class="hidden" value="<?php echo $item->ID; ?>"/>
-					<span data-target="<?php echo $item_url; ?>" class="thumbnail">
-						<img src="<?php echo $gmCore->gm_get_media_image($item, 'thumb'); ?>" alt=""/>
-						<?php if(('image' != $type[0]) && isset($meta['cover'][0]) && !empty($meta['cover'][0])){ ?>
-							<img class="gmedia-typethumb" src="<?php echo $gmCore->gm_get_media_image($item, 'thumb', false); ?>" alt=""/>
-						<?php } ?>
-					</span>
-				</label>
+			<label class="cb_media-object">
+				<input name="doaction[]" type="checkbox"<?php echo $is_selected? ' checked="checked"' : ''; ?> data-type="<?php echo $type[0]; ?>" class="hidden" value="<?php echo $item->ID; ?>"/>
+				<span data-target="<?php echo $item_url; ?>" class="thumbnail">
+					<img class="gmedia-thumb" src="<?php echo $gmCore->gm_get_media_image($item, 'thumb'); ?>" alt=""/>
+					<?php if(('image' != $type[0]) && isset($meta['cover'][0]) && !empty($meta['cover'][0])){ ?>
+						<img class="gmedia-typethumb" src="<?php echo $gmCore->gm_get_media_image($item, 'thumb', false); ?>" alt=""/>
+					<?php } ?>
+				</span>
+			</label>
 
-				<div class="media-body">
+			<div class="media-body">
+				<div class="col-md-6">
 					<p class="media-title"><?php echo esc_html($item->title); ?>&nbsp;</p>
 
 					<p class="media-caption"><?php echo esc_html($item->description); ?></p>
@@ -226,49 +249,64 @@ function gmediaLib(){
 						?>
 					</p>
 				</div>
-			</div>
-			<div class="col-sm-6">
-				<div class="media-meta">
-					<span class="label label-default"><?php _e('Type','gmLang'); ?>:</span> <?php echo $item->mime_type; //echo ucfirst($type[0]); ?>
-				</div>
-				<?php if('image' == $type[0]){
-					$_metadata = unserialize($meta['_metadata'][0]);
-					?>
+				<div class="col-md-6">
 					<div class="media-meta">
-						<span class="label label-default"><?php _e('Size','gmLang'); ?>:</span> <?php echo $_metadata['original']['width'] . ' × ' . $_metadata['original']['height']; ?>
+						<span class="label label-default"><?php _e('Type','gmLang'); ?>:</span> <?php echo $item->mime_type; //echo ucfirst($type[0]); ?>
 					</div>
-				<?php } ?>
-				<div class="media-meta"><span class="label label-default"><?php _e('Filename','gmLang'); ?>:</span>
-					<a href="<?php echo $item_url; ?>"><?php echo $item->gmuid; ?></a></div>
-				<div class="media-meta">
-					<span class="label label-default"><?php _e('Author','gmLang'); ?>:</span> <?php printf('<a class="gmedia-author" href="%s">%s</a>', esc_url(add_query_arg(array('author' => $item->author), $url)), get_user_option('display_name', $item->author)); ?>
+					<?php if('image' == $type[0]){
+						$_metadata = unserialize($meta['_metadata'][0]);
+						?>
+						<div class="media-meta">
+							<span class="label label-default"><?php _e('Size','gmLang'); ?>:</span> <?php echo $_metadata['original']['width'] . ' × ' . $_metadata['original']['height']; ?>
+						</div>
+					<?php } ?>
+					<div class="media-meta"><span class="label label-default"><?php _e('Filename','gmLang'); ?>:</span>
+						<a href="<?php echo $item_url; ?>"><?php echo $item->gmuid; ?></a></div>
+					<div class="media-meta">
+						<span class="label label-default"><?php _e('Author','gmLang'); ?>:</span> <?php printf('<a class="gmedia-author" href="%s">%s</a>', esc_url(add_query_arg(array('author' => $item->author), $url)), get_user_option('display_name', $item->author)); ?>
+					</div>
+					<div class="media-meta"><span class="label label-default"><?php _e('Date', 'gmLang'); ?>:</span> <?php echo $item->date;
+							echo ' <small class="modified" title="' . __('Last Modified Date', 'gmLang') . '">' . (($item->modified != $item->date)? $item->modified : '') . '</small>';
+						?></div>
+					<div class="media-meta"><span class="label label-default"><?php _e('Link','gmLang'); ?>:</span>
+						<?php if(!empty($item->link)){ ?>
+							<a href="<?php echo $item->link; ?>"><?php echo $item->link; ?></a>
+						<?php
+						} else{
+							echo '&#8212;';
+						} ?></div>
+					<p class="media-meta" style="margin:5px 4px;">
+						<a href="<?php echo admin_url("admin.php?page=GrandMedia&gmediablank=image_editor&id={$item->ID}"); ?>" data-target="#gmeditModal" class="gmedit-modal" title="<?php echo esc_attr($item->title); ?>">
+							<?php _e('Edit Image', 'gmLang'); ?>
+						</a> |
+						<a href="<?php echo $gmCore->gm_get_media_image($item, 'original'); ?>" data-target="#previewModal" class="preview-modal" title="<?php echo esc_attr($item->title); ?>">
+							<?php _e('View Original', 'gmLang'); ?>
+						</a>
+					</p>
 				</div>
-				<div class="media-meta"><span class="label label-default"><?php _e('Date', 'gmLang'); ?>:</span> <?php echo $item->date;
-					if($item->modified != $item->date){
-						echo ' <small title="' . __('Last Modified Date', 'gmLang') . '">[' . $item->modified . ']</small>';
-					} ?></div>
-				<div class="media-meta"><span class="label label-default"><?php _e('Link','gmLang'); ?>:</span>
-					<?php if(!empty($item->link)){ ?>
-						<a href="<?php echo $item->link; ?>"><?php echo $item->link; ?></a>
-					<?php
-					} else{
-						echo '&#8212;';
-					} ?></div>
 			</div>
 		</div>
 
 	<?php } else{ ?>
 
-		<form class="list-group-item row edit-gmedia" id="list-item-<?php echo $item->ID; ?>" data-id="<?php echo $item->ID; ?>" data-type="<?php echo $type[0]; ?>" role="form">
+		<form class="list-group-item row d-row edit-gmedia" id="list-item-<?php echo $item->ID; ?>" data-id="<?php echo $item->ID; ?>" data-type="<?php echo $type[0]; ?>" role="form">
 			<div class="col-sm-4" style="max-width:350px;">
 				<input name="ID" type="hidden" value="<?php echo $item->ID; ?>"/>
 				<?php if(('image' == $type[0])){ ?>
-					<a href="<?php echo $item_url; ?>" class="thumbnail thickbox" title="<?php echo esc_attr($item->title); ?>">
-						<img src="<?php echo $gmCore->gm_get_media_image($item, 'thumb'); ?>" alt=""/>
+					<a href="<?php echo $item_url; ?>" data-target="#previewModal" class="thumbnail preview-modal" title="<?php echo esc_attr($item->title); ?>">
+						<img class="gmedia-thumb" src="<?php echo $gmCore->gm_get_media_image($item, 'thumb'); ?>" alt=""/>
 					</a>
+					<p>
+						<a href="<?php echo admin_url("admin.php?page=GrandMedia&gmediablank=image_editor&id={$item->ID}"); ?>" data-target="#gmeditModal" class="btn btn-link btn-sm gmedit-modal" title="<?php echo esc_attr($item->title); ?>">
+							<?php _e('Edit Image', 'gmLang'); ?>
+						</a> |
+						<a href="<?php echo $gmCore->gm_get_media_image($item, 'original'); ?>" data-target="#previewModal" class="btn btn-link btn-sm preview-modal" title="<?php echo esc_attr($item->title); ?>">
+							<?php _e('View Original', 'gmLang'); ?>
+						</a>
+					</p>
 				<?php } else{ ?>
-					<a href="<?php echo $item_url; ?>?TB_iframe=true" class="thumbnail thickbox" title="<?php echo esc_attr($item->title); ?>">
-						<img src="<?php echo $gmCore->gm_get_media_image($item, 'thumb'); ?>" alt=""/>
+					<a href="<?php echo $item_url; ?>" data-target="#previewModal" class="thumbnail preview-modal" title="<?php echo esc_attr($item->title); ?>">
+						<img class="gmedia-thumb" src="<?php echo $gmCore->gm_get_media_image($item, 'thumb'); ?>" alt=""/>
 						<?php if(isset($meta['cover'][0]) && !empty($meta['cover'][0])){ ?>
 							<img class="gmedia-typethumb" src="<?php echo $gmCore->gm_get_media_image($item, 'thumb', false); ?>" alt=""/>
 						<?php } ?>
@@ -396,7 +434,7 @@ function gmediaLib(){
 							$_metadata = unserialize($meta['_metadata'][0]); ?>
 							<div class="media-meta"> <span class="label label-default"><?php _e('Dimensions', 'gmLang') ?>:</span> <?php echo $_metadata['original']['width'] . ' × ' . $_metadata['original']['height']; ?></div>
 						<?php } ?>
-						<div class="media-meta"><span class="label label-default"><?php _e('Last Edited', 'gmLang') ?>:</span> <span class="gm-last-edited"><?php echo $item->modified; ?></span></div>
+						<div class="media-meta"><span class="label label-default"><?php _e('Last Edited', 'gmLang') ?>:</span> <span class="gm-last-edited modified"><?php echo $item->modified; ?></span></div>
 					</div>
 				</div>
 				<?php do_action('gmedia_edit_form'); ?>
@@ -406,7 +444,19 @@ function gmediaLib(){
 	<?php } ?>
 		<script type="text/javascript">
 			jQuery(function($){
-				<?php if(!$gmProcessor->mode){ } else { ?>
+				<?php if(!$gmProcessor->mode){ ?>
+				$('#gm-selected').on('change', function(){
+					var val = $(this).val();
+					$('.edit-mode-link').each(function(){
+						if(val){
+							$(this).attr('href', $(this).data('href_sel'));
+						} else{
+							$(this).attr('href', $(this).data('href'));
+						}
+					});
+				}).trigger('change');
+
+				<?php } else { ?>
 				$('.combobox_gmedia_album').selectize({
 					create: true,
 					persist: false
@@ -434,8 +484,12 @@ function gmediaLib(){
 					forceLower: false,
 					maxLength: NaN
 				});
+
 				<?php } ?>
 			});
+			window.closeModal = function(id){
+				jQuery('#'+id).modal('hide');
+			};
 		</script>
 	<?php } else{ ?>
 		<div class="list-group-item">
@@ -455,6 +509,20 @@ function gmediaLib(){
 
 	<div class="modal fade gmedia-modal" id="termsModal" tabindex="-1" role="dialog" aria-hidden="true">
 		<div class="modal-dialog"></div>
+	</div>
+	<div class="modal fade gmedia-modal" id="gmeditModal" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-lg"><div class="modal-content"></div></div>
+	</div>
+	<div class="modal fade gmedia-modal" id="previewModal" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title"></h4>
+				</div>
+				<div class="modal-body"></div>
+			</div>
+		</div>
 	</div>
 <?php
 }

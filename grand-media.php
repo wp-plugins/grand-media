@@ -3,7 +3,7 @@
 Plugin Name: Gmedia Gallery
 Plugin URI: http://wordpress.org/extend/plugins/grand-media/
 Description: Gmedia Gallery - powerfull media library plugin for creating beautiful galleries and managing files.
-Version: 0.9.15
+Version: 0.9.16
 Author: Rattus
 Author URI: http://codeasily.com/
 
@@ -36,7 +36,7 @@ if ( preg_match( '#' . basename( __FILE__ ) . '#', $_SERVER['PHP_SELF'] ) ) {
 if ( ! class_exists( 'Gmedia' ) ) {
 	class Gmedia {
 
-		var $version = '0.9.15';
+		var $version = '0.9.16';
 		var $dbversion = '0.9.6';
 		var $minium_WP = '3.5';
 		var $options = '';
@@ -235,8 +235,8 @@ if ( ! class_exists( 'Gmedia' ) ) {
 				'pluginPath' => $gmCore->gmedia_url
 			) );
 
-			wp_register_style('grand-media', $gmCore->gmedia_url . '/admin/css/grand-media.css', array(), '0.9.14', 'all' );
-			wp_register_script( 'grand-media', $gmCore->gmedia_url . '/admin/js/grand-media.js', array( 'jquery', 'gmedia-global-backend' ), '0.9.14' );
+			wp_register_style('grand-media', $gmCore->gmedia_url . '/admin/css/grand-media.css', array(), '0.9.16', 'all' );
+			wp_register_script( 'grand-media', $gmCore->gmedia_url . '/admin/js/grand-media.js', array( 'jquery', 'gmedia-global-backend' ), '0.9.16' );
 			wp_localize_script( 'grand-media', 'grandMedia', array(
 				'error3'   => __( 'Disable your Popup Blocker and try again.', 'gmLang' ),
 				'download' => __( 'downloading...', 'gmLang' ),

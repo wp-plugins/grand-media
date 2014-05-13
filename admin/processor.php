@@ -144,7 +144,7 @@ class GmediaProcessor{
 						$term = $gmCore->_post('cat');
 						if(false !== $term){
 							$count = count($this->selected_items);
-							if(0 == $term){
+							if('0' == $term){
 								foreach($this->selected_items as $item){
 									$gmDB->delete_gmedia_term_relationships($item, 'gmedia_category');
 								}
@@ -172,7 +172,7 @@ class GmediaProcessor{
 						$term = $gmCore->_post('alb');
 						if(false !== $term){
 							$count = count($this->selected_items);
-							if(0 == $term){
+							if('0' == $term){
 								foreach($this->selected_items as $item){
 									$gmDB->delete_gmedia_term_relationships($item, 'gmedia_album');
 								}
@@ -394,11 +394,12 @@ class GmediaProcessor{
 							break;
 						}
 
+						$module_settings = $gmCore->_post('module', array());
 						$gallery_meta = array(
 							 'edited' => gmdate('Y-m-d H:i:s')
 							,'module' => $gallery['module']
 							,'query' => array($term => $gallery['query'][$term])
-							,'settings' => array($gallery['module'] => $gmCore->_post('module'))
+							,'settings' => array($gallery['module'] => $module_settings)
 						);
 						foreach($gallery_meta as $key => $value){
 							if($edit_gallery){

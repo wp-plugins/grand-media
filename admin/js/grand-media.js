@@ -59,6 +59,7 @@ jQuery(function($){
 				$('.rel-selected-show').hide();
 				$('.rel-selected-hide').show();
 			}
+			sel.trigger('change');
 		},
 		chk_all: function(type, obj){
 			$('.'+obj+' input').filter(function(){
@@ -211,6 +212,50 @@ jQuery(function($){
 				e.preventDefault();
 			});
 
+			$('a.gmedit-modal').click(function(e){
+				e.preventDefault();
+				var modal_div = $($(this).data('target'));
+				$('.modal-content', modal_div).html(
+					$('<iframe />', {
+						name: 'gmeditFrame',
+						id:   'gmeditFrame',
+						width: '100%',
+						height: '500',
+						src: $(this).attr('href')
+					}).css({display: 'block', margin: '4px 0'})
+				);
+				modal_div.modal({
+					backdrop: true,
+					show: true
+				}).on('hidden.bs.modal', function(e){
+					$('.modal-content', this).empty();
+				});
+			});
+
+			$('a.preview-modal').click(function(e){
+				e.preventDefault();
+				var modal_div = $($(this).data('target'));
+				$('.modal-title', modal_div).text($(this).attr('title'));
+				$('.modal-body', modal_div).html(
+					$('<iframe />', {
+						name: 'previewFrame',
+						id:   'previewFrame',
+						width: '100%',
+						src: $(this).attr('href'),
+						load: function(){
+							$(this).height(this.contentWindow.document.body.offsetHeight + 30);
+						}
+					}).css({display: 'block', margin: '4px 0'})
+				);
+				modal_div.modal({
+					backdrop: true,
+					show: true
+				}).on('hidden.bs.modal', function(e){
+					$('.modal-title', this).empty();
+					$('.modal-body', this).empty();
+				});
+			});
+
 			$('form.edit-gmedia :input').change(function(){
 				$('body').addClass('gmedia-busy');
 				var post_data = {
@@ -218,6 +263,8 @@ jQuery(function($){
 				};
 				$.post(ajaxurl, post_data, function(data, textStatus, jqXHR){
 					console.log(data);
+					var id = data.ID;
+					$('#list-item-'+id).find('.modified').text(data.modified);
 					$('body').removeClass('gmedia-busy');
 				});
 			});

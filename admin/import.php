@@ -139,7 +139,7 @@ function gmedia_import_files($files, $terms, $move, $exists = 0){
 					$editor = wp_get_image_editor($fileinfo['filepath_original']);
 					if(is_wp_error($editor)){
 						@unlink($fileinfo['filepath_original']);
-						echo $prefix_ko . $fileinfo['basename']. " (wp_get_image_editor): ". $editor->get_error_message();
+						echo $prefix_ko . $fileinfo['basename']. " (wp_get_image_editor): ". $editor->get_error_message() . $eol;
 						continue;
 					}
 

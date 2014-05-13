@@ -141,7 +141,7 @@ function gmediaGalleries() {
 
 					$is_selected = in_array($term->term_id, $gmProcessor->selected_items)? true : false;
 					?>
-					<div class="list-group-item row<?php echo $is_selected? ' active' : ''; ?>" id="list-item-<?php echo $term->term_id; ?>" data-id="<?php echo $term->term_id; ?>" data-type="<?php echo $term_meta['module']; ?>">
+					<div class="list-group-item row d-row<?php echo $is_selected? ' active' : ''; ?>" id="list-item-<?php echo $term->term_id; ?>" data-id="<?php echo $term->term_id; ?>" data-type="<?php echo $term_meta['module']; ?>">
 						<div class="term_id">#<?php echo $term->term_id; ?></div>
 						<div class="col-xs-7">
 							<label class="cb_media-object" style="width:130px;">

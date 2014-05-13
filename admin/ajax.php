@@ -40,14 +40,263 @@ function gmedia_update_data(){
 				}
 			}
 			$result = $gmDB->get_gmedia( $id );
-			//$result = array( 'stat' => 'OK', 'message' => $gmCore->message( sprintf( __( 'gmedia #%s updated successfully', 'gmLang' ), $id ), 'info' ), 'content' => $tr );
 		}
 		else {
 			$result = $gmDB->get_gmedia( $id );
-			//$result = array( 'stat' => 'KO', 'message' => $gmCore->message( sprintf( __( "Can't update gmedia #%s", 'gmLang' ) . '. ' . __( 'Contact plugin author to solve this problem. Describe your problem and give temporary access to Wordpress Dashboard and to FTP plugins folder.' ) . ' (<a href="mailto:gmediafolder+support@gmail.com?subject=Gmedia Support" target="_blank">Gmedia Support</a>)', $gmID ), 'error' ), 'error' => $id );
 		}
-		//header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
-		echo json_encode( array($gmedia, $result) );
+		header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
+		echo json_encode( $result );
+	}
+
+	die();
+}
+
+add_action( 'wp_ajax_gmedit_save', 'gmedit_save' );
+function gmedit_save(){
+	global $gmDB, $gmCore, $gmGallery, $gmProcessor;
+	check_ajax_referer( "gmedit-save" );
+	if ( ! current_user_can( 'edit_posts' ) )
+		die( '-1' );
+
+	$gmedia = array();
+	$fail = '';
+	$success = '';
+	$backup = true;
+	$gmid = $gmCore->_post('id');
+	$image = $gmCore->_post('image');
+	$applyto = $gmCore->_post('applyto', 'web');
+
+	$item = $gmDB->get_gmedia( $gmid );
+	if (!empty($item)){
+		$meta = $gmDB->get_metadata('gmedia', $item->ID, '_metadata', true);
+		$gmedia['ID'] = $gmid;
+		$gmedia['date'] = $item->date;
+		$gmedia['modified'] = current_time( 'mysql' );
+		$gmedia['author'] = $item->author;
+
+		$webimg = $gmGallery->options['image'];
+		$thumbimg = $gmGallery->options['thumb'];
+
+		$image = $gmCore->process_gmedit_image($image);
+
+		$fileinfo = $gmCore->fileinfo($item->gmuid, false);
+
+		if(!file_exists($fileinfo['filepath_original'].'_backup')){
+			@copy($fileinfo['filepath_original'], $fileinfo['filepath_original'].'_backup');
+		}
+		rename($fileinfo['filepath_original'], $fileinfo['filepath_original'].'.tmp');
+		file_put_contents($fileinfo['filepath_original'], $image['data']);
+		$size = @getimagesize($fileinfo['filepath_original']);
+
+		do{
+			$editor = wp_get_image_editor($fileinfo['filepath_original']);
+			if(is_wp_error($editor)){
+				@unlink($fileinfo['filepath_original']);
+				rename($fileinfo['filepath_original'].'.tmp', $fileinfo['filepath_original']);
+				$fail = $fileinfo['basename']. " (wp_get_image_editor): ". $editor->get_error_message();
+				break;
+			}
+			$crop = 0;
+
+			// Web-image
+			if( 'web' == $applyto || 'original' == $applyto ) {
+				$webimg['resize'] = (($webimg['width'] < $size[0]) || ($webimg['height'] < $size[1]))? true : false;
+				if($webimg['resize']){
+					$editor->set_quality($webimg['quality']);
+					$resized = $editor->resize($webimg['width'], $webimg['height'], $webimg['crop']);
+					if(is_wp_error($resized)){
+						@unlink($fileinfo['filepath_original']);
+						rename($fileinfo['filepath_original'].'.tmp', $fileinfo['filepath_original']);
+						$fail = $fileinfo['basename']. " (".$resized->get_error_code()." | editor->resize->webimage({$webimg['width']}, {$webimg['height']}, {$webimg['crop']})): ". $resized->get_error_message();
+						break;
+					}
+
+					rename($fileinfo['filepath'], $fileinfo['filepath'].'.tmp');
+					$saved = $editor->save($fileinfo['filepath']);
+					if(is_wp_error($saved)){
+						@unlink($fileinfo['filepath_original']);
+						rename($fileinfo['filepath_original'].'.tmp', $fileinfo['filepath_original']);
+						rename($fileinfo['filepath'].'.tmp', $fileinfo['filepath']);
+						$fail = $fileinfo['basename']. " (".$saved->get_error_code()." | editor->save->webimage): ". $saved->get_error_message();
+						break;
+					}
+				} else{
+					@copy($fileinfo['filepath_original'], $fileinfo['filepath']);
+				}
+			}
+
+			// Thumbnail
+			$thumbimg['resize'] = (($thumbimg['width'] < $size[0]) || ($thumbimg['height'] < $size[1]))? true : false;
+			if($thumbimg['resize']){
+				$editor->set_quality($thumbimg['quality']);
+				$resized = $editor->resize($thumbimg['width'], $thumbimg['height'], $thumbimg['crop']);
+				if(is_wp_error($resized)){
+					@unlink($fileinfo['filepath_original']);
+					rename($fileinfo['filepath_original'].'.tmp', $fileinfo['filepath_original']);
+					@unlink($fileinfo['filepath']);
+					rename($fileinfo['filepath'].'.tmp', $fileinfo['filepath']);
+					$fail = $fileinfo['basename']. " (".$resized->get_error_code()." | editor->resize->thumb({$thumbimg['width']}, {$thumbimg['height']}, {$thumbimg['crop']})): ". $resized->get_error_message();
+					break;
+				}
+
+				rename($fileinfo['filepath_thumb'], $fileinfo['filepath_thumb'].'.tmp');
+				$saved = $editor->save($fileinfo['filepath_thumb']);
+				if(is_wp_error($saved)){
+					@unlink($fileinfo['filepath_original']);
+					rename($fileinfo['filepath_original'].'.tmp', $fileinfo['filepath_original']);
+					@unlink($fileinfo['filepath']);
+					rename($fileinfo['filepath'].'.tmp', $fileinfo['filepath']);
+					rename($fileinfo['filepath_thumb'].'.tmp', $fileinfo['filepath_thumb']);
+					$fail = $fileinfo['basename'] . " (".$saved->get_error_code()." | editor->save->thumb): ". $saved->get_error_message();
+					break;
+				}
+
+			} else{
+				@copy($fileinfo['filepath_original'], $fileinfo['filepath']);
+				@copy($fileinfo['filepath_original'], $fileinfo['filepath_thumb']);
+			}
+
+			if( 'original' !== $applyto ){
+				@unlink($fileinfo['filepath_original']);
+				rename($fileinfo['filepath_original'].'.tmp', $fileinfo['filepath_original']);
+				if(filesize($fileinfo['filepath_original']) === filesize($fileinfo['filepath_original'].'_backup')){
+					@unlink($fileinfo['filepath_original'].'_backup');
+				}
+			}
+			if(file_exists($fileinfo['filepath'].'.tmp')){
+				@unlink($fileinfo['filepath'].'.tmp');
+			}
+			if(file_exists($fileinfo['filepath_original'].'.tmp')){
+				@unlink($fileinfo['filepath_original'].'.tmp');
+			}
+			if(file_exists($fileinfo['filepath_thumb'].'.tmp')){
+				@unlink($fileinfo['filepath_thumb'].'.tmp');
+			}
+
+			$id = $gmDB->insert_gmedia( $gmedia );
+
+			$metadata = $gmDB->generate_gmedia_metadata($id, $fileinfo);
+			$meta['web'] = $metadata['web'];
+			$meta['original'] = $metadata['original'];
+			$meta['thumb'] = $metadata['thumb'];
+
+			$gmDB->update_metadata($meta_type = 'gmedia', $id, $meta_key = '_metadata', $meta);
+
+			$success = sprintf(__('Image "%d" updated', 'gmLang'), $id);
+		} while(0);
+
+		if(empty($fail)){
+			$out = array('msg' => $gmProcessor->alert('info', $success), 'modified' => $gmedia['modified']);
+		} else{
+			$out = array('error' => $gmProcessor->alert('danger', $fail));
+		}
+
+		header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
+		echo json_encode( $out );
+	}
+
+	die();
+}
+
+add_action( 'wp_ajax_gmedit_restore', 'gmedit_restore' );
+function gmedit_restore(){
+	global $gmDB, $gmCore, $gmGallery, $gmProcessor;
+	check_ajax_referer( "gmedit-save" );
+	if ( ! current_user_can( 'edit_posts' ) )
+		die( '-1' );
+
+	$gmedia = array();
+	$fail = '';
+	$success = '';
+	$gmid = $gmCore->_post('id');
+
+	$item = $gmDB->get_gmedia( $gmid );
+	if (!empty($item)){
+		$meta = $gmDB->get_metadata('gmedia', $item->ID, '_metadata', true);
+		$gmedia['ID'] = $gmid;
+		$gmedia['date'] = $item->date;
+		$gmedia['modified'] = current_time( 'mysql' );
+		$gmedia['author'] = $item->author;
+
+		$webimg = $gmGallery->options['image'];
+		$thumbimg = $gmGallery->options['thumb'];
+
+		$fileinfo = $gmCore->fileinfo($item->gmuid, false);
+
+		if(file_exists($fileinfo['filepath_original'].'_backup')){
+			rename($fileinfo['filepath_original'].'_backup', $fileinfo['filepath_original']);
+		}
+		$size = @getimagesize($fileinfo['filepath_original']);
+
+		do{
+			$editor = wp_get_image_editor($fileinfo['filepath_original']);
+			if(is_wp_error($editor)){
+				$fail = $fileinfo['basename']. " (wp_get_image_editor): ". $editor->get_error_message();
+				break;
+			}
+			$crop = 0;
+
+			$thumbimg['resize'] = (($thumbimg['width'] < $size[0]) || ($thumbimg['height'] < $size[1]))? true : false;
+			if($thumbimg['resize']){
+
+				$webimg['resize'] = (($webimg['width'] < $size[0]) || ($webimg['height'] < $size[1]))? true : false;
+				if($webimg['resize']){
+					// Web-image
+					$editor->set_quality($webimg['quality']);
+					$resized = $editor->resize($webimg['width'], $webimg['height'], $webimg['crop']);
+					if(is_wp_error($resized)){
+						$fail = $fileinfo['basename']. " (".$resized->get_error_code()." | editor->resize->webimage({$webimg['width']}, {$webimg['height']}, {$webimg['crop']})): ". $resized->get_error_message();
+						break;
+					}
+
+					$saved = $editor->save($fileinfo['filepath']);
+					if(is_wp_error($saved)){
+						$fail = $fileinfo['basename']. " (".$saved->get_error_code()." | editor->save->webimage): ". $saved->get_error_message();
+						break;
+					}
+				} else{
+					@copy($fileinfo['filepath_original'], $fileinfo['filepath']);
+				}
+
+				// Thumbnail
+				$editor->set_quality($thumbimg['quality']);
+				$resized = $editor->resize($thumbimg['width'], $thumbimg['height'], $thumbimg['crop']);
+				if(is_wp_error($resized)){
+					$fail = $fileinfo['basename']. " (".$resized->get_error_code()." | editor->resize->thumb({$thumbimg['width']}, {$thumbimg['height']}, {$thumbimg['crop']})): ". $resized->get_error_message();
+					break;
+				}
+
+				$saved = $editor->save($fileinfo['filepath_thumb']);
+				if(is_wp_error($saved)){
+					$fail = $fileinfo['basename'] . " (".$saved->get_error_code()." | editor->save->thumb): ". $saved->get_error_message();
+					break;
+				}
+
+			} else{
+				@copy($fileinfo['filepath_original'], $fileinfo['filepath']);
+				@copy($fileinfo['filepath_original'], $fileinfo['filepath_thumb']);
+			}
+
+			$id = $gmDB->insert_gmedia( $gmedia );
+
+			$metadata = $gmDB->generate_gmedia_metadata($id, $fileinfo);
+			$meta['web'] = $metadata['web'];
+			$meta['original'] = $metadata['original'];
+			$meta['thumb'] = $metadata['thumb'];
+
+			$gmDB->update_metadata($meta_type = 'gmedia', $id, $meta_key = '_metadata', $meta);
+
+			$success = sprintf(__('Image "%d" restored from backup and saved', 'gmLang'), $id);
+		} while(0);
+
+		if(empty($fail)){
+			$out = array('msg' => $gmProcessor->alert('info', $success), 'modified' => $gmedia['modified']);
+		} else{
+			$out = array('error' => $gmProcessor->alert('danger', $fail));
+		}
+
+		header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
+		echo json_encode( $out );
 	}
 
 	die();

@@ -43,7 +43,7 @@ function gmedia_gallery_options_formgroup($name, $field, $def, $val){
 		<div class="form-group" id="div_<?php echo $name; ?>">
 			<div class="checkbox">
 				<input type="hidden" name="module[<?php echo $name; ?>]" value="0"/>
-				<label><input type="checkbox" <?php echo $field['attr']; ?> id="<?php echo $name; ?>" name="module[<?php echo $name; ?>]" value="1" <?php echo checked($val, $def); ?>/> <?php echo $field['label']; ?></label>
+				<label><input type="checkbox" <?php echo $field['attr']; ?> id="<?php echo $name; ?>" name="module[<?php echo $name; ?>]" value="1" <?php echo checked($val, '1'); ?>/> <?php echo $field['label']; ?></label>
 				<?php if(!empty($field['text'])){ echo "<p class='help-block'>{$field['text']}</p>"; } ?>
 			</div>
 		</div>

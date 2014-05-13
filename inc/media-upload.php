@@ -104,9 +104,13 @@ function media_upload_gmedia_form() {
 			$item_url = $gmCore->upload['url'] . '/' . $gmGallery->options['folder'][$type[0]] . '/' . $item->gmuid;
 			$item_path = $gmCore->upload['path'] . '/' . $gmGallery->options['folder'][$type[0]] . '/' . $item->gmuid;
 
-			$is_webimage = (('image' == $type[0]) && in_array(exif_imagetype($item_path), array(IMAGETYPE_GIF,
-																																													IMAGETYPE_JPEG,
-																																													IMAGETYPE_PNG)))? true : false;
+			if (function_exists('exif_imagetype')) {
+				$is_webimage = (('image' == $type[0]) && in_array(exif_imagetype($item_path), array(IMAGETYPE_GIF,
+																																														IMAGETYPE_JPEG,
+																																														IMAGETYPE_PNG)))? true : false;
+			} else{
+				$is_webimage = (('image' == $type[0]) && in_array($type[1], array('jpeg', 'png', 'gif')))? true : false;
+			}
 
 			$tags = $gmDB->get_the_gmedia_terms($item->ID, 'gmedia_tag');
 			$albs = $gmDB->get_the_gmedia_terms($item->ID, 'gmedia_album');

@@ -31,17 +31,24 @@ class GmediaAdmin {
 	// load gmedia pages in wpless interface
 	function gmedia_blank_page() {
 		set_current_screen('GrandMedia_Settings');
-		add_filter('admin_body_class', array( &$this, 'gmedia_blank_page_body_class'));
-		define('IFRAME_REQUEST', true);
 
 		global $gmCore;
+		$gmediablank = $gmCore->_get('gmediablank', '');
+		add_filter('admin_body_class', function(){
+			$gmediablank = isset($_GET['gmediablank'])? $_GET['gmediablank'] : '';
+			return "gmedia-blank $gmediablank"; });
+		define('IFRAME_REQUEST', true);
 
 		iframe_header('GmediaGallery');
 
-		switch($gmCore->_get('gmediablank')){
+		switch($gmediablank){
 			case 'update_plugin':
 				require_once( dirname(dirname( __FILE__ )) . '/update.php' );
 				gmedia_do_update();
+				break;
+			case 'image_editor':
+				require_once( dirname(dirname( __FILE__ )) . '/inc/image-editor.php' );
+				gmedia_image_editor();
 				break;
 		}
 
@@ -60,8 +67,8 @@ class GmediaAdmin {
 				add_submenu_page( 'GrandMedia', __( 'Gmedia Library', 'gmLang' ), __( 'Gmedia Library', 'gmLang' ), 'edit_pages', 'GrandMedia', array( &$this, 'shell' ) ),
 				add_submenu_page( 'GrandMedia', __( 'Add Media Files', 'gmLang' ), __( 'Add/Import Files', 'gmLang' ), 'edit_pages', 'GrandMedia_AddMedia', array( &$this, 'shell' ) ),
 				add_submenu_page( 'GrandMedia', __( 'Albums, Tags...', 'gmLang' ), __( 'Albums, Tags...', 'gmLang' ), 'edit_pages', 'GrandMedia_Terms', array( &$this, 'shell' ) ),
-				add_submenu_page( 'GrandMedia', __( 'Gallery Manager', 'gmLang' ), __( 'Create/Manage Galleries...', 'gmLang' ), 'edit_pages', 'GrandMedia_Galleries', array( &$this, 'shell' ) ),
-				add_submenu_page( 'GrandMedia', __( 'Module Manager', 'gmLang' ), __( 'Manage Modules...', 'gmLang' ), 'edit_pages', 'GrandMedia_Modules', array( &$this, 'shell' ) ),
+				add_submenu_page( 'GrandMedia', __( 'Gmedia Galleries', 'gmLang' ), __( 'Create/Manage Galleries...', 'gmLang' ), 'edit_pages', 'GrandMedia_Galleries', array( &$this, 'shell' ) ),
+				add_submenu_page( 'GrandMedia', __( 'Modules', 'gmLang' ), __( 'Modules', 'gmLang' ), 'edit_pages', 'GrandMedia_Modules', array( &$this, 'shell' ) ),
 				add_submenu_page( 'GrandMedia', __( 'Gmedia Settings', 'gmLang' ), __( 'Settings', 'gmLang' ), 'edit_pages', 'GrandMedia_Settings', array( &$this, 'shell' ) ),
 				add_submenu_page( 'GrandMedia', __( 'Wordpress Media Library', 'gmLang' ), __( 'WP Media Library', 'gmLang' ), 'edit_pages', 'GrandMedia_WordpressLibrary', array( &$this, 'shell' ) )
 		);
@@ -209,6 +216,16 @@ class GmediaAdmin {
 		if ( isset( $_GET['page'] ) ) {
 			switch ( $_GET['page'] ) {
 				case "GrandMedia" :
+					if($gmCore->_get('gmediablank') == 'image_editor'){
+						wp_enqueue_script('camanjs', $gmCore->gmedia_url . '/assets/image-editor/camanjs/caman.full.min.js', array(), '4.1.1');
+
+						wp_enqueue_style('nouislider', $gmCore->gmedia_url . '/assets/image-editor/js/jquery.nouislider.css', array('gmedia-bootstrap'), '6.1.0');
+						wp_enqueue_script('nouislider', $gmCore->gmedia_url . '/assets/image-editor/js/jquery.nouislider.min.js', array('jquery'), '6.1.0');
+
+						wp_enqueue_style('gmedia-image-editor', $gmCore->gmedia_url . '/assets/image-editor/style.css', array('gmedia-bootstrap'), '0.9.16', 'screen');
+						wp_enqueue_script('gmedia-image-editor', $gmCore->gmedia_url . '/assets/image-editor/image-editor.js', array('jquery','camanjs'), '0.9.16');
+						break;
+					}
 					wp_enqueue_style('selectize', $gmCore->gmedia_url . '/assets/selectize/selectize.bootstrap3.css', array('gmedia-bootstrap'), '0.8.5', 'screen');
 					wp_enqueue_script('selectize', $gmCore->gmedia_url . '/assets/selectize/selectize.min.js', array('jquery'), '0.8.5');
 
@@ -219,8 +236,8 @@ class GmediaAdmin {
 						wp_enqueue_style( 'datetimepicker', $gmCore->gmedia_url . '/assets/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css', array('gmedia-bootstrap'), '2.1.32' );
 						wp_enqueue_script( 'datetimepicker', $gmCore->gmedia_url . '/assets/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js', array( 'jquery', 'moment', 'gmedia-bootstrap' ), '2.1.32' );
 
-						wp_enqueue_style( 'thickbox' );
-						wp_enqueue_script( 'thickbox' );
+						//wp_enqueue_style( 'thickbox' );
+						//wp_enqueue_script( 'thickbox' );
 					}
 					//wp_enqueue_style( 'mediaelement' );
 					//wp_enqueue_script( 'mediaelement' );

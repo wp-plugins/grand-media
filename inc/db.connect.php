@@ -313,10 +313,14 @@ class GmediaDB {
 	 * You can set the dates for the media manually by setting the 'date' key value.
 	 *
 	 * The $object parameter can have the following:
-	 *   'author'    - Default is current user ID. The ID of the user, who added the attachment.
-	 *   'mime_type'    - Will be set to media. Do not override!!!
-	 *   'gmuid'      - Filename.
-	 *   'description'  - Media content.
+	 *   'author' - Default is current user ID. The ID of the user, who added the attachment.
+	 *   'mime_type' - Will be set to media. Do not override!!!
+	 *   'gmuid' - Filename.
+	 *   'description' - Media content.
+	 *   'date' - Date.
+	 *   'modified' - Date modified.
+	 *   'link' - Media external link.
+	 *   'status' - Status.
 	 *
 	 * @uses $wpdb
 	 * @uses $user_ID
@@ -333,11 +337,17 @@ class GmediaDB {
 		global $wpdb, $user_ID, $gmCore;
 
 		// TODO media status (vip, password?)
-		$defaults = array( 'author' => $user_ID, 'title' => '', 'link' => '', 'description' => '', 'status' => 'public' );
+		$defaults = array( 'ID' => false, 'author' => $user_ID, 'modified' => current_time( 'mysql' ));
 		$object   = wp_parse_args( $object, $defaults );
-		$object['title'] = strip_tags($object['title'], '<span>');
-		$object['description'] = $gmCore->clean_input($object['description']);
-		$object['link'] = esc_url_raw($object['link']);
+		if(isset($object['title'])){
+			$object['title'] = strip_tags($object['title'], '<span>');
+		}
+		if(isset($object['description'])){
+			$object['description'] = $gmCore->clean_input($object['description']);
+		}
+		if(isset($object['link'])){
+			$object['link'] = esc_url_raw($object['link']);
+		}
 
 		// export array as variables
 		extract( $object, EXTR_SKIP );

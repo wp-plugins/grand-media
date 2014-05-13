@@ -89,6 +89,15 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 
 == Changelog ==
 
+= 0.9.16 =
+* Added Image Editor (Rotate, Flip, Greyscale, Invert and 9 Filters + Restore Original Uploaded Image)
+* If selected media and go to Edit Mode, then load only selected items
+* Fixed error if no Exif module installed in PHP
+* Update Modified date when Edit Gmedia
+* Thickbox replaced with bootstrap modal
+* Fixed Create and assign new Album in Gmedia Library
+* Fixed Module settings checkbox not saved
+
 = 0.9.15 =
 * Fixed Import from NextGen plugin
 

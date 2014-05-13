@@ -13,6 +13,7 @@
 	</style>
 	<?php
 	wp_enqueue_scripts();
+	wp_dequeue_script('swfaddress');
 	do_action('gmedia_head_scripts');
 	wp_print_scripts();
 	?>
