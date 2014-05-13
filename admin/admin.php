@@ -34,9 +34,12 @@ class GmediaAdmin {
 
 		global $gmCore;
 		$gmediablank = $gmCore->_get('gmediablank', '');
+		/*
 		add_filter('admin_body_class', function(){
 			$gmediablank = isset($_GET['gmediablank'])? $_GET['gmediablank'] : '';
 			return "gmedia-blank $gmediablank"; });
+		*/
+		add_filter('admin_body_class', create_function( '', '$gmediablank = isset($_GET["gmediablank"])? $_GET["gmediablank"] : ""; return "gmedia-blank $gmediablank";' ));
 		define('IFRAME_REQUEST', true);
 
 		iframe_header('GmediaGallery');
