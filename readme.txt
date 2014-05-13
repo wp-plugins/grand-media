@@ -8,7 +8,7 @@ Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Gmedia Gallery - powerfull media library plugin for creating beautiful galleries and managing files.
+Gmedia Gallery - powerfull media library plugin for creating beautiful galleries and managing files (from creator of Flagallery plugin)
 
 == Description ==
 
@@ -46,6 +46,7 @@ Features:
 *   Add tags, assign categories and group images in albums
 *   Drag'n'drop sorting for files in Album
 *   Easy bulk editing media files data with Edit Mode
+*   Image Editor with Filters
 *   Create many galleries with different options
 *   Easily adding shortcode to post in one click
 *   Easily adding images from Gmedia Library to post
@@ -57,9 +58,10 @@ Features:
 TODO List:
 
 *   More modules for creating photo gallery, audio playlist, video playlist
+*   Make Full Window Gallery Template (like GRAND Page in Flagallery)
 *   Easily add to Post audio and video files with tags related to post tags
 *   Intergration with social services
-*   Image Editor with watermark feature
+*   Watermark feature
 
 
 == Installation ==
