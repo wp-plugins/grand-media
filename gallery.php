@@ -9,11 +9,15 @@
 	<link rel="profile" href="http://gmpg.org/xfn/11">
 
 	<style type="text/css">
-		html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: auto; min-height: 240px; min-width: 320px; }
+		html { width: 100%; height: 100%; }
+		body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: auto; min-height: 240px; min-width: 320px; }
 	</style>
 	<?php
 	wp_enqueue_scripts();
-	wp_dequeue_script('swfaddress');
+	global $wp_styles, $wp_scripts;
+	$wp_styles->queue = array();
+	$wp_scripts->queue = array();
+
 	do_action('gmedia_head_scripts');
 	wp_print_scripts();
 	?>
@@ -30,6 +34,7 @@ if($gallery_id){
 ?>
 <?php
 do_action('gmedia_footer_scripts');
+wp_dequeue_script('swfaddress');
 wp_print_scripts();
 ?>
 </body>

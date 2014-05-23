@@ -1,6 +1,6 @@
 /*
  * Title                   : Music Player Module for Gmedia Gallery plugin
- * Version                 : 1.5
+ * Version                 : 1.6
  * Copyright               : 2013 CodEasily.com
  * Website                 : http://www.codeasily.com
  */
@@ -18,7 +18,6 @@
 			tracks:'.gmmp-tracks',
 			track:'.gmmp-track',
 			trackRating:'.gmmp-rating-bar',
-			trackInfo:'.gmmp-track-info',
 			rating:'.gmmp-rating',
 			ratingLevel:'.gmmp-rating-level',
 			ratingLevelOn:'.gmmp-on',
@@ -47,7 +46,7 @@
 			tracksToShow:5
 		};
 		opt_bool = {
-			rating:false,
+			rating:true,
 			autoplay:false
 		};
 		opt_obj = {
@@ -354,6 +353,12 @@
 
 			function processRating(index, rating) {
 				myPlaylist[index].rating = rating;
+				var gmid = myPlaylist[index].id,
+					uip = userOptions.ip;
+				$.post(userOptions.pluginUrl+'/rate.php', { rate: {uip:uip,gmid:gmid,rate:rating} }, function(r){
+					console.log(r);
+				});
+
 				//runCallback(options.ratingCallback, index, myPlaylist[index], rating);
 			}
 
@@ -529,7 +534,7 @@
 
 		function applyCurrentlyPlayingRating(rating) {
 			//reset the rating to 0, then set the rating defined above
-			$self.find(cssSelector.trackInfo).find(cssSelector.ratingLevel).removeClass(attr(cssSelector.ratingLevelOn)).slice(0, rating).addClass(attr(cssSelector.ratingLevelOn));
+			$self.find(cssSelector.player).find(cssSelector.ratingLevel).removeClass(attr(cssSelector.ratingLevelOn)).slice(0, rating).addClass(attr(cssSelector.ratingLevelOn));
 
 		}
 

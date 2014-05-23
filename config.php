@@ -25,7 +25,12 @@ if(!defined('WP_LOAD_PATH')){
 	} elseif(file_exists($classic_root . 'wp-load.php')){
 		define('WP_LOAD_PATH', $classic_root);
 	} else{
-		exit("Could not find wp-load.php");
+		$classic_root = dirname(dirname(dirname(dirname(str_replace('\\', '/', $_SERVER['SCRIPT_FILENAME']))))) . '/' ;
+		if(file_exists($classic_root . 'wp-load.php')){
+			define('WP_LOAD_PATH', $classic_root);
+		} else{
+			exit("Could not find wp-load.php");
+		}
 	}
 }
 

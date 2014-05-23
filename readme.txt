@@ -91,6 +91,16 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 
 == Changelog ==
 
+= 0.9.20 =
+* Fix search in Gmedia Library
+* Fix settings update with empty license key
+* Added photoswipe js library
+* Fix config for servers with renamed 'wp-content' folder
+* Fix gallery preview theme warnings
+* SEO optimisations for modules
+* Fix modules for ajax themes
+* Update all modules
+
 = 0.9.16 =
 * Added Image Editor (Rotate, Flip, Greyscale, Invert and 9 Filters + Restore Original Uploaded Image)
 * If selected media and go to Edit Mode, then load only selected items

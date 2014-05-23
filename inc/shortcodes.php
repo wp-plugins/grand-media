@@ -123,12 +123,19 @@ function gmedia_shortcode($atts, $content = ''){
 		/**** End Custom CSS {$gallery['module']} #{$id} ****/
 </style>";
 	}
+
+	$is_bot = $gmCore->is_bot();
+
 	ob_start();
 	include($module['path'].'/init.php');
 	$out .= ob_get_contents();
 	ob_end_clean();
 
 	$out .= '</div>';
+
+	if(isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+		do_action('gmedia_footer_scripts');
+	}
 
 	return $out;
 

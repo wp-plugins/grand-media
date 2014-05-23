@@ -3,7 +3,7 @@
 Plugin Name: Gmedia Gallery
 Plugin URI: http://wordpress.org/extend/plugins/grand-media/
 Description: Gmedia Gallery - powerfull media library plugin for creating beautiful galleries and managing files.
-Version: 0.9.16
+Version: 0.9.20
 Author: Rattus
 Author URI: http://codeasily.com/
 
@@ -36,7 +36,7 @@ if ( preg_match( '#' . basename( __FILE__ ) . '#', $_SERVER['PHP_SELF'] ) ) {
 if ( ! class_exists( 'Gmedia' ) ) {
 	class Gmedia {
 
-		var $version = '0.9.16';
+		var $version = '0.9.20';
 		var $dbversion = '0.9.6';
 		var $minium_WP = '3.5';
 		var $options = '';
@@ -107,7 +107,7 @@ if ( ! class_exists( 'Gmedia' ) ) {
 				add_action( 'wp_head', create_function( '', 'echo "\n<!-- <meta name=\'GmediaGallery\' content=\'' . $this->version . ' / ' . $this->dbversion . '\' /> -->\n";' ) );
 				add_action( 'wp_footer', array( &$this, 'load_module_scripts' ) );
 
-				//add_action( 'gmedia_head_scripts', array( &$this, 'load_scripts' ) );
+				add_action( 'gmedia_head_scripts', array( &$this, 'load_scripts' ) );
 				add_action( 'gmedia_footer_scripts', array( &$this, 'load_module_scripts' ) );
 			}
 
@@ -235,8 +235,8 @@ if ( ! class_exists( 'Gmedia' ) ) {
 				'pluginPath' => $gmCore->gmedia_url
 			) );
 
-			wp_register_style('grand-media', $gmCore->gmedia_url . '/admin/css/grand-media.css', array(), '0.9.16', 'all' );
-			wp_register_script( 'grand-media', $gmCore->gmedia_url . '/admin/js/grand-media.js', array( 'jquery', 'gmedia-global-backend' ), '0.9.16' );
+			wp_register_style('grand-media', $gmCore->gmedia_url . '/admin/css/grand-media.css', array(), '0.9.20', 'all' );
+			wp_register_script( 'grand-media', $gmCore->gmedia_url . '/admin/js/grand-media.js', array( 'jquery', 'gmedia-global-backend' ), '0.9.20' );
 			wp_localize_script( 'grand-media', 'grandMedia', array(
 				'error3'   => __( 'Disable your Popup Blocker and try again.', 'gmLang' ),
 				'download' => __( 'downloading...', 'gmLang' ),
@@ -264,6 +264,11 @@ if ( ! class_exists( 'Gmedia' ) ) {
 
 			wp_register_style('mediaelement', $gmCore->gmedia_url . '/assets/mediaelement/mediaelementplayer.min.css', array(), '2.13.0', 'screen' );
 			wp_register_script('mediaelement', $gmCore->gmedia_url . '/assets/mediaelement/mediaelement-and-player.min.js', array( 'jquery' ), '2.13.0', true );
+
+			wp_deregister_style('photoswipe');
+			wp_register_style('photoswipe', $gmCore->gmedia_url . '/assets/photoswipe/photoswipe.css', array(), '3.0.5', 'screen' );
+			wp_deregister_script('photoswipe');
+			wp_register_script('photoswipe', $gmCore->gmedia_url . '/assets/photoswipe/photoswipe.jquery.min.js', array( 'jquery' ), '3.0.5', true );
 
 			wp_register_script('easing', $gmCore->gmedia_url . '/assets/jq-plugins/jquery.easing.js', array( 'jquery' ), '1.3.0', true );
 			wp_register_style('fancybox', $gmCore->gmedia_url.'/assets/fancybox/jquery.fancybox-1.3.4.css', array(), '1.3.4');

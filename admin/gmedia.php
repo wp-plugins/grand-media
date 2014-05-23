@@ -50,7 +50,7 @@ function gmediaLib(){
 		<form class="form-inline gmedia-search-form" role="search">
 			<div class="form-group">
 				<?php foreach($_GET as $key => $value){
-					if(in_array($key, array('mime_type', 'tag_id', 'tag__in', 'cat', 'category__in', 'alb', 'album__in'))){ ?>
+					if(in_array($key, array('page', 'mime_type', 'tag_id', 'tag__in', 'cat', 'category__in', 'alb', 'album__in'))){ ?>
 					<input type="hidden" name="<?php echo $key; ?>" value="<?php echo $value; ?>"/>
 				<?php }
 				} ?>

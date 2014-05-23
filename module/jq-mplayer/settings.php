@@ -1,6 +1,7 @@
 <?php
 $default_options = array(
 	'maxwidth' => '0',
+	'rating' => '1',
 	'autoplay' => '1',
 	'buttonText' => 'Download',
 	'tracksToShow' => '5',
@@ -16,6 +17,12 @@ $options_tree = array(
 				'tag' => 'input',
 				'attr' => 'type="number" min="0"',
 				'text' => 'Set the maximum width of the player. Leave 0 to disable max-width.'
+			),
+			'rating' => array(
+				'label' => 'Rating',
+				'tag' => 'checkbox',
+				'attr' => '',
+				'text' => 'Allow visitors to rate tracks',
 			),
 			'autoplay' => array(
 				'label' => 'Autoplay',

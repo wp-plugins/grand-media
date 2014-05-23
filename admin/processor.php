@@ -523,7 +523,27 @@ class GmediaProcessor{
 				}
 				break;
 			case 'GrandMedia_Settings':
-				if(isset($_POST['license-key-activate'])){
+				$lk_check = isset($_POST['license-key-activate']);
+				if(isset($_POST['gmedia_settings_save'])){
+					check_admin_referer('GmediaSettings');
+					$set = $gmCore->_post('set', array());
+					if(!empty($set['license_key']) && empty($set['license_key2'])){
+						$lk_check = true;
+					}
+					if(empty($set['license_key']) && !empty($set['license_key2'])){
+						$set['license_name'] = '';
+						$set['license_key'] = '';
+						$set['license_key2'] = '';
+						$this->error[] = __('License Key deactivated', 'gmLang');
+					}
+					foreach($set as $key => $val){
+						$gmGallery->options[$key] = $val;
+					}
+					update_option('gmediaOptions', $gmGallery->options);
+					$this->msg[] .= __('Settings saved', 'gmLang');
+				}
+
+				if($lk_check){
 					check_admin_referer('GmediaSettings');
 					$license_key = $gmCore->_post('set');
 					if(!empty($license_key['license_key'])){
@@ -562,20 +582,6 @@ class GmediaProcessor{
 					} else{
 						$this->error[] = __('Empty License Key', 'gmLang');
 					}
-				}
-
-				if(isset($_POST['gmedia_settings_save'])){
-					check_admin_referer('GmediaSettings');
-					$set = $gmCore->_post('set', array());
-					if(!empty($set['license_key']) && empty($set['license_key2'])){
-						$set['license_key'] = '';
-						$this->error[] = __('License Key not Activated', 'gmLang');
-					}
-					foreach($set as $key => $val){
-						$gmGallery->options[$key] = $val;
-					}
-					update_option('gmediaOptions', $gmGallery->options);
-					$this->msg[] .= __('Settings saved', 'gmLang');
 				}
 
 				if(isset($_POST['gmedia_settings_reset'])){

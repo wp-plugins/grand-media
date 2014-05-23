@@ -41,7 +41,7 @@ $options_tree = array(
 				'label' => 'Thumbnail Columns',
 				'tag' => 'input',
 				'attr' => 'type="number" min="0" data-watch="change" data-thumbrows="=:0"',
-				'text' => 'Number of Columns (number, 0 = auto). Set the number of columns for the grid. If value is 0, then number of columns will be relative to content width or relative to Thumbnail Rows (if rows not auto)'
+				'text' => 'Number of Columns (number, 0 = auto). Set the number of columns for the grid. If value is 0, then number of columns will be relative to content width or relative to Thumbnail Rows (if rows not auto). This will be ignored if Height value is 0'
 			),
 			'thumbRows' => array(
 				'label' => 'Thumbnail Rows',

@@ -387,9 +387,8 @@ function gmedia_quite_update(){
 				$default_options['license_key2'] = $options['gmedia_key2'];
 			}
 			update_option('gmediaOptions', $default_options);
-
-			$gmCore->delete_folder($gmCore->upload['path'].'/module/phantom');
 		}
+		$gmCore->delete_folder($gmCore->upload['path'].'/module/phantom');
 	}
 }
 

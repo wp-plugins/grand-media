@@ -72,6 +72,8 @@ div.gmPhantom_Container img {
 	min-height: 0 !important;
 	min-width: 0 !important;
 }
+.gmPhantom_Thumb img.landscape { height:100%; width:auto; }
+.gmPhantom_Thumb img.portrait { height:auto; width:100%; }
 
 .gmPhantom_ThumbLabel {
 	font-family: Arial, Helvetica, Verdana, sans-serif;
@@ -132,7 +134,7 @@ div.gmPhantom_Container img {
 	min-height: 0 !important;
 	min-width: 0 !important;
 }
-#fix_window { position: absolute; right: 0; bottom: 0; width: 1px; height: 1px; overflow: hidden;}
+.fix_window { position: absolute; right: 0; bottom: 0; width: 1px; height: 1px; overflow: hidden;}
 
 .gmPhantom_LightboxContainer {
 	opacity: 0;
@@ -171,7 +173,7 @@ div.gmPhantom_Container img {
 	max-width: 100%; max-height: 100%;
 }
 
-#gmlog {
+.gmlog {
 	text-align: left;
 	color: #ffffff;
 	font-size: 20px;
@@ -416,3 +418,18 @@ div.gmPhantom_Container img {
 .istouch .gmPhantom_CaptionTitle { top: auto; bottom: 50%; font-size: 1.2em }
 .istouch .gmPhantom_CaptionTextContainer { bottom: auto; top: 50%; max-height: none; }
 .istouch .gmPhantom_CaptionText { font-size: 1.1em }
+
+.gmPhantom_Container.delay {
+	opacity: 0;
+	-moz-animation: slide 1s ease 1s forwards;
+	-webkit-animation: slide 1s ease 1s forwards;
+	-o-animation: slide 1s ease 1s forwards;
+	-ms-animation: slide 1s ease 1s forwards;
+	animation: slide 1s ease 1s forwards;
+}
+@-moz-keyframes slide { from{opacity: 0;} to{opacity: 1;} }
+@-webkit-keyframes slide { from{opacity: 0;} to{opacity: 1;} }
+@-o-keyframes slide { from{opacity: 0;} to{opacity: 1;} }
+@-ms-keyframes slide { from{opacity: 0;} to{opacity: 1;} }
+@keyframes slide { from{opacity: 0;} to{opacity: 1;} }
+
