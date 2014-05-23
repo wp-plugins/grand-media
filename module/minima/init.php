@@ -19,6 +19,7 @@ foreach($terms as $term){
 		'name' => sanitize_key($term->name),
 		'title' => $term->name,
 		'description' => str_replace(array("\r\n", "\r", "\n"), '', wpautop($term->description)),
+		'path' => $gmCore->upload['url'],
 		'data' => array()
 	);
 

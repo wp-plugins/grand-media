@@ -91,6 +91,9 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 
 == Changelog ==
 
+= 0.9.21 =
+* Fix Minima module
+
 = 0.9.20 =
 * Fix search in Gmedia Library
 * Fix settings update with empty license key
