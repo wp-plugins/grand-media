@@ -378,7 +378,7 @@ function gmedia_quite_update(){
 	$current_db_version = get_option( 'gmediaDbVersion', null );
 	if((null !== $current_version)) {
 		$options = get_option('gmediaOptions');
-		if(version_compare( $current_version, '0.10.11', '<' )){
+		if(version_compare( $current_version, '0.9.16', '<' )){
 			require_once(dirname(__FILE__). '/setup.php');
 			$default_options = gmedia_default_options();
 			if(isset($options['product_name'])){
