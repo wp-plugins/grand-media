@@ -190,8 +190,8 @@ function gm_media_button(b){
 	if(el.hasClass('active')){
 		pos = el.offset();
 		pos.top += el.height() + 1;
-		var w = jQuery('#gmedia-wraper').width();
-		jQuery('#gmedia-wraper').appendTo('body').css({'position': 'absolute', 'z-index': 1001, 'width': w}).offset(pos);
+		var w = 300;
+		jQuery('#gmedia-wraper').appendTo('body').css({'position': 'absolute', 'z-index': 99999, 'width': w}).offset(pos);
 		jQuery("#gmedia-wraper").draggable({ handle: ".title-bar" });
 	} else{
 		jQuery('#gmedia-wraper').removeAttr('style').appendTo('#gmedia-MetaBox .inside');
