@@ -1,17 +1,17 @@
 /*
  * Title                   : Music Player Module for Gmedia Gallery plugin
- * Version                 : 1.6
+ * Version                 : 1.7
  * Copyright               : 2013 CodEasily.com
  * Website                 : http://www.codeasily.com
  */
 (function($) {
 	$.fn.gmMusicPlayer = function(playlist, userOptions) {
 		var $self = this, opt_str, opt_int, opt_bool, opt_obj, options, cssSelector, appMgr, playlistMgr, interfaceMgr, ratingsMgr,
-				layout, ratings, myPlaylist, current;
-
+				layout, ratings, myPlaylist, current,
+			$uid = $(this).data('uid');
 		cssSelector = {
 			jPlayer: ".gm-music-player",
-			jPlayerInterface: '.jp-interface',
+			jPlayerInterface: '.jqmp-'+$uid,
 			playerPrevious: ".jp-interface .jp-previous",
 			playerNext: ".jp-interface .jp-next",
 			trackList:'.gmmp-tracklist',
@@ -29,8 +29,8 @@
 			playing:'.gmmp-playing',
 			moreButton:'.gmmp-more',
 			player:'.gmmp-player',
-			artist:'.gmmp-artist',
-			artistOuter:'.gmmp-artist-outer',
+			//artist:'.gmmp-artist',
+			//artistOuter:'.gmmp-artist-outer',
 			albumCover:'.gmmp-img',
 			description:'.gmmp-description',
 			descriptionShowing:'.gmmp-showing'
@@ -38,7 +38,7 @@
 
 		opt_str = {
 			width:'auto',
-			linkText:'Download',
+			buttonText:'Download',
 			moreText:'View More...'
 		};
 		opt_int = {
@@ -104,7 +104,6 @@
 			};
 
 			function init(playlistOptions) {
-
 				$myJplayer = $('.gm-music-player .jPlayer-container', $self);
 
 
@@ -162,6 +161,7 @@
 
 					$self.bind('mbInitPlaylistAdvance', function(e) {
 						var changeTo = this.getData('mbInitPlaylistAdvance');
+						console.log(changeTo);
 
 						if (changeTo != current) {
 							current = changeTo;
@@ -296,7 +296,7 @@
 
 			function setLink($track, index) {
 				if (myPlaylist[index].button != '') {
-					$track.find(cssSelector.button).removeClass(attr(cssSelector.buttonNotActive)).attr('href', myPlaylist[index].button).html(options.linkText);
+					$track.find(cssSelector.button).removeClass(attr(cssSelector.buttonNotActive)).attr('href', myPlaylist[index].button).html(options.buttonText);
 				}
 			}
 
@@ -374,7 +374,7 @@
 				$player = $(cssSelector.player, $self),
 						$title = $player.find(cssSelector.title),
 						$text = $player.find(cssSelector.text),
-						$artist = $player.find(cssSelector.artist),
+						//$artist = $player.find(cssSelector.artist),
 						$albumCover = $player.find(cssSelector.albumCover);
 
 				setDescription();
@@ -396,7 +396,7 @@
 				//I would normally use the templating plugin for something like this, but I wanted to keep this plugin's footprint as small as possible
 				markup =
 						'<div class="gm-music-player">' +
-								'	<div class="gmmp-player jp-interface">' +
+								'	<div class="gmmp-player jp-interface jqmp-'+$uid+'">' +
 								'		<div class="gmmp-album-cover">' +
 								'			<span class="gmmp-img"></span>' +
 								'   	<span class="gmmp-highlight"></span>' +
@@ -462,6 +462,7 @@
 				$title.html(trackName(current));
 			}
 
+			/*
 			function setArtist() {
 				if (isUndefined(myPlaylist[current].artist))
 					$artist.parent(cssSelector.artistOuter).animate({opacity:0}, 'fast');
@@ -469,6 +470,7 @@
 					$artist.html(myPlaylist[current].artist).parent(cssSelector.artistOuter).animate({opacity:1}, 'fast');
 				}
 			}
+			*/
 
 			function setText() {
 				if (myPlaylist[current].text == '')

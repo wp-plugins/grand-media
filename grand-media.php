@@ -3,7 +3,7 @@
 Plugin Name: Gmedia Gallery
 Plugin URI: http://wordpress.org/extend/plugins/grand-media/
 Description: Gmedia Gallery - powerfull media library plugin for creating beautiful galleries and managing files.
-Version: 0.9.21
+Version: 0.9.22
 Author: Rattus
 Author URI: http://codeasily.com/
 
@@ -36,7 +36,7 @@ if ( preg_match( '#' . basename( __FILE__ ) . '#', $_SERVER['PHP_SELF'] ) ) {
 if ( ! class_exists( 'Gmedia' ) ) {
 	class Gmedia {
 
-		var $version = '0.9.21';
+		var $version = '0.9.22';
 		var $dbversion = '0.9.6';
 		var $minium_WP = '3.5';
 		var $options = '';
@@ -274,7 +274,7 @@ if ( ! class_exists( 'Gmedia' ) ) {
 			wp_register_style('fancybox', $gmCore->gmedia_url.'/assets/fancybox/jquery.fancybox-1.3.4.css', array(), '1.3.4');
 			wp_register_script('fancybox', $gmCore->gmedia_url.'/assets/fancybox/jquery.fancybox-1.3.4.pack.js', array( 'jquery', 'easing' ), '1.3.4', true);
 
-			wp_register_script('jplayer', $gmCore->gmedia_url.'/assets/jplayer/jquery.jplayer.js', array( 'jquery' ), '2.5.0', true);
+			wp_register_script('jplayer', $gmCore->gmedia_url.'/assets/jplayer/jquery.jplayer.min.js', array( 'jquery' ), '2.6.0', true);
 			wp_register_script('swfobject', $gmCore->gmedia_url.'/assets/swf/swfobject.js', array(), '2.2', true);
 			wp_register_script('swfaddress', $gmCore->gmedia_url.'/assets/swf/swfaddress.js', array(), '2.4', true);
 

@@ -45,12 +45,19 @@ if(!empty($content)){
 		'libraryUrl' => $gmCore->upload['url'],
 		'ip' => str_replace('.', '', $_SERVER['REMOTE_ADDR'])
 	));
+	$jqmp_autoplay_setting = intval($settings['autoplay']);
+	if($jqmp_autoplay_setting){
+		$gmedia_shortcode_instance['music_autoplay'] = isset($gmedia_shortcode_instance['music_autoplay'])? $gmedia_shortcode_instance['music_autoplay'] + 1 : 0;
+		if($gmedia_shortcode_instance['music_autoplay']){
+			$settings['autoplay'] = '0';
+		}
+	}
 	?>
 <script type="text/javascript">
 	jQuery(function(){
 		var settings = <?php echo json_encode($settings); ?>;
 		var content = <?php echo json_encode($content); ?>;
-		jQuery('#GmediaGallery_<?php echo $gallery['term_id'] ?>').gmMusicPlayer(content, settings);
+		jQuery('#GmediaGallery_<?php echo $gallery['term_id'] ?>').data('uid', '<?php echo $gallery['term_id'] ?>').gmMusicPlayer(content, settings);
 	});
 </script>
 <?php

@@ -91,6 +91,10 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 
 == Changelog ==
 
+= 0.9.22 =
+* Update jPlayer library to latest version
+* Fix multiple Music Player instances on one page
+
 = 0.9.21 =
 * Fix Minima module
 

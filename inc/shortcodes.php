@@ -9,9 +9,10 @@ add_shortcode('gmedia', 'gmedia_shortcode');
 /** ******************************* **/
 /** Shortcodes Functions and Markup **/
 /** ******************************* **/
-
+$gmedia_shortcode_instance = array();
 function gmedia_shortcode($atts, $content = ''){
 	global $gmDB, $gmGallery, $gmCore;
+	global $gmedia_shortcode_instance;
 	/** @var $id */
 	extract(shortcode_atts(array(
 		'id' => 0,
