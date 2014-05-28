@@ -52,9 +52,17 @@ function gmSettings() {
 						<div class="form-group">
 							<label><?php _e( 'Delete uploaded files when delete (uninstall) plugin?', 'gmLang' ) ?>:</label>
 							<div class="checkbox" style="margin:0;">
-								<input type="hidden" name="set[uninstall_dropfiles]" value=""/>
-								<label><input type="checkbox" name="set[uninstall_dropfiles]" value="dropfiles"<?php checked($gmGallery->options['uninstall_dropfiles'], 'dropfiles'); ?> /> <?php _e('delete', 'gmLang'); ?></label>
+								<input type="hidden" name="set[uninstall_dropfiles]" value="0"/>
+								<label><input type="checkbox" name="set[uninstall_dropfiles]" value="1" <?php checked($gmGallery->options['uninstall_dropfiles'], '1'); ?> /> <?php _e('delete', 'gmLang'); ?></label>
 								<p class="help-block"><?php _e('Note: Database tables will be deleted anyway', 'gmLang'); ?></p>
+							</div>
+						</div>
+						<div class="form-group">
+							<label><?php _e( 'Forbid theme to format Gmedia shortcode\'s content', 'gmLang' ) ?>:</label>
+							<div class="checkbox" style="margin:0;">
+								<input type="hidden" name="set[shortcode_raw]" value="0"/>
+								<label><input type="checkbox" name="set[shortcode_raw]" value="1" <?php checked($gmGallery->options['shortcode_raw'], '1'); ?> /> <?php _e('Raw output for Gmedia Shortcode', 'gmLang'); ?></label>
+								<p class="help-block"><?php _e('Some themes reformat shortcodes and break it functionality (mostly when you add description to images). Turning this on should solve this problem.', 'gmLang'); ?></p>
 							</div>
 						</div>
 						<p><?php _e('Under constraction...') ?></p>

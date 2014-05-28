@@ -3,8 +3,9 @@
 /** Shortcodes Declarations **/
 /** *********************** **/
 add_shortcode('gmedia', 'gmedia_shortcode');
-//add_filter('the_content', 'do_shortcode');
 
+//add_filter('the_content', 'do_shortcode');
+add_filter('the_content', 'get_gmedia_unformatted_shortcode_blocks', 4);
 
 /** ******************************* **/
 /** Shortcodes Functions and Markup **/
@@ -13,11 +14,22 @@ $gmedia_shortcode_instance = array();
 function gmedia_shortcode($atts, $content = ''){
 	global $gmDB, $gmGallery, $gmCore;
 	global $gmedia_shortcode_instance;
-	/** @var $id */
+	/**
+	 * @var $id
+	 * @var $preview
+	 * @var $_raw
+	 */
 	extract(shortcode_atts(array(
 		'id' => 0,
-		'preview' => ''
+		'preview' => '',
+		'_raw' => false
 	), $atts));
+
+	$shortcode_raw = (isset($gmGallery->options['shortcode_raw']) && '1' === $gmGallery->options['shortcode_raw']);
+	if($shortcode_raw && false !== $_raw){
+		return $gmedia_shortcode_instance['shortcode_raw'][$_raw];
+	}
+
 	$id = intval($id);
 	if(!$id){
 		return $content;
@@ -117,12 +129,7 @@ function gmedia_shortcode($atts, $content = ''){
 	$out .= $content;
 
 	if(isset($settings['customCSS']) && ('' != trim($settings['customCSS']))){
-		$out .= "
-<style type='text/css' scoped='scoped'>
-		/**** Begin Custom CSS {$gallery['module']} #{$id} ****/
-		" . $settings['customCSS'] . "
-		/**** End Custom CSS {$gallery['module']} #{$id} ****/
-</style>";
+		$out .= "<style type='text/css' scoped='scoped'>/**** Custom CSS {$gallery['module']} #{$id} ****/" . $settings['customCSS'] . "</style>";
 	}
 
 	$is_bot = $gmCore->is_bot();
@@ -142,3 +149,70 @@ function gmedia_shortcode($atts, $content = ''){
 
 }
 
+/**
+ * Process the [gmedia _raw] shortcode in priority 4.
+ *
+ * Since the gmedia raw shortcode needs to be run earlier than other shortcodes,
+ * this function removes all existing shortcodes, uses the shortcode parser to grab all [gmedia blocks],
+ * calls {@link do_shortcode()}, and then re-registers the old shortcodes.
+ *
+ * @uses $shortcode_tags
+ * @uses remove_all_shortcodes()
+ * @uses add_shortcode()
+ * @uses do_shortcode()
+ *
+ * @param string $content Content to parse
+ * @return string Content with shortcode parsed
+ */
+function get_gmedia_unformatted_shortcode_blocks( $content ) {
+	global $gmGallery;
+
+	if('0' == $gmGallery->options['shortcode_raw']){
+		return $content;
+	}
+
+	global $shortcode_tags;
+
+	// Back up current registered shortcodes and clear them all out
+	$orig_shortcode_tags = $shortcode_tags;
+	remove_all_shortcodes();
+
+	// my_shortcode_handler1(), below, saves the rawr blocks into $this->unformatted_shortcode_blocks[]
+	add_shortcode( 'gmedia', 'gmedia_raw_shortcode' );
+
+	// Do the shortcode (only the [rawr] shortcode is now registered)
+	$content = do_shortcode( $content );
+
+	// Put the original shortcodes back for normal processing at priority 11
+	$shortcode_tags = $orig_shortcode_tags;
+
+	return $content;
+}
+
+function gmedia_raw_shortcode($atts, $content = ''){
+	global $wp_filter, $merged_filters, $wp_current_filter;
+	$wp_filter_ = $wp_filter;
+	$merged_filters_ = $merged_filters;
+	$wp_current_filter_ = $wp_current_filter;
+	$noraw = do_shortcode(apply_filters('the_content', '[raw][/raw]'));
+	$wp_filter = $wp_filter_;
+	$merged_filters = $merged_filters_;
+	$wp_current_filter = $wp_current_filter_;
+
+	global $gmedia_shortcode_instance;
+	// Store the unformatted content for later:
+	$gmedia_shortcode_instance['shortcode_raw'][] = gmedia_shortcode($atts, $content);
+	$raw_index = count( $gmedia_shortcode_instance['shortcode_raw'] ) - 1;
+	$shortcode_atts = '';
+	// Put the shortcode tag back with raw index, so it gets processed again below.
+	$atts['_raw'] = $raw_index;
+	foreach($atts as $key => $value){
+		$shortcode_atts .= " $key=$value";
+	}
+	if(!$noraw){
+		//return "[raw]".gmedia_shortcode($atts, $content)."[/raw]";
+		return "[raw][gmedia{$shortcode_atts}]{$content}[/gmedia][/raw]";
+	} else{
+		return "[gmedia{$shortcode_atts}]{$content}[/gmedia]";
+	}
+}

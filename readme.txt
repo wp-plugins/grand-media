@@ -91,6 +91,11 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 
 == Changelog ==
 
+= 0.9.23 =
+* Add setting to "no format" shortcode's content
+* Update all modules
+* Added manual height option to gallery modules
+
 = 0.9.22 =
 * Update jPlayer library to latest version
 * Fix multiple Music Player instances on one page

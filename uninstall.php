@@ -50,7 +50,7 @@ function gmedia_uninstall(){
 	delete_metadata('user', 0, 'gm_screen_options', '', true);
 
 	if(!$upload['error']){
-		if($options['uninstall_dropfiles']){
+		if(intval($options['uninstall_dropfiles'])){
 			$files_folder = $upload['path'];
 			$delete_files = $gmCore->delete_folder($files_folder);
 		} else{

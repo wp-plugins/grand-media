@@ -11,6 +11,7 @@
  **/
 $content = array();
 if(!isset($is_bot)){ $is_bot = false; }
+if(!isset($shortcode_raw)){ $shortcode_raw = false; }
 $tab = sanitize_title($gallery['name']);
 foreach($terms as $term){
 
@@ -60,14 +61,15 @@ if(!empty($content)){
 	));
 	?>
 	<div id="gmAfflux_ID<?php echo $gallery['term_id']; ?>_Container">
-		<script type="text/javascript">
+		<?php if($shortcode_raw){ echo '<pre style="display:none">'; }
+		?><script type="text/javascript">
 			var GmediaGallery_<?php echo $gallery['term_id']; ?>;
 			jQuery(function(){
 				var settings = <?php echo json_encode($settings); ?>;
 				var content = <?php echo json_encode($content); ?>;
 				GmediaGallery_<?php echo $gallery['term_id']; ?> = jQuery('#GmediaGallery_<?php echo $gallery['term_id'] ?>').gmAfflux([content, settings]);
 			});
-		</script>
+		</script><?php if($shortcode_raw){ echo '</pre>'; } ?>
 		<?php if(!$is_bot) { echo '<script type="text/html" id="flashmodule_alternative_'.$gallery['term_id'].'">'; }
 		?><div class="flashmodule_alternative <?php if(!$is_bot) { echo 'delay'; } ?> noLightbox">
 			<div class="gmcatlinks"><?php

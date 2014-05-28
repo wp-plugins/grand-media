@@ -11,6 +11,7 @@
  **/
 $content = array();
 if(!isset($is_bot)){ $is_bot = false; }
+if(!isset($shortcode_raw)){ $shortcode_raw = false; }
 $tab = sanitize_title($gallery['name']);
 foreach($terms as $term){
 
@@ -53,13 +54,14 @@ if(!empty($content)){
 		'libraryUrl' => $gmCore->upload['url']
 	));
 	?>
-<script type="text/javascript">
+<?php if($shortcode_raw){ echo '<pre style="display:none">'; }
+?><script type="text/javascript">
 	jQuery(function(){
 		var settings = <?php echo json_encode($settings); ?>;
 		var content = <?php echo json_encode($content); ?>;
 		jQuery('#GmediaGallery_<?php echo $gallery['term_id'] ?>').gmPhantom([content, settings]);
 	});
-</script>
+</script><?php if($shortcode_raw){ echo '</pre>'; } ?>
 <div class="gmPhantom_Container delay" style="opacity:0.1">
 	<div class="gmPhantom_Background"></div>
 	<div class="gmPhantom_thumbsWrapper">

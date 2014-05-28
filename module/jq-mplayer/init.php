@@ -10,6 +10,7 @@
  * @var  $is_bot
  **/
 $content = array();
+if(!isset($shortcode_raw)){ $shortcode_raw = false; }
 $tab = sanitize_title($gallery['name']);
 foreach($terms as $term){
 
@@ -52,15 +53,15 @@ if(!empty($content)){
 			$settings['autoplay'] = '0';
 		}
 	}
-	?>
-<script type="text/javascript">
-	jQuery(function(){
-		var settings = <?php echo json_encode($settings); ?>;
-		var content = <?php echo json_encode($content); ?>;
-		jQuery('#GmediaGallery_<?php echo $gallery['term_id'] ?>').data('uid', '<?php echo $gallery['term_id'] ?>').gmMusicPlayer(content, settings);
-	});
-</script>
-<?php
+
+	if($shortcode_raw){ echo '<pre style="display:none">'; }
+	?><script type="text/javascript">
+		jQuery(function(){
+			var settings = <?php echo json_encode($settings); ?>;
+			var content = <?php echo json_encode($content); ?>;
+			jQuery('#GmediaGallery_<?php echo $gallery['term_id'] ?>').data('uid', '<?php echo $gallery['term_id'] ?>').gmMusicPlayer(content, settings);
+		});
+	</script><?php if($shortcode_raw){ echo '</pre>'; }
 } else{
 	echo GMEDIA_GALLERY_EMPTY;
 }

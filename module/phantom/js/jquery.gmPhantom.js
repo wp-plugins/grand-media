@@ -1,6 +1,6 @@
 /*
  * Title                   : gmPhantom
- * Version                 : 1.6
+ * Version                 : 1.8
  * Copyright               : 2013 CodEasily.com
  * Website                 : http://www.codeasily.com
  */

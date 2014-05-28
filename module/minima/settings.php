@@ -1,6 +1,8 @@
 <?php
 $default_options = array(
 	'maxwidth' => '0',
+	'lockheight' => '0',
+	'height' => '500',
 	'maxheight' => '0',
 	'autoSlideshow' => '1',
 	'slideshowDelay' => '10',
@@ -33,10 +35,22 @@ $options_tree = array(
 				'attr' => 'type="number" min="0"',
 				'text' => 'Set the maximum width of the gallery. Leave 0 to disable max-width.'
 			),
+			'lockheight' => array(
+				'label' => 'Set height manually',
+				'tag' => 'checkbox',
+				'attr' => 'data-watch="change"',
+				'text' => 'By default a gallery automatically calculates own height to best fit the tallest image in a gallery.'
+			),
+			'height' => array(
+				'label' => 'Height',
+				'tag' => 'input',
+				'attr' => 'type="text" min="0" data-lockheight="is:1"',
+				'text' => 'Set height of the gallery. Do not set % unless you know what you doing.'
+			),
 			'maxheight' => array(
 				'label' => 'Max-Height',
 				'tag' => 'input',
-				'attr' => 'type="number" min="0"',
+				'attr' => 'type="number" min="0" data-lockheight="is:0"',
 				'text' => 'Set the maximum height of the gallery. Leave 0 to disable max-height.'
 			),
 			'autoSlideshow' => array(

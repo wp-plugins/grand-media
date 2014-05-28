@@ -1,6 +1,6 @@
 /*
  * Title                   : Afflux Gallery Module
- * Version                 : 3.3
+ * Version                 : 3.4
  * Copyright               : 2013 CodEasily.com
  * Website                 : http://www.codeasily.com
  */
@@ -19,6 +19,7 @@ if(typeof jQuery.fn.gmAfflux == 'undefined'){
 				max_img_h = 0,
 
 				opt = {
+					'height': '500',
 					'wmode': 'opaque',
 					'imageZoom': 'FILL',
 					'customCSS': '',
@@ -38,6 +39,7 @@ if(typeof jQuery.fn.gmAfflux == 'undefined'){
 					'postID': 0
 				},
 				bool = {
+					'lockheight': false,
 					'autoSlideshow': true,
 					'descrVisOnMouseover': true,
 					'loveLink': false,
@@ -318,6 +320,10 @@ if(typeof jQuery.fn.gmAfflux == 'undefined'){
 						w = Container.width();
 						if(0 != opt.maxwidth){
 							w = Math.min(opt.maxwidth, w);
+						}
+						if(opt.lockheight){
+							h = ('%' == opt.height.slice(-1))? parseInt(opt.height)+'%' : parseInt(opt.height);
+							return [w, h];
 						}
 						h = Math.floor(w / ratio + corr);
 						if(max_img_h){
