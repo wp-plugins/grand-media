@@ -385,6 +385,10 @@ function gmedia_quite_update(){
 				$default_options['license_name'] = $options['product_name'];
 				$default_options['license_key'] = $options['gmedia_key'];
 				$default_options['license_key2'] = $options['gmedia_key2'];
+			} elseif(isset($options['license_name'])){
+				$default_options['license_name'] = $options['license_name'];
+				$default_options['license_key'] = $options['license_key'];
+				$default_options['license_key2'] = $options['license_key2'];
 			}
 			update_option('gmediaOptions', $default_options);
 		}
