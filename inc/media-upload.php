@@ -13,7 +13,7 @@ function gmedia_upload_tabs ($tabs) {
 add_filter('media_upload_tabs', 'gmedia_upload_tabs');
 
 function media_upload_gmedia() {
-	global $gmCore, $gmDB, $gmGallery;
+	global $gmCore, $gmDB;
 
 	wp_iframe( 'media_upload_gmedia_form' );
 
@@ -22,7 +22,7 @@ function media_upload_gmedia() {
 
 		$id = $gmCore->_post('ID', 0);
 
-		if($gmedia = $gmDB->get_gmedia($id)){
+		if( ($gmedia = $gmDB->get_gmedia($id)) ){
 
 			$meta = $gmDB->get_metadata('gmedia', $gmedia->ID, '_metadata', true);
 
@@ -54,8 +54,8 @@ add_action('media_upload_gmedia', 'media_upload_gmedia');
 
 function media_upload_gmedia_form() {
 
-	global $type, $tab;
-	global $gmCore, $gmDB, $user_ID, $gmGallery;
+	global $type;
+	global $gmCore, $gmDB, $gmGallery;
 
 	wp_enqueue_style( 'gmedia-bootstrap' );
 	wp_enqueue_script( 'gmedia-bootstrap' );
@@ -66,7 +66,7 @@ function media_upload_gmedia_form() {
 	//media_upload_header();
 
 	$post_id 	= intval($gmCore->_get('post_id'));
-	$url = admin_url("media-upload.php?type={$type}&tab=gmedia&post_id={$post_id}");
+	//$url = admin_url("media-upload.php?type={$type}&tab=gmedia&post_id={$post_id}");
 
 	$args = array('mime_type' => $gmCore->_get('mime_type', 'image/*'), 'orderby' => 'ID',
 								'order' => 'DESC',
@@ -101,6 +101,8 @@ function media_upload_gmedia_form() {
 		foreach($gmediaQuery as $item) {
 			$meta = $gmDB->get_metadata('gmedia', $item->ID);
 			$type = explode('/', $item->mime_type);
+
+			/*
 			$item_url = $gmCore->upload['url'] . '/' . $gmGallery->options['folder'][$type[0]] . '/' . $item->gmuid;
 			$item_path = $gmCore->upload['path'] . '/' . $gmGallery->options['folder'][$type[0]] . '/' . $item->gmuid;
 
@@ -115,6 +117,7 @@ function media_upload_gmedia_form() {
 			$tags = $gmDB->get_the_gmedia_terms($item->ID, 'gmedia_tag');
 			$albs = $gmDB->get_the_gmedia_terms($item->ID, 'gmedia_album');
 			$cats = $gmDB->get_the_gmedia_terms($item->ID, 'gmedia_category');
+			*/
 			?>
 			<form class="thumbnail" id="list-item-<?php echo $item->ID; ?>" data-id="<?php echo $item->ID; ?>" data-type="<?php echo $type[0]; ?>">
 				<img src="<?php echo $gmCore->gm_get_media_image($item, 'thumb'); ?>" style="height:100px;width:auto;" alt=""/>
@@ -188,11 +191,11 @@ function media_upload_gmedia_form() {
 	</div>
 	<script type="text/javascript">
 		jQuery(function($){
-			function div_frame(){
+			function divFrame(){
 				$('.panel-body').css({top:$('.panel-heading').outerHeight()});
 			}
-			div_frame();
-			$(window).on('resize', function(){ div_frame(); });
+			divFrame();
+			$(window).on('resize', function(){ divFrame(); });
 			$('.thumbnail').on('click', function(){
 				if($(this).hasClass('active')){
 					$(this).removeClass('active');

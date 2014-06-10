@@ -6,7 +6,9 @@
 class GmediaAdmin {
 	var $pages = array();
 
-	// constructor
+	/**
+	 * constructor
+	 */
 	function __construct() {
 		global $pagenow;
 
@@ -58,6 +60,10 @@ class GmediaAdmin {
 		iframe_footer();
 		exit;
 	}
+
+	/**
+	 * @return string
+	 */
 	function gmedia_blank_page_body_class(){
 		return 'gmedia-blank';
 	}
@@ -135,7 +141,7 @@ class GmediaAdmin {
 	}
 
 	function sideLinks() {
-		global $submenu, $gmCore, $gmProcessor;
+		global $submenu, $gmProcessor;
 		$content['sideLinks'] = '
 		<div id="gmedia-navbar">
 			<div class="row">
@@ -203,6 +209,9 @@ class GmediaAdmin {
 		}
 	}
 
+	/**
+	 * @param $hook
+	 */
 	function load_scripts( $hook ) {
 		global $gmCore, $gmProcessor;
 
@@ -324,8 +333,14 @@ class GmediaAdmin {
 		}
 	}
 
+	/**
+	 * @param $current
+	 * @param $screen
+	 *
+	 * @return string
+	 */
 	function screen_settings( $current, $screen ) {
-		global $user_ID, $gmGallery, $gmProcessor, $gmCore;
+		global $gmProcessor, $gmCore;
 		if ( in_array( $screen->id, $this->pages ) ) {
 
 			$gm_screen_options = $gmProcessor->user_options();
@@ -429,6 +444,13 @@ class GmediaAdmin {
 		return $current;
 	}
 
+	/**
+	 * @param $status
+	 * @param $option
+	 * @param $value
+	 *
+	 * @return array
+	 */
 	function screen_settings_save( $status, $option, $value) {
 		global $user_ID;
 		if ( 'gm_screen_options' == $option ) {

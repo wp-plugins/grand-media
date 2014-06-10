@@ -4,7 +4,7 @@
  */
 
 function gmedia_image_editor(){
-	global $gmCore, $gmDB, $user_ID, $gmGallery;
+	global $gmCore;
 	$gmid = $gmCore->_get('id');
 	//$gmedia = $gmDB->get_gmedia($gmid);
 	$gmedia_src = $gmCore->gm_get_media_image($gmid, 'original');

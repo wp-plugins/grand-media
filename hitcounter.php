@@ -1,7 +1,9 @@
 <?php
 //ini_set( 'display_errors', 0 );
 //ini_set( 'error_reporting', 0 );
-@ require_once ('config.php');
+
+define('WP_USE_THEMES', false);
+@require_once (dirname(__FILE__).'/config.php');
 
 if ( empty( $_SERVER['HTTP_REFERER'] ) ) {
 	die();
@@ -37,7 +39,7 @@ if ( isset($_POST['hit']) && ($gmID = intval($_POST['hit'])) ) {
  */
 function gm_hitcounter($gmID, $meta) {
 	/** @var wpdb $wpdb */
-	global $wpdb, $gmDB;
+	global $gmDB;
 	if( isset($_POST['vote']) ) {
 		$meta['likes'] +=1;
 		$gmDB->update_metadata('gmedia', $gmID, 'likes', $meta['likes']);

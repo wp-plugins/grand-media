@@ -3,7 +3,7 @@
 Plugin Name: Gmedia Gallery
 Plugin URI: http://wordpress.org/extend/plugins/grand-media/
 Description: Gmedia Gallery - powerfull media library plugin for creating beautiful galleries and managing files.
-Version: 0.9.23
+Version: 1.0.0
 Author: Rattus
 Author URI: http://codeasily.com/
 
@@ -34,14 +34,20 @@ if ( preg_match( '#' . basename( __FILE__ ) . '#', $_SERVER['PHP_SELF'] ) ) {
 //ini_set( 'display_errors', '1' );
 //ini_set( 'error_reporting', E_ALL );
 if ( ! class_exists( 'Gmedia' ) ) {
+	/**
+	 * Class Gmedia
+	 */
 	class Gmedia {
 
-		var $version = '0.9.23';
+		var $version = '1.0.0';
 		var $dbversion = '0.9.6';
 		var $minium_WP = '3.5';
 		var $options = '';
 		var $do_module = array();
 
+		/**
+		 *
+		 */
 		function __construct() {
 
 			// Stop the plugin if we missed the requirements
@@ -58,6 +64,8 @@ if ( ! class_exists( 'Gmedia' ) ) {
 			// Init options & tables during activation & deregister init option
 			register_activation_hook( $this->plugin_name, array( &$this, 'activate' ) );
 			register_deactivation_hook( $this->plugin_name, array( &$this, 'deactivate' ) );
+			register_activation_hook( $this->plugin_name, 'flush_rewrite_rules', 11 );
+			register_deactivation_hook( $this->plugin_name, 'flush_rewrite_rules' );
 
 			// Register a uninstall hook to remove all tables & option automatic
 			//register_uninstall_hook( $this->plugin_name, array(__CLASS__, 'uninstall' ) );
@@ -86,6 +94,8 @@ if ( ! class_exists( 'Gmedia' ) ) {
 
 			// Check for upgrade
 			$this->upgrade();
+
+			require_once ( dirname( __FILE__ ) . '/inc/permalinks.php' );
 
 			// Load the admin panel or the frontend functions
 			if ( is_admin() ) {
@@ -118,6 +128,9 @@ if ( ! class_exists( 'Gmedia' ) ) {
 			delete_option( 'gmediaInitCheck' );
 		}
 
+		/**
+		 * @return bool
+		 */
 		function required_version() {
 
 			global $wp_version;
@@ -235,8 +248,8 @@ if ( ! class_exists( 'Gmedia' ) ) {
 				'pluginPath' => $gmCore->gmedia_url
 			) );
 
-			wp_register_style('grand-media', $gmCore->gmedia_url . '/admin/css/grand-media.css', array(), '0.9.20', 'all' );
-			wp_register_script( 'grand-media', $gmCore->gmedia_url . '/admin/js/grand-media.js', array( 'jquery', 'gmedia-global-backend' ), '0.9.20' );
+			wp_register_style('grand-media', $gmCore->gmedia_url . '/admin/css/grand-media.css', array(), '1.0.0', 'all' );
+			wp_register_script( 'grand-media', $gmCore->gmedia_url . '/admin/js/grand-media.js', array( 'jquery', 'gmedia-global-backend' ), '1.0.0' );
 			wp_localize_script( 'grand-media', 'grandMedia', array(
 				'error3'   => __( 'Disable your Popup Blocker and try again.', 'gmLang' ),
 				'download' => __( 'downloading...', 'gmLang' ),
@@ -281,24 +294,20 @@ if ( ! class_exists( 'Gmedia' ) ) {
 		}
 
 		function load_scripts() {
-			global $wp_query;
-
 			wp_enqueue_script( 'gmedia-global-frontend' );
 		}
 
 		function load_module_scripts() {
-			global $gmDB, $gmCore;
-
 			$deps = array();
-			foreach ( $this->do_module as $name => $module ) {
+			foreach ( $this->do_module as $module ) {
 				$deps = array_merge( $deps, explode( ',', $module['info']['dependencies'] ) );
 				foreach($deps as $handle){
 					if(wp_script_is( $handle, 'registered' ))
-						wp_enqueue_script( $handle, $_src = false, $_deps = array(), $_ver = false, $_in_footer = true );
+						wp_enqueue_script( $handle, $_src = false, $_deps = array('jquery'), $_ver = false, $_in_footer = true );
 					if(wp_style_is( $handle, 'registered' ))
+						//wp_enqueue_style( $handle );
 						wp_print_styles( $handle );
 				}
-
 				$files = glob( $module['path'] . '/css/*.css', GLOB_NOSORT );
 				if(!empty($files)){
 					$files = array_map('basename', $files);
@@ -311,9 +320,8 @@ if ( ! class_exists( 'Gmedia' ) ) {
 				$files = glob( $module['path'] . '/js/*.js', GLOB_NOSORT );
 				if(!empty($files)){
 					$files = array_map('basename', $files);
-					echo "\n";
 					foreach($files as $file){
-						echo "<script type='text/javascript' src='{$module['url']}/js/{$file}'></script>\n";
+						wp_enqueue_script($file, "{$module['url']}/js/{$file}", array('jquery'), false, true);
 					}
 				}
 			}
@@ -352,10 +360,16 @@ if ( ! class_exists( 'Gmedia' ) ) {
 			call_user_func($pfunction);
 		}
 
+		/**
+		 * @param $networkwide
+		 */
 		function activate($networkwide) {
 			$this->network_propagate('gmedia_install', $networkwide);
 		}
 
+		/**
+		 * @param $networkwide
+		 */
 		function deactivate($networkwide) {
 			$this->network_propagate('gmedia_deactivate', $networkwide);
 		}
@@ -367,9 +381,15 @@ if ( ! class_exists( 'Gmedia' ) ) {
 		}
 		*/
 
+		/**
+		 * @param $blog_id
+		 * @param $user_id
+		 * @param $domain
+		 * @param $path
+		 * @param $site_id
+		 * @param $meta
+		 */
 		function new_blog($blog_id, $user_id, $domain, $path, $site_id, $meta ) {
-			global $wpdb;
-
 			if (is_plugin_active_for_network(GMEDIA_FOLDER.'/grand-media.php')) {
 				include_once ( dirname( __FILE__ ) . '/setup.php' );
 				switch_to_blog($blog_id);

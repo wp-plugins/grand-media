@@ -52,10 +52,10 @@ function gmedia_uninstall(){
 	if(!$upload['error']){
 		if(intval($options['uninstall_dropfiles'])){
 			$files_folder = $upload['path'];
-			$delete_files = $gmCore->delete_folder($files_folder);
+			$gmCore->delete_folder($files_folder);
 		} else{
 			$files_folder = $upload['path'].'/'.$options['folder']['module'];
-			$delete_files = $gmCore->delete_folder($files_folder);
+			$gmCore->delete_folder($files_folder);
 		}
 	}
 }

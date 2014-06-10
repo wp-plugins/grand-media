@@ -258,7 +258,6 @@ function gmedia_upload_files(){
 function gmedia_import(){
 	global $wpdb, $gmCore, $gmGallery, $gmDB;
 	$gmediaURL = plugins_url(GMEDIA_FOLDER);
-	$url = $gmCore->get_admin_url();
 	?>
 	<form class="row" id="import_form" name="import_form" target="import_window" action="<?php echo $gmCore->gmedia_url; ?>/admin/import.php" method="POST" accept-charset="utf-8" style="padding:20px 0 10px;">
 		<div class="col-md-4">
@@ -347,11 +346,11 @@ function gmedia_import(){
 		<div class="col-md-8 tabable">
 			<ul class="nav nav-tabs" style="padding:0 10px;">
 				<li class="active"><a href="#import_folder" data-toggle="tab"><?php _e('Import Server Folder', 'gmLang'); ?></a></li>
-				<?php if($import['flagallery'] = $wpdb->get_var("show tables like '{$wpdb->prefix}flag_gallery'")){ ?>
+				<?php if(($import['flagallery'] = $wpdb->get_var("show tables like '{$wpdb->prefix}flag_gallery'"))){ ?>
 					<li><a href="#import_flagallery" data-toggle="tab"><?php _e('FlAGallery plugin', 'gmLang'); ?></a></li>
 				<?php
 				}
-				if($import['nextgen'] = $wpdb->get_var("show tables like '{$wpdb->prefix}ngg_gallery'")){
+				if(($import['nextgen'] = $wpdb->get_var("show tables like '{$wpdb->prefix}ngg_gallery'"))){
 					?>
 					<li><a href="#import_nextgen" data-toggle="tab"><?php _e('NextGen plugin', 'gmLang'); ?></a></li>
 				<?php } ?>

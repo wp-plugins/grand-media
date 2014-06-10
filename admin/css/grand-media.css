@@ -165,13 +165,15 @@ a.edit_tag_save.btn-link:hover {text-decoration:none;}
 	border: 1px solid #ddd;
 	border-radius: 4px;
 }
-.gm-img-thumbnail input {display:block; position:absolute; right:-1px; top:-1px; width:42px; padding:0 2px; text-align:center; border-radius: 4px; opacity:0.9;}
+.gm-img-thumbnail input {display:block; line-height:120%; position:absolute; right:-1px; top:-1px; width:42px; padding:0 2px; text-align:center; border-radius: 4px; opacity:0.9;}
 .gm-img-thumbnail input:focus {opacity:1;}
-.gm-img-thumbnail .label {position:absolute;left:0;bottom:0;font-weight:normal;pointer-events:none;}
+.gm-img-thumbnail .label {position:absolute;left:0;bottom:0;font-weight:normal;line-height:120%;pointer-events:none;}
 .ui-highlight-placeholder {
 	border: 1px solid #0074a2;
 }
 .termItems { position:relative; }
+.termItems .gm-img-thumbnail {width:160px;height:120px;text-align:center;line-height:107px;}
+.termItems .gm-img-thumbnail img {height:auto;width:auto;max-width:100%;max-height:100%;display:inline-block;vertical-align:middle;}
 
 .choose-module {padding:10px;cursor:pointer;}
 .choose-module:hover {background-color:#d0e9c6;}

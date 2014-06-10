@@ -35,7 +35,7 @@ function gmediaGalleries() {
 	}
 
 	$modules = array();
-	if($plugin_modules = glob(GMEDIA_ABSPATH . 'module/*', GLOB_ONLYDIR | GLOB_NOSORT)){
+	if(($plugin_modules = glob(GMEDIA_ABSPATH . 'module/*', GLOB_ONLYDIR | GLOB_NOSORT))){
 		foreach($plugin_modules as $path){
 			$mfold = basename($path);
 			$modules[$mfold] = array(
@@ -45,7 +45,7 @@ function gmediaGalleries() {
 			);
 		}
 	}
-	if($upload_modules = glob($gmCore->upload['path'].'/'.$gmGallery->options['folder']['module'].'/*', GLOB_ONLYDIR | GLOB_NOSORT)){
+	if(($upload_modules = glob($gmCore->upload['path'].'/'.$gmGallery->options['folder']['module'].'/*', GLOB_ONLYDIR | GLOB_NOSORT))){
 		foreach($upload_modules as $path){
 			$mfold = basename($path);
 			$modules[$mfold] = array(
@@ -337,7 +337,7 @@ function gmediaGalleryEdit() {
 	}
 
 	$modules = array();
-	if($plugin_modules = glob(GMEDIA_ABSPATH . 'module/*', GLOB_ONLYDIR | GLOB_NOSORT)){
+	if(($plugin_modules = glob(GMEDIA_ABSPATH . 'module/*', GLOB_ONLYDIR | GLOB_NOSORT))){
 		foreach($plugin_modules as $path){
 			$mfold = basename($path);
 			$modules[$mfold] = array(
@@ -348,7 +348,7 @@ function gmediaGalleryEdit() {
 			);
 		}
 	}
-	if($upload_modules = glob($gmCore->upload['path'].'/'.$gmGallery->options['folder']['module'].'/*', GLOB_ONLYDIR | GLOB_NOSORT)){
+	if(($upload_modules = glob($gmCore->upload['path'].'/'.$gmGallery->options['folder']['module'].'/*', GLOB_ONLYDIR | GLOB_NOSORT))){
 		foreach($upload_modules as $path){
 			$mfold = basename($path);
 			$modules[$mfold] = array(
@@ -567,12 +567,24 @@ function gmediaGalleryEdit() {
 				<div class="col-lg-6" style="padding-top:20px;">
 					<p><b><?php _e('Last edited:'); ?></b> <?php echo $gallery['edited']; ?></p>
 					<?php if($gallery_id){
-						$preview_param = ($gallery['module'] != $module_name)? '&preview='.$module_name : '';
+						$params = array();
+						$params['preview'] = ($gallery['module'] != $module_name)? $module_name : false;
+						$params['iframe'] = 1;
 						?>
 						<p><b><?php _e('Gallery ID:'); ?></b> #<?php echo $gallery_id; ?></p>
+						<p><b><?php _e('Gallery URL:'); ?></b> <?php
+							if ( get_option('permalink_structure') ) {
+								$ep = $gmGallery->options['endpoint'];
+								$gallery_link = home_url($ep.'/'.$gallery_id);
+							} else{
+								$gallery_link = home_url('index.php?gmedia='.$gallery_id);
+							}
+							echo '<a target="_blank" href="'.$gallery_link.'">'.$gallery_link.'</a>';
+							?></p>
+
 						<div><b><?php _e('Gallery Preview:'); ?></b></div>
 						<div class="gallery_preview" style="overflow:hidden;">
-							<iframe id="gallery_preview" name="gallery_preview" src="<?php echo $gmCore->gmedia_url; ?>/gallery.php?id=<?php echo $gallery_id.$preview_param; ?>"></iframe>
+							<iframe id="gallery_preview" name="gallery_preview" src="<?php echo add_query_arg($params, $gallery_link); ?>"></iframe>
 						</div>
 					<?php } ?>
 				</div>

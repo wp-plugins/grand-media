@@ -1,7 +1,7 @@
 <?php
 add_action( 'wp_ajax_gmedia_update_data', 'gmedia_update_data' );
 function gmedia_update_data(){
-	global $gmDB, $gmCore, $gmGallery;
+	global $gmDB, $gmCore;
 	check_ajax_referer( "GmediaGallery" );
 	if ( ! current_user_can( 'edit_posts' ) )
 		die( '-1' );
@@ -61,7 +61,6 @@ function gmedit_save(){
 	$gmedia = array();
 	$fail = '';
 	$success = '';
-	$backup = true;
 	$gmid = $gmCore->_post('id');
 	$image = $gmCore->_post('image');
 	$applyto = $gmCore->_post('applyto', 'web');
@@ -96,7 +95,6 @@ function gmedit_save(){
 				$fail = $fileinfo['basename']. " (wp_get_image_editor): ". $editor->get_error_message();
 				break;
 			}
-			$crop = 0;
 
 			// Web-image
 			if( 'web' == $applyto || 'original' == $applyto ) {
@@ -234,7 +232,6 @@ function gmedit_restore(){
 				$fail = $fileinfo['basename']. " (wp_get_image_editor): ". $editor->get_error_message();
 				break;
 			}
-			$crop = 0;
 
 			$thumbimg['resize'] = (($thumbimg['width'] < $size[0]) || ($thumbimg['height'] < $size[1]))? true : false;
 			if($thumbimg['resize']){
@@ -369,7 +366,7 @@ function gmedia_terms_modal(){
 						break;
 					}
 					$modules = array();
-					if($plugin_modules = glob(GMEDIA_ABSPATH . 'module/*', GLOB_ONLYDIR | GLOB_NOSORT)){
+					if(($plugin_modules = glob(GMEDIA_ABSPATH . 'module/*', GLOB_ONLYDIR | GLOB_NOSORT))){
 						foreach($plugin_modules as $path){
 							$mfold = basename($path);
 							$modules[$mfold] = array(
@@ -380,7 +377,7 @@ function gmedia_terms_modal(){
 							);
 						}
 					}
-					if($upload_modules = glob($gmCore->upload['path'].'/'.$gmGallery->options['folder']['module'].'/*', GLOB_ONLYDIR | GLOB_NOSORT)){
+					if(($upload_modules = glob($gmCore->upload['path'].'/'.$gmGallery->options['folder']['module'].'/*', GLOB_ONLYDIR | GLOB_NOSORT))){
 						foreach($upload_modules as $path){
 							$mfold = basename($path);
 							$modules[$mfold] = array(
@@ -571,7 +568,6 @@ function gmedia_terms_modal(){
 					break;
 				case 'delete_tags':
 					global $gmProcessor;
-					$modal_content = '';
 					if(!empty($gmProcessor->selected_items)){
 						$gm_terms = $gmDB->get_gmedia_terms($gmProcessor->selected_items, 'gmedia_tag');
 					}
@@ -617,7 +613,7 @@ function gmedia_tag_edit(){
 	$term['name'] = trim($gmCore->_post('tag_name', ''));
 	$term['term_id'] = intval($gmCore->_post('tag_id', 0));
 	if( $term['name'] && !$gmCore->is_digit($term['name']) ){
-		if ( $term_id = $gmDB->term_exists( $term['term_id'], $term['taxonomy'] ) ) {
+		if ( ($term_id = $gmDB->term_exists( $term['term_id'], $term['taxonomy'] )) ) {
 			$term_id = $gmDB->update_term( $term['term_id'], $term['taxonomy'], $term );
 			if ( is_wp_error( $term_id ) ) {
 				$out['error'] = $term_id->get_error_message();
@@ -648,7 +644,7 @@ function gmedia_module_install(){
 		die();
 	}
 
-	if($download = $gmCore->_post('download')){
+	if(($download = $gmCore->_post('download'))){
 		$module = $gmCore->_post('module');
 		$mzip = download_url( $download );
 		if(is_wp_error($mzip)){
@@ -874,7 +870,7 @@ function gmedia_relimage() {
 		$gmediaLib = $gmDB->get_gmedias( $arg );
 	}
 
-	if( $count = count( $gmediaLib ) ) {
+	if( ($count = count( $gmediaLib )) ) {
 		foreach ( $gmediaLib as $item ) {
 			$content .= "<li class='gmedia-image-li' id='gm-img-{$item->ID}'>\n";
 			$content .= "	<a target='_blank' class='gm-img' data-gmid='{$item->ID}' href='".$gmCore->gm_get_media_image($item)."'><img src='".$gmCore->gm_get_media_image( $item, 'thumb' )."' height='50' style='width:auto;' alt='' title='".esc_attr($item->title)."' /></a>\n";
@@ -910,7 +906,6 @@ add_action( 'wp_ajax_gmedia_ftp_browser', 'gmedia_ftp_browser' );
  * @return string folder content
  */
 function gmedia_ftp_browser() {
-	global $gmCore;
 	if ( !current_user_can('upload_files') )
 		die('No access');
 

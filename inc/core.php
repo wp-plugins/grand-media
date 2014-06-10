@@ -9,6 +9,9 @@ class GmediaCore {
 	var $upload;
 	var $gmedia_url;
 
+	/**
+	 *
+	 */
 	function __construct() {
 		$this->upload = $this->gm_upload_dir();
 		$this->gmedia_url = plugins_url(GMEDIA_FOLDER);
@@ -61,7 +64,6 @@ class GmediaCore {
 	 * @return string
 	 */
 	function tooltip($style, $params, $print = true) {
-		$tooltip = '';
 		$show_tip = 0; // TODO show tooltips checkbox in settings
 		if($show_tip){
 			$tooltip = " data-toggle='$style'";
@@ -80,6 +82,13 @@ class GmediaCore {
 		return false;
 	}
 
+	/**
+	 * @param array $add_args
+	 * @param array $remove_args
+	 * @param bool  $uri
+	 *
+	 * @return string
+	 */
 	function get_admin_url($add_args = array(), $remove_args = array(), $uri = false) {
 		if(true === $uri){
 			$uri = admin_url('admin.php');
@@ -93,6 +102,11 @@ class GmediaCore {
 		return $new_uri;
 	}
 
+	/**
+	 * @param $userAgent
+	 *
+	 * @return bool
+	 */
 	function is_crawler($userAgent) {
 		$crawlers = 'Google|msnbot|Rambler|Yahoo|AbachoBOT|accoona|FeedBurner|'.'AcioRobot|ASPSeek|CocoCrawler|Dumbot|FAST-WebCrawler|'.'GeonaBot|Gigabot|Lycos|MSRBOT|Scooter|AltaVista|IDBot|eStyle|Scrubby|yandex|facebook';
 		$isCrawler = (preg_match("/$crawlers/i", $userAgent) > 0);
@@ -100,6 +114,11 @@ class GmediaCore {
 		return $isCrawler;
 	}
 
+	/**
+	 * @param $userAgent
+	 *
+	 * @return bool
+	 */
 	function is_browser($userAgent) {
 		$browsers = 'opera|aol|msie|firefox|chrome|konqueror|safari|netscape|navigator|mosaic|lynx|amaya|omniweb|avant|camino|flock|seamonkey|mozilla|gecko';
 		$isBrowser = (preg_match("/$browsers/i", $userAgent) > 0);
@@ -130,8 +149,8 @@ class GmediaCore {
 			$slash = '/blogs.dir/'.get_current_blog_id().'/';
 		}
 
-		$dir = WP_CONTENT_DIR.$slash.GMEDIA_FOLDER;
-		$url = WP_CONTENT_URL.$slash.GMEDIA_FOLDER;
+		$dir = WP_CONTENT_DIR.$slash.GMEDIA_UPLOAD_FOLDER;
+		$url = WP_CONTENT_URL.$slash.GMEDIA_UPLOAD_FOLDER;
 
 		$uploads = apply_filters('gm_upload_dir', array('path' => $dir, 'url' => $url, 'error' => false));
 
@@ -148,6 +167,11 @@ class GmediaCore {
 		return $uploads;
 	}
 
+	/**
+	 * @param $path
+	 *
+	 * @return bool|null
+	 */
 	function delete_folder($path) {
 		$path = rtrim($path, '/');
 		if(is_file($path)){
@@ -262,8 +286,7 @@ class GmediaCore {
 	 * @return array
 	 */
 	function fileinfo($file, $exists = 0) {
-		/** @var $wpdb wpdb */
-		global $wpdb, $gmGallery;
+		global $gmGallery;
 
 		$file = basename($file);
 		$file_lower = strtolower($file);
@@ -310,7 +333,7 @@ class GmediaCore {
 	function file_chmod($new_file) {
 		$stat = stat(dirname($new_file));
 		$perms = $stat['mode'] & 0000666;
-		@ chmod($new_file, $perms);
+		@chmod($new_file, $perms);
 	}
 
 	/**
@@ -376,11 +399,18 @@ class GmediaCore {
 		}
 	}
 
-	// Check if user can select a author
+	/**
+	 * Check if user can select a author
+	 *
+	 * @param      $user_id
+	 * @param bool $exclude_zeros
+	 *
+	 * @return array
+	 */
 	function get_editable_user_ids($user_id, $exclude_zeros = true) {
 		global $wpdb;
 
-		$user = new WP_User($user_id);
+		new WP_User($user_id);
 
 		$query = "SELECT user_id FROM {$wpdb->usermeta} WHERE meta_key = '{$wpdb->prefix}user_level'";
 		if($exclude_zeros){
@@ -390,7 +420,13 @@ class GmediaCore {
 		return $wpdb->get_col($query);
 	}
 
-	// Extremely simple function to get human filesize
+	/**
+	 * Extremely simple function to get human filesize
+	 * @param     $file
+	 * @param int $decimals
+	 *
+	 * @return string
+	 */
 	function filesize($file, $decimals = 2) {
 		$bytes = filesize($file);
 		$sz = array('b', 'Kb', 'Mb', 'Gb', 'Tb', 'Pb');
@@ -420,6 +456,11 @@ class GmediaCore {
 		return $diff;
 	}
 
+	/**
+	 * @param $photo
+	 *
+	 * @return array|bool
+	 */
 	function process_gmedit_image($photo) {
 		$type = null;
 		if (preg_match('/^data:image\/(jpg|jpeg|png|gif)/i', $photo, $matches)) {
@@ -442,6 +483,9 @@ class GmediaCore {
 		);
 	}
 
+	/**
+	 * @return bool
+	 */
 	function is_bot() {
 		$spiders = array(
 			"abot", "dbot", "ebot", "hbot", "kbot", "lbot", "mbot", "nbot", "obot", "pbot", "rbot", "sbot", "tbot", "vbot", "ybot", "zbot", "bot.", "bot/", "_bot", ".bot", "/bot", "-bot", ":bot", "(bot", "crawl", "slurp", "spider", "seek",
@@ -481,6 +525,146 @@ class GmediaCore {
 			}
 		}
 		return false;
+	}
+
+
+	/**
+	 * Parse ID3v2, ID3v1, and getID3 comments to extract usable data
+	 *
+	 * @since 3.6.0
+	 *
+	 * @param array $metadata An existing array with data
+	 * @param array $data Data supplied by ID3 tags
+	 */
+	function wp_add_id3_tag_data( &$metadata, $data ) {
+		foreach ( array( 'id3v2', 'id3v1' ) as $version ) {
+			if ( ! empty( $data[$version]['comments'] ) ) {
+				foreach ( $data[$version]['comments'] as $key => $list ) {
+					if ( ! empty( $list ) ) {
+						$metadata[$key] = reset( $list );
+						// fix bug in byte stream analysis
+						if ( 'terms_of_use' === $key && 0 === strpos( $metadata[$key], 'yright notice.' ) )
+							$metadata[$key] = 'Cop' . $metadata[$key];
+					}
+				}
+				break;
+			}
+		}
+
+		if ( ! empty( $data['id3v2']['APIC'] ) ) {
+			$image = reset( $data['id3v2']['APIC']);
+			if ( ! empty( $image['data'] ) ) {
+				$metadata['image'] = array(
+					'data' => $image['data'],
+					'mime' => $image['image_mime'],
+					'width' => $image['image_width'],
+					'height' => $image['image_height']
+				);
+			}
+		} elseif ( ! empty( $data['comments']['picture'] ) ) {
+			$image = reset( $data['comments']['picture'] );
+			if ( ! empty( $image['data'] ) ) {
+				$metadata['image'] = array(
+					'data' => $image['data'],
+					'mime' => $image['image_mime']
+				);
+			}
+		}
+	}
+
+	/**
+	 * Retrieve metadata from a video file's ID3 tags
+	 *
+	 * @since 3.6.0
+	 *
+	 * @param string $file Path to file.
+	 * @return array|boolean Returns array of metadata, if found.
+	 */
+	function wp_read_video_metadata( $file ) {
+		if ( ! file_exists( $file ) )
+			return false;
+
+		$metadata = array();
+
+		if ( ! class_exists( 'getID3' ) )
+			require( ABSPATH . WPINC . '/ID3/getid3.php' );
+		$id3 = new getID3();
+		$data = $id3->analyze( $file );
+
+		if ( isset( $data['video']['lossless'] ) )
+			$metadata['lossless'] = $data['video']['lossless'];
+		if ( ! empty( $data['video']['bitrate'] ) )
+			$metadata['bitrate'] = (int) $data['video']['bitrate'];
+		if ( ! empty( $data['video']['bitrate_mode'] ) )
+			$metadata['bitrate_mode'] = $data['video']['bitrate_mode'];
+		if ( ! empty( $data['filesize'] ) )
+			$metadata['filesize'] = (int) $data['filesize'];
+		if ( ! empty( $data['mime_type'] ) )
+			$metadata['mime_type'] = $data['mime_type'];
+		if ( ! empty( $data['playtime_seconds'] ) )
+			$metadata['length'] = (int) ceil( $data['playtime_seconds'] );
+		if ( ! empty( $data['playtime_string'] ) )
+			$metadata['length_formatted'] = $data['playtime_string'];
+		if ( ! empty( $data['video']['resolution_x'] ) )
+			$metadata['width'] = (int) $data['video']['resolution_x'];
+		if ( ! empty( $data['video']['resolution_y'] ) )
+			$metadata['height'] = (int) $data['video']['resolution_y'];
+		if ( ! empty( $data['fileformat'] ) )
+			$metadata['fileformat'] = $data['fileformat'];
+		if ( ! empty( $data['video']['dataformat'] ) )
+			$metadata['dataformat'] = $data['video']['dataformat'];
+		if ( ! empty( $data['video']['encoder'] ) )
+			$metadata['encoder'] = $data['video']['encoder'];
+		if ( ! empty( $data['video']['codec'] ) )
+			$metadata['codec'] = $data['video']['codec'];
+
+		if ( ! empty( $data['audio'] ) ) {
+			unset( $data['audio']['streams'] );
+			$metadata['audio'] = $data['audio'];
+		}
+
+		$this->wp_add_id3_tag_data( $metadata, $data );
+
+		return $metadata;
+	}
+
+	/**
+	 * Retrieve metadata from a audio file's ID3 tags
+	 *
+	 * @since 3.6.0
+	 *
+	 * @param string $file Path to file.
+	 * @return array|boolean Returns array of metadata, if found.
+	 */
+	function wp_read_audio_metadata( $file ) {
+		if ( ! file_exists( $file ) )
+			return false;
+		$metadata = array();
+
+		if ( ! class_exists( 'getID3' ) )
+			require( ABSPATH . WPINC . '/ID3/getid3.php' );
+		$id3 = new getID3();
+		$data = $id3->analyze( $file );
+
+		if ( ! empty( $data['audio'] ) ) {
+			unset( $data['audio']['streams'] );
+			$metadata = $data['audio'];
+		}
+
+		if ( ! empty( $data['fileformat'] ) )
+			$metadata['fileformat'] = $data['fileformat'];
+		if ( ! empty( $data['filesize'] ) )
+			$metadata['filesize'] = (int) $data['filesize'];
+		if ( ! empty( $data['mime_type'] ) )
+			$metadata['mime_type'] = $data['mime_type'];
+		if ( ! empty( $data['playtime_seconds'] ) )
+			$metadata['length'] = (int) ceil( $data['playtime_seconds'] );
+		if ( ! empty( $data['playtime_string'] ) )
+			$metadata['length_formatted'] = $data['playtime_string'];
+
+		$this->wp_add_id3_tag_data( $metadata, $data );
+
+		return $metadata;
 	}
 
 }

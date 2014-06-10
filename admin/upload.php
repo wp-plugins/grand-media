@@ -10,8 +10,7 @@
 ini_set('display_errors', 0);
 ini_set('error_reporting', 0);
 
-preg_match('|^(.*?/)(grand-media)/|i', str_replace('\\', '/', __FILE__), $_m);
-require_once($_m[1] . 'grand-media/config.php');
+require_once(dirname(dirname(__FILE__)) . '/config.php');
 
 /** WordPress Image Administration API */
 require_once(ABSPATH . 'wp-admin/includes/image.php');
@@ -116,7 +115,7 @@ function gmedia_upload_handler($file_tmp, $fileinfo, $content_type){
 		$in = fopen($file_tmp, "rb");
 
 		if($in){
-			while($buff = fread($in, 4096)){
+			while(($buff = fread($in, 4096))){
 				fwrite($out, $buff);
 			}
 		} else{
@@ -185,8 +184,6 @@ function gmedia_upload_handler($file_tmp, $fileinfo, $content_type){
 							$return = json_encode(array("error" => array("code" => $editor->get_error_code(), "message" => $editor->get_error_message()), "id" => $fileinfo['basename'], "tip" => 'wp_get_image_editor'));
 							die($return);
 						}
-
-						$crop = 0;
 
 						if($webimg['resize']){
 							$editor->set_quality($webimg['quality']);

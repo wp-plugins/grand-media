@@ -2,6 +2,9 @@
 	die('You are not allowed to call this page directly.');
 }
 
+/**
+ * Class GmediaProcessor
+ */
 class GmediaProcessor{
 
 	var $mode;
@@ -11,7 +14,9 @@ class GmediaProcessor{
 	var $term_id;
 	var $selected_items = array();
 
-	// initiate the manage page
+	/**
+	 * initiate the manage page
+	 */
 	function __construct(){
 		global $pagenow, $gmCore;
 		// GET variables
@@ -22,7 +27,7 @@ class GmediaProcessor{
 			add_filter('wp_redirect', array(&$this, 'redirect'), 10, 2);
 		}
 
-		add_action('set_current_user', array(&$this, 'selected_items'));
+		add_action('init', array(&$this, 'selected_items'), 8);
 		add_action('init', array(&$this, 'processor'));
 
 	}
@@ -58,6 +63,9 @@ class GmediaProcessor{
 		}
 	}
 
+	/**
+	 * @return array|mixed
+	 */
 	function user_options(){
 		global $user_ID, $gmGallery;
 
@@ -78,7 +86,6 @@ class GmediaProcessor{
 		//if ( ! current_user_can( 'edit_posts' ) )
 		//	die( '-1' );
 
-		$gmOptions = get_option('gmediaOptions');
 		switch($this->page){
 			case 'GrandMedia':
 				if(isset($_POST['quick_gallery'])){
@@ -98,7 +105,7 @@ class GmediaProcessor{
 							break;
 						}
 						$taxonomy = 'gmedia_gallery';
-						if($term_id = $gmDB->term_exists($gallery['name'], $taxonomy)){
+						if(($term_id = $gmDB->term_exists($gallery['name'], $taxonomy))){
 							$this->error[] = __('A term with the name provided already exists', 'gmLang');
 							break;
 						}
@@ -122,19 +129,19 @@ class GmediaProcessor{
 				}
 
 				if(isset($_POST['filter_categories'])){
-					if($term = $gmCore->_post('cat')){
+					if(($term = $gmCore->_post('cat'))){
 						$location = add_query_arg(array('page' => $this->page, 'mode' => $this->mode, 'category__in' => implode(',', $term)), admin_url('admin.php'));
 						wp_redirect($location);
 					}
 				}
 				if(isset($_POST['filter_albums'])){
-					if($term = $gmCore->_post('alb')){
+					if(($term = $gmCore->_post('alb'))){
 						$location = add_query_arg(array('page' => $this->page, 'mode' => $this->mode, 'album__in' => implode(',', $term)), admin_url('admin.php'));
 						wp_redirect($location);
 					}
 				}
 				if(isset($_POST['filter_tags'])){
-					if($term = $gmCore->_post('tag_ids')){
+					if(($term = $gmCore->_post('tag_ids'))){
 						$location = add_query_arg(array('page' => $this->page, 'mode' => $this->mode, 'tag__in' => $term), admin_url('admin.php'));
 						wp_redirect($location);
 					}
@@ -198,7 +205,7 @@ class GmediaProcessor{
 
 					}
 					if(isset($_POST['add_tags'])){
-						if($term = $gmCore->_post('tag_names')){
+						if(($term = $gmCore->_post('tag_names'))){
 							$term = explode(',', $term);
 							$count = count($this->selected_items);
 							foreach($this->selected_items as $item){
@@ -214,7 +221,7 @@ class GmediaProcessor{
 						}
 					}
 					if(isset($_POST['delete_tags'])){
-						if($term = $gmCore->_post('tag_id')){
+						if(($term = $gmCore->_post('tag_id'))){
 							$term = array_map('intval', $term);
 							$count = count($this->selected_items);
 							foreach($this->selected_items as $item){
@@ -297,7 +304,7 @@ class GmediaProcessor{
 							$this->error[] = __('A term with the id provided do not exists', 'gmLang');
 							$edit_term = false;
 						}
-						if($term_id = $gmDB->term_exists($term['name'], $taxonomy)){
+						if(($term_id = $gmDB->term_exists($term['name'], $taxonomy))){
 							if($term_id != $edit_term){
 								$this->error[] = __('A term with the name provided already exists', 'gmLang');
 								break;
@@ -378,7 +385,7 @@ class GmediaProcessor{
 							$this->error[] = __('A term with the id provided do not exists', 'gmLang');
 							$edit_gallery = false;
 						}
-						if($term_id = $gmDB->term_exists($gallery['name'], $taxonomy)){
+						if(($term_id = $gmDB->term_exists($gallery['name'], $taxonomy))){
 							if($term_id != $edit_gallery){
 								$this->error[] = __('A term with the name provided already exists', 'gmLang');
 								break;
@@ -604,6 +611,12 @@ class GmediaProcessor{
 		}
 	}
 
+	/**
+	 * @param string $type
+	 * @param string $content
+	 *
+	 * @return string
+	 */
 	function alert($type = 'info', $content = ''){
 		if(empty($content)){
 			return '';
@@ -615,7 +628,13 @@ class GmediaProcessor{
 		return $alert;
 	}
 
-	// redirect to original referer after update
+	/**
+	 * redirect to original referer after update
+	 * @param $location
+	 * @param $status
+	 *
+	 * @return mixed
+	 */
 	function redirect($location, $status){
 		global $pagenow;
 		if('media.php' === $pagenow && isset($_POST['_wp_original_http_referer'])){

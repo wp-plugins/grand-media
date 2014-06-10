@@ -1,5 +1,8 @@
 <?php if ( ! defined( 'GMEDIA_VERSION' ) ) exit( 'No direct script access allowed' );
 
+/**
+ * @param $options_tree
+ */
 function gmedia_gallery_options_nav($options_tree){
 	$i = 0;
 	foreach($options_tree as $section){
@@ -8,6 +11,11 @@ function gmedia_gallery_options_nav($options_tree){
 	}
 }
 
+/**
+ * @param       $options_tree
+ * @param       $default
+ * @param array $value
+ */
 function gmedia_gallery_options_fieldset($options_tree, $default, $value = array()){
 	$i = 0;
 	foreach($options_tree as $section){
@@ -29,6 +37,12 @@ function gmedia_gallery_options_fieldset($options_tree, $default, $value = array
 	}
 }
 
+/**
+ * @param $name
+ * @param $field
+ * @param $def
+ * @param $val
+ */
 function gmedia_gallery_options_formgroup($name, $field, $def, $val){
 	if(false === $val){
 		//$val = $def;
@@ -78,6 +92,11 @@ function gmedia_gallery_options_formgroup($name, $field, $def, $val){
  */
 if ( ! function_exists( 'gm_recognized_font_styles' ) ) {
 
+	/**
+	 * @param string $field_id
+	 *
+	 * @return mixed|void
+	 */
 	function gm_recognized_font_styles( $field_id = '' ) {
 
 		return apply_filters( 'gm_recognized_font_styles', array(
@@ -101,6 +120,11 @@ if ( ! function_exists( 'gm_recognized_font_styles' ) ) {
  */
 if ( ! function_exists( 'gm_recognized_font_weights' ) ) {
 
+	/**
+	 * @param string $field_id
+	 *
+	 * @return mixed|void
+	 */
 	function gm_recognized_font_weights( $field_id = '' ) {
 
 		return apply_filters( 'gm_recognized_font_weights', array(
@@ -134,6 +158,11 @@ if ( ! function_exists( 'gm_recognized_font_weights' ) ) {
  */
 if ( ! function_exists( 'gm_recognized_font_variants' ) ) {
 
+	/**
+	 * @param string $field_id
+	 *
+	 * @return mixed|void
+	 */
 	function gm_recognized_font_variants( $field_id = '' ) {
 
 		return apply_filters( 'gm_recognized_font_variants', array(
@@ -158,6 +187,11 @@ if ( ! function_exists( 'gm_recognized_font_variants' ) ) {
  */
 if ( ! function_exists( 'gm_recognized_font_families' ) ) {
 
+	/**
+	 * @param string $field_id
+	 *
+	 * @return mixed|void
+	 */
 	function gm_recognized_font_families( $field_id = '' ) {
 
 		return apply_filters( 'gm_recognized_font_families', array(

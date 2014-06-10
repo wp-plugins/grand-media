@@ -11,8 +11,7 @@ for ($i = 0; $i < ob_get_level(); $i++) { ob_end_flush(); }
 ob_implicit_flush(1);
 */
 
-preg_match('|^(.*?/)(grand-media)/|i', str_replace('\\', '/', __FILE__), $_m);
-require_once($_m[1] . 'grand-media/config.php');
+require_once(dirname(dirname(__FILE__)) . '/config.php');
 
 /** WordPress Image Administration API */
 require_once(ABSPATH . 'wp-admin/includes/image.php');
@@ -37,6 +36,12 @@ global $gmCore, $gmGallery;
 $import = $gmCore->_post('import');
 $terms = $gmCore->_post('terms');
 
+/**
+ * @param     $files
+ * @param     $terms
+ * @param     $move
+ * @param int $exists
+ */
 function gmedia_import_files($files, $terms, $move, $exists = 0){
 	global $gmCore, $gmGallery;
 
@@ -143,8 +148,6 @@ function gmedia_import_files($files, $terms, $move, $exists = 0){
 						continue;
 					}
 
-					$crop = 0;
-
 					if($webimg['resize']){
 						$editor->set_quality($webimg['quality']);
 
@@ -231,7 +234,7 @@ function gmedia_import_files($files, $terms, $move, $exists = 0){
 
 	}
 
-	echo '<p><b>'.__('Category').':</b> '. esc_html($gmGallery->options['taxonomies']['gmedia_category'][$terms['gmedia_category']]) . PHP_EOL;
+	echo '<p><b>'.__('Category').':</b> '. (!empty($terms['gmedia_category'])? esc_html($gmGallery->options['taxonomies']['gmedia_category'][$terms['gmedia_category']]) : '-') . PHP_EOL;
 	echo '<br /><b>'.__('Album').':</b> '. esc_html($terms['gmedia_album']) . PHP_EOL;
 	echo '<br /><b>'.__('Tags').':</b> '. esc_html(str_replace(',', ', ', $terms['gmedia_tag'])) .'</p>' . PHP_EOL;
 
@@ -267,7 +270,7 @@ if('import-folder' == $import){
 			$fullpath = ABSPATH.trailingslashit ( $path );
 			$files = glob($fullpath.'?*.?*', GLOB_NOSORT);
 			if(!empty($files)) {
-				if(('grand-media' == basename(dirname(dirname($path)))) || ('grand-media' == basename(dirname($path)))){
+				if((GMEDIA_UPLOAD_FOLDER == basename(dirname(dirname($path)))) || (GMEDIA_UPLOAD_FOLDER == basename(dirname($path)))){
 					global $wpdb;
 					$gmedias = $wpdb->get_col("SELECT gmuid FROM {$wpdb->prefix}gmedia");
 					foreach($files as $i => $filepath){
@@ -378,7 +381,7 @@ if('import-folder' == $import){
 				'description' => $item->post_content
 			);
 		}
-		echo '<pre>' . print_r($wp_media, true) . '</pre>';
+		//echo '<pre>' . print_r($wp_media, true) . '</pre>';
 		gmedia_import_files($wp_media, $terms, false);
 
 	} else {
@@ -389,4 +392,4 @@ if('import-folder' == $import){
 </body>
 </html>
 <?php
-ob_end_flush();
+wp_ob_end_flush_all();

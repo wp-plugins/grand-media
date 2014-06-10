@@ -178,11 +178,11 @@ window.onload = function() {
 			if(!empty($old_meta)){
 				$old_meta = array_map( 'reset', $old_meta );
 				$old_meta = array_map( 'maybe_unserialize', $old_meta );
-				$old_meta_keys = array_keys($old_meta);
 				if(!isset($old_meta['gMediaQuery'])){
 					continue;
 				}
 				/*
+				$old_meta_keys = array_keys($old_meta);
 				foreach($old_meta_keys as $key){
 					$wpdb->delete($wpdb->prefix.'gmedia_term_meta', array('gmedia_term_id' => $gallery->term_id, 'meta_key' => $key));
 					//$gmDB->delete_metadata('gmedia_term', $gallery->term_id, $key);
@@ -225,6 +225,9 @@ window.onload = function() {
 
 }
 
+/**
+ * @param $files
+ */
 function gmedia_images_update($files){
 	global $wpdb, $gmCore, $gmGallery;
 
@@ -313,8 +316,6 @@ function gmedia_images_update($files){
 						continue;
 					}
 
-					$crop = 0;
-
 					if($webimg['resize']){
 						$editor->set_quality($webimg['quality']);
 
@@ -375,24 +376,25 @@ function gmedia_images_update($files){
 function gmedia_quite_update(){
 	global $gmCore;
 	$current_version = get_option( 'gmediaVersion', null );
-	$current_db_version = get_option( 'gmediaDbVersion', null );
+	//$current_db_version = get_option( 'gmediaDbVersion', null );
 	if((null !== $current_version)) {
 		$options = get_option('gmediaOptions');
 		if(version_compare( $current_version, '0.9.23', '<' )){
 			require_once(dirname(__FILE__). '/setup.php');
 			$default_options = gmedia_default_options();
-			if(isset($options['product_name'])){
-				$default_options['license_name'] = $options['product_name'];
-				$default_options['license_key'] = $options['gmedia_key'];
-				$default_options['license_key2'] = $options['gmedia_key2'];
-			} elseif(isset($options['license_name'])){
+			if(isset($options['license_name'])){
 				$default_options['license_name'] = $options['license_name'];
 				$default_options['license_key'] = $options['license_key'];
 				$default_options['license_key2'] = $options['license_key2'];
+			} elseif(isset($options['product_name'])){
+				$default_options['license_name'] = $options['product_name'];
+				$default_options['license_key'] = $options['gmedia_key'];
+				$default_options['license_key2'] = $options['gmedia_key2'];
 			}
 			update_option('gmediaOptions', $default_options);
 		}
 		$gmCore->delete_folder($gmCore->upload['path'].'/module/phantom');
+		$gmCore->delete_folder($gmCore->upload['path'].'/module/jq-mplayer');
 	}
 }
 

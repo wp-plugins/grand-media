@@ -14,6 +14,7 @@ function gmedia_default_options(){
 
 	$gm['uninstall_dropfiles'] = '1';
 	$gm['shortcode_raw'] = '0';
+	$gm['endpoint'] = 'gmedia';
 
 	$gm['folder']['image'] = 'image';
 	$gm['folder']['image_thumb'] = 'image/thumb';

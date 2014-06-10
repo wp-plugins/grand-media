@@ -1,8 +1,8 @@
 /*
- * Title                   : Music Player Module for Gmedia Gallery plugin
- * Version                 : 1.7
- * Copyright               : 2013 CodEasily.com
- * Website                 : http://www.codeasily.com
+ * Title      : Music Player Module for Gmedia Gallery plugin
+ * Version    : 1.9
+ * Copyright  : 2013 CodEasily.com
+ * Website    : http://www.codeasily.com
  */
 (function($) {
 	$.fn.gmMusicPlayer = function(playlist, userOptions) {
@@ -297,6 +297,10 @@
 			function setLink($track, index) {
 				if (myPlaylist[index].button != '') {
 					$track.find(cssSelector.button).removeClass(attr(cssSelector.buttonNotActive)).attr('href', myPlaylist[index].button).html(options.buttonText);
+					var ext = myPlaylist[index].button.slice(-4);
+					if(('.mp3' == ext) || ('.ogg' == ext) ){
+						$track.find(cssSelector.button).attr('download', '');
+					}
 				}
 			}
 

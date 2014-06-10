@@ -69,7 +69,7 @@ function gmSettings() {
 
 						<?php
 						if($gmCore->_get('showdb')){
-							global $wpdb, $gmDB;
+							global $wpdb;
 							$gmedia = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}gmedia");
 							$terms = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}gmedia_term");
 							$relation = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}gmedia_term_relationships");

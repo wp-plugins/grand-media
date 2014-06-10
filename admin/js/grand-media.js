@@ -12,11 +12,11 @@ jQuery(function($){
 				qty_v = gm_cb.length,
 				sel_v = gm_cb.filter(':checked').length,
 				c = $('#cb_global');
-			if(sel_v != qty_v && sel_v != 0){
+			if((sel_v != qty_v) && (0 !== sel_v)){
 				c.css('opacity', '0.5').prop('checked', true);
-			} else if(sel_v == qty_v && qty_v != 0){
+			} else if((sel_v == qty_v) && (0 !== qty_v)){
 				c.css('opacity', '1').prop('checked', true);
-			} else if(sel_v == 0){
+			} else if(0 === sel_v){
 				c.css('opacity', '1').prop('checked', false);
 			}
 
@@ -78,7 +78,7 @@ jQuery(function($){
 				}).length){
 					GmediaSelect.chk_none(type, obj);
 				} else{
-					GmediaSelect.chk_all(type, obj)
+					GmediaSelect.chk_all(type, obj);
 				}
 			} else{
 				$('.'+obj+' input').each(function(){

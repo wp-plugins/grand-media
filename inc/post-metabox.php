@@ -18,6 +18,9 @@ function gmedia_add_meta_box( $page, $context ) {
 }
 add_action( 'do_meta_boxes', 'gmedia_add_meta_box', 20, 2 );
 
+/**
+ * @param $hook
+ */
 function gmedia_meta_box_load_scripts( $hook ) {
 	if ( ( in_array( $hook, array( 'post.php', 'edit.php' ) ) && isset( $_GET['post'] ) && isset( $_GET['action'] ) && $_GET['action'] == 'edit' ) || $hook == 'post-new.php' ) {
 		wp_enqueue_style( 'wp-jquery-ui-dialog' );
@@ -27,6 +30,11 @@ function gmedia_meta_box_load_scripts( $hook ) {
 }
 add_action( 'admin_enqueue_scripts', 'gmedia_meta_box_load_scripts', 20 );
 
+/**
+ * @param $context
+ *
+ * @return string
+ */
 function gmedia_media_buttons_context($context){
 	$button = '<a href="#" class="gmedia_button button hidden" onclick="gm_media_button(this); return false;"><span class="wp-media-buttons-icon"></span> '.__('Gmedia', 'gmLang').'</a>';
 	return $context.$button;

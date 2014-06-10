@@ -14,7 +14,7 @@ function gmediaModules(){
 	$url = add_query_arg(array('page' => $gmProcessor->page), admin_url('admin.php'));
 
 	$modules = array();
-	if($plugin_modules = glob(GMEDIA_ABSPATH . 'module/*', GLOB_ONLYDIR | GLOB_NOSORT)){
+	if(($plugin_modules = glob(GMEDIA_ABSPATH . 'module/*', GLOB_ONLYDIR | GLOB_NOSORT))){
 		foreach($plugin_modules as $path){
 			$mfold = basename($path);
 			$modules[$mfold] = array(
@@ -25,7 +25,7 @@ function gmediaModules(){
 			);
 		}
 	}
-	if($upload_modules = glob($gmCore->upload['path'].'/'.$gmGallery->options['folder']['module'].'/*', GLOB_ONLYDIR | GLOB_NOSORT)){
+	if(($upload_modules = glob($gmCore->upload['path'].'/'.$gmGallery->options['folder']['module'].'/*', GLOB_ONLYDIR | GLOB_NOSORT))){
 		foreach($upload_modules as $path){
 			$mfold = basename($path);
 			$modules[$mfold] = array(
@@ -135,7 +135,7 @@ function gmediaModules(){
 		<div class="panel-body">
 			<?php
 			$xml_dirpath = dirname($gmGallery->options['modules_xml']);
-			foreach($xml_modules as $name => $m){
+			foreach($xml_modules as $m){
 				if(empty($m)){
 					continue;
 				}

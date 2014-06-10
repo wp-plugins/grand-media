@@ -163,6 +163,11 @@ class GmediaDB {
 		return $this->query;
 	}
 
+	/**
+	 * @param $arg
+	 *
+	 * @return mixed
+	 */
 	function count_wp_media($arg) {
 		global $user_ID;
 		/** @var $wpdb wpdb */
@@ -232,6 +237,9 @@ class GmediaDB {
 		return $count[0];
 	}
 
+	/**
+	 * @return mixed
+	 */
 	function count_gmedia() {
 		/** @var $wpdb wpdb */
 		global $wpdb;
@@ -275,7 +283,7 @@ class GmediaDB {
 			$next = $this->openPage + 1;
 		$prev   = $this->openPage - 1;
 		$last   = $this->pages;
-		$total  = $this->totalResult;
+		//$total  = $this->totalResult;
 		$result = '<div class="btn-toolbar pull-right gmedia-pager">';
 		$result .= '<div class="btn-group btn-group-sm">';
 
@@ -436,7 +444,7 @@ class GmediaDB {
 	 */
 	function delete_gmedia( $gmedia_id ) {
 		/** @var $wpdb wpdb */
-		global $wpdb, $gmGallery, $gmCore, $gmDB;
+		global $wpdb, $gmGallery, $gmCore;
 
 		if ( ! $gmedia = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}gmedia WHERE ID = %d", $gmedia_id ) ) )
 			return $gmedia;
@@ -471,7 +479,7 @@ class GmediaDB {
 		if ( ! empty( $files ) ) {
 			foreach ( $files as $cachefile ) {
 				$cachefile = apply_filters( 'gm_delete_file', $cachefile );
-				@ unlink( $cachefile );
+				@unlink( $cachefile );
 			}
 		}
 
@@ -556,7 +564,7 @@ class GmediaDB {
 	 * @return mixed Metadata for media.
 	 */
 	function generate_gmedia_metadata( $media_id, $fileinfo ) {
-		global $gmGallery, $gmCore;
+		global $gmCore;
 		$media = $this->get_gmedia( $media_id );
 
 		$metadata = array();
@@ -575,10 +583,10 @@ class GmediaDB {
 			if ( $image_meta )
 				$metadata['image_meta'] = $image_meta;
 
-		} elseif ( preg_match( '#^video/#', $media->mime_type ) && function_exists('wp_read_video_metadata') ) {
-			$metadata = wp_read_video_metadata( $fileinfo['filepath'] );
-		} elseif ( preg_match( '#^audio/#', $media->mime_type ) && function_exists('wp_read_audio_metadata') ) {
-			$metadata = wp_read_audio_metadata( $fileinfo['filepath'] );
+		} elseif ( preg_match( '#^video/#', $media->mime_type ) ) {
+			$metadata = $gmCore->wp_read_video_metadata( $fileinfo['filepath'] );
+		} elseif ( preg_match( '#^audio/#', $media->mime_type ) ) {
+			$metadata = $gmCore->wp_read_audio_metadata( $fileinfo['filepath'] );
 		}
 
 		return apply_filters( 'generate_gmedia_metadata', $metadata, $media_id );
@@ -630,7 +638,6 @@ class GmediaDB {
 		elseif ( is_object( $media ) ) {
 			$_media = $media;
 			wp_cache_add( $media->ID, $_media, 'gmedias' );
-			$media_id = $media->ID;
 		}
 		else {
 			$media_id = (int) $media;
@@ -734,7 +741,7 @@ class GmediaDB {
 	 */
 	function get_gmedias() {
 		/** @var $wpdb wpdb */
-		global $wpdb, $user_ID, $_wp_using_ext_object_cache;
+		global $wpdb, $_wp_using_ext_object_cache;
 
 		// First let's clear some variables
 		$whichmimetype = '';
@@ -1280,7 +1287,7 @@ class GmediaDB {
 			else {
 				$relation = 'AND';
 			}
-			foreach ( $meta_query as $key => $query ) {
+			foreach ( $meta_query as $query ) {
 				if ( ! is_array( $query ) )
 					continue;
 				$meta_query[] = $query;
@@ -1397,7 +1404,7 @@ class GmediaDB {
 			}
 			$author_array  = preg_split( '/[,\s]+/', $q['author'] );
 			$_author_array = array();
-			foreach ( $author_array as $key => $_author ) {
+			foreach ( $author_array as $_author ) {
 				$_author_array[] = "{$wpdb->prefix}gmedia.author " . $eq . ' ' . absint( $_author );
 			}
 			$whichauthor .= ' AND (' . implode( " $andor ", $_author_array ) . ')';
@@ -1442,7 +1449,7 @@ class GmediaDB {
 			$q['orderby'] = addslashes_gpc( $q['orderby'] );
 
 			$orderby_array = array();
-			foreach ( explode( ' ', $q['orderby'] ) as $i => $orderby ) {
+			foreach ( explode( ' ', $q['orderby'] ) as $orderby ) {
 				// Only allow certain values for safety
 				if ( ! in_array( $orderby, $allowed_keys ) )
 					continue;
@@ -1490,7 +1497,6 @@ class GmediaDB {
 				$page = 1;
 
 			if ( empty( $q['offset'] ) ) {
-				$pgstrt = '';
 				$pgstrt = ( $page - 1 ) * $q['per_page'] . ', ';
 				$limits = 'LIMIT ' . $pgstrt . $q['per_page'];
 			}
@@ -2109,12 +2115,9 @@ class GmediaDB {
 	 */
 	function get_terms( $taxonomies, $args = array() ) {
 		/** @var $wpdb wpdb */
-		global $wpdb, $gmDB;
-		$empty_array = array();
+		global $wpdb;
 
-		$single_taxonomy = false;
 		if ( ! is_array( $taxonomies ) ) {
-			$single_taxonomy = true;
 			$taxonomies      = array( $taxonomies );
 		}
 
@@ -2350,31 +2353,31 @@ class GmediaDB {
 		reset( $terms );
 		$_terms = array();
 		if ( 'id=>global' == $fields ) {
-			while ( $term = array_shift( $terms ) ) {
+			while ( ($term = array_shift( $terms )) ) {
 				$_terms[$term->term_id] = $term->global;
 			}
 			$terms = $_terms;
 		}
 		elseif ( 'ids' == $fields ) {
-			while ( $term = array_shift( $terms ) ) {
+			while ( ($term = array_shift( $terms )) ) {
 				$_terms[] = $term->term_id;
 			}
 			$terms = $_terms;
 		}
 		elseif ( 'names' == $fields ) {
-			while ( $term = array_shift( $terms ) ) {
+			while ( ($term = array_shift( $terms )) ) {
 				$_terms[] = $term->name;
 			}
 			$terms = $_terms;
 		}
 		elseif ( 'id=>names' == $fields ) {
-			while ( $term = array_shift( $terms ) ) {
+			while ( ($term = array_shift( $terms )) ) {
 				$_terms[$term->term_id] = $term->name;
 			}
 			$terms = $_terms;
 		}
 		elseif ( 'names_count' == $fields ) {
-			while ( $term = array_shift( $terms ) ) {
+			while ( ($term = array_shift( $terms )) ) {
 				$_terms[$term->term_id] = array('name'=>$term->name, 'count'=>$term->count, 'term_id'=>$term->term_id);
 			}
 			$terms = $_terms;
@@ -2459,7 +2462,7 @@ class GmediaDB {
 		$name        = stripslashes( $name );
 		$description = stripslashes( $description );
 
-		if ( $term_id = $this->term_exists( $name, $taxonomy, $global ) ) {
+		if ( ($term_id = $this->term_exists( $name, $taxonomy, $global )) ) {
 			// Same name, same global.
 			return new WP_Error( 'gm_term_exists', __( 'A term with the name provided already exists.' ), $term_id );
 		}
@@ -2768,8 +2771,6 @@ class GmediaDB {
 	 * @return array|bool False on failure. Array of term objects on success.
 	 */
 	function get_the_gmedia_terms( $id = 0, $taxonomy ) {
-		global $post;
-
 		$id = (int) $id;
 
 		if ( ! $id ) {
@@ -2984,7 +2985,7 @@ class GmediaDB {
 	 */
 	function clean_term_cache( $ids, $taxonomy = '', $clean_taxonomy = true ) {
 		/** @var $wpdb wpdb */
-		global $wpdb, $gmDB;
+		global $wpdb;
 		static $cleaned = array();
 
 		if ( ! is_array( $ids ) )

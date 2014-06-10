@@ -418,7 +418,7 @@ function gmediaTerms(){
  * @return mixed content
  */
 function gmediaAlbumEdit(){
-	global $gmDB, $gmCore, $gmGallery, $gmProcessor;
+	global $gmDB, $gmCore, $gmProcessor;
 
 	$url = add_query_arg(array('page' => $gmProcessor->page), admin_url('admin.php'));
 
@@ -541,11 +541,10 @@ function gmediaAlbumEdit(){
 			<div class="termItems clearfix" id="termItems">
 				<?php if(!empty($termItems)){
 					foreach($termItems as $item){ ?>
-						<div class="gm-img-thumbnail" data-gmid="<?php echo $item->ID; ?>">
-							<img style="height:80px; width:auto;" src="<?php echo $gmCore->gm_get_media_image($item, 'thumb', false); ?>" alt="<?php echo $item->ID; ?>" title="<?php echo esc_attr($item->title); ?>"/>
-							<input type="text" name="term[gmedia_ids][<?php echo $item->ID; ?>]" value="<?php echo isset($item->gmedia_order)? $item->gmedia_order : '0'; ?>"/>
-							<span class="label label-default">ID: <?php echo $item->ID; ?></span>
-						</div>
+						<div class="gm-img-thumbnail" data-gmid="<?php echo $item->ID; ?>"><?php
+							?><img src="<?php echo $gmCore->gm_get_media_image($item, 'thumb', false); ?>" alt="<?php echo $item->ID; ?>" title="<?php echo esc_attr($item->title); ?>"/><?php
+							?><input type="text" name="term[gmedia_ids][<?php echo $item->ID; ?>]" value="<?php echo isset($item->gmedia_order)? $item->gmedia_order : '0'; ?>"/><?php
+							?><span class="label label-default">ID: <?php echo $item->ID; ?></span></div>
 					<?php }
 				} ?>
 
@@ -554,7 +553,7 @@ function gmediaAlbumEdit(){
 				jQuery(function($){
 					var inputs = $('#gmedia-edit-term').find('input, select').keypress(function(e){
 						var charCode = e.charCode || e.keyCode || e.which;
-						if (charCode  == 13) {
+						if (13 == charCode) {
 							e.preventDefault();
 							var nextInput = inputs.get(inputs.index(this) + 1);
 							if (nextInput) {
@@ -592,8 +591,7 @@ function gmediaAlbumEdit(){
 						sortdiv.css({height:sortdiv.height()});
 						var items = $('.gm-img-thumbnail', sortdiv);
 
-						var new_order = $.isNumeric($(this).val()) ? parseInt($(this).val()) : -1,
-							new_index;
+						var new_order = $.isNumeric($(this).val()) ? parseInt($(this).val()) : -1;
 						$(this).val(new_order).closest('.gm-img-thumbnail').css({zIndex:1000});
 
 						var ipos = [];
@@ -603,7 +601,8 @@ function gmediaAlbumEdit(){
 							ipos[i] = pos;
 						});
 
-						items.tsort('input',{useVal:true, order:(img_order_asc? 'asc' : 'desc')}).each(function(i,el){
+						var order = img_order_asc? 'asc' : 'desc';
+						items.tsort('input',{useVal:true, order:order}, 'span.label',{order:order}).each(function(i,el){
 							var from = $.data(el,'pos');
 							var to = ipos[i];
 							$(el).css({position:'absolute',top:from.top,left:from.left}).animate({top:to.top,left:to.left},500);
@@ -612,7 +611,7 @@ function gmediaAlbumEdit(){
 							sortdiv.removeAttr('style');
 						});
 
-						$(this).val( ((new_order < 0)? 0 : new_order)).focus();
+						$(this).val( ((0 > new_order)? 0 : new_order)).focus();
 					});
 				});
 			</script>
