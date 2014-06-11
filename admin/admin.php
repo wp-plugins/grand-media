@@ -30,7 +30,9 @@ class GmediaAdmin {
 
 	}
 
-	// load gmedia pages in wpless interface
+	/**
+	 * Load gmedia pages in wpless interface
+	 */
 	function gmedia_blank_page() {
 		set_current_screen('GrandMedia_Settings');
 
@@ -87,8 +89,10 @@ class GmediaAdmin {
 		}
 	}
 
-	// load the script for the defined page and load only this code
-	// Display shell of plugin
+	/**
+	 * Load the script for the defined page and load only this code
+	 * Display shell of plugin
+	 */
 	function shell() {
 		global $gmProcessor;
 
@@ -306,31 +310,34 @@ class GmediaAdmin {
 	function screen_help() {
 		$screen = get_current_screen();
 		$screen_id = explode('page_', $screen->id, 2);
+		$screen_id = $screen_id[1];
 
+		/*
 		switch ( $screen_id ) {
 			case 'GrandMedia' :
-				//$link = '<a href="http://codeasily.com/community/forum/gmedia-gallery-wordpress-plugin/" target="_blank">'.__( 'Support Forum', 'gmLang' ).'</a>';
-				//$contextual_help = '<p>' . sprintf( __( "Support Forum: %s", 'gmLang' ), $link ) . '</p>';
-				/*
-							$temp = '<div class="metabox-prefs">'.$link.'</div>
-				<h5>'.__('More Help & Info', 'gmLang').'</h5>
-				<div class="metabox-prefs">
-					<a href="#" target="_blank">'.__('GRAND Media Video Tutorial', 'gmLang').'</a>
-					| <a href="#" target="_blank">'.__('GRAND Media FAQ', 'gmLang').'</a>
-					| <a href="#" target="_blank">'.__('GRAND Media Review', 'gmLang').'</a>
-					| <a href="#" target="_blank">'.__('Get your language pack', 'gmLang').'</a>
-					| <a href="#" target="_blank">'. __('Flash Modules for GRAND Media', 'gmLang').'</a>
-				</div>'."\n";
-				*/
-				$screen->add_help_tab( array(
-						'id'	=> 'my_help_tab',
-						'title'	=> __('My Help Tab'),
-						'content'	=> '<p>' . __( 'Descriptive content that will show in My Help Tab-body goes here.' ) . '</p>',
-				) );
 				break;
 			case 'GrandMedia_Settings' :
 				break;
 		}
+		*/
+
+		$screen->add_help_tab( array(
+			'id'	=> 'help_'.$screen_id.'_support',
+			'title'	=> __('Support'),
+			'content'	=> '<h4>First steps</h4>
+<p>If you have any problems with displaying Gmedia Gallery in admin or on website. Before posting to the Forum try next:</p>
+<ul>
+	<li>Exclude plugin conflicts: Disable other plugins one by one and check if it resolve problem</li>
+	<li>Exclude theme conflict: Temporary switch to one of default themes and check if gallery works</li>
+</ul>
+<h4>Links</h4>
+<p><a href="http://codeasily.com/community/forum/gmedia-gallery-wordpress-plugin/" target="_blank">'.__('Support Forum', 'gmLang').'</a>
+	| <a href="http://codeasily.com/contact/" target="_blank">'.__('Contact', 'gmLang').'</a>
+	| <a href="http://codeasily.com/portfolio/gmedia-gallery-modules/" target="_blank">'.__('Demo', 'gmLang').'</a>
+	| <a href="http://codeasily.com/product/one-site-license/" target="_blank">'.__('Premium', 'gmLang').'</a>
+</p>',
+		) );
+
 	}
 
 	/**
