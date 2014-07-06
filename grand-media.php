@@ -3,7 +3,7 @@
 Plugin Name: Gmedia Gallery
 Plugin URI: http://wordpress.org/extend/plugins/grand-media/
 Description: Gmedia Gallery - powerfull media library plugin for creating beautiful galleries and managing files.
-Version: 1.0.0
+Version: 1.1.0
 Author: Rattus
 Author URI: http://codeasily.com/
 
@@ -39,7 +39,7 @@ if ( ! class_exists( 'Gmedia' ) ) {
 	 */
 	class Gmedia {
 
-		var $version = '1.0.0';
+		var $version = '1.1.0';
 		var $dbversion = '0.9.6';
 		var $minium_WP = '3.5';
 		var $options = '';
@@ -64,8 +64,6 @@ if ( ! class_exists( 'Gmedia' ) ) {
 			// Init options & tables during activation & deregister init option
 			register_activation_hook( $this->plugin_name, array( &$this, 'activate' ) );
 			register_deactivation_hook( $this->plugin_name, array( &$this, 'deactivate' ) );
-			register_activation_hook( $this->plugin_name, 'flush_rewrite_rules', 11 );
-			register_deactivation_hook( $this->plugin_name, 'flush_rewrite_rules' );
 
 			// Register a uninstall hook to remove all tables & option automatic
 			//register_uninstall_hook( $this->plugin_name, array(__CLASS__, 'uninstall' ) );
@@ -254,7 +252,7 @@ if ( ! class_exists( 'Gmedia' ) ) {
 				'error3'   => __( 'Disable your Popup Blocker and try again.', 'gmLang' ),
 				'download' => __( 'downloading...', 'gmLang' ),
 				'wait' => __( 'Working. Wait please.', 'gmLang' ),
-				'nonce' => wp_create_nonce( 'grandMedia' ),
+				'nonce' => wp_create_nonce( 'grandMedia' )
 			) );
 
 			wp_register_style('gmedia-bootstrap', $gmCore->gmedia_url . '/assets/bootstrap/css/bootstrap.min.css', array(), '3.1.0', 'screen' );
@@ -283,9 +281,13 @@ if ( ! class_exists( 'Gmedia' ) ) {
 			wp_deregister_script('photoswipe');
 			wp_register_script('photoswipe', $gmCore->gmedia_url . '/assets/photoswipe/photoswipe.jquery.min.js', array( 'jquery' ), '3.0.5', true );
 
-			wp_register_script('easing', $gmCore->gmedia_url . '/assets/jq-plugins/jquery.easing.js', array( 'jquery' ), '1.3.0', true );
-			wp_register_style('fancybox', $gmCore->gmedia_url.'/assets/fancybox/jquery.fancybox-1.3.4.css', array(), '1.3.4');
-			wp_register_script('fancybox', $gmCore->gmedia_url.'/assets/fancybox/jquery.fancybox-1.3.4.pack.js', array( 'jquery', 'easing' ), '1.3.4', true);
+			if(!wp_script_is('easing', 'registered')){
+				wp_register_script('easing', $gmCore->gmedia_url . '/assets/jq-plugins/jquery.easing.js', array( 'jquery' ), '1.3.0', true );
+			}
+			if(!wp_script_is('fancybox', 'registered')){
+				wp_register_style('fancybox', $gmCore->gmedia_url.'/assets/fancybox/jquery.fancybox-1.3.4.css', array(), '1.3.4');
+				wp_register_script('fancybox', $gmCore->gmedia_url.'/assets/fancybox/jquery.fancybox-1.3.4.pack.js', array( 'jquery', 'easing' ), '1.3.4', true);
+			}
 
 			wp_register_script('jplayer', $gmCore->gmedia_url.'/assets/jplayer/jquery.jplayer.min.js', array( 'jquery' ), '2.6.0', true);
 			wp_register_script('swfobject', $gmCore->gmedia_url.'/assets/swf/swfobject.js', array(), '2.2', true);
@@ -365,6 +367,9 @@ if ( ! class_exists( 'Gmedia' ) ) {
 		 */
 		function activate($networkwide) {
 			$this->network_propagate('gmedia_install', $networkwide);
+
+			require_once ( dirname( __FILE__ ) . '/inc/permalinks.php' );
+			flush_rewrite_rules(false);
 		}
 
 		/**
@@ -372,6 +377,7 @@ if ( ! class_exists( 'Gmedia' ) ) {
 		 */
 		function deactivate($networkwide) {
 			$this->network_propagate('gmedia_deactivate', $networkwide);
+			flush_rewrite_rules(false);
 		}
 
 		/*

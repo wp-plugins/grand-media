@@ -310,7 +310,7 @@ function gmediaTerms(){
 								var id = $(this).attr('href');
 								var inp = $(id).find('.edit_tag_form input');
 								var new_tag_name = $.trim(inp.val());
-								if(('' == new_tag_name) || $.isNumeric()){
+								if(('' === new_tag_name) || $.isNumeric()){
 									inp.val(inp.attr('placeholder'));
 									$(id).find('.edit_tag_form').hide();
 									$(id).find('.edit_tag_link').show();

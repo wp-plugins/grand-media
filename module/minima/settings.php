@@ -57,25 +57,25 @@ $options_tree = array(
 				'label' => 'Automatic Slideshow',
 				'tag' => 'checkbox',
 				'attr' => '',
-				'text' => '',
+				'text' => ''
 			),
 			'slideshowDelay' => array(
 				'label' => 'Slideshow Delay',
 				'tag' => 'input',
 				'attr' => 'type="number" min="1" max="300"',
-				'text' => 'Set delay between slides in seconds',
+				'text' => 'Set delay between slides in seconds'
 			),
 			'thumbnailsWidth' => array(
 				'label' => 'Thumbnails Width',
 				'tag' => 'input',
 				'attr' => 'type="number" min="0" max="300"',
-				'text' => 'Set bottom thumbnails width in pixels',
+				'text' => 'Set bottom thumbnails width in pixels'
 			),
 			'thumbnailsHeight' => array(
 				'label' => 'Thumbnails Height',
 				'tag' => 'input',
 				'attr' => 'type="number" min="0" max="300"',
-				'text' => 'Set bottom thumbnails height in pixels',
+				'text' => 'Set bottom thumbnails height in pixels'
 			),
 			'property0' => array(
 				'label' => 'Wmode for flash object',
@@ -107,7 +107,7 @@ $options_tree = array(
 				'label' => 'Show image views/likes counter',
 				'tag' => 'checkbox',
 				'attr' => '',
-				'text' => '',
+				'text' => ''
 			),
 			'barBgColor' => array(
 				'label' => 'Header & Footer Background Color',
@@ -210,7 +210,7 @@ $options_tree = array(
 				'label' => 'Display LoveLink?',
 				'tag' => 'checkbox',
 				'attr' => '',
-				'text' => 'Selecting "Yes" will show the lovelink icon (codeasily.com) somewhere on the gallery',
+				'text' => 'Selecting "Yes" will show the lovelink icon (codeasily.com) somewhere on the gallery'
 			)*/
 		)
 	)

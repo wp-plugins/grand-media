@@ -216,7 +216,7 @@ function gmedia_install(){
 		$default_options = gmedia_default_options();
 		unset($gmGallery->options['folder'], $gmGallery->options['taxonomies']);
 		$new_options = $gmCore->array_diff_key_recursive($default_options, $gmGallery->options);
-		$gmGallery->options = array_merge_recursive($gmGallery->options, $new_options);
+		$gmGallery->options = $gmCore->array_replace_recursive($gmGallery->options, $new_options);
 		update_option('gmediaOptions', $gmGallery->options);
 	}
 

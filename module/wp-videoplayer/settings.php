@@ -18,7 +18,7 @@ $options_tree = array(
 				'label' => 'Track Numbers',
 				'tag' => 'checkbox',
 				'attr' => '',
-				'text' => '',
+				'text' => ''
 			),
 			'customCSS' => array(
 				'label' => 'Custom CSS',
@@ -31,7 +31,7 @@ $options_tree = array(
 				'label' => 'Display LoveLink?',
 				'tag' => 'checkbox',
 				'attr' => '',
-				'text' => 'Selecting "Yes" will show the lovelink icon (codeasily.com) somewhere on the gallery',
+				'text' => 'Selecting "Yes" will show the lovelink icon (codeasily.com) somewhere on the gallery'
 			)*/
 		)
 	)

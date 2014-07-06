@@ -22,13 +22,13 @@ $options_tree = array(
 				'label' => 'Rating',
 				'tag' => 'checkbox',
 				'attr' => '',
-				'text' => 'Allow visitors to rate tracks',
+				'text' => 'Allow visitors to rate tracks'
 			),
 			'autoplay' => array(
 				'label' => 'Autoplay',
 				'tag' => 'checkbox',
 				'attr' => '',
-				'text' => '',
+				'text' => ''
 			),
 			'buttonText' => array(
 				'label' => 'Link Button Text',
@@ -64,7 +64,7 @@ $options_tree = array(
 				'label' => 'Display LoveLink?',
 				'tag' => 'checkbox',
 				'attr' => '',
-				'text' => 'Selecting "Yes" will show the lovelink icon (codeasily.com) somewhere on the gallery',
+				'text' => 'Selecting "Yes" will show the lovelink icon (codeasily.com) somewhere on the gallery'
 			)*/
 		)
 	)

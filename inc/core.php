@@ -447,13 +447,80 @@ class GmediaCore {
 			if(is_array($arr1[$k]) && is_array($arr2[$k])){
 				$d = $this->array_diff_key_recursive($arr1[$k], $arr2[$k]);
 
-				if($d){
+				if(!empty($d)){
 					$diff[$k] = $d;
 				}
 			}
 		}
 
 		return $diff;
+	}
+
+	/**
+	 * @param array $arr1
+	 * @param array $arr2
+	 * @param bool $update
+	 *
+	 * @return array
+	 */
+	function array_diff_keyval_recursive(array $arr1, array $arr2, $update = false) {
+		$diff = array_diff_key($arr1, $arr2);
+		$intersect = array_intersect_key($arr1, $arr2);
+
+		foreach($intersect as $k => $v){
+			if(is_array($arr1[$k]) && is_array($arr2[$k])){
+				$d = $this->array_diff_keyval_recursive($arr1[$k], $arr2[$k], $update);
+
+				if(!empty($d)){
+					$diff[$k] = $d;
+				}
+			} elseif($arr1[$k] !== $arr2[$k]){
+				if($update){
+					$diff[$k] = $arr2[$k];
+				} else{
+					$diff[$k] = $arr1[$k];
+				}
+			}
+		}
+
+		return $diff;
+	}
+
+	/**
+	 * @param $base
+	 * @param $replacements
+	 *
+	 * @return mixed
+	 */
+	function array_replace_recursive($base, $replacements){
+		if(function_exists('array_replace_recursive')){
+			return array_replace_recursive($base, $replacements);
+		}
+
+		foreach (array_slice(func_get_args(), 1) as $replacements) {
+			$bref_stack = array(&$base);
+			$head_stack = array($replacements);
+
+			do {
+				end($bref_stack);
+
+				$bref = &$bref_stack[key($bref_stack)];
+				$head = array_pop($head_stack);
+
+				unset($bref_stack[key($bref_stack)]);
+
+				foreach (array_keys($head) as $key) {
+					if (isset($key, $bref) && is_array($bref[$key]) && is_array($head[$key])) {
+						$bref_stack[] = &$bref[$key];
+						$head_stack[] = $head[$key];
+					} else {
+						$bref[$key] = $head[$key];
+					}
+				}
+			} while(count($head_stack));
+		}
+
+		return $base;
 	}
 
 	/**

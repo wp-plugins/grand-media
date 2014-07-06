@@ -24,12 +24,36 @@ function gmedia_gallery_options_fieldset($options_tree, $default, $value = array
 		<fieldset id="gallery_settings<?php echo $i; ?>" class="tab-pane">
 		<?php
 			foreach($section['fields'] as $name => $field){
-				if(isset($value[$name])){
-					$val = $value[$name];
+				if('textblock' == $field['tag']){
+					$args = array(
+						'id' => $name
+						,'field' => $field
+					);
 				} else{
-					$val = false;
+					if(isset($section['key'])){
+						$key = $section['key'];
+						if(!isset($default[$key][$name])){ $default[$key][$name] = false; }
+						$val = isset($value[$key][$name])? $value[$key][$name] : $default[$key][$name];
+						$args = array(
+							 'id' => strtolower("{$key}_{$name}")
+							,'name' => "module[{$key}][{$name}]"
+							,'field' => $field
+							,'value' => $val
+							,'default' => $default[$key][$name]
+						);
+					} else{
+						if(!isset($default[$name])){ $default[$name] = false; }
+						$val = isset($value[$name])? $value[$name] : $default[$name];
+						$args = array(
+							 'id' => strtolower($name)
+							,'name' => "module[{$name}]"
+							,'field' => $field
+							,'value' => $val
+							,'default' => $default[$name]
+						);
+					}
 				}
-				gmedia_gallery_options_formgroup($name, $field, $default[$name], $val);
+				gmedia_gallery_options_formgroup($args);
 			}
 		?>
 		</fieldset>
@@ -38,44 +62,51 @@ function gmedia_gallery_options_fieldset($options_tree, $default, $value = array
 }
 
 /**
- * @param $name
- * @param $field
- * @param $def
- * @param $val
+ * @param $args
  */
-function gmedia_gallery_options_formgroup($name, $field, $def, $val){
-	if(false === $val){
-		//$val = $def;
-	}
+function gmedia_gallery_options_formgroup($args){
+	/**
+	 * @var $id
+	 * @var $name
+	 * @var $field
+	 * @var $value
+	 * @var $default
+	 */
+	extract($args);
 	if('input' == $field['tag']){ ?>
-		<div class="form-group" id="div_<?php echo $name; ?>">
+		<div class="form-group" id="div_<?php echo $id; ?>">
 			<label><?php echo $field['label']; ?></label>
-			<input <?php echo $field['attr']; ?> id="<?php echo $name; ?>" class="form-control input-sm" name="module[<?php echo $name; ?>]" value="<?php echo esc_attr($val); ?>" data-value="<?php echo $def; ?>" placeholder="<?php echo $def; ?>"/>
+			<input <?php echo $field['attr']; ?> id="<?php echo $id; ?>" class="form-control input-sm" name="<?php echo $name; ?>" value="<?php echo esc_attr($value); ?>" data-value="<?php echo $default; ?>" placeholder="<?php echo $default; ?>"/>
 			<?php if(!empty($field['text'])){ echo "<p class='help-block'>{$field['text']}</p>"; } ?>
 		</div>
 	<?php } elseif('checkbox' == $field['tag']){ ?>
-		<div class="form-group" id="div_<?php echo $name; ?>">
+		<div class="form-group" id="div_<?php echo $id; ?>">
 			<div class="checkbox">
-				<input type="hidden" name="module[<?php echo $name; ?>]" value="0"/>
-				<label><input type="checkbox" <?php echo $field['attr']; ?> id="<?php echo $name; ?>" name="module[<?php echo $name; ?>]" value="1" <?php echo checked($val, '1'); ?>/> <?php echo $field['label']; ?></label>
+				<input type="hidden" name="<?php echo $name; ?>" value="0"/>
+				<label><input type="checkbox" <?php echo $field['attr']; ?> id="<?php echo $id; ?>" name="<?php echo $name; ?>" value="1" data-value="<?php echo $default; ?>" <?php echo checked($value, '1'); ?>/> <?php echo $field['label']; ?></label>
 				<?php if(!empty($field['text'])){ echo "<p class='help-block'>{$field['text']}</p>"; } ?>
 			</div>
 		</div>
 	<?php } elseif('select' == $field['tag']){ ?>
-		<div class="form-group" id="div_<?php echo $name; ?>">
+		<div class="form-group" id="div_<?php echo $id; ?>">
 			<label><?php echo $field['label']; ?></label>
-			<select <?php echo $field['attr']; ?> id="<?php echo $name; ?>" class="form-control input-sm" name="module[<?php echo $name; ?>]">
+			<select <?php echo $field['attr']; ?> id="<?php echo $id; ?>" class="form-control input-sm" name="<?php echo $name; ?>" data-value="<?php echo $default; ?>">
 			<?php foreach($field['choices'] as $choice){ ?>
-				<option value="<?php echo esc_attr($choice['value']); ?>" <?php echo selected($val, $choice['value']); ?>><?php echo $choice['label']; ?></option>
+				<option value="<?php echo esc_attr($choice['value']); ?>" <?php echo selected($value, $choice['value']); ?>><?php echo $choice['label']; ?></option>
 			<?php } ?>
 			</select>
 			<?php if(!empty($field['text'])){ echo "<p class='help-block'>{$field['text']}</p>"; } ?>
 		</div>
 	<?php } elseif('textarea' == $field['tag']){ ?>
-		<div class="form-group" id="div_<?php echo $name; ?>">
+		<div class="form-group" id="div_<?php echo $id; ?>">
 			<label><?php echo $field['label']; ?></label>
-			<textarea <?php echo $field['attr']; ?> id="<?php echo $name; ?>" class="form-control input-sm" name="module[<?php echo $name; ?>]"><?php echo esc_html($val); ?></textarea>
+			<textarea <?php echo $field['attr']; ?> id="<?php echo $id; ?>" class="form-control input-sm" name="<?php echo $name; ?>"><?php echo esc_html($value); ?></textarea>
 			<?php if(!empty($field['text'])){ echo "<p class='help-block'>{$field['text']}</p>"; } ?>
+		</div>
+	<?php } elseif('textblock' == $field['tag']){ ?>
+		<div class="text-block">
+			<?php echo $field['label']; ?>
+			<?php echo $field['text']; ?>
 		</div>
 	<?php } ?>
 	<?php

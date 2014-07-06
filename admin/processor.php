@@ -11,7 +11,6 @@ class GmediaProcessor{
 	var $page;
 	var $msg;
 	var $error;
-	var $term_id;
 	var $selected_items = array();
 
 	/**
@@ -256,6 +255,20 @@ class GmediaProcessor{
 						setcookie($_COOKIE["gmedia_u{$user_ID}_library"], '', time() - 3600);
 						$this->selected_items = array();
 					}
+					if('selected' == $gmCore->_get('update_meta')){
+						check_admin_referer('gmedia_update_meta');
+						if(!current_user_can('edit_posts')){
+							wp_die(__('You are not allowed to do this.'));
+						}
+						$count = count($this->selected_items);
+                        if($count){
+                            foreach($this->selected_items as $item){
+                                $id = (int) $item;
+                                $gmDB->update_metadata($meta_type = 'gmedia', $id, $meta_key = '_metadata', $gmDB->generate_gmedia_metadata($id));
+                            }
+							$this->msg[] = sprintf(__('%d items updated successfuly', 'gmLang'), $count);
+						}
+					}
 				}
 				break;
 			case 'GrandMedia_AddMedia':
@@ -402,6 +415,15 @@ class GmediaProcessor{
 						}
 
 						$module_settings = $gmCore->_post('module', array());
+						$module_path = $gmCore->get_module_path($gallery['module']);
+						$default_options = array();
+						if(file_exists($module_path['path'] . '/settings.php')){
+							include($module_path['path'] . '/settings.php');
+						} else{
+							$this->error[] = sprintf(__('Can\'t load data from `%s` module'), $gallery['module']);
+							break;
+						}
+						$module_settings = $gmCore->array_replace_recursive($default_options, $module_settings);
 						$gallery_meta = array(
 							 'edited' => gmdate('Y-m-d H:i:s')
 							,'module' => $gallery['module']

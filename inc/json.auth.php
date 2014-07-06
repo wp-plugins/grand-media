@@ -8,11 +8,9 @@ class Gmedia_JSON_API_Auth_Controller {
 
 	public function validate_auth_cookie($cookie) {
 
-		$valid = wp_validate_auth_cookie($cookie, 'logged_in') ? true : false;
+		$valid = wp_validate_auth_cookie($cookie, 'logged_in');
 
-		return array(
-			"valid" => $valid
-		);
+		return $valid;
 	}
 
 	public function generate_auth_cookie($args) {

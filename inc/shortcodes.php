@@ -95,7 +95,7 @@ function gmedia_shortcode($atts, $content = ''){
 		return '<div class="gmedia_gallery gmediaShortcodeError">#' . $id . ': ' . sprintf(__('Module `%s` is broken. Choose another module for this gallery'), $gallery['module']) . '<br />' . $content . '</div>';
 	}
 
-	$settings = array_merge($module['options'], $gallery['settings'][$gallery['module']]);
+	$settings = $gmCore->array_diff_keyval_recursive($module['options'], $gallery['settings'][$gallery['module']], true);
 
 	$terms = array();
 	$gmedia = array();
@@ -141,16 +141,16 @@ function gmedia_shortcode($atts, $content = ''){
 	$out = '<div class="gmedia_gallery ' . $gallery['module'] . '_module" id="GmediaGallery_' . $id . '" data-gallery="' . $id . '" data-module="' . $gallery['module'] . '">';
 	$out .= $content;
 
-	if(isset($settings['customCSS']) && ('' != trim($settings['customCSS']))){
-		$out .= "<style type='text/css' scoped='scoped'>/**** Custom CSS {$gallery['module']} #{$id} ****/" . $settings['customCSS'] . "</style>";
-	}
-
 	$is_bot = $gmCore->is_bot();
 
 	ob_start();
 	include($module['path'].'/init.php');
 	$out .= ob_get_contents();
 	ob_end_clean();
+
+	if(isset($settings['customCSS']) && ('' != trim($settings['customCSS']))){
+		$out .= "<style type='text/css' scoped='scoped'>/**** Custom CSS {$gallery['module']} #{$id} ****/" . $settings['customCSS'] . "</style>";
+	}
 
 	$out .= '</div>';
 

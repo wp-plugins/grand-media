@@ -374,14 +374,14 @@ function gmedia_images_update($files){
 }
 
 function gmedia_quite_update(){
-	global $gmCore;
+	global $gmCore, $gmGallery;
 	$current_version = get_option( 'gmediaVersion', null );
 	//$current_db_version = get_option( 'gmediaDbVersion', null );
 	if((null !== $current_version)) {
 		$options = get_option('gmediaOptions');
+		require_once(dirname(__FILE__). '/setup.php');
+		$default_options = gmedia_default_options();
 		if(version_compare( $current_version, '0.9.23', '<' )){
-			require_once(dirname(__FILE__). '/setup.php');
-			$default_options = gmedia_default_options();
 			if(isset($options['license_name'])){
 				$default_options['license_name'] = $options['license_name'];
 				$default_options['license_key'] = $options['license_key'];
@@ -392,6 +392,10 @@ function gmedia_quite_update(){
 				$default_options['license_key2'] = $options['gmedia_key2'];
 			}
 			update_option('gmediaOptions', $default_options);
+		} else{
+			$new_options = $gmCore->array_diff_key_recursive($default_options, $options);
+			$gmGallery->options = $gmCore->array_replace_recursive($options, $new_options);
+			update_option('gmediaOptions', $gmGallery->options);
 		}
 		$gmCore->delete_folder($gmCore->upload['path'].'/module/phantom');
 		$gmCore->delete_folder($gmCore->upload['path'].'/module/jq-mplayer');

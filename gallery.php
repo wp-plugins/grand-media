@@ -9,6 +9,7 @@ if ( ! defined( 'ABSPATH' ) ){
 global $wp, $wp_styles, $wp_scripts, $gmCore;
 
 $content = '';
+$styles = '';
 $type = isset($_GET['type'])? $_GET['type'] : (isset($wp->query_vars['type'])? $wp->query_vars['type'] : 'gallery');
 if(empty($type)){
 	$type = 'gallery';
@@ -29,9 +30,57 @@ if($gmedia){
 		}
 	} elseif('single' == $type && $gmCore->is_digit($gmedia)){
 		$gmedia_obj = $gmDB->get_gmedia($gmedia);
-		$content = '<img src="'.$gmCore->gm_get_media_image($gmedia_obj->ID).'">';
-		$content .= "<h2>{$gmedia_obj->title}</h2>";
-		$content .= "<div>{$gmedia_obj->description}</div>";
+		$type = explode('/', $gmedia_obj->mime_type, 2);
+		if('image' == $type[0]){
+			$content .= '<div class="single_view">';
+			$content .= '<img src="'.$gmCore->gm_get_media_image($gmedia_obj->ID).'">';
+			$content .= "<h2>{$gmedia_obj->title}</h2>";
+			$content .= "<div>{$gmedia_obj->description}</div>";
+			$content .= "</div>";
+			$styles .= '.single_view { width:100%; height:100%; oveflow:auto; }';
+		} elseif('video' == $type[0]){
+			$meta = $gmDB->get_metadata('gmedia', $gmedia_obj->ID, '_metadata', true);
+			$width = isset($meta['width'])? $meta['width'] : 640;
+			$height = isset($meta['height'])? $meta['height'] : 480;
+			$url = $gmCore->fileinfo($gmedia_obj->gmuid, false);
+			$content .= '<video src="'.$url['fileurl'].'" width="'.$width.'" height="'.$height.'" style="width:100%;height:100%;"></video>';
+			$content .= '
+<script type="text/javascript">
+	jQuery(function($){
+		var video = $("video");
+		function video_responsive(){
+			var vw = video.width(),
+					vh = video.height(),
+					r = vw/vh,
+					bw = $(window).width(),
+					bh = $(window).height(),
+					mar = 0;
+			if(r > bw/bh){
+				vh = bw/r;
+				vw = bw;
+				mar = (bh - vh)/2 + "px 0 0 0";
+			} else{
+				vw = bh*r;
+				vh = bh;
+				mar = "0 0 0 " + (bw - vw)/2 + "px";
+			}
+			$("body").css({margin: mar});
+			video.attr("width", vw).attr("height", vh);
+		}
+		video_responsive();
+		$(window).on("resize", function(){
+			video_responsive();
+		});
+		video.mediaelementplayer();
+	});
+</script>
+';
+			add_action('gmedia_head_scripts', 'gmedia_additional_scripts');
+			function gmedia_additional_scripts(){
+				wp_enqueue_style('mediaelement');
+				wp_enqueue_script('mediaelement');
+			}
+		}
 	}
 }
 
@@ -46,7 +95,8 @@ if($gmedia){
 
 	<style type="text/css">
 		html { width: 100%; height: 100%; }
-		body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: auto; min-height: 240px; min-width: 320px; }
+		body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; min-height: 240px; min-width: 320px; }
+		<?php echo $styles; ?>
 	</style>
 	<?php
 	wp_enqueue_scripts();
@@ -58,6 +108,7 @@ if($gmedia){
 	if(isset($_GET['iframe'])){
 		wp_dequeue_script('swfaddress');
 	}
+	wp_print_styles();
 	wp_print_scripts();
 	?>
 </head>

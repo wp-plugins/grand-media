@@ -1,6 +1,6 @@
 /*
  * Title                   : Minima Gallery Module
- * Version                 : 2.4
+ * Version                 : 2.5
  * Copyright               : 2013 CodEasily.com
  * Website                 : http://www.codeasily.com
  */
@@ -177,7 +177,7 @@ if(typeof jQuery.fn.gmMinima == 'undefined'){
 						setTimeout(function(){
 							$('.flashmodule_alternative', Container).removeClass('delay');
 						}, 3000);
-						var gmBodyScroll,
+						var gmBodyScrollTop, gmBodyScrollLeft,
 							psShowCaption, psImgTitle, psImgCaption = '', curel,
 							options = {
 								allowUserZoom:false,
@@ -232,7 +232,8 @@ if(typeof jQuery.fn.gmMinima == 'undefined'){
 						$('.gmcategory', Container).each(function(){
 							var instance;
 							instance = $('a.photoswipe',this).on('click',function(){
-								gmBodyScroll = $('body').scrollTop();
+								gmBodyScrollTop = $('body').scrollTop();
+								gmBodyScrollLeft = $('body').scrollLeft();
 							}).photoSwipe(options);
 
 							instance.addEventHandler('PhotoSwipeOnSlideshowStart', function(){
@@ -244,6 +245,7 @@ if(typeof jQuery.fn.gmMinima == 'undefined'){
 								$('.ps-slidetime').stop().width(0);
 							});
 							instance.addEventHandler('PhotoSwipeOnBeforeShow', function(e){
+								$(window).scrollLeft(0);
 								$('html').addClass('ps-noscroll');
 							});
 							instance.addEventHandler('PhotoSwipeOnShow', function(e){
@@ -261,7 +263,7 @@ if(typeof jQuery.fn.gmMinima == 'undefined'){
 							instance.addEventHandler('PhotoSwipeOnHide', function(e){
 								$('html').removeClass('ps-noscroll');
 								$('.ps-slidetime').remove();
-								$(window).scrollTop(gmBodyScroll);
+								$(window).scrollTop(gmBodyScrollTop).scrollLeft(gmBodyScrollLeft);
 							});
 							instance.addEventHandler('PhotoSwipeOnDisplayImage', function(e){
 								curel = instance.getCurrentImage();

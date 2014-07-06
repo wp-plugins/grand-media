@@ -325,7 +325,7 @@ function gmediaGalleryEdit() {
 		$url = add_query_arg(array('page' => $gmProcessor->page, 'gallery_module' => $module_name ), admin_url('admin.php'));
 		$error_post = $gmCore->_post('gallery');
 		if($error_post){
-			$gallery = array_merge($gallery, $error_post);
+			$gallery = $gmCore->array_replace_recursive($gallery, $error_post);
 		}
 		$gallery['module'] = $module_name;
 	}
@@ -395,7 +395,7 @@ function gmediaGalleryEdit() {
 	}
 
 	if(isset($gallery['settings'][$module_name])){
-		$gallery_settings = array_merge($default_options, $gallery['settings'][$module_name]);
+		$gallery_settings = $gmCore->array_replace_recursive($default_options, $gallery['settings'][$module_name]);
 	} else{
 		$gallery_settings = $default_options;
 	}
@@ -404,7 +404,7 @@ function gmediaGalleryEdit() {
 
 	?>
 
-	<form class="panel panel-default" method="post" action="<?php echo $url; ?>">
+	<form class="panel panel-default" id="gallerySettingsForm" method="post" action="<?php echo $url; ?>">
 		<div class="panel-heading clearfix">
 			<div class="btn-toolbar pull-left">
 				<div class="btn-group">
@@ -415,7 +415,8 @@ function gmediaGalleryEdit() {
 						<a href="<?php echo $url; ?>" class="btn btn-default"><?php _e('Cancel preview module', 'gmLang'); ?></a>
 						<button type="submit" name="gmedia_gallery_save" class="btn btn-primary"><?php _e('Save with new module', 'gmLang'); ?></button>
 					<?php } else{ ?>
-						<?php if($gallery_settings != $default_options){ ?>
+						<?php $reset_settings = $gmCore->array_diff_keyval_recursive($default_options, $gallery_settings, true);
+						if(!empty($reset_settings)){ ?>
 							<button type="submit" name="gmedia_gallery_reset" class="btn btn-default" data-confirm="<?php _e('Confirm reset gallery options') ?>"><?php _e('Reset to default', 'gmLang'); ?></button>
 						<?php } ?>
 						<button type="submit" name="gmedia_gallery_save" class="btn btn-primary"><?php _e('Save', 'gmLang'); ?></button>
@@ -427,7 +428,7 @@ function gmediaGalleryEdit() {
 		<div class="panel-body" id="gmedia-edit-gallery" style="margin-bottom:4px; padding-top:0;">
 			<div class="row">
 				<div class="col-lg-6 tabable tabs-left">
-					<ul class="nav nav-tabs" style="padding:10px 0;">
+					<ul class="nav nav-tabs" id="galleryTabs" style="padding:10px 0;">
 						<?php if(isset($module_info)){ ?>
 						<li class="text-center"><strong><?php echo $module_info['title']; ?></strong><a href="#chooseModuleModal" data-toggle="modal" style="padding:5px 0;"><img src="<?php echo $module_url.'/screenshot.png'; ?>" alt="<?php echo esc_attr($module_info['title']); ?>" width="100" style="height:auto;"/></a></li>
 						<?php } ?>
@@ -595,6 +596,14 @@ function gmediaGalleryEdit() {
 					$('#chooseModuleModal').modal('show');
 					<?php } ?>
 
+					var hash = window.location.hash;
+					if(hash){
+						$('#galleryTabs a').eq(hash.replace('#tab-','')).tab('show');
+					}
+					$('#gallerySettingsForm').on('submit', function(){
+						$(this).attr('action', $(this).attr('action') + '#tab-' + $('#galleryTabs li.active').index());
+					});
+
 					$('.gmedia-combobox').each(function(){
 						var select = $(this).selectize({
 							plugins: ['drag_drop'],
@@ -632,7 +641,9 @@ function gmediaGalleryEdit() {
 						var el = $(this);
 						gmedia_options_conditional_logic(el, 0);
 						el.on(el.data('watch'),function(){
-							$(this).blur().focus();
+							if('change' == el.data('watch')){
+								$(this).blur().focus();
+							}
 							gmedia_options_conditional_logic($(this), 400);
 						});
 					});
@@ -644,30 +655,81 @@ function gmediaGalleryEdit() {
 							if(el.is(':checkbox') && !el[0].checked){
 								val = '0';
 							}
-							var key;
 							$('[data-'+id+']', main).each(function(){
-								key = $(this).data(id);
+								var key = $(this).data(id);
 								key = key.split(':');
+								var hidden = $(this).data('hidden')? parseInt($(this).data('hidden')) : 0;
+								var ch = true;
 								switch(key[0]){
 									case '=':
 									case 'is':
 										if(val == key[1]){
-											$(this).prop('disabled',false).closest('.form-group').slideDown(slide, function(){ $(this).css({display:'block'}); });
+											if(slide && (0 === --hidden) ){
+												$(this).prop('disabled',false).closest('.form-group').stop().slideDown(slide, function(){ $(this).css({display:'block'}); });
+												$(this).data('hidden', 0);
+												if(key[2]){
+													key[2] = $(this).data('value');
+												} else{
+													ch = false;
+												}
+											} else{
+												$(this).data('hidden', 0 < hidden? hidden : 0 );
+												ch = false;
+											}
 										} else{
-											$(this).prop('disabled',true).closest('.form-group').slideUp(slide, function(){ $(this).css({display:'none'}); });
+											if(!hidden){
+												if(key[2]){
+													$(this).closest('.form-group').stop().slideUp(slide, function(){ $(this).css({display:'none'}); });
+												} else{
+													$(this).prop('disabled',true).closest('.form-group').stop().slideUp(slide, function(){ $(this).css({display:'none'}); });
+												}
+											} else{
+												ch = false;
+											}
+											$(this).data('hidden', ++hidden);
 										}
 										break;
 									case '!=':
 									case 'not':
-										if(val != key[1]){
-											$(this).prop('disabled',false).closest('.form-group').slideDown(slide, function(){ $(this).css({display:'block'}); });
+										if(val == key[1]){
+											if(!hidden){
+												if(key[2]){
+													$(this).closest('.form-group').stop().slideUp(slide, function(){ $(this).css({display:'none'}); });
+												} else{
+													$(this).prop('disabled',true).closest('.form-group').stop().slideUp(slide, function(){ $(this).css({display:'none'}); });
+												}
+											} else{
+												ch = false;
+											}
+											$(this).data('hidden', ++hidden);
 										} else{
-											$(this).prop('disabled',true).closest('.form-group').slideUp(slide, function(){ $(this).css({display:'none'}); });
+											if(slide && (0 === --hidden) ){
+												$(this).prop('disabled',false).closest('.form-group').stop().slideDown(slide, function(){ $(this).css({display:'block'}); });
+												$(this).data('hidden', 0);
+												if(key[2] && slide){
+													key[2] = $(this).data('value');
+												} else{
+													ch = false;
+												}
+											} else{
+												$(this).data('hidden', 0 < hidden? hidden : 0 );
+												ch = false;
+											}
 										}
 										break;
 								}
-								if(key[2]){
-									$(this).val(key[2]).trigger('change');
+								if(key[2] && ch){
+									if($(this).is(':checkbox')){
+										if(+($(this).prop('checked')) != parseInt(key[2])){
+											$(this).data('value', ($(this).prop('checked')? '1' : '0'));
+											$(this).prop('checked', ('0' != key[2])).trigger('change');
+										}
+									} else{
+										if($(this).val() != key[2]){
+											$(this).data('value', $(this).val());
+											$(this).val(key[2]).trigger('change');
+										}
+									}
 								}
 							});
 						}

@@ -70,7 +70,7 @@ $options_tree = array(
 				'label' => 'Background Color',
 				'tag' => 'input',
 				'attr' => 'type="text" data-type="color"',
-				'text' => 'Set gallery background color',
+				'text' => 'Set gallery background color'
 			),
 			'bgAlpha' => array(
 				'label' => 'Background Alpha',
@@ -250,7 +250,7 @@ $options_tree = array(
 				'label' => 'Social Share',
 				'tag' => 'checkbox',
 				'attr' => '',
-				'text' => 'Enable AddThis Social Share?',
+				'text' => 'Enable AddThis Social Share?'
 			)
 		)
 	),
@@ -268,7 +268,7 @@ $options_tree = array(
 				'label' => 'Display LoveLink?',
 				'tag' => 'checkbox',
 				'attr' => '',
-				'text' => 'Selecting "Yes" will show the lovelink icon (codeasily.com) somewhere on the gallery',
+				'text' => 'Selecting "Yes" will show the lovelink icon (codeasily.com) somewhere on the gallery'
 			)*/
 		)
 	)

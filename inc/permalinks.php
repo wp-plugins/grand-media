@@ -16,27 +16,43 @@ class gmediaPermalinks {
 	 */
 	public function __construct() {
 		global $gmGallery;
-		$this->endpoint = ( $endpoint = $gmGallery->options['endpoint'] ) ? $endpoint : 'gmedia';
+		$this->endpoint = (isset($gmGallery->options['endpoint']) && ($endpoint = $gmGallery->options['endpoint']) ) ? $endpoint : 'gmedia';
 
+		add_filter( 'rewrite_rules_array', array( $this, 'add_rewrite_rules') );
 		add_filter( 'query_vars', array( $this, 'add_query_vars') );
-		add_action( 'init', array( $this, 'add_endpoint') );
-		add_action( 'generate_rewrite_rules', array( $this, 'add_rewrite_rules') );
 		add_action( 'parse_request', array( $this, 'handler') );
 
 	}
 
+	/**
+	 * add_endpoint function.
+	 *
+	 * @access public
+	 * @return void
+	 */
+	public function add_endpoint() {
+		add_rewrite_endpoint( $this->endpoint, EP_NONE );
+		add_rewrite_endpoint( 'gmedia-app', EP_NONE );
+		//add_rewrite_rule('gmedia(/(gallery|single|album|tag|category))?/(.+?)/?$', 'index.php?gmedia=$matches[3]&type=$matches[2]', 'top');
+	}
 
 	/**
-	 * @param $wp_rewrite
+	 * @param $rules
+	 *
+	 * @return array
 	 */
-	function add_rewrite_rules( $wp_rewrite ) {
+	function add_rewrite_rules( $rules ) {
+		global $wp_rewrite;
+
+		$this->add_endpoint();
+
 		$new_rules = array(
 			$this->endpoint . '(/(gallery|single|album|tag|category))?/(.+?)/?$' => 'index.php?gmedia=' . $wp_rewrite->preg_index(3) . '&type=' . ($wp_rewrite->preg_index(2)? $wp_rewrite->preg_index(2) : 'gallery')
 			,'gmedia-app/?$' => 'index.php?gmedia-app=1'
 		);
 
-		//​ Add the new rewrite rule into the top of the global rules array
-		$wp_rewrite->rules = $new_rules + $wp_rewrite->rules;
+		$new_rules = $new_rules + $rules;
+		return $new_rules;
 }
 
 	/**
@@ -50,18 +66,6 @@ class gmediaPermalinks {
 		$vars[] = 'gmedia';
 		$vars[] = 'type';
 		return $vars;
-	}
-
-	/**
-	 * add_endpoint function.
-	 *
-	 * @access public
-	 * @return void
-	 */
-	public function add_endpoint() {
-		add_rewrite_endpoint( $this->endpoint, EP_NONE );
-		add_rewrite_endpoint( 'gmedia-app', EP_NONE );
-		//add_rewrite_rule('gmedia(/(gallery|single|album|tag|category))?/(.+?)/?$', 'index.php?gmedia=$matches[3]&type=$matches[2]', 'top');
 	}
 
 	/**

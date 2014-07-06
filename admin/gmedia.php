@@ -123,6 +123,7 @@ function gmediaLib(){
 				<ul class="dropdown-menu" role="menu">
 					<?php if(!$gmProcessor->mode){ ?>
 						<li><a class="edit-mode-link" href="<?php echo $edit_mode_href; ?>" <?php echo $edit_mode_data; ?>><?php _e('Enter Edit Mode', 'gmLang'); ?></a></li>
+
 						<li class="divider"></li>
 						<li class="<?php echo $rel_selected_show; ?>"><a href="#termsModal" data-modal="quick_gallery" data-action="gmedia_terms_modal" class="gmedia-modal"><?php _e('Quick Gallery from Selected', 'gmLang'); ?></a></li>
 						<li class="<?php echo $rel_selected_show; ?>"><a href="#termsModal" data-modal="assign_category" data-action="gmedia_terms_modal" class="gmedia-modal"><?php _e('Assign Category...', 'gmLang'); ?></a></li>
@@ -130,6 +131,9 @@ function gmediaLib(){
 						<li class="<?php echo $rel_selected_show; ?>"><a href="#termsModal" data-modal="add_tags" data-action="gmedia_terms_modal" class="gmedia-modal"><?php _e('Add Tags...', 'gmLang'); ?></a></li>
 						<li class="<?php echo $rel_selected_show; ?>"><a href="#termsModal" data-modal="delete_tags" data-action="gmedia_terms_modal" class="gmedia-modal"><?php _e('Delete Tags...', 'gmLang'); ?></a></li>
 						<li class="<?php echo $rel_selected_show; ?>"><a href="<?php echo wp_nonce_url($gmCore->get_admin_url(array('delete' => 'selected'), array('filter')), 'gmedia_delete') ?>" class="gmedia-delete" data-confirm="<?php _e("You are about to permanently delete the selected items.\n\r'Cancel' to stop, 'OK' to delete.", "gmLang"); ?>"><?php _e('Delete Selected Items', 'gmLang'); ?></a></li>
+
+						<li class="divider <?php echo $rel_selected_show; ?>"></li>
+						<li class="<?php echo $rel_selected_show; ?>"><a href="<?php echo wp_nonce_url($gmCore->get_admin_url(array('update_meta' => 'selected'), array()), 'gmedia_update_meta') ?>" class="gmedia-update"><?php _e('Update Metadata in Database', 'gmLang'); ?></a></li>
 
 						<li class="dropdown-header <?php echo $rel_selected_hide; ?>"><span><?php _e("Select items to see more actions", "gmLang"); ?></span></li>
 					<?php } else{ ?>
@@ -275,14 +279,16 @@ function gmediaLib(){
 						} else{
 							echo '&#8212;';
 						} ?></div>
-					<p class="media-meta" style="margin:5px 4px;">
-						<a href="<?php echo admin_url("admin.php?page=GrandMedia&gmediablank=image_editor&id={$item->ID}"); ?>" data-target="#gmeditModal" class="gmedit-modal" title="<?php echo esc_attr($item->title); ?>">
-							<?php _e('Edit Image', 'gmLang'); ?>
-						</a> |
-						<a href="<?php echo $gmCore->gm_get_media_image($item, 'original'); ?>" data-target="#previewModal" class="preview-modal" title="<?php echo esc_attr($item->title); ?>">
-							<?php _e('View Original', 'gmLang'); ?>
-						</a>
-					</p>
+					<?php if('image' == $type[0]){ ?>
+						<p class="media-meta" style="margin:5px 4px;">
+							<a href="<?php echo admin_url("admin.php?page=GrandMedia&gmediablank=image_editor&id={$item->ID}"); ?>" data-target="#gmeditModal" class="gmedit-modal" title="<?php echo esc_attr($item->title); ?>">
+								<?php _e('Edit Image', 'gmLang'); ?>
+							</a> |
+							<a href="<?php echo $gmCore->gm_get_media_image($item, 'original'); ?>" data-target="#previewModal" class="preview-modal" title="<?php echo esc_attr($item->title); ?>">
+								<?php _e('View Original', 'gmLang'); ?>
+							</a>
+						</p>
+					<?php } ?>
 				</div>
 			</div>
 		</div>

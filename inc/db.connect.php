@@ -243,14 +243,17 @@ class GmediaDB {
 	function count_gmedia() {
 		/** @var $wpdb wpdb */
 		global $wpdb;
-		/** @var $join
-		 * @var  $where
+		/**
 		 * @var  $whichmimetype
 		 * @var  $groupby
 		 * @var  $orderby
 		 * @var  $limits
 		 */
-		extract( $this->clauses );
+		$join = '';
+		$where = '';
+		if($this->clauses){
+			extract( $this->clauses, EXTR_OVERWRITE );
+		}
 
 		$count = $wpdb->get_results( "SELECT COUNT(*) as total,
 						SUM(CASE WHEN {$wpdb->prefix}gmedia.mime_type LIKE 'image%' THEN 1 ELSE 0 END) as image,
@@ -563,11 +566,16 @@ class GmediaDB {
 	 *
 	 * @return mixed Metadata for media.
 	 */
-	function generate_gmedia_metadata( $media_id, $fileinfo ) {
+	function generate_gmedia_metadata( $media_id, $fileinfo = array() ) {
 		global $gmCore;
 		$media = $this->get_gmedia( $media_id );
 
+		if(empty($fileinfo)){
+					$fileinfo = $gmCore->fileinfo($media->gmuid, false);
+		}
+
 		$metadata = array();
+		require_once(ABSPATH . 'wp-admin/includes/image.php');
 		if ( preg_match( '!^image/!', $media->mime_type ) && file_is_displayable_image( $fileinfo['filepath'] ) ) {
 			$imagesize = getimagesize( $fileinfo['filepath'] );
 			$metadata['web'] = array('width'=>$imagesize[0], 'height'=>$imagesize[1]);
@@ -2279,11 +2287,7 @@ class GmediaDB {
 			$where .= $wpdb->prepare( " AND (t.name LIKE %s)", '%' . $search . '%' );
 		}
 
-		$selects = array();
 		switch ( $fields ) {
-			case 'all':
-				$selects = array( 't.*' );
-				break;
 			case 'ids':
 			case 'id=>global':
 				$selects = array( 't.term_id', 't.global' );
@@ -2301,6 +2305,11 @@ class GmediaDB {
 				$orderby = '';
 				$order   = '';
 				$selects = array( 'COUNT(*)' );
+				break;
+			case 'all':
+			default:
+				$selects = array( 't.*' );
+				break;
 		}
 
 		$_fields = $fields;
@@ -2373,6 +2382,12 @@ class GmediaDB {
 		elseif ( 'id=>names' == $fields ) {
 			while ( ($term = array_shift( $terms )) ) {
 				$_terms[$term->term_id] = $term->name;
+			}
+			$terms = $_terms;
+		}
+		elseif ( 'name=>all' == $fields ) {
+			while ( ($term = array_shift( $terms )) ) {
+				$_terms[$term->name] = $term;
 			}
 			$terms = $_terms;
 		}
