@@ -31,6 +31,7 @@ Gmedia Gallery is the result of hundreds of hours of working to bring you the ul
 
 See demo of Gmedia Gallery Modules:
 
+*   [RealSlider Module](http://codeasily.com/portfolio-item/gmedia-realslider/) is an image/video gallery slider module built on jQuery. RealSlider module is responsive and touch friendly gallery with 50+ options for customization.
 *   [Phantom Module](http://codeasily.com/portfolio-item/gmedia-phantom/) is the Wall/Grid Gallery with social sharing - you can easily change thumbnail sizes, colors, navigation, borders, add stylish labels to thumbnails ... and much more. PhotoSwipe like theme on touch devices.. only better.
 *   [PhotoBox Module](http://codeasily.com/portfolio-item/gmedia-photobox/) - a lightweight image gallery which uses only CSS3 for silky-smooth animations and transitions.
 *   [Music Player Module](http://codeasily.com/portfolio-item/gmedia-music-player/) - beautiful audio player with playlist is totally written in jQuery and HTML5.
