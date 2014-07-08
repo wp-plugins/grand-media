@@ -99,6 +99,9 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 
 == Changelog ==
 
+= 1.1.1 =
+* Fixed Gallery Preview
+
 = 1.1.0 =
 * Fixed Gmedia permalinks
 * Gallery reset button now not showing if there is no changes
@@ -109,7 +112,6 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 * Improved code for shortcodes
 * Updated modules
 * Small fixes and improvements
-
 
 = 1.0.0 =
 * Clean plugin code

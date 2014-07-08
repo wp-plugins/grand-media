@@ -574,18 +574,20 @@ function gmediaGalleryEdit() {
 						?>
 						<p><b><?php _e('Gallery ID:'); ?></b> #<?php echo $gallery_id; ?></p>
 						<p><b><?php _e('Gallery URL:'); ?></b> <?php
+							$gallery_link_default = home_url('index.php?gmedia='.$gallery_id);
 							if ( get_option('permalink_structure') ) {
 								$ep = $gmGallery->options['endpoint'];
 								$gallery_link = home_url($ep.'/'.$gallery_id);
 							} else{
-								$gallery_link = home_url('index.php?gmedia='.$gallery_id);
-							}
-							echo '<a target="_blank" href="'.$gallery_link.'">'.$gallery_link.'</a>';
-							?></p>
+								$gallery_link = $gallery_link_default;
+							} ?>
+							<a target="_blank" href="<?php echo $gallery_link; ?>"><?php echo $gallery_link; ?></a>
+							<br /><?php _e('update <a href="options-permalink.php">Permalink Settings</a> if above link not working', 'gmLang'); ?>
+						</p>
 
 						<div><b><?php _e('Gallery Preview:'); ?></b></div>
 						<div class="gallery_preview" style="overflow:hidden;">
-							<iframe id="gallery_preview" name="gallery_preview" src="<?php echo add_query_arg($params, $gallery_link); ?>"></iframe>
+							<iframe id="gallery_preview" name="gallery_preview" src="<?php echo add_query_arg($params, $gallery_link_default); ?>"></iframe>
 						</div>
 					<?php } ?>
 				</div>
