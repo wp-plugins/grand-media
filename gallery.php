@@ -58,11 +58,13 @@ if($gmedia){
 			if(r > bw/bh){
 				vh = bw/r;
 				vw = bw;
-				mar = (bh - vh)/2 + "px 0 0 0";
+				mar = (bh - vh)/2;
+				mar = (mar > 0)? mar + "px 0 0 0" : "0";
 			} else{
 				vw = bh*r;
 				vh = bh;
-				mar = "0 0 0 " + (bw - vw)/2 + "px";
+				mar = (bh - vh)/2;
+				mar = (mar > 0)? "0 0 0 " + mar + "px" : "0";
 			}
 			$("body").css({margin: mar});
 			video.attr("width", vw).attr("height", vh);
@@ -95,7 +97,7 @@ if($gmedia){
 
 	<style type="text/css">
 		html { width: 100%; height: 100%; }
-		body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; min-height: 240px; min-width: 320px; }
+		body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; min-height: 120px; min-width: 160px; }
 		<?php echo $styles; ?>
 	</style>
 	<?php

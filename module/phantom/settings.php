@@ -21,6 +21,8 @@ $default_options = array(
 	'tooltipBgColor' => 'ffffff',
 	'tooltipStrokeColor' => '000000',
 	'tooltipTextColor' => '000000',
+	'captionTitleColor' => 'ffffff',
+	'captionTextColor' => 'ffffff',
 	'lightboxPosition' => 'document',
 	'lightboxWindowColor' => '000000',
 	'lightboxWindowAlpha' => '80',
@@ -40,13 +42,13 @@ $options_tree = array(
 			'thumbCols' => array(
 				'label' => 'Thumbnail Columns',
 				'tag' => 'input',
-				'attr' => 'type="number" min="0" data-watch="change" data-thumbrows="=:0"',
+				'attr' => 'type="number" min="0"',
 				'text' => 'Number of Columns (number, 0 = auto). Set the number of columns for the grid. If value is 0, then number of columns will be relative to content width or relative to Thumbnail Rows (if rows not auto). This will be ignored if Height value is 0'
 			),
 			'thumbRows' => array(
 				'label' => 'Thumbnail Rows',
 				'tag' => 'input',
-				'attr' => 'type="number" min="0" data-watch="change" data-thumbcols="=:0"',
+				'attr' => 'type="number" min="0"',
 				'text' => 'Number of Lines (number, 0 = auto). Default value: 0. Set the number of lines for the grid. This will be ignored if Thumbnail Columns value is not 0 or if Height value is 0'
 			),
 			'thumbsNavigation' => array(
@@ -233,6 +235,18 @@ $options_tree = array(
 						'value' => 'gallery'
 					)
 				)
+			),
+			'captionTitleColor' => array(
+				'label' => 'Lightbox Image Title Color',
+				'tag' => 'input',
+				'attr' => 'type="text" data-type="color"',
+				'text' => 'Set the text color for image title'
+			),
+			'captionTextColor' => array(
+				'label' => 'Lightbox Image Description Color',
+				'tag' => 'input',
+				'attr' => 'type="text" data-type="color"',
+				'text' => 'Set the text color for image caption'
 			),
 			'lightboxWindowColor' => array(
 				'label' => 'Lightbox Window Color',

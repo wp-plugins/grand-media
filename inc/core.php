@@ -236,7 +236,7 @@ class GmediaCore {
 				if(!empty($cover)){
 					if($this->is_digit($cover)){
 						$image = $this->gm_get_media_image((int) $cover, $size, false);
-					} elseif(false !== filter_var($cover, FILTER_VALIDATE_URL)){
+					} elseif(('thumb' != $size) && (false !== filter_var($cover, FILTER_VALIDATE_URL))){
 						return $cover;
 					}
 				} elseif(false !== $default){

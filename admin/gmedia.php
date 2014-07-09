@@ -20,6 +20,11 @@ function gmediaLib(){
 	$gm_screen_options = array_merge($gmGallery->options['gm_screen_options'], $gm_screen_options);
 
 	$gmedia__in = $gmCore->_get('gmedia__in', null);
+	$search_string = $gmCore->_get('s', null);
+	if('#' == substr($search_string, 0, 1)){
+		$gmedia__in = substr($search_string, 1);
+		$search_string = null;
+	}
 	$orderby = $gm_screen_options['orderby_gmedia'];
 	$order = $gm_screen_options['sortorder_gmedia'];
 	if('selected' == $gmCore->_req('filter')){
@@ -33,7 +38,7 @@ function gmediaLib(){
 								'tag_id' => $gmCore->_get('tag_id', null), 'tag__in' => $gmCore->_get('tag__in', null),
 								'cat' => $gmCore->_get('cat', null), 'category__in' => $gmCore->_get('category__in', null),
 								'alb' => $gmCore->_get('alb', null), 'album__in' => $gmCore->_get('album__in', null),
-								'gmedia__in' => $gmedia__in, 's' => $gmCore->_get('s', null));
+								'gmedia__in' => $gmedia__in, 's' => $search_string);
 	$gmediaQuery = $gmDB->get_gmedias($args);
 
 	$gm_qty = array('total' => '', 'image' => '', 'audio' => '', 'video' => '', 'text' => '', 'application' => '',
@@ -50,7 +55,7 @@ function gmediaLib(){
 		<form class="form-inline gmedia-search-form" role="search">
 			<div class="form-group">
 				<?php foreach($_GET as $key => $value){
-					if(in_array($key, array('page', 'mime_type', 'tag_id', 'tag__in', 'cat', 'category__in', 'alb', 'album__in'))){ ?>
+					if(in_array($key, array('page', 'mode', 'mime_type', 'tag_id', 'tag__in', 'cat', 'category__in', 'alb', 'album__in'))){ ?>
 					<input type="hidden" name="<?php echo $key; ?>" value="<?php echo $value; ?>"/>
 				<?php }
 				} ?>

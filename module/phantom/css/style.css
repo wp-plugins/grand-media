@@ -275,7 +275,8 @@ div.gmPhantom_Container img {
 	font-family: Arial, sans-serif;
 	padding: 0 1.2em;
 }
-.gmPhantom_LightboxNav_CloseBtn span:hover {
+.gmPhantom_LightboxNav_CloseBtn span:hover,
+.gmPhantom_LightboxNav_CloseBtn span:active {
 	color: #fefefe;
 }
 
@@ -298,7 +299,8 @@ div.gmPhantom_Container img {
 	text-decoration: none;
 	padding: 0 1.2em;
 }
-.gmPhantom_LightboxSocialShare .gmAddThisShareButton > a:hover {
+.gmPhantom_LightboxSocialShare .gmAddThisShareButton > a:hover,
+.gmPhantom_LightboxSocialShare .gmAddThisShareButton > a:active {
 	color: #fefefe;
 }
 

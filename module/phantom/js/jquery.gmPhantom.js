@@ -1,6 +1,6 @@
 /*
  * Title                   : gmPhantom
- * Version                 : 1.9
+ * Version                 : 2.0
  * Copyright               : 2013 CodEasily.com
  * Website                 : http://www.codeasily.com
  */
@@ -10,8 +10,6 @@ if(typeof jQuery.fn.gmPhantom == 'undefined'){
 			var Container = this,
 				ID = '',
 				Content,
-				tempVar,
-				ratio,
 				opt,
 
 				opt_str = {
@@ -19,7 +17,8 @@ if(typeof jQuery.fn.gmPhantom == 'undefined'){
 					'thumbsAlign': 'left', // Thumbnails align. Default value: left.
 					'thumbsInfo': 'label', // Info Thumbnails Display (none, tooltip, label). Default value: tooltip. Display a small info text on the thumbnails, a tooltip or a label on bottom.
 					'lightboxPosition': 'document', // Lightbox Position (document, gallery). Default value: document. If the value is document the lightbox is displayed over the web page fitting in the browser's window, else the lightbox is displayed in the gallery's container.
-					'moduleUrl': ''
+					'moduleUrl': '',
+					'libraryUrl': ''
 				},
 				opt_hex = {
 					'bgColor': 'ffffff', // Background Color (color hex code). Default value: ffffff. Set gallery background color.
@@ -27,6 +26,8 @@ if(typeof jQuery.fn.gmPhantom == 'undefined'){
 					'tooltipBgColor': 'ffffff', // Tooltip Background Color (color hex code). Default value: ffffff. Set tooltip background color.
 					'tooltipStrokeColor': '000000', // Tooltip Stroke Color (color hex code). Default value: 000000. Set tooltip stroke color.
 					'tooltipTextColor': '000000', //   Tooltip Text Color (color hex code). Default value: 000000. Set tooltip text color.
+					'captionTitleColor': 'ffffff', //   Tooltip Text Color (color hex code). Default value: 000000. Set tooltip text color.
+					'captionTextColor': 'ffffff', //   Tooltip Text Color (color hex code). Default value: 000000. Set tooltip text color.
 					'lightboxWindowColor': '000000' // Lightbox Window Color (color hex code). Default value: 000000. Set the color for the lightbox window.
 				},
 				opt_int = {
@@ -52,9 +53,6 @@ if(typeof jQuery.fn.gmPhantom == 'undefined'){
 				IDs = [],
 				Images = [],
 				Thumbs = [],
-				ThumbsLoaded = [],
-				ThumbsFirstPosX = [],
-				ThumbsFirstPosY = [],
 				CaptionTitle = [],
 				CaptionText = [],
 				Media = [],
@@ -230,6 +228,7 @@ if(typeof jQuery.fn.gmPhantom == 'undefined'){
 							else{
 								methods.rpLightboxMedia();
 							}
+							methods.rpCaption();
 						}
 					},
 					rpResponsive: function(){
@@ -585,7 +584,6 @@ if(typeof jQuery.fn.gmPhantom == 'undefined'){
 						}
 					},
 					showLightbox: function(no){// Show Lightbox
-						var maxWidth, maxHeight, currW, currH;
 						var lightbox = $('#gmPhantom_LightboxWrapper_' + ID);
 
 						if(opt.lightboxPosition == 'document' && !prototypes.isTouchDevice()){
@@ -617,7 +615,7 @@ if(typeof jQuery.fn.gmPhantom == 'undefined'){
 
 						$('.gmPhantom_LightboxNav_PrevBtn span', lightbox).css({'left': 0});
 						$('.gmPhantom_LightboxNav_NextBtn span', lightbox).css({'right': 0});
-						$('#gmPhantom_LightboxWrapper_' + ID).fadeIn(LightboxDisplayTime, function(){
+						lightbox.fadeIn(LightboxDisplayTime, function(){
 							if(Media[no] === ''){
 								methods.loadLightboxImage(no);
 							} else{
@@ -816,8 +814,9 @@ if(typeof jQuery.fn.gmPhantom == 'undefined'){
 
 							if(prototypes.isTouchDevice()){
 								setTimeout(function(){
-									fix_windowW = $('#fix_window_' + ID)[0].offsetLeft + 1;
-									fix_windowH = $('#fix_window_' + ID)[0].offsetTop + 1;
+									var fix_el = $('#fix_window_' + ID)[0];
+									fix_windowW = fix_el.offsetLeft + 1;
+									fix_windowH = fix_el.offsetTop + 1;
 									var fix_top = (windowH - currH) / 2,
 										fix_left = 'auto';
 									if((windowW > fix_windowW) && (currW > fix_windowW)){
@@ -1106,7 +1105,7 @@ if(typeof jQuery.fn.gmPhantom == 'undefined'){
 						}
 						else{
 							$('.gmPhantom_CaptionTextContainer', lightbox).css('visibility', 'visible');
-							$('.gmPhantom_CaptionText', lightbox).html($("<div />").html(CaptionText[no]).text());
+							$('.gmPhantom_CaptionText', lightbox).html($("<div />").html(CaptionText[no]));
 						}
 						if(prototypes.isTouchDevice()){
 							if((CaptionTitle[no] !== '' || CaptionText[no] !== '')){
@@ -1141,15 +1140,15 @@ if(typeof jQuery.fn.gmPhantom == 'undefined'){
 							ui_offset_left = 5;
 						}
 						var addthis_wrapper = $('#gmPhantom_LightboxWrapper_' + ID + ' .gmPhantom_LightboxSocialShare'),
-							addthis_cur,
-							addthis_config = {
+							addthis_cur;
+							window.addthis_config = {
 								ui_click: false,
 								ui_offset_left: ui_offset_left,
 								ui_offset_top: ui_offset_top,
 								services_exclude: 'print',
 								ui_cobrand: 'Gmedia Gallery'
-							},
-							addthis_share = {
+							};
+							window.addthis_share = {
 								url: URL,
 								title: CaptionTitle[currentItem - 1],
 								templates: {
