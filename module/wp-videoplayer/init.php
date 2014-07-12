@@ -13,6 +13,7 @@ ini_set('error_reporting', 0);
  * @var  $is_bot
  **/
 $content = array();
+$settings = array_merge($module['options'], $settings);
 if(!isset($shortcode_raw)){ $shortcode_raw = false; }
 $tab = sanitize_title($gallery['name']);
 foreach($terms as $term){
