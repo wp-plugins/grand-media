@@ -1,6 +1,6 @@
 /*
  * Title      : Music Player Module for Gmedia Gallery plugin
- * Version    : 1.9
+ * Version    : 2.0
  * Copyright  : 2013 CodEasily.com
  * Website    : http://www.codeasily.com
  */
@@ -295,7 +295,7 @@
 			}
 
 			function setLink($track, index) {
-				if (myPlaylist[index].button != '') {
+				if (myPlaylist[index].button !== '') {
 					$track.find(cssSelector.button).removeClass(attr(cssSelector.buttonNotActive)).attr('href', myPlaylist[index].button).html(options.buttonText);
 					var ext = myPlaylist[index].button.slice(-4);
 					if(('.mp3' == ext) || ('.ogg' == ext) ){
@@ -454,7 +454,7 @@
 								' <div class="jPlayer-container"></div>' +
 								'</div>';
 
-				var mw = (0 == options.maxwidth)? 'none' : options.maxwidth;
+				var mw = (0 === options.maxwidth)? 'none' : options.maxwidth;
 				$interface = $(markup).css({display:'none', opacity:0, width: options.width, 'max-width': mw}).appendTo($self).slideDown('slow', function() {
 					$interface.animate({opacity:1});
 
@@ -477,7 +477,7 @@
 			*/
 
 			function setText() {
-				if (myPlaylist[current].text == '')
+				if (myPlaylist[current].text === '')
 					$text.animate({opacity:0}, 'fast', function(){ $(this).empty() });
 				else {
 					$text.html(myPlaylist[current].text).animate({opacity:1}, 'fast');
@@ -487,7 +487,7 @@
 			function setCover() {
 				$albumCover.animate({opacity:0}, 'fast', function() {
 					$(this).empty();
-					if (!isUndefined(myPlaylist[current].cover) || myPlaylist[current].cover != '') {
+					if (!isUndefined(myPlaylist[current].cover) || myPlaylist[current].cover !== '') {
 						var now = current;
 						$('<img src="' + myPlaylist[current].cover + '" alt="album cover" />').load(function(){
 							if(now == current)
@@ -511,13 +511,13 @@
 
 		/** Common Functions **/
 		function trackName(index) {
-			if (myPlaylist[index].title != '')
+			if (myPlaylist[index].title !== '')
 				return myPlaylist[index].title;
-			else if (myPlaylist[index].mp3 != '')
+			if (myPlaylist[index].mp3 !== '')
 				return fileName(myPlaylist[index].mp3);
-			else if (myPlaylist[index].oga != '')
+			if (myPlaylist[index].oga !== '')
 				return fileName(myPlaylist[index].oga);
-			else return 'NaN';
+			return 'NaN';
 		}
 
 		function fileName(path) {
@@ -533,7 +533,7 @@
 			}
 			else {
 				//if the rating isn't set, use 0
-				var rating = !isUndefined(myPlaylist[index].rating) ? Math.ceil(myPlaylist[index].rating) : 0;
+				var rating = isUndefined(myPlaylist[index].rating)? 0 : Math.ceil(myPlaylist[index].rating);
 				applyCurrentlyPlayingRating(rating);
 			}
 		}

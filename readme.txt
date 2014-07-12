@@ -100,6 +100,9 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 
 == Changelog ==
 
+= 1.1.3 =
+* Fixed Music Player module
+
 = 1.1.2 =
 * Added search media by ID (just type # bedore digit in search field)
 * Added search in Edit Mode

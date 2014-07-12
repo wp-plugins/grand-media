@@ -46,7 +46,8 @@ if(!empty($content)){
 		'libraryUrl' => $gmCore->upload['url'],
 		'ip' => str_replace('.', '', $_SERVER['REMOTE_ADDR'])
 	));
-	$jqmp_autoplay_setting = intval($settings['autoplay']);
+	$allsettings = array_merge($module['options'], $settings);
+	$jqmp_autoplay_setting = intval($allsettings['autoplay']);
 	if($jqmp_autoplay_setting){
 		$gmedia_shortcode_instance['music_autoplay'] = isset($gmedia_shortcode_instance['music_autoplay'])? $gmedia_shortcode_instance['music_autoplay'] + 1 : 0;
 		if($gmedia_shortcode_instance['music_autoplay']){
