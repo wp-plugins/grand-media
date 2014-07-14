@@ -1,6 +1,6 @@
 /*
  * Title                   : gmPhantom
- * Version                 : 2.0
+ * Version                 : 2.1
  * Copyright               : 2013 CodEasily.com
  * Website                 : http://www.codeasily.com
  */
@@ -1343,7 +1343,8 @@ if(typeof jQuery.fn.gmPhantom == 'undefined'){
 						}
 
 						if(item.css('display') == 'none'){
-							item.css('display', 'block');
+							//item.css('display', 'block');
+							item.addClass('gmShowBuster');
 							items.push(item);
 						}
 
@@ -1353,7 +1354,8 @@ if(typeof jQuery.fn.gmPhantom == 'undefined'){
 						var i;
 
 						for(i = 0; i < items.length; i++){
-							items[i].css('display', 'none');
+							//items[i].css('display', 'none');
+							items[i].removeClass('gmShowBuster');
 						}
 					}
 				};

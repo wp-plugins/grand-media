@@ -435,3 +435,4 @@ div.gmPhantom_Container img {
 @-ms-keyframes slide { from{opacity: 0;} to{opacity: 1;} }
 @keyframes slide { from{opacity: 0;} to{opacity: 1;} }
 
+body .gmShowBuster {display:block !important;}

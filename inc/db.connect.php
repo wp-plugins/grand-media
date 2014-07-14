@@ -3163,8 +3163,7 @@ class GmediaDB {
 
 		// Get meta info
 		$id_list   = join( ',', $ids );
-		$meta_list = $wpdb->get_results( $wpdb->prepare( "SELECT $column, meta_key, meta_value FROM $table WHERE $column IN ($id_list)",
-			$meta_type ), ARRAY_A );
+		$meta_list = $wpdb->get_results( "SELECT $column, meta_key, meta_value FROM $table WHERE $column IN ($id_list)", ARRAY_A );
 
 		if ( ! empty( $meta_list ) ) {
 			foreach ( $meta_list as $metarow ) {
