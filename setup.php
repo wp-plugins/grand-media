@@ -12,7 +12,8 @@ if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])){
  */
 function gmedia_default_options(){
 
-	$gm['uninstall_dropfiles'] = '1';
+	$gm['uninstall_dropdata'] = 'all'; // can be 'all', 'none', 'db'
+
 	$gm['shortcode_raw'] = '0';
 	$gm['endpoint'] = 'gmedia';
 
@@ -81,8 +82,28 @@ function gmedia_default_options(){
 	$gm['gm_screen_options']['uploader_chunk_size'] = 8; // in Mb
 	$gm['gm_screen_options']['uploader_urlstream_upload'] = 'false';
 
+	$gm['gm_screen_options']['library_edit_quicktags'] = 'false';
+
 	return $gm;
 
+}
+
+/**
+ * sets gmedia capabilities to administrator role
+ **/
+function gmedia_capabilities() {
+	// Set the capabilities for the administrator
+	$role = get_role('administrator');
+	// We need this role, no other chance
+	if ( empty($role) ) {
+		update_option( "gmediaInitCheck", __('Sorry, Gmedia Gallery works only with a role called administrator','gmLang') );
+		return;
+	}
+	$capabilities = gmedia_plugin_capabilities();
+	$capabilities = apply_filters('gmedia_capabilities', $capabilities);
+	foreach($capabilities as $cap){
+		$role->add_cap($cap);
+	}
 }
 
 /**
@@ -100,6 +121,8 @@ function gmedia_install(){
 	if(!current_user_can('activate_plugins')){
 		return;
 	}
+
+	gmedia_capabilities();
 
 	// upgrade function changed in WordPress 2.3	
 	require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
@@ -198,7 +221,7 @@ function gmedia_install(){
 
 	// check one table again, to be sure
 	if($wpdb->get_var("show tables like '$gmedia'") != $gmedia){
-		update_option("gmediaInitCheck", __('GRAND Media: Tables could not created, please check your database settings', 'gmLang'));
+		update_option("gmediaInitCheck", __('GmediaGallery: Tables could not created, please check your database settings', 'gmLang'));
 
 		return;
 	}

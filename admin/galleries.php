@@ -27,6 +27,12 @@ function gmediaGalleries() {
 				  'hide_empty' => 0, 'page' => $gmCore->_get('pager', 1), 'include' => $filter);
 	$args['offset'] = ($args['page'] - 1) * $args['number'];
 
+	if($gmCore->caps['gmedia_edit_others_media']){
+		$args['global'] = $gmCore->_get('author', '');
+	} else{
+		$args['global'] = array($user_ID);
+	}
+
 	$taxonomy = 'gmedia_gallery';
 	$gmediaTerms = $gmDB->get_terms($taxonomy, $args);
 	if(is_wp_error($gmediaTerms)){
@@ -138,6 +144,11 @@ function gmediaGalleries() {
 						$broken = true;
 					}
 
+					if($term->global == $user_ID){
+						$allow_edit = true;
+					} else{
+						$allow_edit = $gmCore->caps['gmedia_edit_others_media'];
+					}
 
 					$is_selected = in_array($term->term_id, $gmProcessor->selected_items)? true : false;
 					?>
@@ -154,7 +165,14 @@ function gmediaGalleries() {
 							</label>
 							<div class="media-body" style="margin-left:145px;">
 								<p class="media-title">
+									<?php if($allow_edit){ ?>
 									<a href="<?php echo add_query_arg(array('edit_gallery' => $term->term_id), $url); ?>"><?php echo esc_html($term->name); ?></a>
+									<?php } else{ ?>
+									<span><?php echo esc_html($term->name); ?></span>
+									<?php } ?>
+								</p>
+								<p class="media-meta">
+									<span class="label label-default"><?php _e('Author', 'gmLang'); ?>:</span> <?php echo $term->global? get_the_author_meta('display_name', $term->global) : '&#8212;'; ?>
 								</p>
 								<p class="media-caption"><?php echo esc_html($term->description); ?></p>
 								<p class="media-meta" title="<?php _e('Shortcode', 'gmLang'); ?>" style="font-weight:bold">
@@ -286,18 +304,25 @@ function gmediaGalleries() {
  * @return mixed content
  */
 function gmediaGalleryEdit() {
-	global $gmDB, $gmCore, $gmGallery, $gmProcessor;
+	global $gmDB, $gmCore, $gmGallery, $gmProcessor, $user_ID;
 
 	$alert = array();
 
 	$module_name = $gmCore->_get('gallery_module');
 	$gallery_id = $gmCore->_get('edit_gallery');
+	$author_new = false;
+	if($gmCore->caps['gmedia_edit_others_media']){
+		$author = (int) $gmCore->_get('author', $user_ID);
+	} else{
+		$author = $user_ID;
+	}
 
 	$url = add_query_arg(array('page' => $gmProcessor->page, 'edit_gallery' => $gallery_id ), admin_url('admin.php'));
 
 	$gallery = array(
 		'name'=>'',
 		'description'=>'',
+		'global' => $author,
 		'status' => 'public',
 		'edited' => '&#8212;',
 		'module' => '',
@@ -313,12 +338,21 @@ function gmediaGalleryEdit() {
 		} elseif(empty($gallery)){
 			$alert[] = sprintf(__('No gallery with ID #%s in database'), $gallery_id);
 		} else{
-			$gallery_meta = $gmDB->get_metadata('gmedia_term', $gallery_id);
-			$gallery_meta = array_map('reset', $gallery_meta);
-			$gallery_meta = array_map('maybe_unserialize', $gallery_meta);
-			$gallery = array_merge($gallery, $gallery_meta);
-			if(!$module_name){
-				$module_name = $gallery['module'];
+			if(($gallery['global'] == $author) || $gmCore->caps['gmedia_edit_others_media']){
+				$gallery_meta = $gmDB->get_metadata('gmedia_term', $gallery_id);
+				$gallery_meta = array_map('reset', $gallery_meta);
+				$gallery_meta = array_map('maybe_unserialize', $gallery_meta);
+				$gallery = array_merge($gallery, $gallery_meta);
+				if(isset($_GET['author']) && ($gallery['global'] != $author)){
+					unset($gallery['query']['gmedia_album']);
+					$gallery['global'] = $author;
+					$author_new = true;
+				}
+				if(!$module_name){
+					$module_name = $gallery['module'];
+				}
+			} else{
+				$alert[] = __('You are not allowed to edit others media');
 			}
 		}
 	} elseif($module_name){
@@ -431,6 +465,10 @@ function gmediaGalleryEdit() {
 					<ul class="nav nav-tabs" id="galleryTabs" style="padding:10px 0;">
 						<?php if(isset($module_info)){ ?>
 						<li class="text-center"><strong><?php echo $module_info['title']; ?></strong><a href="#chooseModuleModal" data-toggle="modal" style="padding:5px 0;"><img src="<?php echo $module_url.'/screenshot.png'; ?>" alt="<?php echo esc_attr($module_info['title']); ?>" width="100" style="height:auto;"/></a></li>
+						<?php } else{ ?>
+						<li class="text-center"><strong><?php echo $gallery['module']; ?></strong>
+							<p><?php _e('This module is broken or outdated. Please, go to Modules page and update/install module.', 'gmLang'); ?></p>
+							<a href="#chooseModuleModal" data-toggle="modal" style="padding:5px 0;"><img src="<?php echo $module_url.'/screenshot.png'; ?>" alt="<?php echo esc_attr($gallery['module']); ?>" width="100" style="height:auto;"/></a></li>
 						<?php } ?>
 						<li class="active"><a href="#general_settings" data-toggle="tab"><?php _e('General Settings', 'gmLang'); ?></a></li>
 						<?php
@@ -448,6 +486,14 @@ function gmediaGalleryEdit() {
 									echo '<br /><b>'.__('Preview module:').'</b> '.$module_name;
 									echo '<br /><span class="text-muted">'.sprintf(__('Note: Module changed to %s, but not saved yet'), $module_name).'</span>';
 								}	?></p>
+							<p><b><?php _e('Gallery author:','gmLang'); ?></b>
+								<?php if($gmCore->caps['gmedia_edit_others_media']){ ?>
+								<a href="#termsModal" data-modal="filter_authors" data-action="gmedia_terms_modal" class="gmedia-modal" title="<?php _e('Click to choose author for gallery', 'gmLang'); ?>"><?php echo $gallery['global']? get_the_author_meta('display_name', $gallery['global']) : __('(no author / shared albums)');	?></a>
+								<?php if($author_new){
+										echo '<br /><span class="text-danger">'.__('Note: Author changed but not saved yet. You can see Albums list only of chosen author').'</span>';
+									} ?>
+								<?php } else{ echo $gallery['global']? get_the_author_meta('display_name', $gallery['global']) : '&#8212;'; } ?>
+								<input type="hidden" name="gallery[global]" value="<?php echo $gallery['global']; ?>" /></p>
 							<?php if($gallery_id){ ?>
 								<p><b><?php _e('Shortcode:'); ?></b> [gmedia id=<?php echo $gallery_id; ?>]</p>
 							<?php } ?>
@@ -470,15 +516,17 @@ function gmediaGalleryEdit() {
 								<label><?php _e('Show supported files from', 'gmLang'); ?></label>
 								<select data-watch="change" id="gmedia_query" class="form-control input-sm" name="gallery[term]">
 									<?php reset($gallery['query']); $gallery['term'] = key($gallery['query']); ?>
+									<?php if($gmCore->caps['gmedia_terms']){ ?>
 									<option value="gmedia_album"<?php selected($gallery['term'], 'gmedia_album'); ?>><?php _e('Albums', 'gmLang'); ?></option>
 									<option value="gmedia_tag"<?php selected($gallery['term'], 'gmedia_tag'); ?>><?php _e('Tags', 'gmLang'); ?></option>
 									<option value="gmedia_category"<?php selected($gallery['term'], 'gmedia_category'); ?>><?php _e('Categories', 'gmLang'); ?></option>
+									<?php } ?>
 									<option value="gmedia__in"<?php selected($gallery['term'], 'gmedia__in'); ?>><?php _e('Selected Gmedia', 'gmLang'); ?></option>
 									<!-- <option value="gmedia_filter"<?php selected($gallery['term'], 'gmedia_filter'); ?>><?php _e('Filter', 'gmLang'); ?></option> -->
 								</select>
 							</div>
 
-
+							<?php if($gmCore->caps['gmedia_terms']){ ?>
 							<div class="form-group" id="div_gmedia_category">
 								<?php
 								$term_type = 'gmedia_category';
@@ -525,14 +573,16 @@ function gmediaGalleryEdit() {
 							<div class="form-group" id="div_gmedia_album">
 								<?php
 								$term_type = 'gmedia_album';
-								$gm_terms = $gmDB->get_terms($term_type, array('fields' => 'names_count'));
+								$args = array();
+								$args['global'] = $gallery['global'];
+								$gm_terms = $gmDB->get_terms($term_type, $args);
 
 								$terms_items = '';
 								if(count($gm_terms)){
-									foreach($gm_terms as $id => $term){
+									foreach($gm_terms as $term){
 										//if(!$term->count){ continue; }
-										$selected = (isset($gallery['query'][$term_type]) && in_array($id, $gallery['query'][$term_type]))? ' selected="selected"' : '';
-										$terms_items .= '<option value="' . $id . '"'.$selected.'>' . esc_html($term['name']) . ' &nbsp; (' . $term['count'] . ')</option>' . "\n";
+										$selected = (isset($gallery['query'][$term_type]) && in_array($term->term_id, $gallery['query'][$term_type]))? ' selected="selected"' : '';
+										$terms_items .= '<option value="' . $term->term_id . '"'.$selected.'>' . esc_html($term->name) . ' &nbsp; (' . $term->count . ')</option>' . "\n";
 									}
 								}
 								$setvalue = isset($gallery['query'][$term_type])? 'data-setvalue="'.implode(',',$gallery['query'][$term_type]).'"' : '';
@@ -543,6 +593,7 @@ function gmediaGalleryEdit() {
 									<?php echo $terms_items; ?>
 								</select>
 							</div>
+							<?php } ?>
 
 							<div class="form-group" id="div_gmedia__in">
 								<label><?php _e('Selected Gmedia IDs <small class="text-muted">separated by comma</small>', 'gmLang'); ?> </label>
@@ -606,6 +657,7 @@ function gmediaGalleryEdit() {
 						$(this).attr('action', $(this).attr('action') + '#tab-' + $('#galleryTabs li.active').index());
 					});
 
+					<?php if($gmCore->caps['gmedia_terms']){ ?>
 					$('.gmedia-combobox').each(function(){
 						var select = $(this).selectize({
 							plugins: ['drag_drop'],
@@ -618,6 +670,7 @@ function gmediaGalleryEdit() {
 							select[0].selectize.setValue(val);
 						}
 					});
+					<?php } ?>
 
 					var main = $('#gallery_options_block');
 
@@ -660,26 +713,27 @@ function gmediaGalleryEdit() {
 							$('[data-'+id+']', main).each(function(){
 								var key = $(this).data(id);
 								key = key.split(':');
-								var hidden = $(this).data('hidden')? parseInt($(this).data('hidden')) : 0;
+								//var hidden = $(this).data('hidden')? parseInt($(this).data('hidden')) : 0;
+								var hidden = $(this).data('hidden')? $(this).data('hidden') : {};
 								var ch = true;
 								switch(key[0]){
 									case '=':
 									case 'is':
 										if(val == key[1]){
-											if(slide && (0 === --hidden) ){
+											delete hidden[id];
+											if(slide && $.isEmptyObject(hidden)){
 												$(this).prop('disabled',false).closest('.form-group').stop().slideDown(slide, function(){ $(this).css({display:'block'}); });
-												$(this).data('hidden', 0);
 												if(key[2]){
 													key[2] = $(this).data('value');
 												} else{
 													ch = false;
 												}
 											} else{
-												$(this).data('hidden', 0 < hidden? hidden : 0 );
 												ch = false;
 											}
+											$(this).data('hidden', hidden );
 										} else{
-											if(!hidden){
+											if($.isEmptyObject(hidden)){
 												if(key[2]){
 													$(this).closest('.form-group').stop().slideUp(slide, function(){ $(this).css({display:'none'}); });
 												} else{
@@ -688,13 +742,14 @@ function gmediaGalleryEdit() {
 											} else{
 												ch = false;
 											}
-											$(this).data('hidden', ++hidden);
+											hidden[id] = 1;
+											$(this).data('hidden', hidden);
 										}
 										break;
 									case '!=':
 									case 'not':
 										if(val == key[1]){
-											if(!hidden){
+											if($.isEmptyObject(hidden)){
 												if(key[2]){
 													$(this).closest('.form-group').stop().slideUp(slide, function(){ $(this).css({display:'none'}); });
 												} else{
@@ -703,20 +758,21 @@ function gmediaGalleryEdit() {
 											} else{
 												ch = false;
 											}
-											$(this).data('hidden', ++hidden);
+											hidden[id] = 1;
+											$(this).data('hidden', hidden);
 										} else{
-											if(slide && (0 === --hidden) ){
+											delete hidden[id];
+											if(slide && $.isEmptyObject(hidden)){
 												$(this).prop('disabled',false).closest('.form-group').stop().slideDown(slide, function(){ $(this).css({display:'block'}); });
-												$(this).data('hidden', 0);
 												if(key[2] && slide){
 													key[2] = $(this).data('value');
 												} else{
 													ch = false;
 												}
 											} else{
-												$(this).data('hidden', 0 < hidden? hidden : 0 );
 												ch = false;
 											}
+											$(this).data('hidden', hidden );
 										}
 										break;
 								}
@@ -739,9 +795,18 @@ function gmediaGalleryEdit() {
 				});
 			</script>
 		</div>
+		<?php
+		wp_nonce_field('GmediaGallery');
+		?>
 	</form>
 
 	<!-- Modal -->
+	<?php if($gmCore->caps['gmedia_edit_others_media']){ ?>
+	<div class="modal fade gmedia-modal" id="termsModal" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog"></div>
+	</div>
+	<?php } ?>
+
 	<div class="modal fade gmedia-modal" id="chooseModuleModal" tabindex="-1" role="dialog" aria-hidden="true">
 		<div class="modal-dialog">
 			<div class="modal-content">

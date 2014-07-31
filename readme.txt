@@ -51,6 +51,7 @@ Help me make it best gallery plugin: test it and [write suggestions](http://code
 Features:
 
 *   Mobile friendly, responsive galleries
+*   Role/Capability Manager intergrated
 *   Add tags, assign categories and group images in albums
 *   Drag'n'drop sorting for files in Album
 *   Easy bulk editing media files data with Edit Mode
@@ -66,11 +67,15 @@ Features:
 
 TODO List:
 
+*   iOS manage application (work in progress..)
+*   Statuses: public, private, etc. for files, albums and galleries (work in progress..)
+*   Bulk operations with selected Gmedia items (in queue)
+*   Share albums to socials from admin panel (in queue)
+*   Different templates to display Gmedia Library (aka GRAND Pages in Flagallery plugin) (in queue)
 *   More modules for creating photo gallery, audio playlist, video playlist
 *   Easily add to Post audio and video files with tags related to post tags
-*   Intergration with social services
 *   Watermark feature
-*   iOS manage application
+*   Intergration with social services (plans)
 
 
 == Installation ==
@@ -99,6 +104,16 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 8. Admin Area - Gmedia Library Filters
 
 == Changelog ==
+
+= 1.2.0 =
+* Major update: Added User Role Manager
+* Added Filter by Author
+* Added Screen Option on Edit Mode to enable/disable quicktags panel for image description
+* Improvements for touch screens
+* Added quick actions for single media
+* Added pager to gmedia list footer
+* Added option to leave data when uninstall plugin
+* Fixed PHP notices and warnings on some operations
 
 = 1.1.3 =
 * Fixed Music Player module

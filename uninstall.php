@@ -5,6 +5,7 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 }
 require_once(dirname(__FILE__).'/constants.php');
 require_once(dirname(__FILE__).'/inc/core.php');
+require_once(dirname(__FILE__).'/inc/db.connect.php');
 
 if (function_exists('is_multisite') && is_multisite()) {
 	global $wpdb;
@@ -31,17 +32,34 @@ else
  */
 function gmedia_uninstall(){
 	/** @var $wpdb wpdb */
-	global $wpdb, $gmCore;
+	global $wpdb, $gmCore, $gmDB;
 
 	$options = get_option('gmediaOptions');
 	$upload = $gmCore->gm_upload_dir(false);
 
-	// first remove all tables
-	$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}gmedia");
-	$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}gmedia_meta");
-	$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}gmedia_term");
-	$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}gmedia_term_meta");
-	$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}gmedia_term_relationships");
+	// remove all tables if allowed
+	if(('all' == $options['uninstall_dropdata']) || 'db' == $options['uninstall_dropdata']){
+		$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}gmedia");
+		$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}gmedia_meta");
+		$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}gmedia_term");
+		$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}gmedia_term_meta");
+		$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}gmedia_term_relationships");
+	}
+
+	$capabilities = gmedia_plugin_capabilities();
+	$capabilities = apply_filters('gmedia_capabilities', $capabilities);
+	$check_order = $gmDB->get_sorted_roles();
+	foreach ($check_order as $the_role) {
+		// If you rename the roles, then please use the role manager plugin
+		if ( empty($the_role) ){
+			continue;
+		}
+		foreach($capabilities as $cap){
+			if($the_role->has_cap($cap)){
+				$the_role->remove_cap($cap);
+			}
+		}
+	}
 
 	// then remove all options
 	delete_option('gmediaOptions');
@@ -50,7 +68,7 @@ function gmedia_uninstall(){
 	delete_metadata('user', 0, 'gm_screen_options', '', true);
 
 	if(!$upload['error']){
-		if(intval($options['uninstall_dropfiles'])){
+		if('all' == $options['uninstall_dropdata']){
 			$files_folder = $upload['path'];
 			$gmCore->delete_folder($files_folder);
 		} else{

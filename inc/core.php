@@ -8,6 +8,8 @@ class GmediaCore {
 
 	var $upload;
 	var $gmedia_url;
+	var $caps = array();
+
 
 	/**
 	 *
@@ -15,13 +17,28 @@ class GmediaCore {
 	function __construct() {
 		$this->upload = $this->gm_upload_dir();
 		$this->gmedia_url = plugins_url(GMEDIA_FOLDER);
+
+		add_action('init', array(&$this, 'capabilities'), 8);
+	}
+
+	function capabilities(){
+		$curuser = wp_get_current_user();
+		$capabilities = gmedia_plugin_capabilities();
+		$capabilities = apply_filters('gmedia_capabilities', $capabilities);
+		foreach($capabilities as $cap){
+			if(isset($curuser->allcaps[$cap]) && intval($curuser->allcaps[$cap])){
+				$this->caps[$cap] = 1;
+			} else{
+				$this->caps[$cap] = 0;
+			}
+		}
 	}
 
 	/**
 	 * Check GET data
 	 *
 	 * @param string $var
-	 * @param bool   $def
+	 * @param mixed   $def
 	 *
 	 * @return mixed
 	 */
@@ -299,7 +316,7 @@ class GmediaCore {
 		$fileinfo['extension'] = (empty($filetype['ext']))? $pathinfo['extension'] : $filetype['ext'];
 		$fileinfo['filename'] = $pathinfo['filename'].$suffix;
 		$fileinfo['basename'] = $fileinfo['filename'].'.'.$fileinfo['extension'];
-		$fileinfo['title'] = ucwords(str_replace('_', ' ', mysql_real_escape_string($title)));
+		$fileinfo['title'] = ucwords(str_replace('_', ' ', esc_sql($title)));
 		$fileinfo['mime_type'] = (empty($filetype['type']))? 'application/'.$fileinfo['extension'] : $filetype['type'];
 		list($dirname) = explode('/', $fileinfo['mime_type']);
 		$fileinfo['dirname'] = $dirname;
@@ -375,7 +392,7 @@ class GmediaCore {
 				$input = stripslashes($input);
 			}
 			$input = $this->clean_input($input);
-			$output = mysql_real_escape_string($input);
+			$output = esc_sql($input);
 		}
 
 		return $output;
@@ -402,22 +419,13 @@ class GmediaCore {
 	/**
 	 * Check if user can select a author
 	 *
-	 * @param      $user_id
-	 * @param bool $exclude_zeros
-	 *
 	 * @return array
 	 */
-	function get_editable_user_ids($user_id, $exclude_zeros = true) {
-		global $wpdb;
-
-		new WP_User($user_id);
-
-		$query = "SELECT user_id FROM {$wpdb->usermeta} WHERE meta_key = '{$wpdb->prefix}user_level'";
-		if($exclude_zeros){
-			$query .= " AND meta_value != '0'";
-		}
-
-		return $wpdb->get_col($query);
+	function get_editable_user_ids() {
+		if ( current_user_can('gmedia_show_others_media') || current_user_can('gmedia_edit_others_media') ){
+			return get_users(array('who' => 'authors', 'fields' => 'ID'));
+ 		}
+		return get_current_user_id();
 	}
 
 	/**
@@ -535,9 +543,10 @@ class GmediaCore {
 		} else {
 			return false;
 		}
-
 		// Remove the mime-type header
-		$data = reset(array_reverse(explode('base64,', $photo)));
+		$data = explode('base64,', $photo);
+		$data = array_reverse($data);
+		$data = reset($data);
 
 		// Use strict mode to prevent characters from outside the base64 range
 		$image = base64_decode($data, true);

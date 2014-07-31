@@ -19,7 +19,7 @@ require_once(ABSPATH . 'wp-admin/includes/image.php');
 // HTTP headers for no cache etc
 nocache_headers();
 
-if(!current_user_can('upload_files')){
+if(!current_user_can('gmedia_import')){
 	wp_die(__('You do not have permission to upload files.'));
 }
 
@@ -34,7 +34,7 @@ usleep(10);
 global $gmCore, $gmGallery;
 
 $import = $gmCore->_post('import');
-$terms = $gmCore->_post('terms');
+$terms = $gmCore->_post('terms', array());
 
 /**
  * @param     $files
@@ -212,7 +212,7 @@ function gmedia_import_files($files, $terms, $move, $exists = 0){
 		if(!isset($link)){ $link = ''; }
 
 		$_terms = $terms;
-		if(!$is_webimage){
+		if(!$is_webimage && isset($_terms['gmedia_category'])){
 			unset($_terms['gmedia_category']);
 		}
 
@@ -234,9 +234,9 @@ function gmedia_import_files($files, $terms, $move, $exists = 0){
 
 	}
 
-	echo '<p><b>'.__('Category').':</b> '. (!empty($terms['gmedia_category'])? esc_html($gmGallery->options['taxonomies']['gmedia_category'][$terms['gmedia_category']]) : '-') . PHP_EOL;
-	echo '<br /><b>'.__('Album').':</b> '. esc_html($terms['gmedia_album']) . PHP_EOL;
-	echo '<br /><b>'.__('Tags').':</b> '. esc_html(str_replace(',', ', ', $terms['gmedia_tag'])) .'</p>' . PHP_EOL;
+	echo '<p><b>'.__('Category').':</b> '. ((isset($terms['gmedia_category']) && !empty($terms['gmedia_category']))? esc_html($gmGallery->options['taxonomies']['gmedia_category'][$terms['gmedia_category']]) : '-') . PHP_EOL;
+	echo '<br /><b>'.__('Album').':</b> '. ((isset($terms['gmedia_album']) && !empty($terms['gmedia_album']))? esc_html($terms['gmedia_album']) : '-') . PHP_EOL;
+	echo '<br /><b>'.__('Tags').':</b> '. ((isset($terms['gmedia_tag']) && !empty($terms['gmedia_tag']))? esc_html(str_replace(',', ', ', $terms['gmedia_tag'])) : '-') .'</p>' . PHP_EOL;
 
 	wp_ob_end_flush_all();
 	flush();
@@ -301,7 +301,7 @@ if('import-folder' == $import){
 	if(!empty($gallery)){
 		global $wpdb, $gmDB;
 
-		$album = empty($terms['gmedia_album'])? false : true;
+		$album = (!isset($terms['gmedia_album']) || empty($terms['gmedia_album']))? false : true;
 		foreach($gallery as $gid){
 			$flag_gallery = $wpdb->get_row($wpdb->prepare("SELECT gid, path, title, galdesc FROM `{$wpdb->prefix}flag_gallery` WHERE gid = %d", $gid), ARRAY_A);
 			if(empty($flag_gallery))
@@ -337,7 +337,7 @@ if('import-folder' == $import){
 	if(!empty($gallery)){
 		global $wpdb, $gmDB;
 
-		$album = empty($terms['gmedia_album'])? false : true;
+		$album = (!isset($terms['gmedia_album']) || empty($terms['gmedia_album']))? false : true;
 		foreach($gallery as $gid){
 			$ngg_gallery = $wpdb->get_row($wpdb->prepare("SELECT gid, path, title, galdesc FROM `{$wpdb->prefix}ngg_gallery` WHERE gid = %d", $gid), ARRAY_A);
 			if(empty($ngg_gallery))

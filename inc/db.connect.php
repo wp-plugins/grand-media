@@ -45,7 +45,7 @@ class GmediaDB {
 		if($selected){
 			$sel_ids = wp_parse_id_list($selected);
 		} else{
-			$ckey = "gmedia_u{$user_ID}_wpmedia";
+			$ckey = "gmuser_{$user_ID}_wpmedia";
 			if(isset($_COOKIE[$ckey])){
 				$sel_ids = array_filter( explode( ',', $_COOKIE[$ckey] ), 'is_numeric' );
 			}
@@ -180,8 +180,8 @@ class GmediaDB {
 		$search = '';
 		if(isset($selected)){
 			$sel_ids = wp_parse_id_list($selected);
-		} elseif(isset($_COOKIE["gmedia_u{$user_ID}_wpmedia"])){
-			$sel_ids = array_filter( explode( ',', $_COOKIE["gmedia_u{$user_ID}_wpmedia"] ), 'is_numeric' );
+		} elseif(isset($_COOKIE["gmuser_{$user_ID}_wpmedia"])){
+			$sel_ids = array_filter( explode( ',', $_COOKIE["gmuser_{$user_ID}_wpmedia"] ), 'is_numeric' );
 		} else{
 			$sel_ids = array();
 		}
@@ -244,6 +244,7 @@ class GmediaDB {
 		/** @var $wpdb wpdb */
 		global $wpdb;
 		/**
+		 * @var  $whichauthor
 		 * @var  $whichmimetype
 		 * @var  $groupby
 		 * @var  $orderby
@@ -251,6 +252,7 @@ class GmediaDB {
 		 */
 		$join = '';
 		$where = '';
+		$whichauthor = '';
 		if($this->clauses){
 			extract( $this->clauses, EXTR_OVERWRITE );
 		}
@@ -261,7 +263,7 @@ class GmediaDB {
 						SUM(CASE WHEN {$wpdb->prefix}gmedia.mime_type LIKE 'video%' THEN 1 ELSE 0 END) as video,
 						SUM(CASE WHEN {$wpdb->prefix}gmedia.mime_type LIKE 'text%' THEN 1 ELSE 0 END) as text,
 						SUM(CASE WHEN {$wpdb->prefix}gmedia.mime_type LIKE 'application%' THEN 1 ELSE 0 END) as application
-						FROM {$wpdb->prefix}gmedia $join WHERE 1 = 1 $where", ARRAY_A );
+						FROM {$wpdb->prefix}gmedia $join WHERE 1 = 1 $where $whichauthor", ARRAY_A );
 
 		$count[0]['other'] = (int) $count[0]['text'] + (int) $count[0]['application'];
 
@@ -1394,29 +1396,22 @@ class GmediaDB {
 		}
 
 		// Author/user stuff for ID
-		if ( empty( $q['author'] ) || ( $q['author'] == '0' ) ) {
-			$whichauthor = '';
+		if ( ! empty( $q['author'] ) && $q['author'] != '0' ) {
+			$q['author'] = addslashes_gpc( '' . urldecode( $q['author'] ) );
+			$authors = array_unique( array_map( 'intval', preg_split( '/[,\s]+/', $q['author'] ) ) );
+			foreach ( $authors as $author ) {
+				$key = $author > 0 ? 'author__in' : 'author__not_in';
+				$q[$key][] = abs( $author );
+			}
+			$q['author'] = implode( ',', $authors );
 		}
-		else {
-			$q['author'] = (string) urldecode( $q['author'] );
-			$q['author'] = addslashes_gpc( $q['author'] );
-			if ( strpos( $q['author'], '-' ) !== false ) {
-				$eq          = '!=';
-				$andor       = 'AND';
-				$q['author'] = explode( '-', $q['author'] );
-				$q['author'] = (string) absint( $q['author'][1] );
-			}
-			else {
-				$eq    = '=';
-				$andor = 'OR';
-			}
-			$author_array  = preg_split( '/[,\s]+/', $q['author'] );
-			$_author_array = array();
-			foreach ( $author_array as $_author ) {
-				$_author_array[] = "{$wpdb->prefix}gmedia.author " . $eq . ' ' . absint( $_author );
-			}
-			$whichauthor .= ' AND (' . implode( " $andor ", $_author_array ) . ')';
-			unset( $author_array, $_author_array );
+
+		if ( ! empty( $q['author__not_in'] ) ) {
+			$author__not_in = implode( ',', array_map( 'absint', array_unique( (array) $q['author__not_in'] ) ) );
+			$whichauthor .= " AND {$wpdb->prefix}gmedia.author NOT IN ($author__not_in) ";
+		} elseif ( ! empty( $q['author__in'] ) ) {
+			$author__in = implode( ',', array_map( 'absint', array_unique( (array) $q['author__in'] ) ) );
+			$whichauthor .= " AND {$wpdb->prefix}gmedia.author IN ($author__in) ";
 		}
 
 		// Author stuff for name
@@ -1433,7 +1428,7 @@ class GmediaDB {
 			$whichmimetype = $this->gmedia_mime_type_where( $q['mime_type'], $wpdb->prefix . 'gmedia' );
 		}
 
-		$where .= $search . $whichauthor;
+		$where .= $search;
 
 		if ( empty( $q['order'] ) || ( ( strtoupper( $q['order'] ) != 'ASC' ) && ( strtoupper( $q['order'] ) != 'DESC' ) ) )
 			$q['order'] = 'DESC';
@@ -1516,7 +1511,7 @@ class GmediaDB {
 		}
 
 		// Announce current selection parameters.  For use by caching plugins.
-		do_action( 'gmedia_selection', $where . $whichmimetype . $groupby . $orderby . $limits . $join );
+		do_action( 'gmedia_selection', $where . $whichauthor . $whichmimetype . $groupby . $orderby . $limits . $join );
 
 		if ( ! empty( $groupby ) )
 			$groupby = 'GROUP BY ' . $groupby;
@@ -1527,9 +1522,9 @@ class GmediaDB {
 		if ( ! $q['no_found_rows'] && ! empty( $limits ) )
 			$found_rows = 'SQL_CALC_FOUND_ROWS';
 
-		$request = " SELECT $found_rows $fields FROM {$wpdb->prefix}gmedia $join WHERE 1=1 $where $whichmimetype $groupby $orderby $limits";
+		$request = " SELECT $found_rows $fields FROM {$wpdb->prefix}gmedia $join WHERE 1=1 $where $whichauthor $whichmimetype $groupby $orderby $limits";
 
-		$clauses       = compact( 'join', 'where', 'whichmimetype', 'groupby', 'orderby', 'limits' );
+		$clauses       = compact( 'join', 'where', 'whichauthor', 'whichmimetype', 'groupby', 'orderby', 'limits' );
 		$this->clauses = $clauses;
 
 		if ( 'ids' == $q['fields'] ) {
@@ -2074,11 +2069,6 @@ class GmediaDB {
 	 * of term ids to exclude from the return array.  If 'include' is non-empty,
 	 * 'exclude' is ignored.
 	 *
-	 * exclude_tree - Default is an empty array.  An array, comma- or space-delimited
-	 * string of term ids to exclude from the return array, along with all of their
-	 * descendant terms according to the primary taxonomy.  If 'include' is non-empty,
-	 * 'exclude_tree' is ignored.
-	 *
 	 * include - Default is an empty array.  An array, comma- or space-delimited string
 	 * of term ids to include in the return array.
 	 *
@@ -2138,7 +2128,7 @@ class GmediaDB {
 		}
 
 		$defaults = array( 'orderby'      => 'name', 'order' => 'ASC', 'hide_empty' => false,
-											 'exclude'      => array(), 'exclude_tree' => array(), 'include' => array(),
+											 'exclude'      => array(), 'include' => array(),
 											 'get'          => '', 'number' => '', 'fields' => 'all', 'name__like' => '',
 											 'offset' => '', 'search' => '', 'global' => '', 'page' => 1, 'no_found_rows' => false );
 		// $args can be whatever, only use the args defined in defaults
@@ -2192,6 +2182,10 @@ class GmediaDB {
 			$orderby = 't.description';
 		else if ( 'global' == $_orderby )
 			$orderby = 't.global';
+		else if ( 'global_desc_name' == $_orderby )
+			$orderby = 't.global DESC, t.name';
+		else if ( 'global_asc_name' == $_orderby )
+			$orderby = 't.global ASC, t.name';
 		else if ( 'none' == $_orderby )
 			$orderby = '';
 		elseif ( empty( $_orderby ) || 'id' == $_orderby )
@@ -2215,7 +2209,6 @@ class GmediaDB {
 		$inclusions = '';
 		if ( ! empty( $include ) ) {
 			$exclude      = '';
-			$exclude_tree = '';
 			$interms      = wp_parse_id_list( $include );
 			foreach ( $interms as $interm ) {
 				if ( empty( $inclusions ) )
@@ -2230,20 +2223,6 @@ class GmediaDB {
 		$where .= $inclusions;
 
 		$exclusions = '';
-		if ( ! empty( $exclude_tree ) ) {
-			$excluded_trunks = wp_parse_id_list( $exclude_tree );
-			foreach ( $excluded_trunks as $extrunk ) {
-				$excluded_children   = (array) $this->get_terms( $taxonomies[0], array( 'child_of' => intval( $extrunk ), 'fields' => 'ids', 'hide_empty' => false ) );
-				$excluded_children[] = $extrunk;
-				foreach ( $excluded_children as $exterm ) {
-					if ( empty( $exclusions ) )
-						$exclusions = ' AND ( t.term_id <> ' . intval( $exterm ) . ' ';
-					else
-						$exclusions .= ' AND t.term_id <> ' . intval( $exterm ) . ' ';
-				}
-			}
-		}
-
 		if ( ! empty( $exclude ) ) {
 			$exterms = wp_parse_id_list( $exclude );
 			foreach ( $exterms as $exterm ) {
@@ -2265,8 +2244,8 @@ class GmediaDB {
 		}
 
 		if ( '' !== $global ) {
-			$global = (int) $global;
-			$where .= " AND t.global = '$global'";
+			$global = wp_parse_id_list($global);
+			$where .= " AND t.global IN ('" . implode( "', '", $global ) . "')";
 		}
 
 		if ( $hide_empty )
@@ -2625,11 +2604,11 @@ class GmediaDB {
 	 *
 	 * @param int|string $term     The term to check
 	 * @param string     $taxonomy The taxonomy name to use
-	 * @param int        $global   global parameter under which to confine the exists search.
+	 * @param bool|int        $global   global parameter under which to confine the exists search.
 	 *
 	 * @return int Get the term id or Term Object, if exists.
 	 */
-	function term_exists( $term, $taxonomy = '', $global = 0 ) {
+	function term_exists( $term, $taxonomy = '', $global = false ) {
 		/** @var $wpdb wpdb */
 		global $wpdb, $gmCore;
 
@@ -2651,8 +2630,8 @@ class GmediaDB {
 		$where        = 't.name = %s';
 		$where_fields = array( $term );
 		if ( ! empty( $taxonomy ) ) {
-			$global = (int) $global;
-			if ( $global > 0 ) {
+			if ( false !== $global ) {
+				$global = (int) $global;
 				$where_fields[] = $global;
 				$where .= ' AND t.global = %d';
 			}
@@ -2712,16 +2691,30 @@ class GmediaDB {
 
 		$term_ids = array();
 		$new_term_ids = array();
-
 		foreach ( (array) $terms as $term ) {
 			if ( ! strlen( trim( $term ) ) )
 				continue;
-
-			if ( ! $term_id = $this->term_exists( $term, $taxonomy ) ) {
-				// Skip if a non-existent term ID is passed.
-				if ( $gmCore->is_digit( $term ) || ($append < 0) || ('gmedia_category' == $taxonomy && !array_key_exists($term, $gmGallery->options['taxonomies']['gmedia_category'])) )
+			if(('gmedia_album' == $taxonomy) && !$gmCore->is_digit( $term )){
+				$global = get_current_user_id();
+			} else{
+				$global = false;
+			}
+			if ( ! $term_id = $this->term_exists( $term, $taxonomy, $global ) ) {
+				// Skip if a non-existent term ID is passed or if taxonomy is category or if user is not allowed to add new terms.
+				if (
+					$gmCore->is_digit( $term ) ||
+					($append < 0) ||
+					('gmedia_category' == $taxonomy && !array_key_exists($term, $gmGallery->options['taxonomies']['gmedia_category'])) ||
+					('gmedia_category' != $taxonomy && !current_user_can($taxonomy.'_manage'))
+				){
 					continue;
-				$term_id = $this->insert_term( $term, $taxonomy );
+				}
+				if($global){
+					$args = array('global' => $global);
+				} else{
+					$args = array();
+				}
+				$term_id = $this->insert_term( $term, $taxonomy, $args );
 			}
 			if ( is_wp_error( $term_id ) )
 				return $term_id;
@@ -3249,6 +3242,103 @@ class GmediaDB {
 		$gmDB->clean_term_cache( $terms, $taxonomy, false );
 
 		return true;
+	}
+
+	/**
+	 * This function returns all roles, sorted by user level (lowest to highest)
+	 *
+	 * @return array
+	 */
+	function get_sorted_roles() {
+		global $wp_roles;
+		$roles = $wp_roles->role_objects;
+		$sorted = array();
+
+		if( class_exists('RoleManager') ) {
+			foreach( $roles as $role_key => $role_name ) {
+				$role = get_role($role_key);
+				if( empty($role) ) continue;
+				$role_user_level = array_reduce(array_keys($role->capabilities), array('WP_User', 'level_reduction'), 0);
+				$sorted[$role_user_level] = $role;
+			}
+			$sorted = array_values($sorted);
+		} else {
+			$role_order = array("subscriber", "contributor", "author", "editor", "administrator");
+			foreach($role_order as $role_key) {
+				$sorted[$role_key] = get_role($role_key);
+			}
+		}
+		return $sorted;
+	}
+
+	/**
+	 * This function return the lowest roles which has the capabilities
+	 *
+	 * @param $capability
+	 *
+	 * @return bool
+	 */
+	function get_role($capability){
+		$check_order = $this->get_sorted_roles();
+
+		$args = array_slice(func_get_args(), 1);
+		$args = array_merge(array($capability), $args);
+
+		foreach ($check_order as $check_role) {
+			if ( empty($check_role) )
+				return false;
+
+			if (call_user_func_array(array(&$check_role, 'has_cap'), $args))
+				return $check_role->name;
+		}
+		return false;
+	}
+
+	/**
+	 * This function set or remove the $capability
+	 *
+	 * @param $lowest_role
+	 * @param $capability
+	 */
+	function set_capability($lowest_role, $capability){
+		$check_order = $this->get_sorted_roles();
+
+		$add_capability = false;
+
+		foreach ($check_order as $the_role) {
+			$role = $the_role->name;
+
+			if ( $lowest_role == $role )
+				$add_capability = true;
+
+			// If you rename the roles, the please use the role manager plugin
+			if ( empty($the_role) )
+				continue;
+
+			$add_capability? $the_role->add_cap($capability) : $the_role->remove_cap($capability) ;
+		}
+
+	}
+
+	/**
+	 * Reassign media to other blog user
+	 *
+	 * @param $user_id
+	 * @param $reassign
+	 */
+	function reassign_media($user_id, $reassign ){
+		$gmedias = $this->get_gmedias(array('nopaging' => true, 'author' => $user_id));
+		if(!empty($gmedias)){
+			if(empty($reassign)){
+				$reassign = get_current_user_id();
+			}
+			$modified = current_time( 'mysql' );
+			foreach($gmedias as $item){
+				$item->author = $reassign;
+				$item->modified = $modified;
+				$this->insert_gmedia($item);
+			}
+		}
 	}
 
 }

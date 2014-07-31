@@ -58,7 +58,7 @@ if ( isset($_POST['rate']) ) {
 	} else{
 		$transient_value = array($uip => array($gmid => $rate));
 	}
-	set_transient($transient_key, $transient_value, 10);
+	set_transient($transient_key, $transient_value, 18 * HOUR_IN_SECONDS);
 
 	$rating_votes = $old_rate? $rating['votes'] : $rating['votes'] + 1;
 	$rating_value = ($rating['value']*$rating['votes'] + $rate - $old_rate)/$rating_votes;

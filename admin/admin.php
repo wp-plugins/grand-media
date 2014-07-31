@@ -73,16 +73,15 @@ class GmediaAdmin {
 	// integrate the menu
 	function add_menu() {
 		$gmediaURL = plugins_url( GMEDIA_FOLDER );
-		$this->pages = array(
-				add_object_page( __( 'Gmedia Library', 'gmLang' ), 'Gmedia Gallery', 'edit_pages', 'GrandMedia', array( &$this, 'shell' ), $gmediaURL . '/admin/images/gm-icon.png' ),
-				add_submenu_page( 'GrandMedia', __( 'Gmedia Library', 'gmLang' ), __( 'Gmedia Library', 'gmLang' ), 'edit_pages', 'GrandMedia', array( &$this, 'shell' ) ),
-				add_submenu_page( 'GrandMedia', __( 'Add Media Files', 'gmLang' ), __( 'Add/Import Files', 'gmLang' ), 'edit_pages', 'GrandMedia_AddMedia', array( &$this, 'shell' ) ),
-				add_submenu_page( 'GrandMedia', __( 'Albums, Tags...', 'gmLang' ), __( 'Albums, Tags...', 'gmLang' ), 'edit_pages', 'GrandMedia_Terms', array( &$this, 'shell' ) ),
-				add_submenu_page( 'GrandMedia', __( 'Gmedia Galleries', 'gmLang' ), __( 'Create/Manage Galleries...', 'gmLang' ), 'edit_pages', 'GrandMedia_Galleries', array( &$this, 'shell' ) ),
-				add_submenu_page( 'GrandMedia', __( 'Modules', 'gmLang' ), __( 'Modules', 'gmLang' ), 'edit_pages', 'GrandMedia_Modules', array( &$this, 'shell' ) ),
-				add_submenu_page( 'GrandMedia', __( 'Gmedia Settings', 'gmLang' ), __( 'Settings', 'gmLang' ), 'edit_pages', 'GrandMedia_Settings', array( &$this, 'shell' ) ),
-				add_submenu_page( 'GrandMedia', __( 'Wordpress Media Library', 'gmLang' ), __( 'WP Media Library', 'gmLang' ), 'edit_pages', 'GrandMedia_WordpressLibrary', array( &$this, 'shell' ) )
-		);
+		$this->pages = array();
+		$this->pages[] = add_object_page( __( 'Gmedia Library', 'gmLang' ), 'Gmedia Gallery', 'gmedia_library', 'GrandMedia', array( &$this, 'shell' ), $gmediaURL . '/admin/images/gm-icon.png' );
+		$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Gmedia Library', 'gmLang' ), __( 'Gmedia Library', 'gmLang' ), 'gmedia_library', 'GrandMedia', array( &$this, 'shell' ) );
+		$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Add Media Files', 'gmLang' ), __( 'Add/Import Files', 'gmLang' ), 'gmedia_upload', 'GrandMedia_AddMedia', array( &$this, 'shell' ) );
+		$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Albums, Tags...', 'gmLang' ), __( 'Albums, Tags...', 'gmLang' ), 'gmedia_library', 'GrandMedia_Terms', array( &$this, 'shell' ) );
+		$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Gmedia Galleries', 'gmLang' ), __( 'Create/Manage Galleries...', 'gmLang' ), 'gmedia_gallery_manage', 'GrandMedia_Galleries', array( &$this, 'shell' ) );
+		$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Modules', 'gmLang' ), __( 'Modules', 'gmLang' ), 'gmedia_module_manage', 'GrandMedia_Modules', array( &$this, 'shell' ) );
+		$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Gmedia Settings', 'gmLang' ), __( 'Settings', 'gmLang' ), 'gmedia_settings', 'GrandMedia_Settings', array( &$this, 'shell' ) );
+		$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Wordpress Media Library', 'gmLang' ), __( 'WP Media Library', 'gmLang' ), 'gmedia_import', 'GrandMedia_WordpressLibrary', array( &$this, 'shell' ) );
 
 		foreach($this->pages as $page){
 			add_action("load-$page", array( &$this, 'screen_help' ));
@@ -232,38 +231,38 @@ class GmediaAdmin {
 		if ( isset( $_GET['page'] ) ) {
 			switch ( $_GET['page'] ) {
 				case "GrandMedia" :
-					if($gmCore->_get('gmediablank') == 'image_editor'){
-						wp_enqueue_script('camanjs', $gmCore->gmedia_url . '/assets/image-editor/camanjs/caman.full.min.js', array(), '4.1.1');
+					if($gmCore->caps['gmedia_edit_media']){
+						if($gmCore->_get('gmediablank') == 'image_editor'){
+							wp_enqueue_script('camanjs', $gmCore->gmedia_url . '/assets/image-editor/camanjs/caman.full.min.js', array(), '4.1.1');
 
-						wp_enqueue_style('nouislider', $gmCore->gmedia_url . '/assets/image-editor/js/jquery.nouislider.css', array('gmedia-bootstrap'), '6.1.0');
-						wp_enqueue_script('nouislider', $gmCore->gmedia_url . '/assets/image-editor/js/jquery.nouislider.min.js', array('jquery'), '6.1.0');
+							wp_enqueue_style('nouislider', $gmCore->gmedia_url . '/assets/image-editor/js/jquery.nouislider.css', array('gmedia-bootstrap'), '6.1.0');
+							wp_enqueue_script('nouislider', $gmCore->gmedia_url . '/assets/image-editor/js/jquery.nouislider.min.js', array('jquery'), '6.1.0');
 
-						wp_enqueue_style('gmedia-image-editor', $gmCore->gmedia_url . '/assets/image-editor/style.css', array('gmedia-bootstrap'), '0.9.16', 'screen');
-						wp_enqueue_script('gmedia-image-editor', $gmCore->gmedia_url . '/assets/image-editor/image-editor.js', array('jquery','camanjs'), '0.9.16');
-						break;
+							wp_enqueue_style('gmedia-image-editor', $gmCore->gmedia_url . '/assets/image-editor/style.css', array('gmedia-bootstrap'), '0.9.16', 'screen');
+							wp_enqueue_script('gmedia-image-editor', $gmCore->gmedia_url . '/assets/image-editor/image-editor.js', array('jquery','camanjs'), '0.9.16');
+							break;
+						}
+						if($gmProcessor->mode){
+							wp_enqueue_script( 'alphanum', $gmCore->gmedia_url . '/assets/jq-plugins/jquery.alphanum.js', array( 'jquery' ), '1.0.16' );
+
+							wp_enqueue_script( 'moment', $gmCore->gmedia_url . '/assets/bootstrap-datetimepicker/moment.min.js', array( 'jquery' ), '2.5.1' );
+							wp_enqueue_style( 'datetimepicker', $gmCore->gmedia_url . '/assets/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css', array('gmedia-bootstrap'), '2.1.32' );
+							wp_enqueue_script( 'datetimepicker', $gmCore->gmedia_url . '/assets/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js', array( 'jquery', 'moment', 'gmedia-bootstrap' ), '2.1.32' );
+						}
 					}
-					wp_enqueue_style('selectize', $gmCore->gmedia_url . '/assets/selectize/selectize.bootstrap3.css', array('gmedia-bootstrap'), '0.8.5', 'screen');
-					wp_enqueue_script('selectize', $gmCore->gmedia_url . '/assets/selectize/selectize.min.js', array('jquery'), '0.8.5');
-
-					if($gmProcessor->mode){
-						wp_enqueue_script( 'alphanum', $gmCore->gmedia_url . '/assets/jq-plugins/jquery.alphanum.js', array( 'jquery' ), '1.0.16' );
-
-						wp_enqueue_script( 'moment', $gmCore->gmedia_url . '/assets/bootstrap-datetimepicker/moment.min.js', array( 'jquery' ), '2.5.1' );
-						wp_enqueue_style( 'datetimepicker', $gmCore->gmedia_url . '/assets/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css', array('gmedia-bootstrap'), '2.1.32' );
-						wp_enqueue_script( 'datetimepicker', $gmCore->gmedia_url . '/assets/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js', array( 'jquery', 'moment', 'gmedia-bootstrap' ), '2.1.32' );
-
-						//wp_enqueue_style( 'thickbox' );
-						//wp_enqueue_script( 'thickbox' );
+					if($gmCore->caps['gmedia_terms']){
+						wp_enqueue_style('selectize', $gmCore->gmedia_url . '/assets/selectize/selectize.bootstrap3.css', array('gmedia-bootstrap'), '0.8.5', 'screen');
+						wp_enqueue_script('selectize', $gmCore->gmedia_url . '/assets/selectize/selectize.min.js', array('jquery'), '0.8.5');
 					}
-					//wp_enqueue_style( 'mediaelement' );
-					//wp_enqueue_script( 'mediaelement' );
 					break;
 				case "GrandMedia_WordpressLibrary" :
-					wp_enqueue_style( 'selectize', $gmCore->gmedia_url . '/assets/selectize/selectize.bootstrap3.css', array('gmedia-bootstrap'), '0.8.5', 'screen' );
-					wp_enqueue_script('selectize', $gmCore->gmedia_url . '/assets/selectize/selectize.min.js', array('jquery'), '0.8.5');
+					if($gmCore->caps['gmedia_import']){
+						wp_enqueue_style( 'selectize', $gmCore->gmedia_url . '/assets/selectize/selectize.bootstrap3.css', array('gmedia-bootstrap'), '0.8.5', 'screen' );
+						wp_enqueue_script('selectize', $gmCore->gmedia_url . '/assets/selectize/selectize.min.js', array('jquery'), '0.8.5');
+					}
 					break;
 				case "GrandMedia_Terms" :
-					if($gmCore->_get('edit_album')){
+					if($gmCore->_get('edit_album') && $gmCore->caps['gmedia_album_manage']){
 						wp_enqueue_style('jquery-ui-smoothness', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/themes/smoothness/jquery-ui.min.css', array(), '1.10.2', 'screen');
 						wp_enqueue_script('jquery-ui-full', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/jquery-ui.min.js', array(), '1.10.2');
 
@@ -272,26 +271,29 @@ class GmediaAdmin {
 
 					break;
 				case "GrandMedia_AddMedia" :
-					wp_enqueue_style( 'selectize', $gmCore->gmedia_url . '/assets/selectize/selectize.bootstrap3.css', array('gmedia-bootstrap'), '0.8.5', 'screen' );
-					wp_enqueue_script('selectize', $gmCore->gmedia_url . '/assets/selectize/selectize.min.js', array('jquery'), '0.8.5');
+					if($gmCore->caps['gmedia_terms']){
+						wp_enqueue_style( 'selectize', $gmCore->gmedia_url . '/assets/selectize/selectize.bootstrap3.css', array('gmedia-bootstrap'), '0.8.5', 'screen' );
+						wp_enqueue_script('selectize', $gmCore->gmedia_url . '/assets/selectize/selectize.min.js', array('jquery'), '0.8.5');
+					}
+					if($gmCore->caps['gmedia_upload']){
+						$tab = $gmCore->_get('tab', 'upload');
+						if($tab == 'upload') {
+							wp_enqueue_style('jquery-ui-smoothness', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/themes/smoothness/jquery-ui.min.css', array(), '1.10.2', 'screen');
+							wp_enqueue_script('jquery-ui-full', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/jquery-ui.min.js', array(), '1.10.2');
 
-					$tab = $gmCore->_get('tab', 'upload');
-					if($tab == 'upload') {
-						wp_enqueue_style('jquery-ui-smoothness', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/themes/smoothness/jquery-ui.min.css', array(), '1.10.2', 'screen');
-						wp_enqueue_script('jquery-ui-full', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/jquery-ui.min.js', array(), '1.10.2');
+							wp_enqueue_script('gmedia-plupload', $gmCore->gmedia_url . '/assets/plupload/plupload.full.min.js', array('jquery', 'jquery-ui-full'), '2.1.1');
 
-						wp_enqueue_script('gmedia-plupload', $gmCore->gmedia_url . '/assets/plupload/plupload.full.min.js', array('jquery', 'jquery-ui-full'), '2.1.1');
+							wp_enqueue_style( 'jquery.ui.plupload', $gmCore->gmedia_url . '/assets/plupload/jquery.ui.plupload/css/jquery.ui.plupload.css', array( 'jquery-ui-smoothness' ), '2.1.1', 'screen' );
+							wp_enqueue_script( 'jquery.ui.plupload', $gmCore->gmedia_url . '/assets/plupload/jquery.ui.plupload/jquery.ui.plupload.min.js', array( 'gmedia-plupload', 'jquery-ui-full' ), '2.1.1' );
 
-						wp_enqueue_style( 'jquery.ui.plupload', $gmCore->gmedia_url . '/assets/plupload/jquery.ui.plupload/css/jquery.ui.plupload.css', array( 'jquery-ui-smoothness' ), '2.1.1', 'screen' );
-						wp_enqueue_script( 'jquery.ui.plupload', $gmCore->gmedia_url . '/assets/plupload/jquery.ui.plupload/jquery.ui.plupload.min.js', array( 'gmedia-plupload', 'jquery-ui-full' ), '2.1.1' );
-
+						}
 					}
 					break;
 				case "GrandMedia_Settings" :
 					// enqueue jscolor
 					break;
 				case "GrandMedia_Galleries" :
-					if(isset($_GET['gallery_module']) || isset($_GET['edit_gallery'])){
+					if($gmCore->caps['gmedia_gallery_manage'] && (isset($_GET['gallery_module']) || isset($_GET['edit_gallery']))){
 						wp_enqueue_style( 'selectize', $gmCore->gmedia_url . '/assets/selectize/selectize.bootstrap3.css', array('gmedia-bootstrap'), '0.8.5', 'screen' );
 						wp_enqueue_script('selectize', $gmCore->gmedia_url . '/assets/selectize/selectize.min.js', array('jquery','jquery-ui-sortable'), '0.8.5');
 
@@ -383,6 +385,18 @@ class GmediaAdmin {
 								<option'.selected($gm_screen_options['sortorder_gmedia'], 'ASC', false).' value="ASC">'.__('ASC','gmLang').'</option>
 							</select> <span>'.__( 'sort order', 'gmLang' ).'</span>
 						</div>
+					';
+					if('edit' == $gmCore->_get('mode')){
+						$settings .= '
+						<div class="form-group">
+							<select name="gm_screen_options[library_edit_quicktags]" class="form-control input-sm">
+								<option'.selected($gm_screen_options['library_edit_quicktags'], 'false', false).' value="false">'.__('FALSE','gmLang').'</option>
+								<option'.selected($gm_screen_options['library_edit_quicktags'], 'true', false).' value="true">'.__('TRUE','gmLang').'</option>
+							</select> <span>'.__( 'Quick Tags panel for Description field', 'gmLang' ).'</span>
+						</div>
+						';
+					}
+					$settings .= '
 					</div>
 					';
 					break;

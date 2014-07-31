@@ -381,6 +381,7 @@ function gmedia_quite_update(){
 		$options = get_option('gmediaOptions');
 		require_once(dirname(__FILE__). '/setup.php');
 		$default_options = gmedia_default_options();
+
 		if(version_compare( $current_version, '0.9.23', '<' )){
 			if(isset($options['license_name'])){
 				$default_options['license_name'] = $options['license_name'];
@@ -397,8 +398,16 @@ function gmedia_quite_update(){
 			$gmGallery->options = $gmCore->array_replace_recursive($options, $new_options);
 			update_option('gmediaOptions', $gmGallery->options);
 		}
-		$gmCore->delete_folder($gmCore->upload['path'].'/module/phantom');
+
+		if(version_compare( $current_version, '1.2.0', '<' )){
+			gmedia_capabilities();
+		}
+
+		$gmCore->delete_folder($gmCore->upload['path'].'/module/afflux');
 		$gmCore->delete_folder($gmCore->upload['path'].'/module/jq-mplayer');
+		$gmCore->delete_folder($gmCore->upload['path'].'/module/minima');
+		$gmCore->delete_folder($gmCore->upload['path'].'/module/phantom');
+		$gmCore->delete_folder($gmCore->upload['path'].'/module/wp-videoplayer');
 	}
 }
 

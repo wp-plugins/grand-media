@@ -19,7 +19,7 @@ function gmedia_AddMedia(){
 				<div class="btn-toolbar pull-left">
 					<div class="btn-group">
 						<a class="btn btn<?php echo ($tab == 'upload')? '-primary active' : '-default'; ?>" href="<?php echo $gmCore->get_admin_url(array(), array('tab'));; ?>"><?php _e('Upload Files', 'gmLang'); ?></a>
-						<a class="btn btn<?php echo ($tab == 'import')? '-primary active' : '-default'; ?>" href="<?php echo $gmCore->get_admin_url(array('tab' => 'import')); ?>"><?php _e('Import', 'gmLang'); ?></a>
+						<?php if($gmCore->caps['gmedia_import']){ ?><a class="btn btn<?php echo ($tab == 'import')? '-primary active' : '-default'; ?>" href="<?php echo $gmCore->get_admin_url(array('tab' => 'import')); ?>"><?php _e('Import', 'gmLang'); ?></a><?php } ?>
 					</div>
 				</div>
 			<?php } ?>
@@ -56,7 +56,12 @@ function gmedia_AddMedia(){
 
 
 function gmedia_upload_files(){
-	global $gmCore, $gmDB, $gmProcessor, $gmGallery;
+	global $gmCore, $gmDB, $gmProcessor, $gmGallery, $user_ID;
+
+	if(!$gmCore->caps['gmedia_upload']){
+		_e('You do not have permissions to upload media', 'gmLang');
+		return;
+	}
 
 	$maxupsize = wp_max_upload_size();
 	$maxupsize = floor($maxupsize * 0.99);
@@ -78,6 +83,7 @@ function gmedia_upload_files(){
 				<?php } ?>
 			</p>
 
+			<?php if($gmCore->caps['gmedia_terms']){ ?>
 			<div class="form-group">
 				<?php
 				$term_type = 'gmedia_category';
@@ -96,16 +102,15 @@ function gmedia_upload_files(){
 					<?php echo $terms_category; ?>
 				</select>
 			</div>
-
 			<div class="form-group">
 				<?php
 				$term_type = 'gmedia_album';
-				$gm_terms = $gmDB->get_terms($term_type);
+				$gm_terms = $gmDB->get_terms($term_type, array('global' => array(0, $user_ID), 'orderby' => 'global_desc_name'));
 
 				$terms_album = '';
 				if(count($gm_terms)){
 					foreach($gm_terms as $term){
-						$terms_album .= '<option value="' . esc_attr($term->name) . '">' . esc_html($term->name) . '</option>' . "\n";
+						$terms_album .= '<option value="' . esc_attr($term->term_id) . '">' . esc_html($term->name) . ($term->global? '' : __(' (shared)','gmLang')) . '</option>' . "\n";
 					}
 				}
 				?>
@@ -115,7 +120,6 @@ function gmedia_upload_files(){
 					<?php echo $terms_album; ?>
 				</select>
 			</div>
-
 			<div class="form-group">
 				<?php
 				$term_type = 'gmedia_tag';
@@ -124,12 +128,20 @@ function gmedia_upload_files(){
 				<label><?php _e('Add Tags', 'gmLang'); ?> </label>
 				<input id="combobox_gmedia_tag" name="terms[gmedia_tag]" class="form-control input-sm" value="" placeholder="<?php _e('Add Tags...', 'gmLang'); ?>" />
 			</div>
+			<?php } else{ ?>
+			<p><?php _e('You are not allowed to assign terms', 'gmLang') ?></p>
+			<?php } ?>
 
 			<script type="text/javascript">
 				jQuery(function($){
+					<?php if($gmCore->caps['gmedia_terms']){ ?>
 					$('#combobox_gmedia_album').selectize({
+						<?php if($gmCore->caps['gmedia_album_manage']){ ?>
 						create: true,
 						createOnBlur: true,
+						<?php } else{ ?>
+						create: false,
+						<?php } ?>
 						persist: false
 					});
 					var gm_terms = <?php echo json_encode($gm_terms); ?>;
@@ -137,21 +149,26 @@ function gmedia_upload_files(){
 						return { item: x };
 					});
 					$('#combobox_gmedia_tag').selectize({
+						<?php if($gmCore->caps['gmedia_tag_manage']){ ?>
+						create: function(input){
+							return {
+								item: input
+							}
+						},
+						createOnBlur: true,
+						<?php } else{ ?>
+						create: false,
+						<?php } ?>
 						delimiter: ',',
 						maxItems: null,
-						createOnBlur: true,
 						openOnFocus: false,
 						persist: false,
 						options: items,
 						labelField: 'item',
 						valueField: 'item',
-						hideSelected: true,
-						create: function(input){
-							return {
-								item: input
-							}
-						}
+						hideSelected: true
 					});
+					<?php } ?>
 					$('#uploader_runtime select').change(function(){
 						if('html4' == $(this).val()){
 							$('#uploader_chunking').addClass('hide');
@@ -256,7 +273,13 @@ function gmedia_upload_files(){
 
 
 function gmedia_import(){
-	global $wpdb, $gmCore, $gmGallery, $gmDB;
+	global $wpdb, $gmCore, $gmGallery, $gmDB, $user_ID;
+
+	if(!$gmCore->caps['gmedia_import']){
+		_e('You do not have permissions to import media', 'gmLang');
+		return;
+	}
+
 	$gmediaURL = plugins_url(GMEDIA_FOLDER);
 	?>
 	<form class="row" id="import_form" name="import_form" target="import_window" action="<?php echo $gmCore->gmedia_url; ?>/admin/import.php" method="POST" accept-charset="utf-8" style="padding:20px 0 10px;">
@@ -264,6 +287,8 @@ function gmedia_import(){
 			<fieldset id="import_params" class="import-params">
 				<?php wp_nonce_field('GmediaImport'); ?>
 				<input type="hidden" id="import-action" name="import" value=""/>
+
+				<?php if($gmCore->caps['gmedia_terms']){ ?>
 				<div class="form-group">
 					<?php
 					$term_type = 'gmedia_category';
@@ -282,16 +307,15 @@ function gmedia_import(){
 						<?php echo $terms_category; ?>
 					</select>
 				</div>
-
 				<div class="form-group">
 					<?php
 					$term_type = 'gmedia_album';
-					$gm_terms = $gmDB->get_terms($term_type);
+					$gm_terms = $gmDB->get_terms($term_type, array('global' => array(0, $user_ID), 'orderby' => 'global_desc_name'));
 
 					$terms_album = '';
 					if(count($gm_terms)){
 						foreach($gm_terms as $term){
-							$terms_album .= '<option value="' . esc_attr($term->name) . '">' . esc_html($term->name) . '</option>' . "\n";
+							$terms_album .= '<option value="' . esc_attr($term->term_id) . '">' . esc_html($term->name) . ($term->global? '' : __(' (shared)','gmLang')) . '</option>' . "\n";
 						}
 					}
 					?>
@@ -301,7 +325,6 @@ function gmedia_import(){
 						<?php echo $terms_album; ?>
 					</select>
 				</div>
-
 				<div class="form-group">
 					<?php
 					$term_type = 'gmedia_tag';
@@ -310,34 +333,46 @@ function gmedia_import(){
 					<label><?php _e('Add Tags', 'gmLang'); ?> </label>
 					<input id="combobox_gmedia_tag" name="terms[gmedia_tag]" class="form-control input-sm" value="" placeholder="<?php _e('Add Tags...', 'gmLang'); ?>" />
 				</div>
-
+				<?php } else{ ?>
+					<p><?php _e('You are not allowed to assign terms', 'gmLang') ?></p>
+				<?php } ?>
 				<script type="text/javascript">
 					jQuery(function($){
+						<?php if($gmCore->caps['gmedia_terms']){ ?>
 						$('#combobox_gmedia_album').selectize({
+							<?php if($gmCore->caps['gmedia_album_manage']){ ?>
 							create: true,
 							createOnBlur: true,
+							<?php } else{ ?>
+							create: false,
+							<?php } ?>
 							persist: false
 						});
 						var gm_terms = <?php echo json_encode($gm_terms); ?>;
 						var items = gm_terms.map(function(x){
-								return { item: x };
-							});
+							return { item: x };
+						});
 						$('#combobox_gmedia_tag').selectize({
+							<?php if($gmCore->caps['gmedia_tag_manage']){ ?>
+							create: function(input){
+								return {
+									item: input
+								}
+							},
+							createOnBlur: true,
+							<?php } else{ ?>
+							create: false,
+							<?php } ?>
 							delimiter: ',',
 							maxItems: null,
-							createOnBlur: true,
 							openOnFocus: false,
 							persist: false,
 							options: items,
 							labelField: 'item',
 							valueField: 'item',
-							hideSelected: true,
-							create: function(input){
-								return {
-									item: input
-								}
-							}
+							hideSelected: true
 						});
+						<?php } ?>
 					});
 				</script>
 			</fieldset>

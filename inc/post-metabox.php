@@ -9,10 +9,15 @@ if ( preg_match( '#' . basename( __FILE__ ) . '#', $_SERVER['PHP_SELF'] ) ) {
  * @param string $context the current context
  */
 function gmedia_add_meta_box( $page, $context ) {
-	// Plugins that use custom post types can use this filter to hide the Gmedia UI in their post type.
-	$gm_post_types = apply_filters( 'gmedia-post-types', array_keys( get_post_types( array('show_ui' => true ) ) ) );
+	if(!current_user_can('gmedia_galleries')){
+		return;
+	}
+	// Plugins that use custom post types can use this filter to show the Gmedia UI in their post type.
+	$gm_post_types = apply_filters( 'gmedia-post-types', array('post', 'page') );
 
 	if ( function_exists( 'add_meta_box' ) && in_array( $page, $gm_post_types ) && 'side' === $context ) {
+		add_action( 'admin_enqueue_scripts', 'gmedia_meta_box_load_scripts', 20 );
+		add_filter( 'media_buttons_context', 'gmedia_media_buttons_context', 4 );
 		add_meta_box( 'gmedia-MetaBox', __( 'Gmedia Gallery MetaBox', 'gmLang' ), 'gmedia_post_metabox', $page, 'side', 'low' );
 	}
 }
@@ -28,7 +33,6 @@ function gmedia_meta_box_load_scripts( $hook ) {
 		wp_enqueue_script( 'gmedia-meta-box', plugins_url( GMEDIA_FOLDER ) . '/admin/js/meta-box.js', array( 'jquery', 'jquery-ui-dialog', 'gmedia-global-backend' ), '0.9.0', true );
 	}
 }
-add_action( 'admin_enqueue_scripts', 'gmedia_meta_box_load_scripts', 20 );
 
 /**
  * @param $context
@@ -39,7 +43,6 @@ function gmedia_media_buttons_context($context){
 	$button = '<a href="#" class="gmedia_button button hidden" onclick="gm_media_button(this); return false;"><span class="wp-media-buttons-icon"></span> '.__('Gmedia', 'gmLang').'</a>';
 	return $context.$button;
 }
-add_filter( 'media_buttons_context', 'gmedia_media_buttons_context', 4 );
 
 /*
  * add_tinymce_plugin()
@@ -59,7 +62,7 @@ return $plugin_array;
 */
 
 function gmedia_post_metabox() {
-global $gmCore, $gmDB;
+global $gmCore, $gmDB, $user_ID;
 $t = $gmCore->gmedia_url . '/admin/images/blank.gif';
 ?>
 <div id="gmedia-wraper">
@@ -73,7 +76,13 @@ $t = $gmCore->gmedia_url . '/admin/images/blank.gif';
 				<ul id="gmedia-galleries-list">
 					<?php
 					$taxonomy = 'gmedia_gallery';
-					$gmediaTerms = $gmDB->get_terms( $taxonomy );
+					if($gmCore->caps['gmedia_edit_others_media']){
+						$args = array();
+					} else{
+						$args = array('global' => $user_ID);
+					}
+
+					$gmediaTerms = $gmDB->get_terms( $taxonomy, $args );
 
 					if ( count( $gmediaTerms ) ) {
 						foreach ( $gmediaTerms as $item ) {

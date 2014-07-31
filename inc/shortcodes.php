@@ -87,10 +87,14 @@ function gmedia_shortcode($atts, $content = ''){
 	if(file_exists($module['path'] . '/index.php') && file_exists($module['path'] . '/settings.php')){
 		$module_info = array('dependencies' => '');
 		include($module['path'] . '/index.php');
+		$module['info'] = $module_info;
 		/** @var $default_options */
 		include($module['path'] . '/settings.php');
-		$module['info'] = $module_info;
-		$module['options'] = $default_options;
+		if(isset($default_options)){
+			$module['options'] = $default_options;
+		} else{
+			return '<div class="gmedia_gallery gmediaShortcodeError">#' . $id . ': ' . sprintf(__('Module `%s` is outdated. Update module to latest version'), $gallery['module']) . '<br />' . $content . '</div>';
+		}
 	} else{
 		return '<div class="gmedia_gallery gmediaShortcodeError">#' . $id . ': ' . sprintf(__('Module `%s` is broken. Choose another module for this gallery'), $gallery['module']) . '<br />' . $content . '</div>';
 	}

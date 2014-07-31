@@ -18,7 +18,7 @@ require_once(ABSPATH . 'wp-admin/includes/image.php');
 // HTTP headers for no cache etc
 nocache_headers();
 
-if(!current_user_can('upload_files')){
+if(!current_user_can('gmedia_upload')){
 	wp_die(__('You do not have permission to upload files.'));
 }
 
@@ -252,7 +252,7 @@ function gmedia_upload_handler($file_tmp, $fileinfo, $content_type){
 			if(isset($_REQUEST['params'])){
 				parse_str($_REQUEST['params'], $post_data);
 
-				if(!$is_webimage){
+				if(!$is_webimage && isset($post_data['terms']['gmedia_category'])){
 					unset($post_data['terms']['gmedia_category']);
 				}
 			}

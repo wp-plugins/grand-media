@@ -33,7 +33,12 @@ if(isset($GLOBALS['HTTP_RAW_POST_DATA'])){
 			} elseif(isset($json->delete_term)){
 				$out = gmedia_ios_app_processor('delete_term', $json->delete_term);
 			}
-			elseif($json->library){
+			elseif(isset($json->doLibrary)){
+				$job = gmedia_ios_app_processor('do_library', $json->doLibrary);
+				$out = gmedia_ios_app_processor('library', $json->library, false);
+				$out = array_merge($out, $job);
+			}
+			elseif(isset($json->library)){
 				$out = gmedia_ios_app_processor('library', $json->library);
 			}
 
@@ -102,7 +107,7 @@ function gmedia_ios_app_login($json){
  *
  * @return array
  */
-function gmedia_ios_app_library_data($data = array('site','filter','gmedia_category','gmedia_album','gmedia_tag')){
+function gmedia_ios_app_library_data($data = array('site','authors','filter','gmedia_category','gmedia_album','gmedia_tag')){
 	global $user_ID, $gmCore, $gmDB, $gmGallery;
 
 	$out = array();
@@ -120,6 +125,16 @@ function gmedia_ios_app_library_data($data = array('site','filter','gmedia_categ
 			,'description' => get_bloginfo('description')
 		);
 	}
+	if(in_array('authors', $data)){
+		$curuser = get_the_author_meta('display_name', $user_ID);
+		$out['authors'] = array( $user_ID => $curuser);
+		if ( current_user_can('gmedia_show_others_media') || current_user_can('gmedia_edit_others_media') ){
+			$authors = get_users(array('who' => 'authors'));
+			foreach($authors as $author){
+				$out['authors'][$author->ID] = $author->display_name;
+			}
+		}
+	}
 	if(in_array('filter', $data)){
 		$out['filter'] = $gmDB->count_gmedia();
 	}
@@ -132,7 +147,10 @@ function gmedia_ios_app_library_data($data = array('site','filter','gmedia_categ
 		}
 		*/
 		$gmediaTerms = $gmDB->get_terms('gmedia_category', array('fields' => 'name=>all'));
-		$terms = $gmGallery->options['taxonomies']['gmedia_category'];
+		$terms = array_merge(
+			array('0' => __( 'Uncategorized', 'gmLang' )),
+			$gmGallery->options['taxonomies']['gmedia_category']
+		);
 		$out['categories'] = array(
 			'list' => $terms,
 			'cap' => 0,
@@ -149,6 +167,7 @@ function gmedia_ios_app_library_data($data = array('site','filter','gmedia_categ
 				$gmediaTerms[$name]->sharelink = str_replace(array('$1','$2'), array($term->term_id, 'category'), $share_link);
 				$gmediaTerms[$name]->cap = 0;
 			}
+
 			$out['categories']['data'] = array_values($gmediaTerms);
 		}
 	}
@@ -206,12 +225,14 @@ function gmedia_ios_app_library_data($data = array('site','filter','gmedia_categ
 }
 
 /**
- * @param $action
- * @param $data
+ * @param      $action
+ * @param      $data
+ *
+ * @param bool $filter
  *
  * @return array
  */
-function gmedia_ios_app_processor($action, $data){
+function gmedia_ios_app_processor($action, $data, $filter = true){
 	global $gmCore, $gmDB, $gmGallery;
 
 	$out = array();
@@ -224,6 +245,138 @@ function gmedia_ios_app_processor($action, $data){
 	$alert = array();
 	$data = (array) $data;
 	switch($action){
+		case 'do_library':
+			$selected = $data['selected'];
+			if(empty($selected)){
+				return $out;
+			}
+			if(isset($data['assign_category'])){
+				if(current_user_can('gmedia_terms')){
+					$term = $data['assign_category'][0];
+					if(false !== $term){
+						$count = count($selected);
+						if('0' == $term){
+							foreach($selected as $item){
+								$gmDB->delete_gmedia_term_relationships($item, 'gmedia_category');
+							}
+							$alert[] = sprintf(__('%d items updated with "Uncategorized"', 'gmLang'), $count);
+						} else{
+							foreach($selected as $item){
+								$result = $gmDB->set_gmedia_terms($item, $term, 'gmedia_category', $append = 0);
+								if(is_wp_error($result)){
+									$error[] = $result;
+									$count--;
+								} elseif(!$result){
+									$count--;
+								}
+							}
+							if(isset($gmGallery->options['taxonomies']['gmedia_category'][$term])){
+								$cat_name = $gmGallery->options['taxonomies']['gmedia_category'][$term];
+								$alert[] = sprintf(__("Category `%s` assigned to %d images.", 'gmLang'), esc_html($cat_name), $count);
+							} else{
+								$error[] = sprintf(__("Category `%s` can't be assigned.", 'gmLang'), $term);
+							}
+						}
+					}
+				} else{
+					$error[] = __('You are not allowed to manage categories', 'gmLang');
+				}
+			}
+			if(isset($data['assign_album'])){
+				if(current_user_can('gmedia_terms')){
+					$term = $data['assign_album'][0];
+					if(false !== $term){
+						$count = count($selected);
+						if('0' == $term){
+							foreach($selected as $item){
+								$gmDB->delete_gmedia_term_relationships($item, 'gmedia_album');
+							}
+							$alert[] = sprintf(__('%d items updated with "No Album"', 'gmLang'), $count);
+						} else{
+							foreach($selected as $item){
+								$result = $gmDB->set_gmedia_terms($item, $term, 'gmedia_album', $append = 0);
+								if(is_wp_error($result)){
+									$error[] = $result;
+									$count--;
+								} elseif(!$result){
+									$count--;
+								}
+							}
+							if($gmCore->is_digit($term)){
+								$alb_name = $gmDB->get_alb_name($term);
+							} else{
+								$alb_name = $term;
+							}
+							$alert[] = sprintf(__('Album `%s` assigned to %d items', 'gmLang'), esc_html($alb_name), $count);
+						}
+					}
+				} else{
+					$error[] = __('You are not allowed to manage albums', 'gmLang');
+				}
+			}
+			if(isset($data['add_tags'])){
+				if(!empty($data['add_tags']) && current_user_can('gmedia_terms')){
+					$term = $data['add_tags'];
+					$count = count($selected);
+					foreach($selected as $item){
+						$result = $gmDB->set_gmedia_terms($item, $term, 'gmedia_tag', $append = 1);
+						if(is_wp_error($result)){
+							$error[] = $result;
+							$count--;
+						} elseif(!$result){
+							$count--;
+						}
+					}
+					$alert[] = sprintf(__('%d tags added to %d items', 'gmLang'), count($term), $count);
+				} else{
+					$error[] = __('You are not allowed manage tags', 'gmLang');
+				}
+			}
+			if(isset($data['delete_tags'])){
+				if(!empty($data['delete_tags']) && current_user_can('gmedia_terms')){
+					$term = array_map('intval', $data['delete_tags']);
+					$count = count($selected);
+					foreach($selected as $item){
+						$result = $gmDB->set_gmedia_terms($item, $term, 'gmedia_tag', $append = -1);
+						if(is_wp_error($result)){
+							$error[] = $result;
+							$count--;
+						} elseif(!$result){
+							$count--;
+						}
+					}
+					$alert[] = sprintf(__('%d tags deleted from %d items', 'gmLang'), count($term), $count);
+				} else{
+					$error[] = __('You are not allowed manage tags', 'gmLang');
+				}
+			}
+			if(isset($data['action'])){
+				if($data['action'] == 'delete'){
+					global $user_ID;
+					if(!current_user_can('gmedia_delete_media')){
+						$error[] = __('You are not allowed to delete this post.');
+						break;
+					}
+					$count = count($selected);
+					foreach($selected as $item){
+						$gm_item = $gmDB->get_gmedia($item);
+						if(((int) $gm_item->author != $user_ID) && !current_user_can('gmedia_delete_others_media')){
+							$error[] = "#{$item}: " . __('You are not allowed to delete media others media', 'gmLang');
+							continue;
+						}
+						if(!$gmDB->delete_gmedia((int)$item)){
+							$error[] = "#{$item}: " . __('Error in deleting...', 'gmLang');
+							$count--;
+						}
+					}
+					if($count){
+						$alert[] = sprintf(__('%d items deleted successfuly', 'gmLang'), $count);
+					}
+				}
+			}
+			$filter = gmedia_ios_app_library_data(array('filter','gmedia_category','gmedia_album','gmedia_tag'));
+			$out = array_merge($out, $filter);
+			break;
 		case 'library':
 			if ( get_option('permalink_structure') ) {
 				$ep = $gmGallery->options['endpoint'];
@@ -231,6 +384,7 @@ function gmedia_ios_app_processor($action, $data){
 			} else{
 				$share_link = home_url('index.php?type=single&gmedia=');
 			}
+			$filter = $filter? gmedia_ios_app_library_data(array('filter')) : array();
 			$gmedias = $gmDB->get_gmedias($data);
 			foreach($gmedias as $i => $item){
 				$meta = $gmDB->get_metadata('gmedia', $item->ID);
@@ -302,7 +456,7 @@ function gmedia_ios_app_processor($action, $data){
 					$gmedias[$i]->meta['rating'] = unserialize($meta['rating'][0]);
 				}
 			}
-			$out = array(
+			$out = array_merge($filter, array(
 				'properties' => array(
 					'share_link_base' => $share_link
 					,'total_pages' => $gmDB->pages
@@ -310,14 +464,14 @@ function gmedia_ios_app_processor($action, $data){
 					,'items_count' => $gmDB->gmediaCount
 				)
 				,'data' => $gmedias
-			);
+			));
 			break;
 		case 'delete_term':
 			$taxonomy = $data['taxonomy'];
 			if(!empty($data['items'])){
 				if(!current_user_can('delete_posts')){
-					$out['error'] = __('You are not allowed to delete this post.');
-					return $out;
+					$error[] = __('You are not allowed to delete this post.');
+					break;
 				}
 				$count = count($data['items']);
 				foreach($data['items'] as $item){
@@ -349,7 +503,7 @@ function gmedia_ios_app_processor($action, $data){
 						break;
 					}
 					if($edit_term && !$gmDB->term_exists($edit_term, $taxonomy)){
-						$alert[] = __('A term with the id provided do not exists', 'gmLang');
+						$error[] = __('A term with the id provided do not exists', 'gmLang');
 						$edit_term = false;
 					}
 					if(($term_id = $gmDB->term_exists($term['name'], $taxonomy))){
@@ -391,14 +545,18 @@ function gmedia_ios_app_processor($action, $data){
 					$term['term_id'] = intval($term['term_id']);
 					if( $term['name'] && !$gmCore->is_digit($term['name']) ){
 						if ( ($term_id = $gmDB->term_exists( $term['term_id'], $taxonomy )) ) {
-							$term_id = $gmDB->update_term( $term['term_id'], $taxonomy, $term );
-							if ( is_wp_error( $term_id ) ) {
-								$error[] = $term_id->get_error_message();
+							if ( !$gmDB->term_exists( $term['name'], $taxonomy )) {
+								$term_id = $gmDB->update_term( $term['term_id'], $taxonomy, $term );
+								if ( is_wp_error( $term_id ) ) {
+									$error[] = $term_id->get_error_message();
+								} else{
+									$alert[] = sprintf( __( "Tag %d successfuly updated", 'gmLang' ), $term_id );
+								}
 							} else{
-								$alert[] = sprintf( __( "Tag %d successfuly updated", 'gmLang' ), $term_id );
+								$error[] = __('A term with the name provided already exists', 'gmLang');
 							}
 						} else{
-							$error[] = __( "A term with the id provided do not exists.", 'gmLang' );
+							$error[] = __( "A term with the id provided do not exists", 'gmLang' );
 						}
 					} else{
 						$error[] = __( "Term name can't be only digits or empty", 'gmLang' );
@@ -438,7 +596,6 @@ function gmedia_ios_app_processor($action, $data){
 
 	return $out;
 }
-
 
 header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
 echo json_encode($out);

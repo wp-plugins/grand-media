@@ -45,7 +45,7 @@ jQuery(function($){
 			}
 
 			if(sel.data('userid')){
-				var storedData = getStorage('gmedia_u' + sel.data('userid') + '_');
+				var storedData = getStorage('gmuser_' + sel.data('userid') + '_');
 				storedData.set(sel.data('key'), arr);
 			}
 			$('#gm-selected-qty').text(arr.length);
@@ -179,6 +179,9 @@ jQuery(function($){
 		},
 		init: function(){
 			$('#toplevel_page_GrandMedia').addClass('current').removeClass('wp-not-current-submenu');
+			if (!("ontouchstart" in document.documentElement)) {
+				$('html').addClass('no-touch');
+			}
 
 			/*
 			$(document).ajaxStart(function(){
@@ -263,8 +266,11 @@ jQuery(function($){
 				};
 				$.post(ajaxurl, post_data, function(data, textStatus, jqXHR){
 					console.log(data);
-					var id = data.ID;
-					$('#list-item-'+id).find('.modified').text(data.modified);
+					var item = $('#list-item-'+data.ID);
+					item.find('.modified').text(data.modified);
+					if(data.tags){
+						item.find('.gmedia_tags_input').val(data.tags);
+					}
 					$('body').removeClass('gmedia-busy');
 				});
 			});

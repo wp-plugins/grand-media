@@ -21,6 +21,8 @@ function gmediaTerms(){
 	$gm_screen_options = array_merge($gmGallery->options['gm_screen_options'], $gm_screen_options);
 	*/
 
+	$author = $gmCore->caps['gmedia_show_others_media']? 0 : $user_ID;
+
 	$filter = ('selected' == $gmCore->_req('filter'))? $gmProcessor->selected_items : null;
 	$args = array('orderby' => $gmCore->_get('orderby', 'name'), 'order' => $gmCore->_get('order', 'ASC'),
 				  'search' => $gmCore->_get('s', ''), 'number' => $gmCore->_get('number', 30),
@@ -29,17 +31,38 @@ function gmediaTerms(){
 	$args['offset'] = ($args['page'] - 1) * $args['number'];
 
 	$taxonomy = $gmCore->_get('term', 'gmedia_album');
-	if('gmedia_category' == $taxonomy){
-		$args['number'] = '';
-		$args['offset'] = '';
-		$args['search'] = '';
-		$args['include'] = null;
+
+	$allow_edit = 0;
+	switch($taxonomy){
+		case 'gmedia_album':
+			$allow_edit = $gmCore->caps['gmedia_album_manage'];
+			$args['global'] = $gmCore->_get('author', $gmCore->caps['gmedia_edit_others_media']? '' : array(0, $user_ID));
+			if(!$gmCore->caps['gmedia_show_others_media']){
+				$args['global'] = wp_parse_id_list($args['global']);
+				$args['global'] = array_intersect(array(0, $user_ID), $args['global']);
+				if(empty($args['global'])){
+					$args['global'] = array(0, $user_ID);
+				}
+			}
+			if(!$gmCore->caps['gmedia_edit_others_media']){
+				$args['orderby'] = $gmCore->_get('orderby', 'global_desc_name');
+			}
+			break;
+		case 'gmedia_tag':
+			$allow_edit = $gmCore->caps['gmedia_tag_manage'];
+			break;
+		case 'gmedia_category':
+			$args['number'] = '';
+			$args['offset'] = '';
+			$args['search'] = '';
+			$args['include'] = null;
+			break;
 	}
 
 	$gmediaTerms = $gmDB->get_terms($taxonomy, $args);
 
 	?>
-	<div class="panel panel-default">
+	<div class="panel panel-default" id="gmedia-panel">
 		<div class="panel-heading clearfix">
 
 			<?php if('gmedia_category' != $taxonomy){ ?>
@@ -72,14 +95,12 @@ function gmediaTerms(){
 				<?php } ?>
 
 				<div class="btn-group" style="margin-right:20px;">
-					<?php $btn_color = $gmDB->filter? 'warning' : 'primary';
-						  $btn_active_title = $gmDB->filter? '" title="'.__('Reset Filter', 'gmLang') : ''; ?>
-					<a class="btn btn<?php echo ('gmedia_album' == $taxonomy)? "-$btn_color active".$btn_active_title : '-default'; ?>" href="<?php echo add_query_arg(array('term' => 'gmedia_album'), $url); ?>"><?php _e('Albums', 'gmLang'); ?></a>
-					<a class="btn btn<?php echo ('gmedia_tag' == $taxonomy)? "-$btn_color active".$btn_active_title : '-default'; ?>" href="<?php echo add_query_arg(array('term' => 'gmedia_tag'), $url); ?>"><?php _e('Tags', 'gmLang'); ?></a>
+					<a class="btn btn<?php echo ('gmedia_album' == $taxonomy)? "-primary active" : '-default'; ?>" href="<?php echo add_query_arg(array('term' => 'gmedia_album'), $url); ?>"><?php _e('Albums', 'gmLang'); ?></a>
+					<a class="btn btn<?php echo ('gmedia_tag' == $taxonomy)? "-primary active" : '-default'; ?>" href="<?php echo add_query_arg(array('term' => 'gmedia_tag'), $url); ?>"><?php _e('Tags', 'gmLang'); ?></a>
 					<a class="btn btn<?php echo ('gmedia_category' == $taxonomy)? "-primary active" : '-default'; ?>" href="<?php echo add_query_arg(array('term' => 'gmedia_category'), $url); ?>"><?php _e('Categories', 'gmLang'); ?></a>
 				</div>
 
-				<?php if('gmedia_category' != $taxonomy){ ?>
+				<?php if(('gmedia_category' != $taxonomy)){ ?>
 					<div class="btn-group">
 						<a class="btn btn-default" href="#"><?php _e('Action', 'gmLang'); ?></a>
 						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
@@ -92,7 +113,7 @@ function gmediaTerms(){
 						?>
 						<ul class="dropdown-menu" role="menu">
 							<li class="dropdown-header <?php echo $rel_selected_hide; ?>"><span><?php _e("Select items to see more actions", "gmLang"); ?></span></li>
-							<li class="<?php echo $rel_selected_show; ?>"><a href="<?php echo wp_nonce_url($gmCore->get_admin_url(array('delete' => 'selected'), array('filter')), 'gmedia_delete') ?>" class="gmedia-delete" data-confirm="<?php _e("You are about to permanently delete the selected items.\n\r'Cancel' to stop, 'OK' to delete.", "gmLang"); ?>"><?php _e('Delete Selected Items', 'gmLang'); ?></a></li>
+							<li class="<?php echo $rel_selected_show; if(!$gmCore->caps['gmedia_terms_delete']){ echo ' disabled'; } ?>"><a href="<?php echo wp_nonce_url($gmCore->get_admin_url(array('delete' => 'selected'), array('filter')), 'gmedia_delete') ?>" class="gmedia-delete" data-confirm="<?php _e("You are about to permanently delete the selected items.\n\r'Cancel' to stop, 'OK' to delete.", "gmLang"); ?>"><?php _e('Delete Selected Items', 'gmLang'); ?></a></li>
 							<?php do_action('gmedia_term_action_list'); ?>
 						</ul>
 					</div>
@@ -112,7 +133,8 @@ function gmediaTerms(){
 		</div>
 
 
-		<?php if('gmedia_album' == $taxonomy){ ?>
+		<?php	if('gmedia_album' == $taxonomy){ ?>
+			<?php if($allow_edit){ ?>
 			<form method="post" id="gmedia-edit-term" name="gmAddTerms" class="panel-body" style="padding-bottom:0; border-bottom:1px solid #ddd;">
 				<div class="row">
 					<div class="col-xs-6">
@@ -122,7 +144,7 @@ function gmediaTerms(){
 						</div>
 						<div class="form-group">
 							<label><?php _e('Description', 'gmLang'); ?></label>
-							<textarea class="form-control input-sm" style="height:53px;" rows="2" name="term[description]"></textarea>
+							<textarea class="form-control input-sm" style="height:75px;" rows="2" name="term[description]"></textarea>
 						</div>
 					</div>
 					<div class="col-xs-6">
@@ -151,23 +173,47 @@ function gmediaTerms(){
 								<label><?php _e('Status', 'gmLang'); ?></label>
 								<select name="term[status]" class="form-control input-sm">
 									<option selected="selected" value="public"><?php _e('Public', 'gmLang'); ?></option>
+									<!-- Coming soon
 									<option value="private"><?php _e('Private', 'gmLang'); ?></option>
 									<option value="draft"><?php _e('Draft', 'gmLang'); ?></option>
+									-->
 								</select>
 							</div>
-							<div class="form-group col-xs-6">
-								<label>&nbsp;</label>
-								<?php
-								wp_original_referer_field(true, 'previous');
-								wp_nonce_field('GmediaTerms', 'term_save_wpnonce');
-								?>
-								<input type="hidden" name="term[taxonomy]" value="gmedia_album"/>
-								<button style="display:block" type="submit" class="btn btn-primary btn-sm" name="gmedia_album_save"><?php _e('Add New Album', 'gmLang'); ?></button>
+							<div class="col-xs-6">
+								<div class="form-group">
+									<label><?php _e('Author', 'gmLang'); ?></label>
+									<?php $user_ids = $gmCore->get_editable_user_ids();
+									if($user_ids && $gmCore->caps['gmedia_edit_others_media']){
+										$shared_option = current_user_can('manage_options')? __('Shared','gmLang') : '';
+										wp_dropdown_users( array('include' => $user_ids, 'include_selected' => true,
+																							'name' => 'term[global]', 'selected' => $user_ID,
+																							'class' => 'form-control input-sm', 'multi' => true,
+																							'show_option_all' => $shared_option) );
+									} else{
+										echo '<input type="hidden" name="term[global]" value="'.$user_ID.'"/>';
+										echo '<div>'.get_the_author_meta('display_name', $user_ID).'</div>';
+									}
+									?>
+								</div>
+								<div class="form-group">
+									<?php
+									wp_original_referer_field(true, 'previous');
+									wp_nonce_field('GmediaTerms', 'term_save_wpnonce');
+									?>
+									<input type="hidden" name="term[taxonomy]" value="gmedia_album"/>
+									<button style="display:block" type="submit" class="btn btn-primary btn-sm" name="gmedia_album_save"><?php _e('Add New Album', 'gmLang'); ?></button>
+								</div>
 							</div>
 						</div>
 					</div>
 				</div>
 			</form>
+			<?php } else{ ?>
+				<div class="alert alert-warning alert-dismissible" role="alert" style="margin-bottom:0">
+					<button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only"><?php _e('Close', 'gmLang'); ?></span></button>
+					<strong><?php _e('Info:', 'gmLang'); ?></strong> <?php _e('You are not allowed to add new terms', 'gmLang'); ?>
+				</div>
+			<?php } ?>
 			<form class="list-group" id="gm-list-table" style="margin-bottom:4px;">
 				<?php
 				if(count($gmediaTerms)){
@@ -175,18 +221,38 @@ function gmediaTerms(){
 						$termItems = array();
 						$per_page = 10;
 						if($item->count){
-							$args = array('no_found_rows' => true, 'per_page' => $per_page, 'album__in' => array($item->term_id));
+							$args = array('no_found_rows' => true, 'per_page' => $per_page, 'album__in' => array($item->term_id), 'author' => $author);
 							$termItems = $gmDB->get_gmedias($args);
 						}
 						$is_selected = in_array($item->term_id, $gmProcessor->selected_items)? true : false;
+						$row_class = '';
+						if($item->global){
+							$author_name = sprintf(__('by %s','gmLang'), get_the_author_meta('display_name', $item->global));
+							if($item->global == $user_ID){
+								$row_class .= ' current_user';
+								$allow_edit = $gmCore->caps['gmedia_album_manage'];
+							} else{
+								$row_class .= ' other_user';
+								$allow_edit = $gmCore->caps['gmedia_edit_others_media'];
+							}
+						} else{
+							$author_name = '('.__('shared', 'gmLang').')';
+							$row_class .= ' shared';
+							$allow_edit = $gmCore->caps['gmedia_edit_others_media'];
+						}
 						?>
 						<div class="list-group-item term-list-item">
-							<div class="row cb_term-object">
+							<div class="row cb_term-object<?php echo $row_class; ?>">
 								<div class="term_id">#<?php echo $item->term_id; ?></div>
 								<div class="col-xs-5 term-label">
 									<div class="checkbox">
 										<input name="doaction[]" type="checkbox"<?php echo $is_selected? ' checked="checked"' : ''; ?> value="<?php echo $item->term_id; ?>"/>
+										<?php if($allow_edit){ ?>
 										<a href="<?php echo add_query_arg(array('edit_album' => $item->term_id), $url); ?>"><?php echo esc_html($item->name); ?></a>
+										<?php } else{ ?>
+										<span><?php echo esc_html($item->name); ?></span>
+										<?php } ?>
+										<span class="term_info_author"><?php echo $author_name; ?></span>
 										<?php if($item->count){ ?>
 											<a href="<?php echo $gmCore->get_admin_url(array('page' => 'GrandMedia', 'alb' => $item->term_id), array(), true); ?>" class="badge pull-right"><?php echo $item->count; ?></a>
 										<?php } else{ ?>
@@ -194,7 +260,8 @@ function gmediaTerms(){
 										<?php } ?>
 									</div>
 								</div>
-								<div class="col-xs-7 term-images">
+								<div class="col-xs-7">
+									<div class="term-images">
 									<?php if(!empty($termItems)){
 										foreach($termItems as $i){
 											?>
@@ -206,6 +273,7 @@ function gmediaTerms(){
 										echo '...';
 									}
 									?>
+									</div>
 								</div>
 							</div>
 							<?php if(!empty($item->description)){ ?>
@@ -230,6 +298,7 @@ function gmediaTerms(){
 
 
 		<?php } elseif('gmedia_tag' == $taxonomy){ ?>
+			<?php if($allow_edit){ ?>
 			<form method="post" id="gmedia-edit-term" name="gmAddTerms" class="panel-body" style="padding-bottom:0; border-bottom:1px solid #ddd;">
 				<div class="row">
 					<div class="form-group col-xs-9">
@@ -246,14 +315,25 @@ function gmediaTerms(){
 					</div>
 				</div>
 			</form>
+			<?php } else{ ?>
+				<div class="alert alert-warning alert-dismissible" role="alert" style="margin-bottom:0">
+					<button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only"><?php _e('Close', 'gmLang'); ?></span></button>
+					<strong><?php _e('Info:', 'gmLang'); ?></strong> <?php _e('You are not allowed to add new terms', 'gmLang'); ?>
+				</div>
+			<?php } ?>
 			<form class="list-group" id="gm-list-table" style="margin-bottom:4px;">
 				<?php
 				if(count($gmediaTerms)){
+					if($gmCore->caps['gmedia_edit_others_media']){
+						$allow_edit = true;
+					} else{
+						$allow_edit = false;
+					}
 					foreach($gmediaTerms as $item){
 						$termItems = array();
 						$per_page = 5;
 						if($item->count){
-							$args = array('no_found_rows' => true, 'per_page' => $per_page, 'tag_id' => $item->term_id);
+							$args = array('no_found_rows' => true, 'per_page' => $per_page, 'tag_id' => $item->term_id, 'author' => $author);
 							$termItems = $gmDB->get_gmedias($args);
 						}
 						$is_selected = in_array($item->term_id, $gmProcessor->selected_items)? true : false;
@@ -264,8 +344,12 @@ function gmediaTerms(){
 								<div class="col-xs-5 term-label">
 									<div class="checkbox">
 										<input name="doaction[]" type="checkbox"<?php echo $is_selected? ' checked="checked"' : ''; ?> value="<?php echo $item->term_id; ?>"/>
+										<?php if($allow_edit){ ?>
 										<a class="edit_tag_link" href="#tag_<?php echo $item->term_id; ?>"><?php echo esc_html($item->name); ?></a>
 										<span class="edit_tag_form" style="display:none;"><input class="edit_tag_input" type="text" data-tag_id="<?php echo $item->term_id; ?>" name="gmedia_tag_name[<?php echo $item->term_id; ?>]" value="<?php echo esc_attr($item->name); ?>" placeholder="<?php echo esc_attr($item->name); ?>"/><a href="#tag_<?php echo $item->term_id; ?>" class="edit_tag_save btn btn-link glyphicon glyphicon-pencil"></a></span>
+										<?php } else{ ?>
+										<span><?php echo esc_html($item->name); ?></span>
+										<?php } ?>
 										<?php if($item->count){ ?>
 											<a href="<?php echo $gmCore->get_admin_url(array('page' => 'GrandMedia', 'tag_id' => $item->term_id), array(), true); ?>" class="badge pull-right"><?php echo $item->count; ?></a>
 										<?php } else{ ?>
@@ -289,16 +373,22 @@ function gmediaTerms(){
 							</div>
 						</div>
 					<?php } ?>
+					<?php if($allow_edit){ ?>
 					<script type="text/javascript">
 						jQuery(function($){
 							$('#gm-list-table').data('edit',false);
 							$('input.edit_tag_input').keypress(function(e){
+								var tagdiv = $('#tag_'+$(this).data('tag_id'));
 								var charCode = e.charCode || e.keyCode || e.which;
 								if (charCode  == 13) {
 									e.preventDefault();
-									$(this).next().click();
+									edit_tag(tagdiv);
 								}
+							}).blur(function(e){
+								var tagdiv = $('#tag_'+$(this).data('tag_id'));
+								edit_tag(tagdiv);
 							});
+
 							$('.edit_tag_link').click(function(e){
 								e.preventDefault();
 								var id = $(this).attr('href');
@@ -307,13 +397,17 @@ function gmediaTerms(){
 								$('#gm-list-table').data('edit',true);
 							});
 							$('.edit_tag_save').click(function(e){
-								var id = $(this).attr('href');
-								var inp = $(id).find('.edit_tag_form input');
+								e.preventDefault();
+							});
+
+							function edit_tag(tagdiv){
+								var inp = tagdiv.find('.edit_tag_form input');
 								var new_tag_name = $.trim(inp.val());
-								if(('' === new_tag_name) || $.isNumeric()){
-									inp.val(inp.attr('placeholder'));
-									$(id).find('.edit_tag_form').hide();
-									$(id).find('.edit_tag_link').show();
+								var old_tag_name = inp.attr('placeholder');
+								if((old_tag_name == new_tag_name) || ('' === new_tag_name) || $.isNumeric()){
+									inp.val(old_tag_name);
+									tagdiv.find('.edit_tag_form').hide();
+									tagdiv.find('.edit_tag_link').show();
 									return;
 								}
 								var post_data = {
@@ -321,21 +415,21 @@ function gmediaTerms(){
 								};
 								$.post(ajaxurl, post_data, function(data, textStatus, jqXHR){
 									console.log(data);
-									//new_tag_name = new_tag_name.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-									inp.attr('placeholder', new_tag_name);
-									$(id).find('.edit_tag_form').hide();
-									$(id).find('.edit_tag_link').text(new_tag_name).show();
+									if(data.error){
+										//inp.val(inp.attr('placeholder'));
+										$('#gmedia-panel').before(data.error);
+									} else{
+										//new_tag_name = new_tag_name.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+										inp.attr('placeholder', new_tag_name);
+										tagdiv.find('.edit_tag_link').text(new_tag_name).show();
+										$('#gmedia-panel').before(data.msg);
+										tagdiv.find('.edit_tag_form').hide();
+									}
 								});
-							});
-							$('.edit_tag_input').blur(function(e){
-								var t = $(this);
-								var id = t.data('tag_id');
-								t.val(t.attr('placeholder'));
-								$('#tag_'+id).find('.edit_tag_form').hide();
-								$('#tag_'+id).find('.edit_tag_link').show();
-							});
+							}
 						});
 					</script>
+					<?php } ?>
 				<?php } else{
 					?>
 					<div class="list-group-item">
@@ -368,7 +462,7 @@ function gmediaTerms(){
 						$count = $cat[$name]->count;
 						$term_id = $cat[$name]->term_id;
 						if($count){
-							$args = array('no_found_rows' => true, 'per_page' => $per_page, 'category__in' => array($term_id));
+							$args = array('no_found_rows' => true, 'per_page' => $per_page, 'category__in' => array($term_id), 'author' => $author);
 							$termItems = $gmDB->get_gmedias($args);
 						}
 					} else {
@@ -418,7 +512,11 @@ function gmediaTerms(){
  * @return mixed content
  */
 function gmediaAlbumEdit(){
-	global $gmDB, $gmCore, $gmProcessor;
+	global $gmDB, $gmCore, $gmProcessor, $user_ID;
+
+	if(!$gmCore->caps['gmedia_album_manage']){
+		die('-1');
+	}
 
 	$url = add_query_arg(array('page' => $gmProcessor->page), admin_url('admin.php'));
 
@@ -483,7 +581,10 @@ function gmediaAlbumEdit(){
 		</div>
 
 		<form method="post" id="gmedia-edit-term" name="gmEditTerm" class="panel-body">
-			<h4 style="margin-top:0;"><?php _e('Edit Album'); ?>: <em><?php echo esc_html($term->name); ?></em></h4>
+			<h4 style="margin-top:0;">
+				<span class="pull-right"><?php echo __('ID', 'gmLang').": {$term->term_id}"; ?></span>
+				<?php _e('Edit Album'); ?>: <em><?php echo esc_html($term->name); ?></em>
+			</h4>
 			<div class="row" style="border-bottom:1px solid #ddd; margin-bottom:15px;">
 				<div class="col-xs-6">
 					<div class="form-group">
@@ -527,12 +628,28 @@ function gmediaAlbumEdit(){
  								<?php */ ?>
 							</select>
 						</div>
-						<div class="form-group col-xs-6">
-							<label><?php echo __('ID', 'gmLang').": {$term->term_id}"; ?></label>
-							<?php wp_nonce_field('GmediaTerms', 'term_save_wpnonce'); ?>
-							<input type="hidden" name="term[term_id]" value="<?php echo $term->term_id; ?>"/>
-							<input type="hidden" name="term[taxonomy]" value="gmedia_album"/>
-							<button style="display:block" type="submit" class="btn btn-primary btn-sm" name="gmedia_album_save"><?php _e('Update', 'gmLang'); ?></button>
+						<div class="col-xs-6">
+							<div class="form-group">
+								<label><?php _e('Author', 'gmLang'); ?></label>
+								<?php $user_ids = $gmCore->caps['gmedia_edit_others_media']? $gmCore->get_editable_user_ids() : false;
+								if($user_ids){
+									$shared_option = current_user_can('manage_options')? __('Shared','gmLang') : '';
+									wp_dropdown_users( array('include' => $user_ids, 'include_selected' => true,
+																					 'name' => 'term[global]', 'selected' => $term->global,
+																					 'class' => 'form-control input-sm', 'multi' => true,
+																					 'show_option_all' => $shared_option) );
+								} else{
+									echo '<input type="hidden" name="term[global]" value="'.$user_ID.'"/>';
+									echo '<div>'.get_the_author_meta('display_name', $user_ID).'</div>';
+								}
+								?>
+							</div>
+							<div class="form-group">
+								<?php wp_nonce_field('GmediaTerms', 'term_save_wpnonce'); ?>
+								<input type="hidden" name="term[term_id]" value="<?php echo $term->term_id; ?>"/>
+								<input type="hidden" name="term[taxonomy]" value="gmedia_album"/>
+								<button style="display:block" type="submit" class="btn btn-primary btn-sm" name="gmedia_album_save"><?php _e('Update', 'gmLang'); ?></button>
+							</div>
 						</div>
 					</div>
 				</div>

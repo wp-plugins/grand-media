@@ -86,40 +86,35 @@ function grandWPMedia(){
 						<li role="presentation" class="dropdown-header"><?php _e('TYPE', 'gmLang'); ?></li>
 						<li class="total<?php if(in_array('total', $curr_mime)){
 							echo ' active';
-						} ?>"><a rel="total" href="<?php echo $gmCore->get_admin_url(array(), array('mime_type', 'pager')); ?>"><?php _e('All', 'gmLang');
-								echo $gm_qty['total']; ?></a></li>
+						} ?>"><a rel="total" href="<?php echo $gmCore->get_admin_url(array(), array('mime_type', 'pager')); ?>"><?php echo $gm_qty['total']; _e('All', 'gmLang'); ?></a></li>
 						<li class="image<?php if(in_array('image', $curr_mime)){
 							echo ' active';
 						}
 						if(!$gmDbCount['image']){
 							echo ' disabled';
 						} ?>">
-							<a rel="image" href="<?php echo $gmCore->get_admin_url(array('mime_type' => 'image'), array('pager')); ?>"><?php _e('Images', 'gmLang');
-								echo $gm_qty['image']; ?></a></li>
+							<a rel="image" href="<?php echo $gmCore->get_admin_url(array('mime_type' => 'image'), array('pager')); ?>"><?php echo $gm_qty['image']; _e('Images', 'gmLang'); ?></a></li>
 						<li class="audio<?php if(in_array('audio', $curr_mime)){
 							echo ' active';
 						}
 						if(!$gmDbCount['audio']){
 							echo ' disabled';
 						} ?>">
-							<a rel="audio" href="<?php echo $gmCore->get_admin_url(array('mime_type' => 'audio'), array('pager')); ?>"><?php _e('Audio', 'gmLang');
-								echo $gm_qty['audio']; ?></a></li>
+							<a rel="audio" href="<?php echo $gmCore->get_admin_url(array('mime_type' => 'audio'), array('pager')); ?>"><?php echo $gm_qty['audio']; _e('Audio', 'gmLang'); ?></a></li>
 						<li class="video<?php if(in_array('video', $curr_mime)){
 							echo ' active';
 						}
 						if(!$gmDbCount['video']){
 							echo ' disabled';
 						} ?>">
-							<a rel="video" href="<?php echo $gmCore->get_admin_url(array('mime_type' => 'video'), array('pager')); ?>"><?php _e('Video', 'gmLang');
-								echo $gm_qty['video']; ?></a></li>
+							<a rel="video" href="<?php echo $gmCore->get_admin_url(array('mime_type' => 'video'), array('pager')); ?>"><?php echo $gm_qty['video']; _e('Video', 'gmLang'); ?></a></li>
 						<li class="application<?php if(in_array('application', $curr_mime) || in_array('text', $curr_mime)){
 							echo ' active';
 						}
 						if(!$gmDbCount['application']){
 							echo ' disabled';
 						} ?>">
-							<a rel="application" href="<?php echo $gmCore->get_admin_url(array('mime_type' => 'application,text'), array('pager')); ?>"><?php _e('Other', 'gmLang');
-								echo $gm_qty['other']; ?></a></li>
+							<a rel="application" href="<?php echo $gmCore->get_admin_url(array('mime_type' => 'application,text'), array('pager')); ?>"><?php echo $gm_qty['other']; _e('Other', 'gmLang'); ?></a></li>
 						<?php do_action('gmedia_wp_filter_list'); ?>
 					</ul>
 				</div>
@@ -134,7 +129,7 @@ function grandWPMedia(){
 					$rel_selected_hide = 'rel-selected-hide';
 					?>
 					<ul class="dropdown-menu" role="menu">
-						<li class="<?php echo $rel_selected_show; ?>"><a href="#importModal" data-modal="import-wpmedia" data-action="gmedia_import_modal" class="gmedia-modal"><?php _e('Import to Gmedia Library...', 'gmLang'); ?></a></li>
+						<li class="<?php echo $rel_selected_show; if(!$gmCore->caps['gmedia_import']){ echo ' disabled'; } ?>"><a href="#importModal" data-modal="import-wpmedia" data-action="gmedia_import_modal" class="gmedia-modal"><?php _e('Import to Gmedia Library...', 'gmLang'); ?></a></li>
 						<!-- <li class="divider <?php echo $rel_selected_hide; ?>"></li> -->
 						<li class="dropdown-header <?php echo $rel_selected_hide; ?>"><span><?php _e("Select items to see more actions", "gmLang"); ?></span></li>
 						<?php do_action('gmedia_action_list'); ?>
