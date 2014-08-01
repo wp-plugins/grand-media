@@ -477,7 +477,7 @@ class GmediaProcessor{
 				break;
 			case 'GrandMedia_Galleries':
 				if(!$gmCore->caps['gmedia_gallery_manage']){
-					wp_die(__('You are not allowed to manage galleries', 'gmLang'));
+					wp_die(__('You are not allowed to manage gmedia galleries', 'gmLang'));
 				}
 				if(isset($_POST['filter_authors'])){
 					$authors = $gmCore->_post('author_ids');
@@ -651,13 +651,13 @@ class GmediaProcessor{
 				break;
 			case 'GrandMedia_Modules':
 				if(!$gmCore->caps['gmedia_gallery_manage']){
-					wp_die(__('You are not allowed to manage modules', 'gmLang'));
+					wp_die(__('You are not allowed to manage gmedia galleries', 'gmLang'));
 				}
 				if(isset($_FILES['modulezip']['tmp_name'])){
 					if(!empty($_FILES['modulezip']['tmp_name'])){
 						check_admin_referer('GmediaModule');
 						if(!$gmCore->caps['gmedia_module_manage']){
-							wp_die(__('You are not allowed to manage modules', 'gmLang'));
+							wp_die(__('You are not allowed to manage gmedia modules', 'gmLang'));
 						}
 						$to_folder = $gmCore->upload['path'] . '/' . $gmGallery->options['folder']['module'] . '/';
 						$filename = wp_unique_filename($to_folder, $_FILES['modulezip']['name']);
@@ -694,7 +694,7 @@ class GmediaProcessor{
 				break;
 			case 'GrandMedia_Settings':
 				if(!$gmCore->caps['gmedia_settings']){
-					wp_die(__('You are not allowed to change settings', 'gmLang'));
+					wp_die(__('You are not allowed to change gmedia settings', 'gmLang'));
 				}
 				$lk_check = isset($_POST['license-key-activate']);
 				if(isset($_POST['gmedia_settings_save'])){
@@ -790,7 +790,7 @@ class GmediaProcessor{
 				break;
 			case 'GrandMedia_WordpressLibrary':
 				if(!$gmCore->caps['gmedia_import']){
-					wp_die(__('You are not allowed to import media', 'gmLang'));
+					wp_die(__('You are not allowed to import media in Gmedia Library', 'gmLang'));
 				}
 				break;
 			default:

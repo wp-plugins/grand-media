@@ -19,7 +19,7 @@ require_once(ABSPATH . 'wp-admin/includes/image.php');
 nocache_headers();
 
 if(!current_user_can('gmedia_upload')){
-	wp_die(__('You do not have permission to upload files.'));
+	wp_die(__('You do not have permission to upload files in Gmedia Library.'));
 }
 
 check_admin_referer('grandMedia');

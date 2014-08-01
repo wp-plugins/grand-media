@@ -15,7 +15,7 @@ function gmedia_add_meta_box( $page, $context ) {
 	// Plugins that use custom post types can use this filter to show the Gmedia UI in their post type.
 	$gm_post_types = apply_filters( 'gmedia-post-types', array('post', 'page') );
 
-	if ( function_exists( 'add_meta_box' ) && in_array( $page, $gm_post_types ) && 'side' === $context ) {
+	if ( function_exists( 'add_meta_box' ) && !empty($gm_post_types) && in_array( $page, $gm_post_types ) && 'side' === $context ) {
 		add_action( 'admin_enqueue_scripts', 'gmedia_meta_box_load_scripts', 20 );
 		add_filter( 'media_buttons_context', 'gmedia_media_buttons_context', 4 );
 		add_meta_box( 'gmedia-MetaBox', __( 'Gmedia Gallery MetaBox', 'gmLang' ), 'gmedia_post_metabox', $page, 'side', 'low' );

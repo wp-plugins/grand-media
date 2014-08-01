@@ -105,6 +105,13 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 
 == Changelog ==
 
+= 1.2.2 =
+* Fixed Music Player in Chrome > v35
+* Updated jPlayer script
+* Updated Plupload script
+* Forbid upload dangerous files via uploader
+* Allowed to choose albums without author for Galleries
+
 = 1.2.1 =
 * Fixed galleries meta box on Posts and Pages
 * Fixed check capabilities on some admin pages

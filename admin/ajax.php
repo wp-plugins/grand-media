@@ -688,7 +688,7 @@ function gmedia_terms_modal(){
 						<?php
 						$user_ids = $gmCore->get_editable_user_ids();
 						if($user_ids){
-							wp_dropdown_users(array('show_option_all' => __('Show all authors','gmLang'),
+							wp_dropdown_users(array('show_option_all' => ' &#8212; ',
 																			'include' => $user_ids, 'include_selected' => true,
 																			'name' => 'author_ids', 'selected' => $user_ID,
 																			'class' => 'form-control'));

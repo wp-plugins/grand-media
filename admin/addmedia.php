@@ -183,6 +183,21 @@ function gmedia_upload_files(){
 		</div>
 		<div class="col-md-8" id="pluploadUploader">
 			<p><?php _e("You browser doesn't have Flash or HTML5 support. Check also if page have no JavaScript errors.", 'gmLang'); ?></p>
+			<?php
+			$mime_types = get_allowed_mime_types($user_ID);
+			$type_ext = array();
+			$filters = array();
+			foreach($mime_types as $ext => $mime){
+				$type = strtok($mime, '/');
+				$type_ext[$type][] = $ext;
+			}
+			foreach($type_ext as $filter => $ext){
+					$filters[] = array(
+						'title' => $filter,
+						'extensions' => str_replace('|', ',', implode(',', $ext))
+					);
+			}
+			?>
 			<script type="text/javascript">
 				// Convert divs to queue widgets when the DOM is ready
 				jQuery(function($){
@@ -214,9 +229,7 @@ function gmedia_upload_files(){
 							thumbs: true,
 							active: 'thumbs'
 						},
-						filters: [
-							{title: "All files", extensions: "*"}
-						],
+						filters: <?php echo json_encode($filters); ?>,
 						flash_swf_url: '<?php echo $gmCore->gmedia_url; ?>/assets/plupload/Moxie.swf',
 						silverlight_xap_url: '<?php echo $gmCore->gmedia_url; ?>/assets/plupload/Moxie.xap'
 

@@ -126,13 +126,20 @@ function gmedia_ios_app_library_data($data = array('site','authors','filter','gm
 		);
 	}
 	if(in_array('authors', $data)){
-		$curuser = get_the_author_meta('display_name', $user_ID);
-		$out['authors'] = array( $user_ID => $curuser);
+		$out['authors'] = array(
+			'data' => array()
+		);
 		if ( current_user_can('gmedia_show_others_media') || current_user_can('gmedia_edit_others_media') ){
-			$authors = get_users(array('who' => 'authors'));
-			foreach($authors as $author){
-				$out['authors'][$author->ID] = $author->display_name;
+			$authors = get_users(array('who' => 'authors', 'orderby' => 'display_name'));
+			if($authors){
+				foreach($authors as $author){
+					$out['authors']['data'][] = array( 'id' => $author->ID, 'username' => $author->user_login, 'displayname' => $author->display_name);
+				}
 			}
+		} else{
+			$username = get_the_author_meta('login', $user_ID);
+			$displayname = get_the_author_meta('display_name', $user_ID);
+			$out['authors']['data'][] = array( 'id' => $user_ID, 'username' => $username, 'displayname' => $displayname);
 		}
 	}
 	if(in_array('filter', $data)){

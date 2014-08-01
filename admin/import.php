@@ -19,11 +19,10 @@ require_once(ABSPATH . 'wp-admin/includes/image.php');
 // HTTP headers for no cache etc
 nocache_headers();
 
+check_admin_referer('GmediaImport');
 if(!current_user_can('gmedia_import')){
 	wp_die(__('You do not have permission to upload files.'));
 }
-
-check_admin_referer('GmediaImport');
 
 // 10 minutes execution time
 @set_time_limit(10 * 60);

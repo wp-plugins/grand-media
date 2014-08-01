@@ -76,9 +76,9 @@
 			playlist.init(options.jPlayer);
 
 			//don't initialize the ratings until the playlist has been built, which wont happen until after the jPlayer ready event
-			$self.bind('mbPlaylistLoaded', function() {
+			$self.on('mbPlaylistLoaded', function() {
 				if(options.rating){
-					$self.bind('mbInterfaceBuilt', function() {
+					$self.on('mbInterfaceBuilt', function() {
 						ratings = new ratingsMgr();
 					});
 				}
@@ -120,27 +120,27 @@
 				//apply any user defined jPlayer options
 				jPlayerOptions = $.extend(true, {}, jPlayerDefaults, playlistOptions);
 
-				$myJplayer.bind($.jPlayer.event.ready, function() {
+				$myJplayer.on($.jPlayer.event.ready, function() {
 
 					//Bind jPlayer events. Do not want to pass in options object to prevent them from being overridden by the user
-					$myJplayer.bind($.jPlayer.event.ended, function(event) {
+					$myJplayer.on($.jPlayer.event.ended, function(event) {
 						playlistNext();
 					});
 
-					$myJplayer.bind($.jPlayer.event.play, function(event) {
+					$myJplayer.on($.jPlayer.event.play, function(event) {
 						$myJplayer.jPlayer("pauseOthers");
 						$tracks.eq(current).addClass(attr(cssSelector.playing)).siblings().removeClass(attr(cssSelector.playing));
 					});
 
-					$myJplayer.bind($.jPlayer.event.playing, function(event) {
+					$myJplayer.on($.jPlayer.event.playing, function(event) {
 						playing = true;
 					});
 
-					$myJplayer.bind($.jPlayer.event.pause, function(event) {
+					$myJplayer.on($.jPlayer.event.pause, function(event) {
 						playing = false;
 					});
 
-					$myJplayer.bind($.jPlayer.event.loadeddata, function(event) {
+					$myJplayer.on($.jPlayer.event.loadeddata, function(event) {
 						if(event.jPlayer.status.duration != 'NaN'){
 							$tracks.eq(current).find(cssSelector.duration).text($.jPlayer.convertTime( event.jPlayer.status.duration ));
 						}
@@ -159,9 +159,8 @@
 						return false;
 					});
 
-					$self.bind('mbInitPlaylistAdvance', function(e) {
+					$self.on('mbInitPlaylistAdvance', function(e) {
 						var changeTo = this.getData('mbInitPlaylistAdvance');
-						console.log(changeTo);
 
 						if (changeTo != current) {
 							current = changeTo;
@@ -182,6 +181,7 @@
 					$self.trigger('mbPlaylistLoaded');
 
 					playlistInit(options.autoplay);
+
 				});
 
 				//Initialize jPlayer
@@ -383,7 +383,7 @@
 
 				setDescription();
 
-				$self.bind('mbPlaylistAdvance mbPlaylistInit', function() {
+				$self.on('mbPlaylistAdvance mbPlaylistInit', function() {
 					setTitle();
 					//setArtist();
 					setText();

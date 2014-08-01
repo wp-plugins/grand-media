@@ -574,7 +574,7 @@ function gmediaGalleryEdit() {
 								<?php
 								$term_type = 'gmedia_album';
 								$args = array();
-								$args['global'] = $gallery['global'];
+								$args['global'] = $gallery['global']? array(0, $gallery['global']) : 0;
 								$gm_terms = $gmDB->get_terms($term_type, $args);
 
 								$terms_items = '';
@@ -592,6 +592,7 @@ function gmediaGalleryEdit() {
 									<option value=""><?php echo __('Choose Albums...', 'gmLang'); ?></option>
 									<?php echo $terms_items; ?>
 								</select>
+								<p class="help-block"><?php _e('You can choose Albums from the same author as Gallery author or Albums without author', 'gmLang'); ?></p>
 							</div>
 							<?php } ?>
 
