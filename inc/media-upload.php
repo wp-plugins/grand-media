@@ -3,15 +3,24 @@
  * @title  Add action/filter for the upload tab 
  */
 
+if(current_user_can('gmedia_library')){
+	add_filter('media_upload_tabs', 'gmedia_upload_tabs');
+	add_action('media_upload_gmedia', 'media_upload_gmedia');
+}
+
+
+/**
+ * @param $tabs
+ *
+ * @return array
+ */
 function gmedia_upload_tabs ($tabs) {
 
 	$newtab = array('gmedia' => __('Gmedia Gallery','gmLang'));
  
-    return array_merge($tabs,$newtab);
+  return array_merge($tabs,$newtab);
 }
 	
-add_filter('media_upload_tabs', 'gmedia_upload_tabs');
-
 function media_upload_gmedia() {
 	global $gmCore, $gmDB;
 
@@ -50,11 +59,10 @@ function media_upload_gmedia() {
 	}
 
 }
-add_action('media_upload_gmedia', 'media_upload_gmedia');
 
 function media_upload_gmedia_form() {
 
-	global $type;
+	global $type, $user_ID;
 	global $gmCore, $gmDB, $gmGallery;
 
 	wp_enqueue_style( 'gmedia-bootstrap' );
@@ -68,8 +76,13 @@ function media_upload_gmedia_form() {
 	$post_id 	= intval($gmCore->_get('post_id'));
 	//$url = admin_url("media-upload.php?type={$type}&tab=gmedia&post_id={$post_id}");
 
-	$args = array('mime_type' => $gmCore->_get('mime_type', 'image/*'), 'orderby' => 'ID',
-								'order' => 'DESC',
+	if(current_user_can('gmedia_show_others_media')){
+		$author = 0;
+	} else{
+		$author = $user_ID;
+	}
+	$args = array('mime_type' => $gmCore->_get('mime_type', 'image/*'), 'author' => $author,
+								'orderby' => 'ID', 'order' => 'DESC',
 								'per_page' => 30, 'page' => $gmCore->_get('pager', 1),
 								's' => $gmCore->_get('s', null));
 	$gmediaQuery = $gmDB->get_gmedias($args);
@@ -172,7 +185,9 @@ function media_upload_gmedia_form() {
 		<div class="list-group-item">
 			<div class="well well-lg text-center">
 				<h4><?php _e('No items to show.', 'gmLang'); ?></h4>
+				<?php if($gmCore->caps['gmedia_upload']){ ?>
 				<p><a href="<?php echo admin_url('admin.php?page=GrandMedia_AddMedia') ?>" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> <?php _e('Add Media', 'gmLang'); ?></a></p>
+				<?php } ?>
 			</div>
 		</div>
 	<?php } ?>

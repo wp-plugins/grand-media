@@ -20,7 +20,7 @@ class GmediaProcessor{
 		global $pagenow, $gmCore;
 		// GET variables
 		$this->mode = $gmCore->_get('mode');
-		$this->page = $gmCore->_get('page', 'GrandMedia');
+		$this->page = $gmCore->_get('page');
 
 		if('media.php' === $pagenow){
 			add_filter('wp_redirect', array(&$this, 'redirect'), 10, 2);
@@ -81,13 +81,15 @@ class GmediaProcessor{
 	function processor(){
 		global $gmCore, $gmDB, $gmGallery, $user_ID;
 
-		// check for correct capability
-		if(!$gmCore->caps['gmedia_library']){
-			wp_die(__('You are not allowed to be here', 'gmLang'));
+		if ( !$this->page || strpos( $this->page, 'GrandMedia' ) === false ){
+			return;
 		}
 
 		switch($this->page){
 			case 'GrandMedia':
+				if(!$gmCore->caps['gmedia_library']){
+					wp_die(__('You are not allowed to be here', 'gmLang'));
+				}
 				if(isset($_POST['quick_gallery'])){
 					do{
 						if(!$gmCore->caps['gmedia_gallery_manage']){
@@ -352,6 +354,9 @@ class GmediaProcessor{
 				}
 				break;
 			case 'GrandMedia_Terms':
+				if(!$gmCore->caps['gmedia_library']){
+					wp_die(__('You are not allowed to be here', 'gmLang'));
+				}
 				$taxonomy = $gmCore->_get('term', 'gmedia_album');
 				if(!empty($this->selected_items)){
 					if('selected' == $gmCore->_get('delete')){
@@ -645,12 +650,15 @@ class GmediaProcessor{
 
 				break;
 			case 'GrandMedia_Modules':
-				if(!$gmCore->caps['gmedia_module_manage']){
+				if(!$gmCore->caps['gmedia_gallery_manage']){
 					wp_die(__('You are not allowed to manage modules', 'gmLang'));
 				}
 				if(isset($_FILES['modulezip']['tmp_name'])){
 					if(!empty($_FILES['modulezip']['tmp_name'])){
 						check_admin_referer('GmediaModule');
+						if(!$gmCore->caps['gmedia_module_manage']){
+							wp_die(__('You are not allowed to manage modules', 'gmLang'));
+						}
 						$to_folder = $gmCore->upload['path'] . '/' . $gmGallery->options['folder']['module'] . '/';
 						$filename = wp_unique_filename($to_folder, $_FILES['modulezip']['name']);
 

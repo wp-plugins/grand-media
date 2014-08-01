@@ -60,7 +60,7 @@ function gmediaModules(){
 <div id="gmedia_modules">
 	<div class="panel panel-default">
 		<div class="panel-heading clearfix">
-			<a href="#installModuleModal" class="btn btn-primary pull-right" data-toggle="modal"><?php _e('Install Module ZIP'); ?></a>
+			<a href="#installModuleModal" class="btn btn-primary pull-right<?php if(!$gmCore->caps['gmedia_module_manage']){ echo ' disabled'; } ?>" data-toggle="modal"><?php _e('Install Module ZIP'); ?></a>
 			<h3 class="panel-title"><?php _e('Installed Modules', 'gmLang'); ?></h3>
 		</div>
 		<div class="panel-body" id="gmedia-msg-panel"></div>
@@ -154,7 +154,7 @@ function gmediaModules(){
 							<?php if(!empty($m['demo']) && $m['demo'] != '#'){ ?>
 								<a class="btn btn-default" target="_blank" href="<?php echo $m['demo']; ?>"><?php _e('View Demo', 'gmLang') ?></a>
 							<?php } ?>
-							<a class="btn btn-primary module_install" data-module="<?php echo $m['name']; ?>" data-loading-text="<?php _e('Loading...', 'gmLang'); ?>" href="<?php echo $m['download']; ?>"><?php _e('Install Module', 'gmLang'); ?></a>
+							<a class="btn btn-primary <?php echo $gmCore->caps['gmedia_module_manage']? 'module_install' : 'disabled'; ?>" data-module="<?php echo $m['name']; ?>" data-loading-text="<?php _e('Loading...', 'gmLang'); ?>" href="<?php echo $m['download']; ?>"><?php _e('Install Module', 'gmLang'); ?></a>
 						</p>
 					</div>
 				</div>
@@ -163,6 +163,8 @@ function gmediaModules(){
 	</div>
 	<?php } ?>
 </div>
+
+	<?php if($gmCore->caps['gmedia_module_manage']){ ?>
 	<!-- Modal -->
 	<div class="modal fade gmedia-modal" id="installModuleModal" tabindex="-1" role="dialog" aria-hidden="true">
 		<div class="modal-dialog">
@@ -184,6 +186,8 @@ function gmediaModules(){
 			</form>
 		</div>
 	</div>
+	<?php } ?>
+
 <?php
 }
 

@@ -9,7 +9,7 @@ if ( preg_match( '#' . basename( __FILE__ ) . '#', $_SERVER['PHP_SELF'] ) ) {
  * @param string $context the current context
  */
 function gmedia_add_meta_box( $page, $context ) {
-	if(!current_user_can('gmedia_galleries')){
+	if(!current_user_can('gmedia_gallery_manage')){
 		return;
 	}
 	// Plugins that use custom post types can use this filter to show the Gmedia UI in their post type.

@@ -76,12 +76,14 @@ class GmediaAdmin {
 		$this->pages = array();
 		$this->pages[] = add_object_page( __( 'Gmedia Library', 'gmLang' ), 'Gmedia Gallery', 'gmedia_library', 'GrandMedia', array( &$this, 'shell' ), $gmediaURL . '/admin/images/gm-icon.png' );
 		$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Gmedia Library', 'gmLang' ), __( 'Gmedia Library', 'gmLang' ), 'gmedia_library', 'GrandMedia', array( &$this, 'shell' ) );
-		$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Add Media Files', 'gmLang' ), __( 'Add/Import Files', 'gmLang' ), 'gmedia_upload', 'GrandMedia_AddMedia', array( &$this, 'shell' ) );
-		$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Albums, Tags...', 'gmLang' ), __( 'Albums, Tags...', 'gmLang' ), 'gmedia_library', 'GrandMedia_Terms', array( &$this, 'shell' ) );
-		$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Gmedia Galleries', 'gmLang' ), __( 'Create/Manage Galleries...', 'gmLang' ), 'gmedia_gallery_manage', 'GrandMedia_Galleries', array( &$this, 'shell' ) );
-		$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Modules', 'gmLang' ), __( 'Modules', 'gmLang' ), 'gmedia_module_manage', 'GrandMedia_Modules', array( &$this, 'shell' ) );
-		$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Gmedia Settings', 'gmLang' ), __( 'Settings', 'gmLang' ), 'gmedia_settings', 'GrandMedia_Settings', array( &$this, 'shell' ) );
-		$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Wordpress Media Library', 'gmLang' ), __( 'WP Media Library', 'gmLang' ), 'gmedia_import', 'GrandMedia_WordpressLibrary', array( &$this, 'shell' ) );
+		if(current_user_can('gmedia_library')){
+			$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Add Media Files', 'gmLang' ), __( 'Add/Import Files', 'gmLang' ), 'gmedia_upload', 'GrandMedia_AddMedia', array( &$this, 'shell' ) );
+			$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Albums, Tags...', 'gmLang' ), __( 'Albums, Tags...', 'gmLang' ), 'gmedia_library', 'GrandMedia_Terms', array( &$this, 'shell' ) );
+			$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Gmedia Galleries', 'gmLang' ), __( 'Create/Manage Galleries...', 'gmLang' ), 'gmedia_gallery_manage', 'GrandMedia_Galleries', array( &$this, 'shell' ) );
+			$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Modules', 'gmLang' ), __( 'Modules', 'gmLang' ), 'gmedia_gallery_manage', 'GrandMedia_Modules', array( &$this, 'shell' ) );
+			$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Gmedia Settings', 'gmLang' ), __( 'Settings', 'gmLang' ), 'gmedia_settings', 'GrandMedia_Settings', array( &$this, 'shell' ) );
+			$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Wordpress Media Library', 'gmLang' ), __( 'WP Media Library', 'gmLang' ), 'gmedia_import', 'GrandMedia_WordpressLibrary', array( &$this, 'shell' ) );
+		}
 
 		foreach($this->pages as $page){
 			add_action("load-$page", array( &$this, 'screen_help' ));

@@ -105,6 +105,11 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 
 == Changelog ==
 
+= 1.2.1 =
+* Fixed galleries meta box on Posts and Pages
+* Fixed check capabilities on some admin pages
+* Fixed after plugin install not administrators can't access WP Dashboard
+
 = 1.2.0 =
 * Major update: Added User Role Manager
 * Added Filter by Author
