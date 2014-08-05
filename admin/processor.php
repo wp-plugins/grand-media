@@ -81,7 +81,7 @@ class GmediaProcessor{
 	function processor(){
 		global $gmCore, $gmDB, $gmGallery, $user_ID;
 
-		if ( !$this->page || strpos( $this->page, 'GrandMedia' ) === false ){
+		if(!$this->page || strpos($this->page, 'GrandMedia') === false){
 			return;
 		}
 
@@ -122,10 +122,10 @@ class GmediaProcessor{
 						}
 
 						$gallery_meta = array(
-							'edited' => gmdate('Y-m-d H:i:s')
-							,'module' => $gallery['module']
-							,'query' => array('gmedia__in' => $gallery['query']['gmedia__in'])
-							,'settings' => array($gallery['module'] => array())
+							'edited' => gmdate('Y-m-d H:i:s'),
+							'module' => $gallery['module'],
+							'query' => array('gmedia__in' => $gallery['query']['gmedia__in']),
+							'settings' => array($gallery['module'] => array())
 						);
 						foreach($gallery_meta as $key => $value){
 							$gmDB->add_metadata('gmedia_term', $term_id, $key, $value);
@@ -154,7 +154,7 @@ class GmediaProcessor{
 				}
 				if(isset($_POST['filter_authors'])){
 					$authors = $gmCore->_post('author_ids');
-					$location = add_query_arg(array('page' => $this->page, 'mode' => $this->mode, 'author' => (int) $authors), admin_url('admin.php'));
+					$location = add_query_arg(array('page' => $this->page, 'mode' => $this->mode, 'author' => (int)$authors), admin_url('admin.php'));
 					wp_redirect($location);
 				}
 				if(!empty($this->selected_items)){
@@ -294,9 +294,9 @@ class GmediaProcessor{
 						check_admin_referer('gmedia_update_meta');
 						if($gmCore->caps['gmedia_edit_media']){
 							$count = count($this->selected_items);
-              if($count){
+							if($count){
 								foreach($this->selected_items as $item){
-									$id = (int) $item;
+									$id = (int)$item;
 									$gmDB->update_metadata($meta_type = 'gmedia', $id, $meta_key = '_metadata', $gmDB->generate_gmedia_metadata($id));
 								}
 								$this->msg[] = sprintf(__('%d items updated successfuly', 'gmLang'), $count);
@@ -372,7 +372,8 @@ class GmediaProcessor{
 									$this->error[] = __('You are not allowed to delete others media', 'gmLang');
 								}
 							}
-							if(($count = count($selected_items))){;
+							if(($count = count($selected_items))){
+								;
 								foreach($selected_items as $item){
 									$delete = $gmDB->delete_term($item, $taxonomy);
 									if(is_wp_error($delete)){
@@ -394,7 +395,7 @@ class GmediaProcessor{
 				}
 				if(isset($_POST['gmedia_album_save'])){
 					check_admin_referer('GmediaTerms', 'term_save_wpnonce');
-					$edit_term = (int) $gmCore->_get('edit_album');
+					$edit_term = (int)$gmCore->_get('edit_album');
 					do{
 						if(!$gmCore->caps['gmedia_album_manage']){
 							$this->error[] = __('You are not allowed to manage albums', 'gmLang');
@@ -432,8 +433,8 @@ class GmediaProcessor{
 						}
 
 						$term_meta = array(
-							 'orderby' => $term['orderby']
-							,'order' => $term['order']
+							'orderby' => $term['orderby'],
+							'order' => $term['order']
 						);
 						foreach($term_meta as $key => $value){
 							if($edit_term){
@@ -452,7 +453,8 @@ class GmediaProcessor{
 						check_admin_referer('GmediaTerms', 'term_save_wpnonce');
 						$term = $gmCore->_post('term');
 						$terms = array_filter(array_map('trim', explode(',', $term['name'])));
-						$terms_added = 0; $terms_qty = count($terms);
+						$terms_added = 0;
+						$terms_qty = count($terms);
 						foreach($terms as $term_name){
 							if($gmCore->is_digit($term_name)){
 								$this->error['tag_name_digit'] = __("Term Name can't be only digits", 'gmLang');
@@ -481,15 +483,15 @@ class GmediaProcessor{
 				}
 				if(isset($_POST['filter_authors'])){
 					$authors = $gmCore->_post('author_ids');
-					$location = $gmCore->get_admin_url(array('author' => (int) $authors));
+					$location = $gmCore->get_admin_url(array('author' => (int)$authors));
 					wp_redirect($location);
 				}
 				if(isset($_POST['gmedia_gallery_save'])){
 					check_admin_referer('GmediaGallery');
-					$edit_gallery = (int) $gmCore->_get('edit_gallery');
+					$edit_gallery = (int)$gmCore->_get('edit_gallery');
 					do{
 						$gallery = $gmCore->_post('gallery');
-						if(((int) $gallery['global'] != $user_ID) && !$gmCore->caps['gmedia_edit_others_media']){
+						if(((int)$gallery['global'] != $user_ID) && !$gmCore->caps['gmedia_edit_others_media']){
 							$this->error[] = __('You are not allowed to edit others media', 'gmLang');
 							break;
 						}
@@ -543,10 +545,10 @@ class GmediaProcessor{
 						}
 						$module_settings = $gmCore->array_replace_recursive($default_options, $module_settings);
 						$gallery_meta = array(
-							 'edited' => gmdate('Y-m-d H:i:s')
-							,'module' => $gallery['module']
-							,'query' => array($term => $gallery['query'][$term])
-							,'settings' => array($gallery['module'] => $module_settings)
+							'edited' => gmdate('Y-m-d H:i:s'),
+							'module' => $gallery['module'],
+							'query' => array($term => $gallery['query'][$term]),
+							'settings' => array($gallery['module'] => $module_settings)
 						);
 						foreach($gallery_meta as $key => $value){
 							if($edit_gallery){
@@ -574,7 +576,7 @@ class GmediaProcessor{
 
 				if(isset($_POST['gmedia_gallery_reset'])){
 					check_admin_referer('GmediaGallery');
-					$edit_gallery = (int) $gmCore->_get('edit_gallery');
+					$edit_gallery = (int)$gmCore->_get('edit_gallery');
 					do{
 						$taxonomy = 'gmedia_gallery';
 						if(!$gmDB->term_exists($edit_gallery, $taxonomy)){
@@ -603,8 +605,8 @@ class GmediaProcessor{
 						}
 
 						$gallery_meta = array(
-							 'edited' => gmdate('Y-m-d H:i:s')
-							,'settings' => array($gallery_module => $default_options)
+							'edited' => gmdate('Y-m-d H:i:s'),
+							'settings' => array($gallery_module => $default_options)
 						);
 						foreach($gallery_meta as $key => $value){
 							$gmDB->update_metadata('gmedia_term', $edit_gallery, $key, $value);
@@ -734,15 +736,15 @@ class GmediaProcessor{
 						$gmedia_ua .= 'Gmedia/' . constant('GMEDIA_VERSION');
 
 						$response = wp_remote_post('http://codeasily.com/rest/gmedia-key.php', array(
-								'body' => array('key' => $license_key['license_key'], 'site' => site_url()),
-								'headers' => array(
-									'Content-Type' => 'application/x-www-form-urlencoded; ' . 'charset=' . get_option('blog_charset'),
-									'Host' => 'codeasily.com',
-									'User-Agent' => $gmedia_ua
-								),
-								'httpversion' => '1.0',
-								'timeout' => 10
-							));
+							'body' => array('key' => $license_key['license_key'], 'site' => site_url()),
+							'headers' => array(
+								'Content-Type' => 'application/x-www-form-urlencoded; ' . 'charset=' . get_option('blog_charset'),
+								'Host' => 'codeasily.com',
+								'User-Agent' => $gmedia_ua
+							),
+							'httpversion' => '1.0',
+							'timeout' => 10
+						));
 
 						if(is_wp_error($response)){
 							$this->error[] = $response->get_error_message();
@@ -817,6 +819,7 @@ class GmediaProcessor{
 
 	/**
 	 * redirect to original referer after update
+	 *
 	 * @param $location
 	 * @param $status
 	 *

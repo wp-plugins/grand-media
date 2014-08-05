@@ -1,20 +1,25 @@
 <?php
 // If not called from WordPress, then exit
-if ( ! defined( 'ABSPATH' ) ) {
+if(!defined('ABSPATH')){
 	exit;
 }
 
 function gmedia_update_admin_notice(){
 	?>
 	<div id="message" class="updated gmedia-message">
-		<p><?php _e( '<strong>GmediaGallery Data Update Required</strong> &#8211; We need to update your install to the latest version.', 'gmLang' ); ?></p>
-		<p><?php _e( '<strong>Important:</strong> &#8211; GmediaGallery plugin was fully rewritten, so after update you need to check all your created galleries and update modules.', 'gmLang' ); ?></p>
-		<p><?php _e( 'The update process may take a little while, so please be patient.', 'gmLang' ); ?></p>
-		<p class="submit"><a href="<?php echo add_query_arg( 'do_update', 'gmedia', admin_url('admin.php?page=GrandMedia') ); ?>" class="gm-update-now button-primary"><?php _e( 'Run the updater', 'gmLang' ); ?></a></p>
+		<p><?php _e('<strong>GmediaGallery Data Update Required</strong> &#8211; We need to update your install to the latest version.', 'gmLang'); ?></p>
+
+		<p><?php _e('<strong>Important:</strong> &#8211; GmediaGallery plugin was fully rewritten, so after update you need to check all your created galleries and update modules.', 'gmLang'); ?></p>
+
+		<p><?php _e('The update process may take a little while, so please be patient.', 'gmLang'); ?></p>
+
+		<p class="submit">
+			<a href="<?php echo add_query_arg('do_update', 'gmedia', admin_url('admin.php?page=GrandMedia')); ?>" class="gm-update-now button-primary"><?php _e('Run the updater', 'gmLang'); ?></a>
+		</p>
 	</div>
 	<script type="text/javascript">
 		jQuery('.gm-update-now').click('click', function(){
-			return confirm( '<?php _e( 'It is strongly recommended that you backup your database before proceeding. Are you sure you wish to run the updater now?', 'gmedia' ); ?>' );
+			return confirm('<?php _e( 'It is strongly recommended that you backup your database before proceeding. Are you sure you wish to run the updater now?', 'gmedia' ); ?>');
 		});
 	</script>
 <?php
@@ -23,8 +28,9 @@ function gmedia_update_admin_notice(){
 function gmedia_wait_admin_notice(){
 	?>
 	<div id="message" class="updated gmedia-message">
-		<p><?php _e( '<strong>GmediaGallery Updating:</strong> &#8211; GmediaGallery plugin was fully rewritten, so after update you need to check all your created galleries and update modules.', 'gmLang' ); ?></p>
-		<p><?php _e( 'The update process may take a little while, so please be patient.', 'gmLang' ); ?></p>
+		<p><?php _e('<strong>GmediaGallery Updating:</strong> &#8211; GmediaGallery plugin was fully rewritten, so after update you need to check all your created galleries and update modules.', 'gmLang'); ?></p>
+
+		<p><?php _e('The update process may take a little while, so please be patient.', 'gmLang'); ?></p>
 	</div>
 <?php
 }
@@ -35,7 +41,7 @@ function gmedia_do_update(){
 	// 10 minutes execution time
 	@set_time_limit(10 * 60);
 
-	if (ob_get_level() == 0) {
+	if(ob_get_level() == 0){
 		ob_start();
 	}
 
@@ -98,7 +104,7 @@ function gmedia_do_update(){
 	";
 	dbDelta($sql);
 
-	echo '<p>'.__('Gmedia database tables updated...', 'gmLang').'</p><br>';
+	echo '<p>' . __('Gmedia database tables updated...', 'gmLang') . '</p><br>';
 	echo '<script type="text/javascript">
 var scroll_down = true;
 function ScrollDown() {
@@ -113,12 +119,12 @@ window.onload = function() {
   scroll_down = false;
 }
 </script>';
-	echo '<p>'.__('Start update images...', 'gmLang').'</p>';
+	echo '<p>' . __('Start update images...', 'gmLang') . '</p>';
 	wp_ob_end_flush_all();
 
 
 	$old_options = get_option('gmediaOptions');
-	require_once(dirname(__FILE__). '/setup.php');
+	require_once(dirname(__FILE__) . '/setup.php');
 	$options = gmedia_default_options();
 	if(isset($old_options['product_name'])){
 		$options['license_name'] = $old_options['product_name'];
@@ -128,10 +134,10 @@ window.onload = function() {
 	update_option('gmediaOptions', $options);
 	$gmGallery->options = $options;
 
-	$fix_files = glob($gmCore->upload['path'].'/?*.?*', GLOB_NOSORT);
+	$fix_files = glob($gmCore->upload['path'] . '/?*.?*', GLOB_NOSORT);
 	if(!empty($fix_files)){
 		foreach($fix_files as $ff){
-			@rename($ff, $gmCore->upload['path'].'/image/'.basename($ff));
+			@rename($ff, $gmCore->upload['path'] . '/image/' . basename($ff));
 		}
 	}
 
@@ -140,44 +146,44 @@ window.onload = function() {
 	foreach($gmedias as $gmedia){
 		$files[] = array(
 			'id' => $gmedia->ID,
-			'file' => $gmCore->upload['path'].'/image/'.$gmedia->gmuid,
+			'file' => $gmCore->upload['path'] . '/image/' . $gmedia->gmuid,
 		);
 	}
 	if(!empty($files)){
 		gmedia_images_update($files);
 	}
-	$gmCore->delete_folder($gmCore->upload['path'].'/link');
+	$gmCore->delete_folder($gmCore->upload['path'] . '/link');
 
 	// try to make gallery dirs if not exists
 	foreach($gmGallery->options['folder'] as $folder){
 		wp_mkdir_p($gmCore->upload['path'] . '/' . $folder);
 	}
 
-	$wpdb->update($wpdb->prefix.'gmedia_term', array('taxonomy' => 'gmedia_album'), array('taxonomy' => 'gmedia_category'));
-	$wpdb->update($wpdb->prefix.'gmedia_term', array('taxonomy' => 'gmedia_gallery'), array('taxonomy' => 'gmedia_module'));
+	$wpdb->update($wpdb->prefix . 'gmedia_term', array('taxonomy' => 'gmedia_album'), array('taxonomy' => 'gmedia_category'));
+	$wpdb->update($wpdb->prefix . 'gmedia_term', array('taxonomy' => 'gmedia_gallery'), array('taxonomy' => 'gmedia_module'));
 
 	$gmedias = $gmDB->get_gmedias(array('no_found_rows' => true, 'meta_key' => 'link'));
 	foreach($gmedias as $gmedia){
 		$link = $gmDB->get_metadata('gmedia', $gmedia->ID, 'link', true);
 		if($link){
-			$wpdb->update($wpdb->prefix.'gmedia', array('link' => $link), array('ID' => $gmedia->ID));
+			$wpdb->update($wpdb->prefix . 'gmedia', array('link' => $link), array('ID' => $gmedia->ID));
 		}
 	}
-	$wpdb->delete($wpdb->prefix.'gmedia_meta', array('meta_key' => 'link'));
+	$wpdb->delete($wpdb->prefix . 'gmedia_meta', array('meta_key' => 'link'));
 	//$gmDB->delete_metadata('gmedia', 0, 'link', false, true);
 
-	$wpdb->update($wpdb->prefix.'gmedia_meta', array('meta_key' => 'cover'), array('meta_key' => 'preview'));
+	$wpdb->update($wpdb->prefix . 'gmedia_meta', array('meta_key' => 'cover'), array('meta_key' => 'preview'));
 
-	echo '<p>'.__('Gmedia database data updated...', 'gmLang').'</p>';
+	echo '<p>' . __('Gmedia database data updated...', 'gmLang') . '</p>';
 	wp_ob_end_flush_all();
 
 	$galleries = $gmDB->get_terms('gmedia_gallery');
 	if($galleries){
 		foreach($galleries as $gallery){
-			$old_meta = $gmDB->get_metadata( 'gmedia_term', $gallery->term_id );
+			$old_meta = $gmDB->get_metadata('gmedia_term', $gallery->term_id);
 			if(!empty($old_meta)){
-				$old_meta = array_map( 'reset', $old_meta );
-				$old_meta = array_map( 'maybe_unserialize', $old_meta );
+				$old_meta = array_map('reset', $old_meta);
+				$old_meta = array_map('maybe_unserialize', $old_meta);
 				if(!isset($old_meta['gMediaQuery'])){
 					continue;
 				}
@@ -204,9 +210,9 @@ window.onload = function() {
 					$query = array('gmedia_tag' => $gmedia_tag);
 				}
 				$gallery_meta = array(
-					 'edited' => $old_meta['last_edited']
-					,'module' => $old_meta['module_name']
-					,'query' => $query
+					'edited' => $old_meta['last_edited'],
+					'module' => $old_meta['module_name'],
+					'query' => $query
 				);
 				foreach($gallery_meta as $key => $value){
 					$gmDB->update_metadata('gmedia_term', $gallery->term_id, $key, $value);
@@ -215,13 +221,13 @@ window.onload = function() {
 		}
 	}
 
-	echo '<p>'.__('Gmedia Galleries updated...', 'gmLang').'</p><br><br>';
+	echo '<p>' . __('Gmedia Galleries updated...', 'gmLang') . '</p><br><br>';
 	wp_ob_end_flush_all();
 
 	update_option("gmediaDbVersion", GMEDIA_DBVERSION);
 	update_option("gmediaVersion", GMEDIA_VERSION);
 
-	echo '<p>'.__('GmediaGallery plugin update complete.', 'gmLang').'</p>';
+	echo '<p>' . __('GmediaGallery plugin update complete.', 'gmLang') . '</p>';
 
 }
 
@@ -231,11 +237,11 @@ window.onload = function() {
 function gmedia_images_update($files){
 	global $wpdb, $gmCore, $gmGallery;
 
-	if (ob_get_level() == 0) {
+	if(ob_get_level() == 0){
 		ob_start();
 	}
 
-	$eol = '</pre>'.PHP_EOL;
+	$eol = '</pre>' . PHP_EOL;
 	$c = count($files);
 	$i = 0;
 	foreach($files as $file){
@@ -268,7 +274,7 @@ function gmedia_images_update($files){
 		$fileinfo = $gmCore->fileinfo($file, false);
 		if($file_File != $fileinfo['filepath']){
 			@rename($file_File, $fileinfo['filepath']);
-			$wpdb->update($wpdb->prefix.'gmedia', array('gmuid' => $fileinfo['basename']), array('gmuid' => basename($file_File)));
+			$wpdb->update($wpdb->prefix . 'gmedia', array('gmuid' => $fileinfo['basename']), array('gmuid' => basename($file_File)));
 		}
 
 		if('image' == $fileinfo['dirname']){
@@ -312,7 +318,7 @@ function gmedia_images_update($files){
 				if($webimg['resize'] || $thumbimg['resize']){
 					$editor = wp_get_image_editor($fileinfo['filepath_original']);
 					if(is_wp_error($editor)){
-						echo $prefix_ko . $fileinfo['basename']. " (wp_get_image_editor): ". $editor->get_error_message();
+						echo $prefix_ko . $fileinfo['basename'] . " (wp_get_image_editor): " . $editor->get_error_message();
 						continue;
 					}
 
@@ -321,13 +327,13 @@ function gmedia_images_update($files){
 
 						$resized = $editor->resize($webimg['width'], $webimg['height'], $webimg['crop']);
 						if(is_wp_error($resized)){
-							echo $prefix_ko . $fileinfo['basename']. " (".$resized->get_error_code()." | editor->resize->webimage({$webimg['width']}, {$webimg['height']}, {$webimg['crop']})): ". $resized->get_error_message() . $eol;
+							echo $prefix_ko . $fileinfo['basename'] . " (" . $resized->get_error_code() . " | editor->resize->webimage({$webimg['width']}, {$webimg['height']}, {$webimg['crop']})): " . $resized->get_error_message() . $eol;
 							continue;
 						}
 
 						$saved = $editor->save($fileinfo['filepath']);
 						if(is_wp_error($saved)){
-							echo $prefix_ko . $fileinfo['basename']. " (".$saved->get_error_code()." | editor->save->webimage): ". $saved->get_error_message() . $eol;
+							echo $prefix_ko . $fileinfo['basename'] . " (" . $saved->get_error_code() . " | editor->save->webimage): " . $saved->get_error_message() . $eol;
 							continue;
 						}
 					}
@@ -337,13 +343,13 @@ function gmedia_images_update($files){
 
 					$resized = $editor->resize($thumbimg['width'], $thumbimg['height'], $thumbimg['crop']);
 					if(is_wp_error($resized)){
-						echo $prefix_ko . $fileinfo['basename']. " (".$resized->get_error_code()." | editor->resize->thumb({$thumbimg['width']}, {$thumbimg['height']}, {$thumbimg['crop']})): ". $resized->get_error_message() . $eol;
+						echo $prefix_ko . $fileinfo['basename'] . " (" . $resized->get_error_code() . " | editor->resize->thumb({$thumbimg['width']}, {$thumbimg['height']}, {$thumbimg['crop']})): " . $resized->get_error_message() . $eol;
 						continue;
 					}
 
 					$saved = $editor->save($fileinfo['filepath_thumb']);
 					if(is_wp_error($saved)){
-						echo $prefix_ko . $fileinfo['basename'] . " (".$saved->get_error_code()." | editor->save->thumb): ". $saved->get_error_message() . $eol;
+						echo $prefix_ko . $fileinfo['basename'] . " (" . $saved->get_error_code() . " | editor->save->thumb): " . $saved->get_error_message() . $eol;
 						continue;
 					}
 				} else{
@@ -351,11 +357,11 @@ function gmedia_images_update($files){
 				}
 			} else{
 				//echo $prefix_ko . $fileinfo['basename']. ": " . __("Could not read image size.", 'gmLang') . $eol;
-				echo $prefix . $fileinfo['basename']. ": " . __("Ignored", 'gmLang') . $eol;
+				echo $prefix . $fileinfo['basename'] . ": " . __("Ignored", 'gmLang') . $eol;
 				continue;
 			}
 		} else{
-			echo $prefix_ko . $fileinfo['basename']. ": " . __("Invalid image.", 'gmLang') . $eol;
+			echo $prefix_ko . $fileinfo['basename'] . ": " . __("Invalid image.", 'gmLang') . $eol;
 			continue;
 		}
 
@@ -363,26 +369,26 @@ function gmedia_images_update($files){
 		// Save the data
 		$gmDB->update_metadata($meta_type = 'gmedia', $id, $meta_key = '_metadata', $gmDB->generate_gmedia_metadata($id, $fileinfo));
 
-		echo $prefix . $fileinfo['basename']. ': <span  style="color:darkgreen;">' . sprintf(__('success (ID #%s)', 'gmLang'), $id) . '</span>' . $eol;
+		echo $prefix . $fileinfo['basename'] . ': <span  style="color:darkgreen;">' . sprintf(__('success (ID #%s)', 'gmLang'), $id) . '</span>' . $eol;
 
 
 	}
 
-	echo '<p>'.__('Image update process complete...', 'gmLang').'</p>';
+	echo '<p>' . __('Image update process complete...', 'gmLang') . '</p>';
 
 	wp_ob_end_flush_all();
 }
 
 function gmedia_quite_update(){
 	global $gmCore, $gmGallery;
-	$current_version = get_option( 'gmediaVersion', null );
+	$current_version = get_option('gmediaVersion', null);
 	//$current_db_version = get_option( 'gmediaDbVersion', null );
-	if((null !== $current_version)) {
+	if((null !== $current_version)){
 		$options = get_option('gmediaOptions');
-		require_once(dirname(__FILE__). '/setup.php');
+		require_once(dirname(__FILE__) . '/setup.php');
 		$default_options = gmedia_default_options();
 
-		if(version_compare( $current_version, '0.9.23', '<' )){
+		if(version_compare($current_version, '0.9.23', '<')){
 			if(isset($options['license_name'])){
 				$default_options['license_name'] = $options['license_name'];
 				$default_options['license_key'] = $options['license_key'];
@@ -399,16 +405,14 @@ function gmedia_quite_update(){
 			update_option('gmediaOptions', $gmGallery->options);
 		}
 
-		if(version_compare( $current_version, '1.2.0', '<' )){
+		if(version_compare($current_version, '1.2.0', '<')){
 			gmedia_capabilities();
 		}
 
-		$gmCore->delete_folder($gmCore->upload['path'].'/module/afflux');
-		$gmCore->delete_folder($gmCore->upload['path'].'/module/jq-mplayer');
-		$gmCore->delete_folder($gmCore->upload['path'].'/module/minima');
-		$gmCore->delete_folder($gmCore->upload['path'].'/module/phantom');
-		$gmCore->delete_folder($gmCore->upload['path'].'/module/wp-videoplayer');
+		$gmCore->delete_folder($gmCore->upload['path'] . '/module/afflux');
+		$gmCore->delete_folder($gmCore->upload['path'] . '/module/jq-mplayer');
+		$gmCore->delete_folder($gmCore->upload['path'] . '/module/minima');
+		$gmCore->delete_folder($gmCore->upload['path'] . '/module/phantom');
+		$gmCore->delete_folder($gmCore->upload['path'] . '/module/wp-videoplayer');
 	}
 }
-
-?>

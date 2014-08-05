@@ -91,12 +91,13 @@ function gmedia_default_options(){
 /**
  * sets gmedia capabilities to administrator role
  **/
-function gmedia_capabilities() {
+function gmedia_capabilities(){
 	// Set the capabilities for the administrator
 	$role = get_role('administrator');
 	// We need this role, no other chance
-	if ( empty($role) ) {
-		update_option( "gmediaInitCheck", __('Sorry, Gmedia Gallery works only with a role called administrator','gmLang') );
+	if(empty($role)){
+		update_option("gmediaInitCheck", __('Sorry, Gmedia Gallery works only with a role called administrator', 'gmLang'));
+
 		return;
 	}
 	$capabilities = gmedia_plugin_capabilities();

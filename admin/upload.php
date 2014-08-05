@@ -75,19 +75,31 @@ function gmedia_upload_handler($file_tmp, $fileinfo, $content_type){
 	global $gmGallery, $gmCore;
 	$cleanup_dir = true; // Remove old files
 	$file_age = 5 * 3600; // Temp file age in seconds
-	$chunk = (int) $gmCore->_req('chunk', 0);
-	$chunks = (int) $gmCore->_req('chunks', 0);
+	$chunk = (int)$gmCore->_req('chunk', 0);
+	$chunks = (int)$gmCore->_req('chunks', 0);
 
 	// try to make grand-media dir if not exists
 	if(!wp_mkdir_p($fileinfo['dirpath'])){
-		$return = json_encode(array("error" => array("code" => 100, "message" => sprintf(__('Unable to create directory %s. Is its parent directory writable by the server?', 'gmLang'), $fileinfo['dirpath'])), "id" => $fileinfo['basename']));
+		$return = json_encode(array(
+			"error" => array(
+				"code" => 100,
+				"message" => sprintf(__('Unable to create directory %s. Is its parent directory writable by the server?', 'gmLang'), $fileinfo['dirpath'])
+			),
+			"id" => $fileinfo['basename']
+		));
 		die($return);
 	}
 	// Check if grand-media dir is writable
 	if(!is_writable($fileinfo['dirpath'])){
 		@chmod($fileinfo['dirpath'], 0755);
 		if(!is_writable($fileinfo['dirpath'])){
-			$return = json_encode(array("error" => array("code" => 100, "message" => sprintf(__('Directory %s or its subfolders are not writable by the server.', 'gmLang'), dirname($fileinfo['dirpath']))), "id" => $fileinfo['basename']));
+			$return = json_encode(array(
+				"error" => array(
+					"code" => 100,
+					"message" => sprintf(__('Directory %s or its subfolders are not writable by the server.', 'gmLang'), dirname($fileinfo['dirpath']))
+				),
+				"id" => $fileinfo['basename']
+			));
 			die($return);
 		}
 	}
@@ -104,7 +116,10 @@ function gmedia_upload_handler($file_tmp, $fileinfo, $content_type){
 
 		closedir($_dir);
 	} else{
-		$return = json_encode(array("error" => array("code" => 100, "message" => sprintf(__('Failed to open directory: %s', 'gmLang'), $fileinfo['dirpath'])), "id" => $fileinfo['basename']));
+		$return = json_encode(array(
+			"error" => array("code" => 100, "message" => sprintf(__('Failed to open directory: %s', 'gmLang'), $fileinfo['dirpath'])),
+			"id" => $fileinfo['basename']
+		));
 		die($return);
 	}
 
@@ -140,26 +155,50 @@ function gmedia_upload_handler($file_tmp, $fileinfo, $content_type){
 				$size = @getimagesize($fileinfo['filepath']);
 				if($size && file_is_displayable_image($fileinfo['filepath'])){
 					if(!wp_mkdir_p($fileinfo['dirpath_thumb'])){
-						$return = json_encode(array("error" => array("code" => 100, "message" => sprintf(__('Unable to create directory %s. Is its parent directory writable by the server?', 'gmLang'), $fileinfo['dirpath_thumb'])), "id" => $fileinfo['basename']));
+						$return = json_encode(array(
+							"error" => array(
+								"code" => 100,
+								"message" => sprintf(__('Unable to create directory %s. Is its parent directory writable by the server?', 'gmLang'), $fileinfo['dirpath_thumb'])
+							),
+							"id" => $fileinfo['basename']
+						));
 						die($return);
 					}
 					if(!is_writable($fileinfo['dirpath_thumb'])){
 						@chmod($fileinfo['dirpath_thumb'], 0755);
 						if(!is_writable($fileinfo['dirpath_thumb'])){
 							@unlink($fileinfo['filepath']);
-							$return = json_encode(array("error" => array("code" => 100, "message" => sprintf(__('Directory %s is not writable by the server.', 'gmLang'), $fileinfo['dirpath_thumb'])), "id" => $fileinfo['basename']));
+							$return = json_encode(array(
+								"error" => array(
+									"code" => 100,
+									"message" => sprintf(__('Directory %s is not writable by the server.', 'gmLang'), $fileinfo['dirpath_thumb'])
+								),
+								"id" => $fileinfo['basename']
+							));
 							die($return);
 						}
 					}
 					if(!wp_mkdir_p($fileinfo['dirpath_original'])){
-						$return = json_encode(array("error" => array("code" => 100, "message" => sprintf(__('Unable to create directory %s. Is its parent directory writable by the server?', 'gmLang'), $fileinfo['dirpath_original'])), "id" => $fileinfo['basename']));
+						$return = json_encode(array(
+							"error" => array(
+								"code" => 100,
+								"message" => sprintf(__('Unable to create directory %s. Is its parent directory writable by the server?', 'gmLang'), $fileinfo['dirpath_original'])
+							),
+							"id" => $fileinfo['basename']
+						));
 						die($return);
 					}
 					if(!is_writable($fileinfo['dirpath_original'])){
 						@chmod($fileinfo['dirpath_original'], 0755);
 						if(!is_writable($fileinfo['dirpath_original'])){
 							@unlink($fileinfo['filepath']);
-							$return = json_encode(array("error" => array("code" => 100, "message" => sprintf(__('Directory %s is not writable by the server.', 'gmLang'), $fileinfo['dirpath_original'])), "id" => $fileinfo['basename']));
+							$return = json_encode(array(
+								"error" => array(
+									"code" => 100,
+									"message" => sprintf(__('Directory %s is not writable by the server.', 'gmLang'), $fileinfo['dirpath_original'])
+								),
+								"id" => $fileinfo['basename']
+							));
 							die($return);
 						}
 					}
@@ -181,7 +220,11 @@ function gmedia_upload_handler($file_tmp, $fileinfo, $content_type){
 						$editor = wp_get_image_editor($fileinfo['filepath_original']);
 						if(is_wp_error($editor)){
 							@unlink($fileinfo['filepath_original']);
-							$return = json_encode(array("error" => array("code" => $editor->get_error_code(), "message" => $editor->get_error_message()), "id" => $fileinfo['basename'], "tip" => 'wp_get_image_editor'));
+							$return = json_encode(array(
+								"error" => array("code" => $editor->get_error_code(), "message" => $editor->get_error_message()),
+								"id" => $fileinfo['basename'],
+								"tip" => 'wp_get_image_editor'
+							));
 							die($return);
 						}
 
@@ -191,14 +234,22 @@ function gmedia_upload_handler($file_tmp, $fileinfo, $content_type){
 							$resized = $editor->resize($webimg['width'], $webimg['height'], $webimg['crop']);
 							if(is_wp_error($resized)){
 								@unlink($fileinfo['filepath_original']);
-								$return = json_encode(array("error" => array("code" => $resized->get_error_code(), "message" => $resized->get_error_message()), "id" => $fileinfo['basename'], "tip" => "editor->resize->webimage({$webimg['width']}, {$webimg['height']}, {$webimg['crop']})"));
+								$return = json_encode(array(
+									"error" => array("code" => $resized->get_error_code(), "message" => $resized->get_error_message()),
+									"id" => $fileinfo['basename'],
+									"tip" => "editor->resize->webimage({$webimg['width']}, {$webimg['height']}, {$webimg['crop']})"
+								));
 								die($return);
 							}
 
 							$saved = $editor->save($fileinfo['filepath']);
 							if(is_wp_error($saved)){
 								@unlink($fileinfo['filepath_original']);
-								$return = json_encode(array("error" => array("code" => $saved->get_error_code(), "message" => $saved->get_error_message()), "id" => $fileinfo['basename'], "tip" => 'editor->save->webimage'));
+								$return = json_encode(array(
+									"error" => array("code" => $saved->get_error_code(), "message" => $saved->get_error_message()),
+									"id" => $fileinfo['basename'],
+									"tip" => 'editor->save->webimage'
+								));
 								die($return);
 							}
 						}
@@ -210,7 +261,11 @@ function gmedia_upload_handler($file_tmp, $fileinfo, $content_type){
 						if(is_wp_error($resized)){
 							@unlink($fileinfo['filepath']);
 							@unlink($fileinfo['filepath_original']);
-							$return = json_encode(array("error" => array("code" => $resized->get_error_code(), "message" => $resized->get_error_message()), "id" => $fileinfo['basename'], "tip" => "editor->resize->thumb({$thumbimg['width']}, {$thumbimg['height']}, {$thumbimg['crop']})"));
+							$return = json_encode(array(
+								"error" => array("code" => $resized->get_error_code(), "message" => $resized->get_error_message()),
+								"id" => $fileinfo['basename'],
+								"tip" => "editor->resize->thumb({$thumbimg['width']}, {$thumbimg['height']}, {$thumbimg['crop']})"
+							));
 							die($return);
 						}
 
@@ -218,7 +273,11 @@ function gmedia_upload_handler($file_tmp, $fileinfo, $content_type){
 						if(is_wp_error($saved)){
 							@unlink($fileinfo['filepath']);
 							@unlink($fileinfo['filepath_original']);
-							$return = json_encode(array("error" => array("code" => $saved->get_error_code(), "message" => $saved->get_error_message()), "id" => $fileinfo['basename'], "tip" => 'editor->save->thumb'));
+							$return = json_encode(array(
+								"error" => array("code" => $saved->get_error_code(), "message" => $saved->get_error_message()),
+								"id" => $fileinfo['basename'],
+								"tip" => 'editor->save->thumb'
+							));
 							die($return);
 						}
 					} else{
@@ -227,7 +286,10 @@ function gmedia_upload_handler($file_tmp, $fileinfo, $content_type){
 					$is_webimage = true;
 				} else{
 					@unlink($fileinfo['filepath']);
-					$return = json_encode(array("error" => array("code" => 104, "message" => __("Could not read image size. Invalid image was deleted.", 'gmLang')), "id" => $fileinfo['basename']));
+					$return = json_encode(array(
+						"error" => array("code" => 104, "message" => __("Could not read image size. Invalid image was deleted.", 'gmLang')),
+						"id" => $fileinfo['basename']
+					));
 					die($return);
 				}
 			}
@@ -258,7 +320,13 @@ function gmedia_upload_handler($file_tmp, $fileinfo, $content_type){
 			}
 
 			// Construct the media array
-			$media_data = array('mime_type' => $fileinfo['mime_type'], 'gmuid' => $fileinfo['basename'], 'title' => $title, 'link' => $link, 'description' => $description);
+			$media_data = array(
+				'mime_type' => $fileinfo['mime_type'],
+				'gmuid' => $fileinfo['basename'],
+				'title' => $title,
+				'link' => $link,
+				'description' => $description
+			);
 			$media_data = wp_parse_args($media_data, $post_data);
 
 			global $gmDB;
@@ -266,7 +334,10 @@ function gmedia_upload_handler($file_tmp, $fileinfo, $content_type){
 			$id = $gmDB->insert_gmedia($media_data);
 			$gmDB->update_metadata($meta_type = 'gmedia', $id, $meta_key = '_metadata', $gmDB->generate_gmedia_metadata($id, $fileinfo));
 
-			$return = json_encode(array("success" => array("code" => 200, "message" => sprintf(__('File uploaded successful. Assigned ID: %s', 'gmLang'), $id)), "id" => $fileinfo['basename']));
+			$return = json_encode(array(
+				"success" => array("code" => 200, "message" => sprintf(__('File uploaded successful. Assigned ID: %s', 'gmLang'), $id)),
+				"id" => $fileinfo['basename']
+			));
 			die($return);
 		} else{
 			$return = json_encode(array("success" => array("code" => 199, "message" => $chunk . '/' . $chunks), "id" => $fileinfo['basename']));

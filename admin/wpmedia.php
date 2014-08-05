@@ -19,9 +19,14 @@ function grandWPMedia(){
 	}
 	$gm_screen_options = array_merge($gmGallery->options['gm_screen_options'], $gm_screen_options);
 
-	$arg = array('mime_type' => $gmCore->_get('mime_type', ''), 'orderby' => $gmCore->_get('orderby', $gm_screen_options['orderby_wpmedia']),
-				 'order' => $gmCore->_get('order', $gm_screen_options['sortorder_wpmedia']), 'limit' => $gm_screen_options['per_page_wpmedia'], 'filter' => $gmCore->_get('filter', ''),
-				 's' => $gmCore->_get('s', ''));
+	$arg = array(
+		'mime_type' => $gmCore->_get('mime_type', ''),
+		'orderby' => $gmCore->_get('orderby', $gm_screen_options['orderby_wpmedia']),
+		'order' => $gmCore->_get('order', $gm_screen_options['sortorder_wpmedia']),
+		'limit' => $gm_screen_options['per_page_wpmedia'],
+		'filter' => $gmCore->_get('filter', ''),
+		's' => $gmCore->_get('s', '')
+	);
 	$wpMediaLib = $gmDB->get_wp_media_lib($arg);
 
 	$gm_qty = array('total' => '', 'image' => '', 'audio' => '', 'video' => '', 'text' => '', 'application' => '', 'other' => '');
@@ -86,35 +91,40 @@ function grandWPMedia(){
 						<li role="presentation" class="dropdown-header"><?php _e('TYPE', 'gmLang'); ?></li>
 						<li class="total<?php if(in_array('total', $curr_mime)){
 							echo ' active';
-						} ?>"><a rel="total" href="<?php echo $gmCore->get_admin_url(array(), array('mime_type', 'pager')); ?>"><?php echo $gm_qty['total']; _e('All', 'gmLang'); ?></a></li>
+						} ?>"><a rel="total" href="<?php echo $gmCore->get_admin_url(array(), array('mime_type', 'pager')); ?>"><?php echo $gm_qty['total'];
+								_e('All', 'gmLang'); ?></a></li>
 						<li class="image<?php if(in_array('image', $curr_mime)){
 							echo ' active';
 						}
 						if(!$gmDbCount['image']){
 							echo ' disabled';
 						} ?>">
-							<a rel="image" href="<?php echo $gmCore->get_admin_url(array('mime_type' => 'image'), array('pager')); ?>"><?php echo $gm_qty['image']; _e('Images', 'gmLang'); ?></a></li>
+							<a rel="image" href="<?php echo $gmCore->get_admin_url(array('mime_type' => 'image'), array('pager')); ?>"><?php echo $gm_qty['image'];
+								_e('Images', 'gmLang'); ?></a></li>
 						<li class="audio<?php if(in_array('audio', $curr_mime)){
 							echo ' active';
 						}
 						if(!$gmDbCount['audio']){
 							echo ' disabled';
 						} ?>">
-							<a rel="audio" href="<?php echo $gmCore->get_admin_url(array('mime_type' => 'audio'), array('pager')); ?>"><?php echo $gm_qty['audio']; _e('Audio', 'gmLang'); ?></a></li>
+							<a rel="audio" href="<?php echo $gmCore->get_admin_url(array('mime_type' => 'audio'), array('pager')); ?>"><?php echo $gm_qty['audio'];
+								_e('Audio', 'gmLang'); ?></a></li>
 						<li class="video<?php if(in_array('video', $curr_mime)){
 							echo ' active';
 						}
 						if(!$gmDbCount['video']){
 							echo ' disabled';
 						} ?>">
-							<a rel="video" href="<?php echo $gmCore->get_admin_url(array('mime_type' => 'video'), array('pager')); ?>"><?php echo $gm_qty['video']; _e('Video', 'gmLang'); ?></a></li>
+							<a rel="video" href="<?php echo $gmCore->get_admin_url(array('mime_type' => 'video'), array('pager')); ?>"><?php echo $gm_qty['video'];
+								_e('Video', 'gmLang'); ?></a></li>
 						<li class="application<?php if(in_array('application', $curr_mime) || in_array('text', $curr_mime)){
 							echo ' active';
 						}
 						if(!$gmDbCount['application']){
 							echo ' disabled';
 						} ?>">
-							<a rel="application" href="<?php echo $gmCore->get_admin_url(array('mime_type' => 'application,text'), array('pager')); ?>"><?php echo $gm_qty['other']; _e('Other', 'gmLang'); ?></a></li>
+							<a rel="application" href="<?php echo $gmCore->get_admin_url(array('mime_type' => 'application,text'), array('pager')); ?>"><?php echo $gm_qty['other'];
+								_e('Other', 'gmLang'); ?></a></li>
 						<?php do_action('gmedia_wp_filter_list'); ?>
 					</ul>
 				</div>
@@ -129,7 +139,12 @@ function grandWPMedia(){
 					$rel_selected_hide = 'rel-selected-hide';
 					?>
 					<ul class="dropdown-menu" role="menu">
-						<li class="<?php echo $rel_selected_show; if(!$gmCore->caps['gmedia_import']){ echo ' disabled'; } ?>"><a href="#importModal" data-modal="import-wpmedia" data-action="gmedia_import_modal" class="gmedia-modal"><?php _e('Import to Gmedia Library...', 'gmLang'); ?></a></li>
+						<li class="<?php echo $rel_selected_show;
+						if(!$gmCore->caps['gmedia_import']){
+							echo ' disabled';
+						} ?>">
+							<a href="#importModal" data-modal="import-wpmedia" data-action="gmedia_import_modal" class="gmedia-modal"><?php _e('Import to Gmedia Library...', 'gmLang'); ?></a>
+						</li>
 						<!-- <li class="divider <?php echo $rel_selected_hide; ?>"></li> -->
 						<li class="dropdown-header <?php echo $rel_selected_hide; ?>"><span><?php _e("Select items to see more actions", "gmLang"); ?></span></li>
 						<?php do_action('gmedia_action_list'); ?>
@@ -153,68 +168,72 @@ function grandWPMedia(){
 		</div>
 		<div class="panel-body"></div>
 		<?php if(!empty($wpMediaLib)){ ?>
-		<table class="table table-striped table-hover table-condenced" cellspacing="0">
-			<col class="cb" style="width:40px;"/>
-			<col class="id" style="width:80px;"/>
-			<col class="file" style="width:100px;"/>
-			<col class="type" style="width:80px;"/>
-			<col class="title"/>
-			<col class="descr hidden-xs"/>
-			<thead>
-			<tr>
-				<th class="cb"><span>#</span></th>
-				<th class="id">
-					<?php $new_order = ('ID' == $arg['orderby'])? (('DESC' == $arg['order'])? 'ASC' : 'DESC') : 'DESC'; ?>
-					<a href="<?php echo $gmCore->get_admin_url(array('orderby' => 'ID', 'order' => $new_order)); ?>"><?php _e('ID', 'gmLang'); ?></a>
-				</th>
-				<th class="file" title="<?php _e('Sort by filename', 'gmLang'); ?>">
-					<?php $new_order = ('filename' == $arg['orderby'])? (('DESC' == $arg['order'])? 'ASC' : 'DESC') : 'DESC'; ?>
-					<a href="<?php echo $gmCore->get_admin_url(array('orderby' => 'filename',
-																	 'order' => $new_order)); ?>"><?php _e('File', 'gmLang'); ?></a>
-				</th>
-				<th class="type"><span><?php _e('Type', 'gmLang'); ?></span></th>
-				<th class="title">
-					<?php $new_order = ('title' == $arg['orderby'])? (('DESC' == $arg['order'])? 'ASC' : 'DESC') : 'DESC'; ?>
-					<a href="<?php echo $gmCore->get_admin_url(array('orderby' => 'title', 'order' => $new_order)); ?>"><?php _e('Title', 'gmLang'); ?></a>
-				</th>
-				<th class="descr hidden-xs"><span><?php _e('Description', 'gmLang'); ?></span></th>
-			</tr>
-			</thead>
-			<tbody>
-			<?php foreach($wpMediaLib as $item){
-				$is_selected = in_array($item->ID, $gmProcessor->selected_items)? true : false;
-				$image = wp_get_attachment_image( $item->ID, array( 50, 50 ), false );
-				if ( ! $image ) {
-					if ( ($src = wp_mime_type_icon( $item->ID )) ) {
-						$src_image = $gmCore->gmedia_url . '/admin/images/' . wp_basename( $src );
-						$image = '<img src="' . $src_image . '" width="50" height="50" alt="icon" title="' . esc_attr($item->post_title) . '"/>';
-					}
-				}
-				$item_url       = wp_get_attachment_url( $item->ID );
-				$file_info = pathinfo( $item_url );
-				$type = explode( '/', $item->post_mime_type );
-				?>
-				<tr data-id="<?php echo $item->ID; ?>">
-					<td class="cb">
-						<span class="cb_media-object"><input name="doaction[]" type="checkbox" data-type="<?php echo $type[0]; ?>" value="<?php echo $item->ID; ?>"<?php echo $is_selected? ' checked="checked"' : ''; ?>/></span>
-					</td>
-					<td class="id"><span><?php echo $item->ID; ?></span></td>
-					<td class="file"><span><a href="<?php echo admin_url( 'media.php?action=edit&amp;attachment_id=' . $item->ID ); ?>"><?php echo $image; ?></a></span></td>
-					<td class="type"><span><?php echo $file_info['extension']; ?></span></td>
-					<td class="title"><span><?php echo esc_html($item->post_title); ?></span></td>
-					<td class="descr hidden-xs">
-						<div><?php echo esc_html($item->post_content); ?></div>
-					</td>
+			<table class="table table-striped table-hover table-condenced" cellspacing="0">
+				<col class="cb" style="width:40px;"/>
+				<col class="id" style="width:80px;"/>
+				<col class="file" style="width:100px;"/>
+				<col class="type" style="width:80px;"/>
+				<col class="title"/>
+				<col class="descr hidden-xs"/>
+				<thead>
+				<tr>
+					<th class="cb"><span>#</span></th>
+					<th class="id">
+						<?php $new_order = ('ID' == $arg['orderby'])? (('DESC' == $arg['order'])? 'ASC' : 'DESC') : 'DESC'; ?>
+						<a href="<?php echo $gmCore->get_admin_url(array('orderby' => 'ID', 'order' => $new_order)); ?>"><?php _e('ID', 'gmLang'); ?></a>
+					</th>
+					<th class="file" title="<?php _e('Sort by filename', 'gmLang'); ?>">
+						<?php $new_order = ('filename' == $arg['orderby'])? (('DESC' == $arg['order'])? 'ASC' : 'DESC') : 'DESC'; ?>
+						<a href="<?php echo $gmCore->get_admin_url(array(
+							'orderby' => 'filename',
+							'order' => $new_order
+						)); ?>"><?php _e('File', 'gmLang'); ?></a>
+					</th>
+					<th class="type"><span><?php _e('Type', 'gmLang'); ?></span></th>
+					<th class="title">
+						<?php $new_order = ('title' == $arg['orderby'])? (('DESC' == $arg['order'])? 'ASC' : 'DESC') : 'DESC'; ?>
+						<a href="<?php echo $gmCore->get_admin_url(array('orderby' => 'title', 'order' => $new_order)); ?>"><?php _e('Title', 'gmLang'); ?></a>
+					</th>
+					<th class="descr hidden-xs"><span><?php _e('Description', 'gmLang'); ?></span></th>
 				</tr>
-			<?php } ?>
-			</tbody>
-		</table>
+				</thead>
+				<tbody>
+				<?php foreach($wpMediaLib as $item){
+					$is_selected = in_array($item->ID, $gmProcessor->selected_items)? true : false;
+					$image = wp_get_attachment_image($item->ID, array(50, 50), false);
+					if(!$image){
+						if(($src = wp_mime_type_icon($item->ID))){
+							$src_image = $gmCore->gmedia_url . '/admin/images/' . wp_basename($src);
+							$image = '<img src="' . $src_image . '" width="50" height="50" alt="icon" title="' . esc_attr($item->post_title) . '"/>';
+						}
+					}
+					$item_url = wp_get_attachment_url($item->ID);
+					$file_info = pathinfo($item_url);
+					$type = explode('/', $item->post_mime_type);
+					?>
+					<tr data-id="<?php echo $item->ID; ?>">
+						<td class="cb">
+							<span class="cb_media-object"><input name="doaction[]" type="checkbox" data-type="<?php echo $type[0]; ?>" value="<?php echo $item->ID; ?>"<?php echo $is_selected? ' checked="checked"' : ''; ?>/></span>
+						</td>
+						<td class="id"><span><?php echo $item->ID; ?></span></td>
+						<td class="file">
+							<span><a href="<?php echo admin_url('media.php?action=edit&amp;attachment_id=' . $item->ID); ?>"><?php echo $image; ?></a></span>
+						</td>
+						<td class="type"><span><?php echo $file_info['extension']; ?></span></td>
+						<td class="title"><span><?php echo esc_html($item->post_title); ?></span></td>
+						<td class="descr hidden-xs">
+							<div><?php echo esc_html($item->post_content); ?></div>
+						</td>
+					</tr>
+				<?php } ?>
+				</tbody>
+			</table>
 		<?php } else{ ?>
-		<div class="panel-body">
-			<div class="well well-lg text-center">
-				<h4><?php _e('No items to show.', 'gmLang'); ?></h4>
+			<div class="panel-body">
+				<div class="well well-lg text-center">
+					<h4><?php _e('No items to show.', 'gmLang'); ?></h4>
+				</div>
 			</div>
-		</div>
 		<?php } ?>
 		<?php
 		wp_original_referer_field(true, 'previous');

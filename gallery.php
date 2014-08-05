@@ -1,8 +1,8 @@
 <?php
-ini_set( 'display_errors', '1' );
-ini_set( 'error_reporting', E_ALL );
+//ini_set('display_errors', '1');
+//ini_set('error_reporting', E_ALL);
 
-if ( ! defined( 'ABSPATH' ) ){
+if(!defined('ABSPATH')){
 	@require_once(dirname(__FILE__) . '/config.php');
 }
 
@@ -19,12 +19,12 @@ $gmedia = rawurldecode($gmedia);
 if($gmedia){
 	global $gmDB;
 	if('gallery' == $type || 'album' == $type || 'tag' == $type || 'category' == $type){
-		$term_id = $gmDB->term_exists($gmedia, 'gmedia_'.$type);
+		$term_id = $gmDB->term_exists($gmedia, 'gmedia_' . $type);
 		if($term_id){
 			$atts = array(
-				'id' => $term_id
-				,'preview' => $gmCore->_get('preview', '')
-				,'_tax' => $type
+				'id' => $term_id,
+				'preview' => $gmCore->_get('preview', ''),
+				'_tax' => $type
 			);
 			$content = gmedia_shortcode($atts);
 		}
@@ -33,7 +33,7 @@ if($gmedia){
 		$type = explode('/', $gmedia_obj->mime_type, 2);
 		if('image' == $type[0]){
 			$content .= '<div class="single_view">';
-			$content .= '<img src="'.$gmCore->gm_get_media_image($gmedia_obj->ID).'">';
+			$content .= '<img src="' . $gmCore->gm_get_media_image($gmedia_obj->ID) . '">';
 			$content .= "<h2>{$gmedia_obj->title}</h2>";
 			$content .= "<div>{$gmedia_obj->description}</div>";
 			$content .= "</div>";
@@ -43,7 +43,7 @@ if($gmedia){
 			$width = isset($meta['width'])? $meta['width'] : 640;
 			$height = isset($meta['height'])? $meta['height'] : 480;
 			$url = $gmCore->fileinfo($gmedia_obj->gmuid, false);
-			$content .= '<video src="'.$url['fileurl'].'" width="'.$width.'" height="'.$height.'" style="width:100%;height:100%;"></video>';
+			$content .= '<video src="' . $url['fileurl'] . '" width="' . $width . '" height="' . $height . '" style="width:100%;height:100%;"></video>';
 			$content .= '
 <script type="text/javascript">
 	jQuery(function($){
@@ -89,15 +89,15 @@ if($gmedia){
 ?><!DOCTYPE html>
 <html <?php language_attributes(); ?>>
 <head>
-	<meta charset="<?php bloginfo( 'charset' ); ?>">
+	<meta charset="<?php bloginfo('charset'); ?>">
 	<meta name="viewport" content="width=device-width">
-	<!-- <meta name='GmediaGallery' content='<?php echo GMEDIA_VERSION.' / '.GMEDIA_DBVERSION ?>' /> -->
-	<title><?php wp_title( '|', true, 'right' ); ?></title>
+	<!-- <meta name='GmediaGallery' content='<?php echo GMEDIA_VERSION . ' / ' . GMEDIA_DBVERSION ?>' /> -->
+	<title><?php wp_title('|', true, 'right'); ?></title>
 	<link rel="profile" href="http://gmpg.org/xfn/11">
 
 	<style type="text/css">
-		html { width: 100%; height: 100%; }
-		body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; min-height: 120px; min-width: 160px; }
+		html { width:100%; height:100%; }
+		body { margin:0; padding:0; width:100%; height:100%; overflow:hidden; min-height:120px; min-width:160px; }
 		<?php echo $styles; ?>
 	</style>
 	<?php

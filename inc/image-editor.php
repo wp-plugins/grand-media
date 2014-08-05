@@ -15,7 +15,7 @@ function gmedia_image_editor(){
 	<div class="panel panel-default" id="gmedit" data-src="<?php echo $gmedia_src; ?>">
 		<div class="panel-heading clearfix">
 			<div class="btn-toolbar pull-right">
-				<?php if(file_exists($fileinfo['filepath_original'].'_backup')){ ?>
+				<?php if(file_exists($fileinfo['filepath_original'] . '_backup')){ ?>
 					<button type="button" id="gmedit-restore" name="gmedit_restore" class="btn btn-warning pull-left" data-confirm="<?php _e('Do you really want restore original image?') ?>"><?php _e('Restore Original', 'gmLang'); ?></button>
 				<?php } ?>
 				<div class="btn-group pull-left">
@@ -184,7 +184,7 @@ function gmedia_image_editor(){
 				$.post(ajaxurl, post_data, function(c){
 					if(!c.error){
 						var parent_doc = window.parent.document;
-						$('#list-item-'+gmid, parent_doc)
+						$('#list-item-' + gmid, parent_doc)
 							.find('.gmedia-thumb').attr('src', '<?php echo $gmedia_thumb_src; ?>?' + time)
 							.end().find('.modified').text(c.modified);
 						$('#gmedia-panel', parent_doc).before(c.msg);
@@ -210,7 +210,7 @@ function gmedia_image_editor(){
 				$.post(ajaxurl, post_data, function(c){
 					if(!c.error){
 						var parent_doc = window.parent.document;
-						$('#list-item-'+gmid, parent_doc)
+						$('#list-item-' + gmid, parent_doc)
 							.find('.gmedia-thumb').attr('src', '<?php echo $gmedia_thumb_src; ?>?' + time)
 							.end().find('.modified').text(c.modified);
 						$('#gmedia-panel', parent_doc).before(c.msg);

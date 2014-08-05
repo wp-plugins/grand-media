@@ -1,25 +1,23 @@
 <?php
 // If uninstall not called from WordPress, then exit
-if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
+if(!defined('WP_UNINSTALL_PLUGIN')){
 	exit;
 }
-require_once(dirname(__FILE__).'/constants.php');
-require_once(dirname(__FILE__).'/inc/core.php');
-require_once(dirname(__FILE__).'/inc/db.connect.php');
+require_once(dirname(__FILE__) . '/constants.php');
+require_once(dirname(__FILE__) . '/inc/core.php');
+require_once(dirname(__FILE__) . '/inc/db.connect.php');
 
-if (function_exists('is_multisite') && is_multisite()) {
+if(function_exists('is_multisite') && is_multisite()){
 	global $wpdb;
 	$blogs = $wpdb->get_results("SELECT blog_id FROM {$wpdb->blogs}", ARRAY_A);
-	if ($blogs) {
-		foreach($blogs as $blog) {
+	if($blogs){
+		foreach($blogs as $blog){
 			switch_to_blog($blog['blog_id']);
 			gmedia_uninstall();
 			restore_current_blog();
 		}
 	}
-}
-else
-{
+} else{
 	gmedia_uninstall();
 }
 
@@ -49,9 +47,9 @@ function gmedia_uninstall(){
 	$capabilities = gmedia_plugin_capabilities();
 	$capabilities = apply_filters('gmedia_capabilities', $capabilities);
 	$check_order = $gmDB->get_sorted_roles();
-	foreach ($check_order as $the_role) {
+	foreach($check_order as $the_role){
 		// If you rename the roles, then please use the role manager plugin
-		if ( empty($the_role) ){
+		if(empty($the_role)){
 			continue;
 		}
 		foreach($capabilities as $cap){
@@ -72,7 +70,7 @@ function gmedia_uninstall(){
 			$files_folder = $upload['path'];
 			$gmCore->delete_folder($files_folder);
 		} else{
-			$files_folder = $upload['path'].'/'.$options['folder']['module'];
+			$files_folder = $upload['path'] . '/' . $options['folder']['module'];
 			$gmCore->delete_folder($files_folder);
 		}
 	}

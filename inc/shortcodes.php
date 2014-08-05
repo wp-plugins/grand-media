@@ -54,7 +54,7 @@ function gmedia_shortcode($atts, $content = ''){
 		'settings' => array()
 	);
 
-	$taxonomy = 'gmedia_'.$_tax;
+	$taxonomy = 'gmedia_' . $_tax;
 	$gallery = $gmDB->get_term($id, $taxonomy, ARRAY_A);
 	if(is_wp_error($gallery)){
 		return '<div class="gmedia_gallery gmediaShortcodeError">#' . $id . ': ' . $gallery->get_error_message() . '<br />' . $content . '</div>';
@@ -76,7 +76,7 @@ function gmedia_shortcode($atts, $content = ''){
 	}
 
 	if(empty($gallery['query']) && ('gallery' !== $_tax)){
-		$gallery['query']['gmedia_'.$_tax] = array($id);
+		$gallery['query']['gmedia_' . $_tax] = array($id);
 	}
 
 	$module = $gmCore->get_module_path($gallery['module']);
@@ -104,13 +104,13 @@ function gmedia_shortcode($atts, $content = ''){
 	$terms = array();
 	$gmedia = array();
 	if(!empty($gallery['query'])){
-		foreach ( $gallery['query'] as $tax => $term_ids ) {
+		foreach($gallery['query'] as $tax => $term_ids){
 			if(!empty($term_ids)){
 				if('gmedia__in' == $tax){
-					$term_id = (int) $gallery['term_id'];
+					$term_id = (int)$gallery['term_id'];
 					$terms[$term_id] = $gmDB->get_term($term_id, 'gmedia_gallery');
 					$term_ids = implode(',', wp_parse_id_list($term_ids[0]));
-					$gmedia[$term_id] = $gmDB->get_gmedias( array('gmedia__in' => $term_ids, 'orderby' => 'gmedia__in', 'order' => 'ASC') );
+					$gmedia[$term_id] = $gmDB->get_gmedias(array('gmedia__in' => $term_ids, 'orderby' => 'gmedia__in', 'order' => 'ASC'));
 					continue;
 				}
 				foreach($term_ids as $term_id){
@@ -118,15 +118,15 @@ function gmedia_shortcode($atts, $content = ''){
 					if(!empty($terms[$term_id]) && !is_wp_error($terms[$term_id]) && $terms[$term_id]->count){
 						if('gmedia_category' == $tax){
 							$terms[$term_id]->name = $gmGallery->options['taxonomies']['gmedia_category'][$terms[$term_id]->name];
-							$gmedia[$term_id] = $gmDB->get_gmedias( array('category__in' => $term_id) );
+							$gmedia[$term_id] = $gmDB->get_gmedias(array('category__in' => $term_id));
 						} elseif('gmedia_album' == $tax){
 							$term_meta = $gmDB->get_metadata('gmedia_term', $term_id);
 							$term_meta = array_map('reset', $term_meta);
-							$term_meta = array_merge( array('orderby' => 'ID', 'order' => 'DESC'), $term_meta);
+							$term_meta = array_merge(array('orderby' => 'ID', 'order' => 'DESC'), $term_meta);
 							$args = array('album__in' => $term_id, 'orderby' => $term_meta['orderby'], 'order' => $term_meta['order']);
 							$gmedia[$term_id] = $gmDB->get_gmedias($args);
 						} elseif('gmedia_tag' == $tax){
-							$gmedia[$term_id] = $gmDB->get_gmedias( array('tag__in' => $term_id) );
+							$gmedia[$term_id] = $gmDB->get_gmedias(array('tag__in' => $term_id));
 						}
 					} else{
 						unset($terms[$term_id]);
@@ -148,7 +148,7 @@ function gmedia_shortcode($atts, $content = ''){
 	$is_bot = $gmCore->is_bot();
 
 	ob_start();
-	include($module['path'].'/init.php');
+	include($module['path'] . '/init.php');
 	$out .= ob_get_contents();
 	ob_end_clean();
 
@@ -158,7 +158,7 @@ function gmedia_shortcode($atts, $content = ''){
 
 	$out .= '</div>';
 
-	if(isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+	if(isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest'){
 		do_action('gmedia_footer_scripts');
 	}
 
@@ -179,9 +179,10 @@ function gmedia_shortcode($atts, $content = ''){
  * @uses do_shortcode()
  *
  * @param string $content Content to parse
+ *
  * @return string Content with shortcode parsed
  */
-function get_gmedia_unformatted_shortcode_blocks( $content ) {
+function get_gmedia_unformatted_shortcode_blocks($content){
 	global $gmGallery;
 
 	if('0' == $gmGallery->options['shortcode_raw']){
@@ -195,10 +196,10 @@ function get_gmedia_unformatted_shortcode_blocks( $content ) {
 	remove_all_shortcodes();
 
 	// my_shortcode_handler1(), below, saves the rawr blocks into $this->unformatted_shortcode_blocks[]
-	add_shortcode( 'gmedia', 'gmedia_raw_shortcode' );
+	add_shortcode('gmedia', 'gmedia_raw_shortcode');
 
 	// Do the shortcode (only the [rawr] shortcode is now registered)
-	$content = do_shortcode( $content );
+	$content = do_shortcode($content);
 
 	// Put the original shortcodes back for normal processing at priority 11
 	$shortcode_tags = $orig_shortcode_tags;
@@ -225,7 +226,7 @@ function gmedia_raw_shortcode($atts, $content = ''){
 	global $gmedia_shortcode_instance;
 	// Store the unformatted content for later:
 	$gmedia_shortcode_instance['shortcode_raw'][] = gmedia_shortcode($atts, $content);
-	$raw_index = count( $gmedia_shortcode_instance['shortcode_raw'] ) - 1;
+	$raw_index = count($gmedia_shortcode_instance['shortcode_raw']) - 1;
 	$shortcode_atts = '';
 	// Put the shortcode tag back with raw index, so it gets processed again below.
 	$atts['_raw'] = $raw_index;
