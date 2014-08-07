@@ -1,4 +1,4 @@
-=== Gmedia Gallery - Photo Gallery, Image Slider, Music Player, Media Library ===
+=== Gmedia Gallery - Photo Gallery, Image Slider, Music Player, Video Player, Media Library ===
 Contributors: Rattus
 Donate link: http://codeasily.com/wordpress-plugins/gmedia-gallery/
 Tags: gallery, image, images, library, files, music, video, slideshow, responsive, admin, Post, posts, easy gallery, iphone gallery, best gallery, portfolio, image gallery, photo gallery, photo, slider, header slider, admin, page, relative image
