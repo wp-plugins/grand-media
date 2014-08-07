@@ -1,4 +1,7 @@
 <?php
+if(preg_match('#' . basename(dirname(__FILE__)) . '/' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])){
+	die('You are not allowed to call this page directly.');
+}
 
 /**
  * Main PHP class for the WordPress plugin GRAND Media
@@ -1131,6 +1134,309 @@ class GmediaCore{
 		$this->wp_add_id3_tag_data($metadata, $data);
 
 		return $metadata;
+	}
+
+
+	/** Write the file
+	 *
+	 * @param string $file_tmp
+	 * @param array  $fileinfo
+	 * @param string $content_type
+	 * @param array  $post_data
+	 *
+	 * @return array
+	 */
+	function gmedia_upload_handler($file_tmp, $fileinfo, $content_type, $post_data){
+		global $gmGallery;
+		$cleanup_dir = true; // Remove old files
+		$file_age = 5 * 3600; // Temp file age in seconds
+		$chunk = (int)$this->_req('chunk', 0);
+		$chunks = (int)$this->_req('chunks', 0);
+
+		// try to make grand-media dir if not exists
+		if(!wp_mkdir_p($fileinfo['dirpath'])){
+			$return = array(
+				"error" => array(
+					"code" => 100,
+					"message" => sprintf(__('Unable to create directory %s. Is its parent directory writable by the server?', 'gmLang'), $fileinfo['dirpath'])
+				),
+				"id" => $fileinfo['basename']
+			);
+
+			return $return;
+		}
+		// Check if grand-media dir is writable
+		if(!is_writable($fileinfo['dirpath'])){
+			@chmod($fileinfo['dirpath'], 0755);
+			if(!is_writable($fileinfo['dirpath'])){
+				$return = array(
+					"error" => array(
+						"code" => 100,
+						"message" => sprintf(__('Directory %s or its subfolders are not writable by the server.', 'gmLang'), dirname($fileinfo['dirpath']))
+					),
+					"id" => $fileinfo['basename']
+				);
+
+				return $return;
+			}
+		}
+		// Remove old temp files
+		if($cleanup_dir && is_dir($fileinfo['dirpath']) && ($_dir = opendir($fileinfo['dirpath']))){
+			while(($_file = readdir($_dir)) !== false){
+				$tmpfilePath = $fileinfo['dirpath'] . DIRECTORY_SEPARATOR . $_file;
+
+				// Remove temp file if it is older than the max age and is not the current file
+				if(preg_match('/\.part$/', $_file) && (filemtime($tmpfilePath) < time() - $file_age) && ($tmpfilePath != $fileinfo['filepath'] . '.part')){
+					@unlink($tmpfilePath);
+				}
+			}
+
+			closedir($_dir);
+		} else{
+			$return = array(
+				"error" => array("code" => 100, "message" => sprintf(__('Failed to open directory: %s', 'gmLang'), $fileinfo['dirpath'])),
+				"id" => $fileinfo['basename']
+			);
+
+			return $return;
+		}
+
+		// Open temp file
+		$out = fopen($fileinfo['filepath'] . '.part', $chunk == 0? "wb" : "ab");
+		if($out){
+			// Read binary input stream and append it to temp file
+			$in = fopen($file_tmp, "rb");
+
+			if($in){
+				while(($buff = fread($in, 4096))){
+					fwrite($out, $buff);
+				}
+			} else{
+				$return = array("error" => array("code" => 101, "message" => __("Failed to open input stream.", 'gmLang')), "id" => $fileinfo['basename']);
+
+				return $return;
+			}
+			fclose($in);
+			fclose($out);
+			if(strpos($content_type, "multipart") !== false){
+				@unlink($file_tmp);
+			}
+			if(!$chunks || $chunk == ($chunks - 1)){
+				sleep(1);
+				// Strip the temp .part suffix off
+				rename($fileinfo['filepath'] . '.part', $fileinfo['filepath']);
+
+				$this->file_chmod($fileinfo['filepath']);
+
+				$size = false;
+				$is_webimage = false;
+				if('image' == $fileinfo['dirname']){
+					/** WordPress Image Administration API */
+					require_once(ABSPATH . 'wp-admin/includes/image.php');
+
+					$size = @getimagesize($fileinfo['filepath']);
+					if($size && file_is_displayable_image($fileinfo['filepath'])){
+						if(!wp_mkdir_p($fileinfo['dirpath_thumb'])){
+							$return = array(
+								"error" => array(
+									"code" => 100,
+									"message" => sprintf(__('Unable to create directory %s. Is its parent directory writable by the server?', 'gmLang'), $fileinfo['dirpath_thumb'])
+								),
+								"id" => $fileinfo['basename']
+							);
+
+							return $return;
+						}
+						if(!is_writable($fileinfo['dirpath_thumb'])){
+							@chmod($fileinfo['dirpath_thumb'], 0755);
+							if(!is_writable($fileinfo['dirpath_thumb'])){
+								@unlink($fileinfo['filepath']);
+								$return = array(
+									"error" => array(
+										"code" => 100,
+										"message" => sprintf(__('Directory %s is not writable by the server.', 'gmLang'), $fileinfo['dirpath_thumb'])
+									),
+									"id" => $fileinfo['basename']
+								);
+
+								return $return;
+							}
+						}
+						if(!wp_mkdir_p($fileinfo['dirpath_original'])){
+							$return = array(
+								"error" => array(
+									"code" => 100,
+									"message" => sprintf(__('Unable to create directory %s. Is its parent directory writable by the server?', 'gmLang'), $fileinfo['dirpath_original'])
+								),
+								"id" => $fileinfo['basename']
+							);
+
+							return $return;
+						}
+						if(!is_writable($fileinfo['dirpath_original'])){
+							@chmod($fileinfo['dirpath_original'], 0755);
+							if(!is_writable($fileinfo['dirpath_original'])){
+								@unlink($fileinfo['filepath']);
+								$return = array(
+									"error" => array(
+										"code" => 100,
+										"message" => sprintf(__('Directory %s is not writable by the server.', 'gmLang'), $fileinfo['dirpath_original'])
+									),
+									"id" => $fileinfo['basename']
+								);
+
+								return $return;
+							}
+						}
+
+						// Optimized image
+						$webimg = $gmGallery->options['image'];
+						$thumbimg = $gmGallery->options['thumb'];
+
+						$webimg['resize'] = (($webimg['width'] < $size[0]) || ($webimg['height'] < $size[1]))? true : false;
+						$thumbimg['resize'] = (($thumbimg['width'] < $size[0]) || ($thumbimg['height'] < $size[1]))? true : false;
+
+						if($webimg['resize']){
+							rename($fileinfo['filepath'], $fileinfo['filepath_original']);
+						} else{
+							copy($fileinfo['filepath'], $fileinfo['filepath_original']);
+						}
+
+						if($webimg['resize'] || $thumbimg['resize']){
+							$editor = wp_get_image_editor($fileinfo['filepath_original']);
+							if(is_wp_error($editor)){
+								@unlink($fileinfo['filepath_original']);
+								$return = array(
+									"error" => array("code" => $editor->get_error_code(), "message" => $editor->get_error_message()),
+									"id" => $fileinfo['basename'],
+									"tip" => 'wp_get_image_editor'
+								);
+
+								return $return;
+							}
+
+							if($webimg['resize']){
+								$editor->set_quality($webimg['quality']);
+
+								$resized = $editor->resize($webimg['width'], $webimg['height'], $webimg['crop']);
+								if(is_wp_error($resized)){
+									@unlink($fileinfo['filepath_original']);
+									$return = array(
+										"error" => array("code" => $resized->get_error_code(), "message" => $resized->get_error_message()),
+										"id" => $fileinfo['basename'],
+										"tip" => "editor->resize->webimage({$webimg['width']}, {$webimg['height']}, {$webimg['crop']})"
+									);
+
+									return $return;
+								}
+
+								$saved = $editor->save($fileinfo['filepath']);
+								if(is_wp_error($saved)){
+									@unlink($fileinfo['filepath_original']);
+									$return = array(
+										"error" => array("code" => $saved->get_error_code(), "message" => $saved->get_error_message()),
+										"id" => $fileinfo['basename'],
+										"tip" => 'editor->save->webimage'
+									);
+
+									return $return;
+								}
+							}
+
+							// Thumbnail
+							$editor->set_quality($thumbimg['quality']);
+
+							$resized = $editor->resize($thumbimg['width'], $thumbimg['height'], $thumbimg['crop']);
+							if(is_wp_error($resized)){
+								@unlink($fileinfo['filepath']);
+								@unlink($fileinfo['filepath_original']);
+								$return = array(
+									"error" => array("code" => $resized->get_error_code(), "message" => $resized->get_error_message()),
+									"id" => $fileinfo['basename'],
+									"tip" => "editor->resize->thumb({$thumbimg['width']}, {$thumbimg['height']}, {$thumbimg['crop']})"
+								);
+
+								return $return;
+							}
+
+							$saved = $editor->save($fileinfo['filepath_thumb']);
+							if(is_wp_error($saved)){
+								@unlink($fileinfo['filepath']);
+								@unlink($fileinfo['filepath_original']);
+								$return = array(
+									"error" => array("code" => $saved->get_error_code(), "message" => $saved->get_error_message()),
+									"id" => $fileinfo['basename'],
+									"tip" => 'editor->save->thumb'
+								);
+
+								return $return;
+							}
+						} else{
+							copy($fileinfo['filepath'], $fileinfo['filepath_thumb']);
+						}
+						$is_webimage = true;
+					} else{
+						@unlink($fileinfo['filepath']);
+						$return = array(
+							"error" => array("code" => 104, "message" => __("Could not read image size. Invalid image was deleted.", 'gmLang')),
+							"id" => $fileinfo['basename']
+						);
+
+						return $return;
+					}
+				}
+
+				// Write media data to DB
+				$link = '';
+				$description = '';
+				// TODO Option to set title empty string or from metadata or from filename or both
+				$title = $fileinfo['title'];
+				// use image exif/iptc data for title and caption defaults if possible
+				if($size){
+					$image_meta = @wp_read_image_metadata($fileinfo['filepath_original']);
+					if(trim($image_meta['caption'])){
+						$description = $image_meta['caption'];
+					}
+					if(trim($image_meta['title']) && !is_numeric(sanitize_title($image_meta['title']))){
+						$title = $image_meta['title'];
+					}
+				}
+
+				// Construct the media array
+				$media_data = array(
+					'mime_type' => $fileinfo['mime_type'],
+					'gmuid' => $fileinfo['basename'],
+					'title' => $title,
+					'link' => $link,
+					'description' => $description
+				);
+				unset($post_data['gmuid'], $post_data['mime_type']);
+				if(!$is_webimage && isset($post_data['terms']['gmedia_category'])){
+					unset($post_data['terms']['gmedia_category']);
+				}
+				$media_data = wp_parse_args($post_data, $media_data);
+
+				global $gmDB;
+				// Save the data
+				$id = $gmDB->insert_gmedia($media_data);
+				$gmDB->update_metadata($meta_type = 'gmedia', $id, $meta_key = '_metadata', $gmDB->generate_gmedia_metadata($id, $fileinfo));
+
+				$return = array(
+					"success" => array("code" => 200, "message" => sprintf(__('File uploaded successful. Assigned ID: %s', 'gmLang'), $id)),
+					"id" => $fileinfo['basename']
+				);
+
+				return $return;
+			} else{
+				$return = array("success" => array("code" => 199, "message" => $chunk . '/' . $chunks), "id" => $fileinfo['basename']);
+
+				return $return;
+			}
+		} else{
+			$return = array("error" => array("code" => 102, "message" => __("Failed to open output stream.", 'gmLang')), "id" => $fileinfo['basename']);
+
+			return $return;
+		}
 	}
 
 }

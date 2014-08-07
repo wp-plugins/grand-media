@@ -419,7 +419,6 @@ class GmediaDB{
 				} else{
 					$_terms = array($_terms);
 				}
-				$_terms = array_filter(array_map('trim', $_terms));
 				if(!empty($taxonomy)){
 					$this->set_gmedia_terms($media_ID, $_terms, $taxonomy, $append = 0);
 				}
@@ -2821,8 +2820,14 @@ class GmediaDB{
 		if(!is_array($terms)){
 			$terms = array($terms);
 		}
+		$terms = array_filter(array_map('trim', (array)$terms));
 
 		if($append == 0){
+			if(empty($terms)){
+				$this->delete_gmedia_term_relationships($object_id, $taxonomy);
+
+				return 0;
+			}
 			$old_term_ids = $this->get_gmedia_terms($object_id, $taxonomy, array('fields' => 'ids', 'orderby' => 'none'));
 		} else{
 			$old_term_ids = array();
@@ -2830,44 +2835,46 @@ class GmediaDB{
 
 		$term_ids = array();
 		$new_term_ids = array();
-		foreach((array)$terms as $term){
-			if(!strlen(trim($term))){
-				continue;
-			}
-			if(('gmedia_album' == $taxonomy) && !$gmCore->is_digit($term)){
-				$global = get_current_user_id();
-			} else{
-				$global = false;
-			}
-			if(!$term_id = $this->term_exists($term, $taxonomy, $global)){
-				// Skip if a non-existent term ID is passed or if taxonomy is category or if user is not allowed to add new terms.
-				if($gmCore->is_digit($term) || ($append < 0) || ('gmedia_category' == $taxonomy && !array_key_exists($term, $gmGallery->options['taxonomies']['gmedia_category'])) || ('gmedia_category' != $taxonomy && !current_user_can($taxonomy . '_manage'))
-				){
+		if(!empty($terms)){
+			foreach($terms as $term){
+				if(!strlen(trim($term))){
 					continue;
 				}
-				if($global){
-					$args = array('global' => $global);
+				if(('gmedia_album' == $taxonomy) && !$gmCore->is_digit($term)){
+					$global = get_current_user_id();
 				} else{
-					$args = array();
+					$global = false;
 				}
-				$term_id = $this->insert_term($term, $taxonomy, $args);
-			}
-			if(is_wp_error($term_id)){
-				return $term_id;
-			}
-			$term_ids[] = $term_id;
+				if(!$term_id = $this->term_exists($term, $taxonomy, $global)){
+					// Skip if a non-existent term ID is passed or if taxonomy is category or if user is not allowed to add new terms.
+					if($gmCore->is_digit($term) || ($append < 0) || ('gmedia_category' == $taxonomy && !array_key_exists($term, $gmGallery->options['taxonomies']['gmedia_category'])) || ('gmedia_category' != $taxonomy && !current_user_can($taxonomy . '_manage'))
+					){
+						continue;
+					}
+					if($global){
+						$args = array('global' => $global);
+					} else{
+						$args = array();
+					}
+					$term_id = $this->insert_term($term, $taxonomy, $args);
+				}
+				if(is_wp_error($term_id)){
+					return $term_id;
+				}
+				$term_ids[] = $term_id;
 
-			if($append < 0){
-				continue;
-			}
+				if($append < 0){
+					continue;
+				}
 
-			if($wpdb->get_var($wpdb->prepare("SELECT gmedia_term_id FROM {$wpdb->prefix}gmedia_term_relationships WHERE gmedia_id = %d AND gmedia_term_id = %d", $object_id, $term_id))){
-				continue;
+				if($wpdb->get_var($wpdb->prepare("SELECT gmedia_term_id FROM {$wpdb->prefix}gmedia_term_relationships WHERE gmedia_id = %d AND gmedia_term_id = %d", $object_id, $term_id))){
+					continue;
+				}
+				do_action('add_gmedia_term_relationships', $object_id, $term_id);
+				$wpdb->insert($wpdb->prefix . 'gmedia_term_relationships', array('gmedia_id' => $object_id, 'gmedia_term_id' => $term_id));
+				do_action('added_gmedia_term_relationships', $object_id, $term_id);
+				$new_term_ids[] = $term_id;
 			}
-			do_action('add_gmedia_term_relationships', $object_id, $term_id);
-			$wpdb->insert($wpdb->prefix . 'gmedia_term_relationships', array('gmedia_id' => $object_id, 'gmedia_term_id' => $term_id));
-			do_action('added_gmedia_term_relationships', $object_id, $term_id);
-			$new_term_ids[] = $term_id;
 		}
 
 		if(!empty($new_term_ids)){

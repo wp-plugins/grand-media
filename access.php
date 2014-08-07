@@ -1,8 +1,8 @@
 <?php
-ini_set( 'display_errors', '1' );
-ini_set( 'error_reporting', E_ALL );
+ini_set('display_errors', '1');
+ini_set('error_reporting', E_ALL);
 
-if ( ! defined( 'ABSPATH' ) ){
+if(!defined('ABSPATH')){
 	die(0);
 	//@require_once(dirname(__FILE__) . '/config.php');
 }
@@ -16,11 +16,20 @@ if(!$gmedia_app){
 global $gmCore;
 $out = array();
 
-if(isset($GLOBALS['HTTP_RAW_POST_DATA'])){
+if(isset($_FILES['userfile']['name'])){
+	$globaldata = isset($_POST['account'])? $_POST['account'] : false;
+	if($globaldata){
+		$globaldata = stripslashes($globaldata);
+	}
+} else{
+	$globaldata = isset($GLOBALS['HTTP_RAW_POST_DATA'])? $GLOBALS['HTTP_RAW_POST_DATA'] : false;
+}
 
-	$json = json_decode($GLOBALS['HTTP_RAW_POST_DATA']);
+if($globaldata){
 
-	require_once(dirname(__FILE__).'/inc/json.auth.php');
+	$json = json_decode($globaldata);
+
+	require_once(dirname(__FILE__) . '/inc/json.auth.php');
 	global $gmAuth;
 	$gmAuth = new Gmedia_JSON_API_Auth_Controller();
 
@@ -32,13 +41,11 @@ if(isset($GLOBALS['HTTP_RAW_POST_DATA'])){
 				$out = gmedia_ios_app_processor('add_term', $json->add_term);
 			} elseif(isset($json->delete_term)){
 				$out = gmedia_ios_app_processor('delete_term', $json->delete_term);
-			}
-			elseif(isset($json->doLibrary)){
+			} elseif(isset($json->doLibrary)){
 				$job = gmedia_ios_app_processor('do_library', $json->doLibrary);
 				$out = gmedia_ios_app_processor('library', $json->library, false);
 				$out = array_merge($out, $job);
-			}
-			elseif(isset($json->library)){
+			} elseif(isset($json->library)){
 				$out = gmedia_ios_app_processor('library', $json->library);
 			}
 
@@ -57,7 +64,7 @@ if(isset($GLOBALS['HTTP_RAW_POST_DATA'])){
 		$out = gmedia_ios_app_library_data();
 	}
 
-} elseif( 'lostpassword' == $gmCore->_get('action') ){
+} elseif('lostpassword' == $gmCore->_get('action')){
 	if(function_exists('wp_lostpassword_url')){
 		$url = wp_lostpassword_url();
 	} else{
@@ -85,15 +92,15 @@ function gmedia_ios_app_login($json){
 			$out['error'] = array('code' => 'nopassword', 'title' => 'No Password', 'message' => 'No Password');
 			break;
 		}
-		if(! ($uid = username_exists($json->login)) ){
+		if(!($uid = username_exists($json->login))){
 			$out['error'] = array('code' => 'nouser', 'title' => 'No User', 'message' => 'No User');
 			break;
 		}
 
 		$args = array(
-			'username' => $json->login
-			,'password' => $json->password
-			,'nonce' => wp_create_nonce('auth_gmapp')
+			'username' => $json->login,
+			'password' => $json->password,
+			'nonce' => wp_create_nonce('auth_gmapp')
 		);
 		$out = $gmAuth->generate_auth_cookie($args);
 
@@ -107,39 +114,39 @@ function gmedia_ios_app_login($json){
  *
  * @return array
  */
-function gmedia_ios_app_library_data($data = array('site','authors','filter','gmedia_category','gmedia_album','gmedia_tag')){
+function gmedia_ios_app_library_data($data = array('site', 'authors', 'filter', 'gmedia_category', 'gmedia_album', 'gmedia_tag')){
 	global $user_ID, $gmCore, $gmDB, $gmGallery;
 
 	$out = array();
 
-	if ( get_option('permalink_structure') ) {
+	if(get_option('permalink_structure')){
 		$ep = $gmGallery->options['endpoint'];
-		$share_link = home_url($ep.'/$2/$1');
+		$share_link = home_url($ep . '/$2/$1');
 	} else{
 		$share_link = home_url('index.php?gmedia=$1&type=$2');
 	}
 
 	if(in_array('site', $data)){
 		$out['site'] = array(
-			'title' => get_bloginfo('name')
-			,'description' => get_bloginfo('description')
+			'title' => get_bloginfo('name'),
+			'description' => get_bloginfo('description')
 		);
 	}
 	if(in_array('authors', $data)){
 		$out['authors'] = array(
 			'data' => array()
 		);
-		if ( current_user_can('gmedia_show_others_media') || current_user_can('gmedia_edit_others_media') ){
+		if(current_user_can('gmedia_show_others_media') || current_user_can('gmedia_edit_others_media')){
 			$authors = get_users(array('who' => 'authors', 'orderby' => 'display_name'));
 			if($authors){
 				foreach($authors as $author){
-					$out['authors']['data'][] = array( 'id' => $author->ID, 'username' => $author->user_login, 'displayname' => $author->display_name);
+					$out['authors']['data'][] = array('id' => $author->ID, 'username' => $author->user_login, 'displayname' => $author->display_name);
 				}
 			}
 		} else{
 			$username = get_the_author_meta('login', $user_ID);
 			$displayname = get_the_author_meta('display_name', $user_ID);
-			$out['authors']['data'][] = array( 'id' => $user_ID, 'username' => $username, 'displayname' => $displayname);
+			$out['authors']['data'][] = array('id' => $user_ID, 'username' => $username, 'displayname' => $displayname);
 		}
 	}
 	if(in_array('filter', $data)){
@@ -154,10 +161,7 @@ function gmedia_ios_app_library_data($data = array('site','authors','filter','gm
 		}
 		*/
 		$gmediaTerms = $gmDB->get_terms('gmedia_category', array('fields' => 'name=>all'));
-		$terms = array_merge(
-			array('0' => __( 'Uncategorized', 'gmLang' )),
-			$gmGallery->options['taxonomies']['gmedia_category']
-		);
+		$terms = array_merge(array('0' => __('Uncategorized', 'gmLang')), $gmGallery->options['taxonomies']['gmedia_category']);
 		$out['categories'] = array(
 			'list' => $terms,
 			'cap' => 0,
@@ -165,13 +169,9 @@ function gmedia_ios_app_library_data($data = array('site','authors','filter','gm
 		);
 		if(!empty($gmediaTerms)){
 			foreach($gmediaTerms as $name => $term){
-				unset(
-				$gmediaTerms[$name]->description,
-				$gmediaTerms[$name]->global,
-				$gmediaTerms[$name]->status
-				);
+				unset($gmediaTerms[$name]->description, $gmediaTerms[$name]->global, $gmediaTerms[$name]->status);
 				$gmediaTerms[$name]->title = $terms[$name];
-				$gmediaTerms[$name]->sharelink = str_replace(array('$1','$2'), array($term->term_id, 'category'), $share_link);
+				$gmediaTerms[$name]->sharelink = str_replace(array('$1', '$2'), array($term->term_id, 'category'), $share_link);
 				$gmediaTerms[$name]->cap = 0;
 			}
 
@@ -186,9 +186,7 @@ function gmedia_ios_app_library_data($data = array('site','authors','filter','gm
 		}
 		$gmediaTerms = $gmDB->get_terms('gmedia_album');
 		foreach($gmediaTerms as $i => $term){
-			unset(
-			$gmediaTerms[$i]->global
-			);
+			unset($gmediaTerms[$i]->global);
 			if($term->count){
 				$args = array('no_found_rows' => true, 'per_page' => 1, 'album__in' => array($term->term_id));
 				$termItems = $gmDB->get_gmedias($args);
@@ -196,9 +194,9 @@ function gmedia_ios_app_library_data($data = array('site','authors','filter','gm
 			}
 			$term_meta = $gmDB->get_metadata('gmedia_term', $term->term_id);
 			$term_meta = array_map('reset', $term_meta);
-			$term_meta = array_merge( array('orderby' => 'ID', 'order' => 'DESC'), $term_meta);
+			$term_meta = array_merge(array('orderby' => 'ID', 'order' => 'DESC'), $term_meta);
 			$gmediaTerms[$i]->meta = $term_meta;
-			$gmediaTerms[$i]->sharelink = str_replace(array('$1','$2'), array($term->term_id, 'album'), $share_link);
+			$gmediaTerms[$i]->sharelink = str_replace(array('$1', '$2'), array($term->term_id, 'album'), $share_link);
 			$gmediaTerms[$i]->cap = (4 == $cap)? 4 : 0;
 		}
 		$out['albums'] = array(
@@ -214,12 +212,8 @@ function gmedia_ios_app_library_data($data = array('site','authors','filter','gm
 		}
 		$gmediaTerms = $gmDB->get_terms('gmedia_tag');
 		foreach($gmediaTerms as $i => $term){
-			unset(
-			$gmediaTerms[$i]->description,
-			$gmediaTerms[$i]->global,
-			$gmediaTerms[$i]->status
-			);
-			$gmediaTerms[$i]->sharelink = str_replace(array('$1','$2'), array($term->term_id, 'tag'), $share_link);
+			unset($gmediaTerms[$i]->description, $gmediaTerms[$i]->global, $gmediaTerms[$i]->status);
+			$gmediaTerms[$i]->sharelink = str_replace(array('$1', '$2'), array($term->term_id, 'tag'), $share_link);
 			$gmediaTerms[$i]->cap = (4 == $cap)? 4 : 0;
 		}
 		$out['tags'] = array(
@@ -243,66 +237,119 @@ function gmedia_ios_app_processor($action, $data, $filter = true){
 	global $gmCore, $gmDB, $gmGallery;
 
 	$out = array();
-	if ( !current_user_can('edit_posts') ){
+	if(!current_user_can('edit_posts')){
 		$out['error'] = array('code' => 'nocapability', 'title' => "You can't do this", 'message' => 'You have no permission to do this operation');
+
 		return $out;
 	}
 
 	$error = array();
 	$alert = array();
-	$data = (array) $data;
+	$data = (array)$data;
 	switch($action){
 		case 'do_library':
-			$selected = $data['selected'];
-			if(empty($selected) || !isset($data['action'])){
+			if(!isset($data['action'])){
 				return $out;
 			}
 			switch($data['action']){
+
+				case 'add_media':
+					usleep(10);
+
+					if(is_uploaded_file($_FILES['userfile']['tmp_name'])){
+						$file_name = $_FILES['userfile']['name'];
+						$file_tmp = $_FILES['userfile']['tmp_name'];
+					} else{
+						$error[] = __("Failed to move uploaded file.", 'gmLang');
+						break;
+					}
+
+					$fileinfo = $gmCore->fileinfo($file_name);
+
+					$gmedia = (array)$data['item'];
+					if(!current_user_can('gmedia_terms')){
+						unset($gmedia['categories'], $gmedia['albums'], $gmedia['tags']);
+					} else{
+						if(!empty($gmedia['categories'])){
+							$cat = $gmedia['categories'][0]->name;
+							$gmedia['terms']['gmedia_category'] = $cat;
+						}
+						if(empty($gmedia['albums'])){
+							$gmedia['terms']['gmedia_album'] = '';
+						} else{
+							$alb = isset($gmedia['albums'][0]->term_id)? $gmedia['albums'][0]->term_id : $gmedia['albums'][0]->name;
+							$gmedia['terms']['gmedia_album'] = $alb;
+						}
+						if(empty($gmedia['tags'])){
+							$gmedia['terms']['gmedia_tag'] = '';
+						} else{
+							$tags = array();
+							foreach($gmedia['tags'] as $tag){
+								$tags[] = isset($tag->term_id)? $tag->term_id : $tag->name;
+							}
+							$gmedia['terms']['gmedia_tag'] = implode(',', $tags);
+						}
+						unset($gmedia['categories'], $gmedia['albums'], $gmedia['tags']);
+					}
+					/*if(isset($gmedia['terms'])){
+						$post_data = array('terms' => $gmedia['terms']);
+					} else{
+						$post_data = array();
+					}*/
+
+					$return = $gmCore->gmedia_upload_handler($file_tmp, $fileinfo, 'multipart', $gmedia);
+					if(isset($return['error'])){
+						$error[] = $return['error']['message'];
+					} else{
+						$alert[] = $return['success']['message'];
+					}
+					break;
 
 				case 'update_media':
 					if(!current_user_can('gmedia_edit_media')){
 						$error[] = __('You are not allowed to edit media', 'gmLang');
 						break;
 					}
-					$gmedia = $data['item'];
-					if( !empty($gmedia['ID']) ){
-						$item = $gmDB->get_gmedia( $gmedia['ID'] );
-						if((int) $item->author != get_current_user_id()){
-							if ( ! current_user_can( 'gmedia_edit_others_media' ) ){
+					$gmedia = (array)$data['item'];
+					if(!empty($gmedia['ID'])){
+						$item = $gmDB->get_gmedia($gmedia['ID']);
+						if((int)$item->author != get_current_user_id()){
+							if(!current_user_can('gmedia_edit_others_media')){
 								$error[] = __('You are not allowed to edit others media', 'gmLang');
 								break;
 							}
 						}
 
-						$gmedia['modified'] = current_time( 'mysql' );
+						$gmedia['modified'] = current_time('mysql');
 						$gmedia['mime_type'] = $item->mime_type;
 						$gmedia['gmuid'] = $item->gmuid;
 
-						if (!current_user_can('gmedia_terms')){
+						if(!current_user_can('gmedia_terms')){
 							unset($gmedia['categories'], $gmedia['albums'], $gmedia['tags']);
 						} else{
 							if(!empty($gmedia['categories'])){
-								$cat = $gmedia['categories'][0]['name'];
+								$cat = $gmedia['categories'][0]->name;
 								$gmedia['terms']['gmedia_category'] = $cat;
 							}
-							if(!empty($gmedia['albums'])){
-								$alb = isset($gmedia['albums'][0]['term_id'])? $gmedia['albums'][0]['term_id'] : $gmedia['albums'][0]['name'];
+							if(empty($gmedia['albums'])){
+								$gmedia['terms']['gmedia_album'] = '';
+							} else{
+								$alb = isset($gmedia['albums'][0]->term_id)? $gmedia['albums'][0]->term_id : $gmedia['albums'][0]->name;
 								$gmedia['terms']['gmedia_album'] = $alb;
 							}
-							if(!empty($gmedia['tags'])){
+							if(empty($gmedia['tags'])){
+								$gmedia['terms']['gmedia_tag'] = '';
+							} else{
 								$tags = array();
 								foreach($gmedia['tags'] as $tag){
-									$tags[] = isset($tag['term_id'])? $tag['term_id'] : $tag['name'];
+									$tags[] = isset($tag->term_id)? $tag->term_id : $tag->name;
 								}
-								$gmedia['terms']['gmedia_album'] = implode(',', $tags);
+								$gmedia['terms']['gmedia_tag'] = implode(',', $tags);
 							}
 							unset($gmedia['categories'], $gmedia['albums'], $gmedia['tags']);
 						}
 
-						$id = $gmDB->insert_gmedia( $gmedia );
-						if (is_wp_error($id)) {
-							$error[] = $id->get_error_message();
-						}
+						$gmDB->insert_gmedia($gmedia);
 					}
 					break;
 
@@ -315,14 +362,14 @@ function gmedia_ios_app_processor($action, $data, $filter = true){
 					if(false === $term){
 						break;
 					}
-					$count = count($selected);
+					$count = count($data['selected']);
 					if('0' == $term){
-						foreach($selected as $item){
+						foreach($data['selected'] as $item){
 							$gmDB->delete_gmedia_term_relationships($item, 'gmedia_category');
 						}
 						$alert[] = sprintf(__('%d items updated with "Uncategorized"', 'gmLang'), $count);
 					} else{
-						foreach($selected as $item){
+						foreach($data['selected'] as $item){
 							$result = $gmDB->set_gmedia_terms($item, $term, 'gmedia_category', $append = 0);
 							if(is_wp_error($result)){
 								$error[] = $result;
@@ -345,17 +392,14 @@ function gmedia_ios_app_processor($action, $data, $filter = true){
 						$error[] = __('You are not allowed to manage albums', 'gmLang');
 					}
 					$term = $data['assign_album'][0];
-					if(false !== $term){
-						break;
-					}
-					$count = count($selected);
+					$count = count($data['selected']);
 					if('0' == $term){
-						foreach($selected as $item){
+						foreach($data['selected'] as $item){
 							$gmDB->delete_gmedia_term_relationships($item, 'gmedia_album');
 						}
 						$alert[] = sprintf(__('%d items updated with "No Album"', 'gmLang'), $count);
 					} else{
-						foreach($selected as $item){
+						foreach($data['selected'] as $item){
 							$result = $gmDB->set_gmedia_terms($item, $term, 'gmedia_album', $append = 0);
 							if(is_wp_error($result)){
 								$error[] = $result;
@@ -374,12 +418,17 @@ function gmedia_ios_app_processor($action, $data, $filter = true){
 					break;
 
 				case 'add_tags':
-					if(empty($data['add_tags']) || current_user_can('gmedia_terms')){
+					if(!current_user_can('gmedia_terms')){
 						$error[] = __('You are not allowed manage tags', 'gmLang');
+						break;
+					}
+					if(empty($data['add_tags'])){
+						$error[] = __('No tags provided', 'gmLang');
+						break;
 					}
 					$term = $data['add_tags'];
-					$count = count($selected);
-					foreach($selected as $item){
+					$count = count($data['selected']);
+					foreach($data['selected'] as $item){
 						$result = $gmDB->set_gmedia_terms($item, $term, 'gmedia_tag', $append = 1);
 						if(is_wp_error($result)){
 							$error[] = $result;
@@ -392,12 +441,17 @@ function gmedia_ios_app_processor($action, $data, $filter = true){
 					break;
 
 				case 'delete_tags':
-					if(!empty($data['delete_tags']) && current_user_can('gmedia_terms')){
-						$error[] = __('You are not allowed manage tags', 'gmLang');
+					if(!current_user_can('gmedia_delete_others_media')){
+						$error[] = __('You are not allowed to delete others media', 'gmLang');
+						break;
+					}
+					if(empty($data['delete_tags'])){
+						$error[] = __('No tags provided', 'gmLang');
+						break;
 					}
 					$term = array_map('intval', $data['delete_tags']);
-					$count = count($selected);
-					foreach($selected as $item){
+					$count = count($data['selected']);
+					foreach($data['selected'] as $item){
 						$result = $gmDB->set_gmedia_terms($item, $term, 'gmedia_tag', $append = -1);
 						if(is_wp_error($result)){
 							$error[] = $result;
@@ -415,10 +469,10 @@ function gmedia_ios_app_processor($action, $data, $filter = true){
 						$error[] = __('You are not allowed to delete this post.');
 						break;
 					}
-					$count = count($selected);
-					foreach($selected as $item){
+					$count = count($data['selected']);
+					foreach($data['selected'] as $item){
 						$gm_item = $gmDB->get_gmedia($item);
-						if(((int) $gm_item->author != $user_ID) && !current_user_can('gmedia_delete_others_media')){
+						if(((int)$gm_item->author != $user_ID) && !current_user_can('gmedia_delete_others_media')){
 							$error[] = "#{$item}: " . __('You are not allowed to delete media others media', 'gmLang');
 							continue;
 						}
@@ -433,14 +487,14 @@ function gmedia_ios_app_processor($action, $data, $filter = true){
 					break;
 			}
 
-			$filter = gmedia_ios_app_library_data(array('filter','gmedia_category','gmedia_album','gmedia_tag'));
+			$filter = gmedia_ios_app_library_data(array('filter', 'gmedia_category', 'gmedia_album', 'gmedia_tag'));
 			$out = array_merge($out, $filter);
 			break;
 
 		case 'library':
-			if ( get_option('permalink_structure') ) {
+			if(get_option('permalink_structure')){
 				$ep = $gmGallery->options['endpoint'];
-				$share_link = home_url($ep.'/single/');
+				$share_link = home_url($ep . '/single/');
 			} else{
 				$share_link = home_url('index.php?type=single&gmedia=');
 			}
@@ -455,7 +509,7 @@ function gmedia_ios_app_processor($action, $data, $filter = true){
 				$terms = $gmDB->get_the_gmedia_terms($item->ID, 'gmedia_tag');
 				$tags = array();
 				if($terms){
-					$terms = array_values((array) $terms);
+					$terms = array_values((array)$terms);
 					foreach($terms as $term){
 						$tags[] = array('term_id' => $term->term_id, 'name' => $term->name);
 					}
@@ -465,7 +519,7 @@ function gmedia_ios_app_processor($action, $data, $filter = true){
 				$terms = $gmDB->get_the_gmedia_terms($item->ID, 'gmedia_album');
 				$albums = array();
 				if($terms){
-					$terms = array_values((array) $terms);
+					$terms = array_values((array)$terms);
 					foreach($terms as $term){
 						$albums[] = array('term_id' => $term->term_id, 'name' => $term->name, 'status' => $term->status);
 					}
@@ -476,7 +530,7 @@ function gmedia_ios_app_processor($action, $data, $filter = true){
 					$terms = $gmDB->get_the_gmedia_terms($item->ID, 'gmedia_category');
 					$categories = array();
 					if($terms){
-						$terms = array_values((array) $terms);
+						$terms = array_values((array)$terms);
 						foreach($terms as $term){
 							$categories[] = array('term_id' => $term->term_id, 'name' => $term->name);
 						}
@@ -484,9 +538,9 @@ function gmedia_ios_app_processor($action, $data, $filter = true){
 					$gmedias[$i]->categories = $categories;
 
 					$gmedias[$i]->meta = array(
-						'thumb' => $_metadata['thumb']
-						,'web' => $_metadata['web']
-						,'original' => $_metadata['original']
+						'thumb' => $_metadata['thumb'],
+						'web' => $_metadata['web'],
+						'original' => $_metadata['original']
 					);
 					$gmedias[$i]->meta['thumb']['link'] = "{$gmCore->upload['url']}/{$gmGallery->options['folder']['image_thumb']}/{$item->gmuid}";
 					$gmedias[$i]->meta['web']['link'] = "{$gmCore->upload['url']}/{$gmGallery->options['folder']['image']}/{$item->gmuid}";
@@ -503,14 +557,14 @@ function gmedia_ios_app_processor($action, $data, $filter = true){
 				} else{
 					$gmedias[$i]->meta = array(
 						'thumb' => array(
-							'link' => $gmCore->gm_get_media_image($item, 'thumb')
-							,'width' => 300
-							,'height' => 300
+							'link' => $gmCore->gm_get_media_image($item, 'thumb'),
+							'width' => 300,
+							'height' => 300
 						)
 					);
-                    			if(!empty($_metadata)){
-					    $gmedias[$i]->meta['data'] = $_metadata;
-                    			}
+					if(!empty($_metadata)){
+						$gmedias[$i]->meta['data'] = $_metadata;
+					}
 				}
 				if(isset($meta['rating'][0])){
 					$gmedias[$i]->meta['rating'] = maybe_unserialize($meta['rating'][0]);
@@ -518,12 +572,12 @@ function gmedia_ios_app_processor($action, $data, $filter = true){
 			}
 			$out = array_merge($filter, array(
 				'properties' => array(
-					'share_link_base' => $share_link
-					,'total_pages' => $gmDB->pages
-					,'current_page' => $gmDB->openPage
-					,'items_count' => $gmDB->gmediaCount
-				)
-				,'data' => $gmedias
+					'share_link_base' => $share_link,
+					'total_pages' => $gmDB->pages,
+					'current_page' => $gmDB->openPage,
+					'items_count' => $gmDB->gmediaCount
+				),
+				'data' => $gmedias
 			));
 			break;
 		case 'delete_term':
@@ -545,11 +599,11 @@ function gmedia_ios_app_processor($action, $data, $filter = true){
 					$alert[] = sprintf(__('%d items deleted successfuly', 'gmLang'), $count);
 				}
 			}
-			$out = gmedia_ios_app_library_data(array('filter',$taxonomy));
+			$out = gmedia_ios_app_library_data(array('filter', $taxonomy));
 			break;
 		case 'add_term':
 			$taxonomy = $data['taxonomy'];
-			$edit_term = isset($data['term_id'])? (int) $data['term_id'] : 0;
+			$edit_term = isset($data['term_id'])? (int)$data['term_id'] : 0;
 			$term = $data;
 			if('gmedia_album' == $taxonomy){
 				do{
@@ -583,8 +637,8 @@ function gmedia_ios_app_processor($action, $data, $filter = true){
 					}
 
 					$term_meta = array(
-						'orderby' => $term['orderby']
-						,'order' => $term['order']
+						'orderby' => $term['orderby'],
+						'order' => $term['order']
 					);
 					foreach($term_meta as $key => $value){
 						if($edit_term){
@@ -597,35 +651,37 @@ function gmedia_ios_app_processor($action, $data, $filter = true){
 					$alert[] = sprintf(__('Album `%s` successfuly saved', 'gmLang'), $term['name']);
 
 				} while(0);
-				$out = gmedia_ios_app_library_data(array('filter',$taxonomy));
-			}
-			elseif('gmedia_tag' == $taxonomy){
+				$out = gmedia_ios_app_library_data(array('filter', $taxonomy));
+			} elseif('gmedia_tag' == $taxonomy){
 				if($edit_term){
 					$term['name'] = trim($term['name']);
 					$term['term_id'] = intval($term['term_id']);
-					if( $term['name'] && !$gmCore->is_digit($term['name']) ){
-						if ( ($term_id = $gmDB->term_exists( $term['term_id'], $taxonomy )) ) {
-							if ( !$gmDB->term_exists( $term['name'], $taxonomy )) {
-								$term_id = $gmDB->update_term( $term['term_id'], $taxonomy, $term );
-								if ( is_wp_error( $term_id ) ) {
+					if($term['name'] && !$gmCore->is_digit($term['name'])){
+						if(($term_id = $gmDB->term_exists($term['term_id'], $taxonomy))){
+							if(!$gmDB->term_exists($term['name'], $taxonomy)){
+								$term_id = $gmDB->update_term($term['term_id'], $taxonomy, $term);
+								if(is_wp_error($term_id)){
 									$error[] = $term_id->get_error_message();
 								} else{
-									$alert[] = sprintf( __( "Tag %d successfuly updated", 'gmLang' ), $term_id );
+									$alert[] = sprintf(__("Tag %d successfuly updated", 'gmLang'), $term_id);
 								}
 							} else{
 								$error[] = __('A term with the name provided already exists', 'gmLang');
 							}
 						} else{
-							$error[] = __( "A term with the id provided do not exists", 'gmLang' );
+							$error[] = __("A term with the id provided do not exists", 'gmLang');
 						}
 					} else{
-						$error[] = __( "Term name can't be only digits or empty", 'gmLang' );
+						$error[] = __("Term name can't be only digits or empty", 'gmLang');
 					}
 				} else{
 					$terms = array_filter(array_map('trim', explode(',', $term['name'])));
-					$terms_added = 0; $terms_qty = count($terms);
+					$terms_added = 0;
+					$terms_qty = count($terms);
 					foreach($terms as $term_name){
-						if($gmCore->is_digit($term_name)){ continue; }
+						if($gmCore->is_digit($term_name)){
+							continue;
+						}
 
 						if(!$gmDB->term_exists($term_name, $taxonomy)){
 							$term_id = $gmDB->insert_term($term_name, $taxonomy);
@@ -639,7 +695,7 @@ function gmedia_ios_app_processor($action, $data, $filter = true){
 						}
 					}
 				}
-				$out = gmedia_ios_app_library_data(array('filter',$taxonomy));
+				$out = gmedia_ios_app_library_data(array('filter', $taxonomy));
 			}
 
 			break;
@@ -657,7 +713,7 @@ function gmedia_ios_app_processor($action, $data, $filter = true){
 	return $out;
 }
 
-header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
+header('Content-Type: application/json; charset=' . get_option('blog_charset'), true);
 echo json_encode($out);
 
 /*if(isset($_GET['test'])){
