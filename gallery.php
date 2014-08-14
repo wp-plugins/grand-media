@@ -101,7 +101,7 @@ if($gmedia){
 		<?php echo $styles; ?>
 	</style>
 	<?php
-	wp_enqueue_scripts();
+	//wp_enqueue_scripts();
 	$wp_styles->queue = array();
 	$wp_scripts->queue = array();
 

@@ -371,7 +371,7 @@ function gmediaLib(){
 								}
 								$terms_category = join(', ', $terms_category);
 							} else{
-								$terms_category = sprintf('<a class="category" href="%s">%s</a>', esc_url(add_query_arg(array('cat' => 0), $url)), __('Uncategorized'));
+								$terms_category = sprintf('<a class="category" href="%s">%s</a>', esc_url(add_query_arg(array('cat' => 0), $url)), __('Uncategorized', 'gmLang'));
 							}
 							echo $terms_category;
 						} ?>

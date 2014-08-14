@@ -167,6 +167,9 @@ if(!class_exists('Gmedia')){
 
 			require_once(dirname(__FILE__) . '/update.php');
 			if((null !== $current_db_version) && version_compare($current_db_version, GMEDIA_DBVERSION, '<')){
+				require_once(dirname(__FILE__) . '/setup.php');
+				gmedia_capabilities();
+
 				if(isset($_GET['do_update']) && ('gmedia' == $_GET['do_update'])){
 					add_action('admin_notices', 'gmedia_wait_admin_notice');
 				} else{
