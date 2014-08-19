@@ -333,8 +333,8 @@ function gmedit_restore(){
 	die();
 }
 
-add_action('wp_ajax_gmedia_terms_modal', 'gmedia_terms_modal');
-function gmedia_terms_modal(){
+add_action('wp_ajax_gmedia_get_modal', 'gmedia_get_modal');
+function gmedia_get_modal(){
 	global $gmDB, $gmCore, $gmGallery;
 	check_ajax_referer("GmediaGallery");
 	$user_ID = get_current_user_id();
@@ -397,6 +397,13 @@ function gmedia_terms_modal(){
 			} else{
 				$modal_button = false;
 			}
+			break;
+		case 'batch_edit':
+			if(!current_user_can('gmedia_edit_media')){
+				die('-1');
+			}
+			$modal_title = __('Batch Edit', 'gmLang');
+			$modal_button = __('Batch Save', 'gmLang');
 			break;
 		default:
 			$modal_title = ' ';
@@ -702,7 +709,6 @@ function gmedia_terms_modal(){
 			}
 			break;
 		case 'filter_authors':
-			global $user_ID;
 			if($gmCore->caps['gmedia_show_others_media']){
 				?>
 				<div class="form-group">
@@ -729,6 +735,67 @@ function gmedia_terms_modal(){
 				echo '<p><strong>' . get_the_author_meta('display_name', $user_ID) . '</strong></p>';
 			}
 			break;
+		case 'batch_edit':
+			?>
+			<p><?php _e('Note, data will be saved to all selected items in Gmedia Library.') ?></p>
+			<div class="form-group">
+				<label><?php _e('Title', 'gmLang'); ?></label>
+				<select class="form-control input-sm batch_set" name="batch_title">
+					<option value="skip"><?php _e('Skip. Do not change', 'gmLang'); ?></option>
+					<option value="empty"><?php _e('Empty Title', 'gmLang'); ?></option>
+					<option value="filename"><?php _e('From Filename', 'gmLang'); ?></option>
+					<option value="custom"><?php _e('Custom', 'gmLang'); ?></option>
+				</select>
+				<input class="form-control input-sm batch_set_custom" style="margin-top:5px;display:none;" name="batch_title_custom" value="" placeholder="<?php _e('Enter custom title here'); ?>" />
+			</div>
+			<div class="form-group">
+				<label><?php _e('Set Description', 'gmLang'); ?></label>
+				<select class="form-control input-sm batch_set" name="batch_description">
+					<option value="skip"><?php _e('Skip. Do not change', 'gmLang'); ?></option>
+					<option value="empty"><?php _e('Empty Description', 'gmLang'); ?></option>
+					<option value="custom"><?php _e('Custom', 'gmLang'); ?></option>
+				</select>
+				<textarea class="form-control input-sm batch_set_custom" style="margin-top:5px;display:none;" cols="30" rows="3" name="batch_description_custom" placeholder="<?php _e('Enter description here'); ?>"></textarea>
+			</div>
+			<div class="form-group">
+				<label><?php _e('Set Link', 'gmLang'); ?></label>
+				<select class="form-control input-sm batch_set" name="batch_link">
+					<option value="skip"><?php _e('Skip. Do not change', 'gmLang'); ?></option>
+					<option value="empty"><?php _e('Empty Link', 'gmLang'); ?></option>
+					<option value="self"><?php _e('Link to original file', 'gmLang'); ?></option>
+					<option value="custom"><?php _e('Custom', 'gmLang'); ?></option>
+				</select>
+				<input class="form-control input-sm batch_set_custom" style="margin-top:5px;display:none;" name="batch_link_custom" value="" placeholder="<?php _e('Enter url here'); ?>" />
+			</div>
+			<?php $user_ids = $gmCore->get_editable_user_ids();
+			if($user_ids){
+				?>
+				<div class="form-group">
+					<label><?php _e('Set Author', 'gmLang'); ?></label>
+					<?php wp_dropdown_users(array(
+							'show_option_none' => __('Skip. Do not change', 'gmLang'),
+							'include' => $user_ids,
+							'include_selected' => true,
+							'name' => 'batch_author',
+							'selected' => -1,
+							'class' => 'input-sm form-control'
+						));
+					?>
+				</div>
+			<?php } ?>
+			<script type="text/javascript">
+				jQuery(function($){
+					$('select.batch_set').change(function(){
+						if('custom' == $(this).val()){
+							$(this).next().css({display:'block'});
+						} else{
+							$(this).next().css({display:'none'});
+						}
+					});
+				});
+			</script>
+			<?php
+			break;
 		default:
 			_e('Ops! Something wrong.', 'gmLang');
 			break;
@@ -739,7 +806,9 @@ function gmedia_terms_modal(){
 		<button type="button" class="btn btn-default" data-dismiss="modal"><?php _e('Cancel', 'gmLang'); ?></button>
 		<?php if($modal_button){ ?>
 			<button type="submit" name="<?php echo $modal; ?>" class="btn <?php echo $button_class; ?>"><?php echo $modal_button; ?></button>
-		<?php } ?>
+		<?php }
+		wp_nonce_field('gmedia_modal');
+		?>
 	</div>
 	</form><!-- /.modal-content -->
 	<?php

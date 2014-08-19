@@ -105,6 +105,12 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 
 == Changelog ==
 
+= 1.2.3 =
+* Added Batch Edit in Gmedia Library
+* Fixed bugs with multiauthor usage
+* Fixed update from old versions
+* Fixed compatibility with Visual Composer plugin
+
 = 1.2.2 =
 * Fixed Music Player in Chrome > v35
 * Updated jPlayer script

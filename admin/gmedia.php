@@ -73,7 +73,7 @@ function gmediaLib(){
 	<?php if(!empty($author)){ ?>
 		<div class="library-author alert alert-info">
 			<strong><?php _e('Selected Author:', 'gmLang'); ?></strong>
-			<a href="#termsModal" data-modal="filter_authors" data-action="gmedia_terms_modal" class="gmedia-modal"><?php echo get_the_author_meta('display_name', $author); ?></a>
+			<a href="#libModal" data-modal="filter_authors" data-action="gmedia_get_modal" class="gmedia-modal"><?php echo get_the_author_meta('display_name', $author); ?></a>
 		</div>
 	<?php } ?>
 	<div class="panel panel-default" id="gmedia-panel">
@@ -126,7 +126,7 @@ function gmediaLib(){
 				<ul class="dropdown-menu" role="menu">
 					<li role="presentation" class="dropdown-header"><?php _e('FILTER BY AUTHOR', 'gmLang'); ?></li>
 					<li class="gmedia_author">
-						<a href="#termsModal" data-modal="filter_authors" data-action="gmedia_terms_modal" class="gmedia-modal"><?php if(!empty($author)){
+						<a href="#libModal" data-modal="filter_authors" data-action="gmedia_get_modal" class="gmedia-modal"><?php if(!empty($author)){
 								echo get_the_author_meta('display_name', $author);
 							} else{
 								_e('Show all authors', 'gmLang');
@@ -169,14 +169,14 @@ function gmediaLib(){
 					<li class="filter_categories<?php if(isset($gmDB->filter_tax['gmedia_category'])){
 						echo ' active';
 					} ?>">
-						<a href="#termsModal" data-modal="filter_categories" data-action="gmedia_terms_modal" class="gmedia-modal"><?php _e('Categories', 'gmLang'); ?></a>
+						<a href="#libModal" data-modal="filter_categories" data-action="gmedia_get_modal" class="gmedia-modal"><?php _e('Categories', 'gmLang'); ?></a>
 					</li>
 					<li class="filter_albums<?php if(isset($gmDB->filter_tax['gmedia_album'])){
 						echo ' active';
-					} ?>"><a href="#termsModal" data-modal="filter_albums" data-action="gmedia_terms_modal" class="gmedia-modal"><?php _e('Albums', 'gmLang'); ?></a></li>
+					} ?>"><a href="#libModal" data-modal="filter_albums" data-action="gmedia_get_modal" class="gmedia-modal"><?php _e('Albums', 'gmLang'); ?></a></li>
 					<li class="filter_tags<?php if(isset($gmDB->filter_tax['gmedia_tag'])){
 						echo ' active';
-					} ?>"><a href="#termsModal" data-modal="filter_tags" data-action="gmedia_terms_modal" class="gmedia-modal"><?php _e('Tags', 'gmLang'); ?></a></li>
+					} ?>"><a href="#libModal" data-modal="filter_tags" data-action="gmedia_get_modal" class="gmedia-modal"><?php _e('Tags', 'gmLang'); ?></a></li>
 					<?php do_action('gmedia_filter_list'); ?>
 				</ul>
 			</div>
@@ -208,36 +208,42 @@ function gmediaLib(){
 							echo 'disabled';
 						} ?>"><a class="edit-mode-link" href="<?php echo $edit_mode_href; ?>" <?php echo $edit_mode_data; ?>><?php _e('Enter Edit Mode', 'gmLang'); ?></a>
 						</li>
+						<li class="<?php echo $rel_selected_show;
+						if(!$gmCore->caps['gmedia_edit_media']){
+							echo ' disabled';
+						} ?>">
+							<a href="#libModal" data-modal="batch_edit" data-action="gmedia_get_modal" class="gmedia-modal"><?php _e('Batch Edit', 'gmLang'); ?></a>
+						</li>
 
 						<li class="divider"></li>
 						<li class="<?php echo $rel_selected_show;
 						if(!$gmCore->caps['gmedia_gallery_manage']){
 							echo ' disabled';
 						} ?>">
-							<a href="#termsModal" data-modal="quick_gallery" data-action="gmedia_terms_modal" class="gmedia-modal"><?php _e('Quick Gallery from Selected', 'gmLang'); ?></a>
+							<a href="#libModal" data-modal="quick_gallery" data-action="gmedia_get_modal" class="gmedia-modal"><?php _e('Quick Gallery from Selected', 'gmLang'); ?></a>
 						</li>
 						<li class="<?php echo $rel_selected_show;
 						if(!$gmCore->caps['gmedia_terms']){
 							echo ' disabled';
 						} ?>">
-							<a href="#termsModal" data-modal="assign_category" data-action="gmedia_terms_modal" class="gmedia-modal"><?php _e('Assign Category...', 'gmLang'); ?></a>
+							<a href="#libModal" data-modal="assign_category" data-action="gmedia_get_modal" class="gmedia-modal"><?php _e('Assign Category...', 'gmLang'); ?></a>
 						</li>
 						<li class="<?php echo $rel_selected_show;
 						if(!$gmCore->caps['gmedia_terms']){
 							echo ' disabled';
 						} ?>">
-							<a href="#termsModal" data-modal="assign_album" data-action="gmedia_terms_modal" class="gmedia-modal"><?php _e('Move to Album...', 'gmLang'); ?></a>
+							<a href="#libModal" data-modal="assign_album" data-action="gmedia_get_modal" class="gmedia-modal"><?php _e('Move to Album...', 'gmLang'); ?></a>
 						</li>
 						<li class="<?php echo $rel_selected_show;
 						if(!$gmCore->caps['gmedia_terms']){
 							echo ' disabled';
-						} ?>"><a href="#termsModal" data-modal="add_tags" data-action="gmedia_terms_modal" class="gmedia-modal"><?php _e('Add Tags...', 'gmLang'); ?></a>
+						} ?>"><a href="#libModal" data-modal="add_tags" data-action="gmedia_get_modal" class="gmedia-modal"><?php _e('Add Tags...', 'gmLang'); ?></a>
 						</li>
 						<li class="<?php echo $rel_selected_show;
 						if(!$gmCore->caps['gmedia_terms']){
 							echo ' disabled';
 						} ?>">
-							<a href="#termsModal" data-modal="delete_tags" data-action="gmedia_terms_modal" class="gmedia-modal"><?php _e('Delete Tags...', 'gmLang'); ?></a>
+							<a href="#libModal" data-modal="delete_tags" data-action="gmedia_get_modal" class="gmedia-modal"><?php _e('Delete Tags...', 'gmLang'); ?></a>
 						</li>
 						<li class="<?php echo $rel_selected_show;
 						if(!$gmCore->caps['gmedia_delete_media']){
@@ -285,7 +291,7 @@ function gmediaLib(){
 					<li class="<?php if(!$gmCore->caps['gmedia_gallery_manage']){
 						echo 'disabled';
 					} ?>">
-						<a href="#termsModal" data-modal="quick_gallery" data-action="gmedia_terms_modal" class="gmedia-modal"><?php _e('Quick Gallery from Selected', 'gmLang'); ?></a>
+						<a href="#libModal" data-modal="quick_gallery" data-action="gmedia_get_modal" class="gmedia-modal"><?php _e('Quick Gallery from Selected', 'gmLang'); ?></a>
 					</li>
 				</ul>
 			</form>
@@ -823,7 +829,7 @@ function gmediaLib(){
 	?>
 	</div>
 
-	<div class="modal fade gmedia-modal" id="termsModal" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal fade gmedia-modal" id="libModal" tabindex="-1" role="dialog" aria-hidden="true">
 		<div class="modal-dialog"></div>
 	</div>
 	<?php if($gmCore->caps['gmedia_edit_media']){ ?>

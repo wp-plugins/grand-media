@@ -91,6 +91,7 @@ class GmediaProcessor{
 					wp_die(__('You are not allowed to be here', 'gmLang'));
 				}
 				if(isset($_POST['quick_gallery'])){
+					check_admin_referer('gmedia_modal');
 					do{
 						if(!$gmCore->caps['gmedia_gallery_manage']){
 							$this->error[] = __('You are not allowed to manage galleries', 'gmLang');
@@ -159,9 +160,10 @@ class GmediaProcessor{
 				}
 				if(!empty($this->selected_items)){
 					if(isset($_POST['assign_category'])){
+						check_admin_referer('gmedia_modal');
 						if($gmCore->caps['gmedia_terms']){
 							if(!$gmCore->caps['gmedia_edit_others_media']){
-								$selected_items = $gmDB->get_gmedias(array('author' => $user_ID, 'gmedia__in' => $this->selected_items));
+								$selected_items = $gmDB->get_gmedias(array('fields' => 'ids', 'author' => $user_ID, 'gmedia__in' => $this->selected_items));
 								if(count($selected_items) < count($this->selected_items)){
 									$this->error[] = __('You are not allowed to edit others media', 'gmLang');
 								}
@@ -198,9 +200,10 @@ class GmediaProcessor{
 						}
 					}
 					if(isset($_POST['assign_album'])){
+						check_admin_referer('gmedia_modal');
 						if($gmCore->caps['gmedia_terms']){
 							if(!$gmCore->caps['gmedia_edit_others_media']){
-								$selected_items = $gmDB->get_gmedias(array('author' => $user_ID, 'gmedia__in' => $this->selected_items));
+								$selected_items = $gmDB->get_gmedias(array('fields' => 'ids', 'author' => $user_ID, 'gmedia__in' => $this->selected_items));
 								if(count($selected_items) < count($this->selected_items)){
 									$this->error[] = __('You are not allowed to edit others media', 'gmLang');
 								}
@@ -237,9 +240,10 @@ class GmediaProcessor{
 						}
 					}
 					if(isset($_POST['add_tags'])){
+						check_admin_referer('gmedia_modal');
 						if(($term = $gmCore->_post('tag_names')) && $gmCore->caps['gmedia_terms']){
 							if(!$gmCore->caps['gmedia_edit_others_media']){
-								$selected_items = $gmDB->get_gmedias(array('author' => $user_ID, 'gmedia__in' => $this->selected_items));
+								$selected_items = $gmDB->get_gmedias(array('fields' => 'ids', 'author' => $user_ID, 'gmedia__in' => $this->selected_items));
 								if(count($selected_items) < count($this->selected_items)){
 									$this->error[] = __('You are not allowed to edit others media', 'gmLang');
 								}
@@ -264,9 +268,10 @@ class GmediaProcessor{
 						}
 					}
 					if(isset($_POST['delete_tags'])){
+						check_admin_referer('gmedia_modal');
 						if(($term = $gmCore->_post('tag_id')) && $gmCore->caps['gmedia_terms']){
 							if(!$gmCore->caps['gmedia_edit_others_media']){
-								$selected_items = $gmDB->get_gmedias(array('author' => $user_ID, 'gmedia__in' => $this->selected_items));
+								$selected_items = $gmDB->get_gmedias(array('fields' => 'ids', 'author' => $user_ID, 'gmedia__in' => $this->selected_items));
 								if(count($selected_items) < count($this->selected_items)){
 									$this->error[] = __('You are not allowed to edit others media', 'gmLang');
 								}
@@ -288,6 +293,80 @@ class GmediaProcessor{
 							}
 						} else{
 							$this->error[] = __('You are not allowed to assign terms', 'gmLang');
+						}
+					}
+					if(isset($_POST['batch_edit'])){
+						check_admin_referer('gmedia_modal');
+						if($gmCore->caps['gmedia_edit_media']){
+							if(!$gmCore->caps['gmedia_edit_others_media']){
+								$selected_items = $gmDB->get_gmedias(array('fields' => 'ids', 'author' => $user_ID, 'gmedia__in' => $this->selected_items));
+								if(count($selected_items) < count($this->selected_items)){
+									$this->error[] = __('You are not allowed to edit others media', 'gmLang');
+								}
+							} else{
+								$selected_items = $this->selected_items;
+							}
+							if(($count = count($selected_items))){
+								$batch_data = array();
+								$batch_data['modified'] = current_time('mysql');
+								$b_title = $gmCore->_post('batch_title');
+								$b_description = $gmCore->_post('batch_description');
+								$b_link = $gmCore->_post('batch_link');
+								$b_author = $gmCore->_post('batch_author');
+								if($b_author){
+									$batch_data['author'] = $b_author;
+								}
+								foreach($selected_items as $item){
+									$id = (int)$item;
+									$gmedia = $gmDB->get_gmedia($id, ARRAY_A);
+									switch($b_title){
+										case 'empty':
+											$batch_data['title'] = '';
+											break;
+										case 'filename':
+											$title = pathinfo($gmedia['gmuid'], PATHINFO_FILENAME);
+											$batch_data['title'] = ucwords(str_replace('_', ' ', $title));
+											break;
+										case 'custom':
+											$title_custom = $gmCore->_post('batch_title_custom');
+											if(false !== $title_custom){
+												$batch_data['title'] = $title_custom;
+											}
+											break;
+									}
+									switch($b_description){
+										case 'empty':
+											$batch_data['description'] = '';
+											break;
+										case 'custom':
+											$description_custom = $gmCore->_post('batch_description_custom');
+											if(false !== $description_custom){
+												$batch_data['description'] = $description_custom;
+											}
+											break;
+									}
+									switch($b_link){
+										case 'empty':
+											$batch_data['link'] = '';
+											break;
+										case 'self':
+											$fileinfo = $gmCore->fileinfo($gmedia['gmuid'], false);
+											$batch_data['link'] = $fileinfo['fileurl_original'];
+											break;
+										case 'custom':
+											$link_custom = $gmCore->_post('batch_title_custom');
+											if(false !== $link_custom){
+												$batch_data['link'] = $link_custom;
+											}
+											break;
+									}
+									$gmedia_data = array_replace($gmedia, $batch_data);
+									$gmDB->insert_gmedia($gmedia_data);
+								}
+								$this->msg[] = sprintf(__('%d items updated successfuly', 'gmLang'), $count);
+							}
+						} else{
+							$this->error[] = __('You are not allowed to edit media', 'gmLang');
 						}
 					}
 					if('selected' == $gmCore->_get('update_meta')){

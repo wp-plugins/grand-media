@@ -513,7 +513,7 @@ function gmediaGalleryEdit(){
 
 					<p><b><?php _e('Gallery author:', 'gmLang'); ?></b>
 						<?php if($gmCore->caps['gmedia_edit_others_media']){ ?>
-							<a href="#termsModal" data-modal="filter_authors" data-action="gmedia_terms_modal" class="gmedia-modal" title="<?php _e('Click to choose author for gallery', 'gmLang'); ?>"><?php echo $gallery['global']? get_the_author_meta('display_name', $gallery['global']) : __('(no author / shared albums)'); ?></a>
+							<a href="#gallModal" data-modal="filter_authors" data-action="gmedia_get_modal" class="gmedia-modal" title="<?php _e('Click to choose author for gallery', 'gmLang'); ?>"><?php echo $gallery['global']? get_the_author_meta('display_name', $gallery['global']) : __('(no author / shared albums)'); ?></a>
 							<?php if($author_new){
 								echo '<br /><span class="text-danger">' . __('Note: Author changed but not saved yet. You can see Albums list only of chosen author') . '</span>';
 							} ?>
@@ -846,7 +846,7 @@ function gmediaGalleryEdit(){
 
 	<!-- Modal -->
 	<?php if($gmCore->caps['gmedia_edit_others_media']){ ?>
-		<div class="modal fade gmedia-modal" id="termsModal" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal fade gmedia-modal" id="gallModal" tabindex="-1" role="dialog" aria-hidden="true">
 			<div class="modal-dialog"></div>
 		</div>
 	<?php } ?>

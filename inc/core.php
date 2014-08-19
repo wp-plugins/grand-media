@@ -330,6 +330,7 @@ class GmediaCore{
 		$fileinfo['dirurl'] = $this->upload['url'] . '/' . $gmGallery->options['folder'][$dirname];
 		$fileinfo['filepath'] = $fileinfo['dirpath'] . '/' . $fileinfo['basename'];
 		$fileinfo['fileurl'] = $fileinfo['dirurl'] . '/' . $fileinfo['basename'];
+		$fileinfo['fileurl_original'] = $fileinfo['dirurl'] . '/' . $fileinfo['basename'];
 		if('image' == $dirname){
 			$fileinfo['dirpath_original'] = $this->upload['path'] . '/' . $gmGallery->options['folder']['image_original'];
 			$fileinfo['dirurl_original'] = $this->upload['url'] . '/' . $gmGallery->options['folder']['image_original'];

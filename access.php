@@ -545,6 +545,8 @@ function gmedia_ios_app_processor($action, $data, $filter = true){
 					$gmedias[$i]->meta['thumb']['link'] = "{$gmCore->upload['url']}/{$gmGallery->options['folder']['image_thumb']}/{$item->gmuid}";
 					$gmedias[$i]->meta['web']['link'] = "{$gmCore->upload['url']}/{$gmGallery->options['folder']['image']}/{$item->gmuid}";
 					$gmedias[$i]->meta['original']['link'] = "{$gmCore->upload['url']}/{$gmGallery->options['folder']['image_original']}/{$item->gmuid}";
+					$gmedias[$i]->meta['views'] = 0;
+					$gmedias[$i]->meta['likes'] = 0;
 					if(isset($meta['views'][0])){
 						$gmedias[$i]->meta['views'] = $meta['views'][0];
 					}
