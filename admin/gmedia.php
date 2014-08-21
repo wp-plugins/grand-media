@@ -438,6 +438,7 @@ function gmediaLib(){
 						}
 						if(($gmCore->caps['gmedia_delete_media'] && ((int)$item->author == get_current_user_id())) || $gmCore->caps['gmedia_delete_others_media']){
 							$media_action_links[] = '<a class="text-danger" href="' . wp_nonce_url($gmCore->get_admin_url(array('delete' => $item->ID)), 'gmedia_delete') . '" data-confirm="' . sprintf(__("You are about to permanently delete %s file.\n\r'Cancel' to stop, 'OK' to delete.", "gmLang"), $item->gmuid) . '">' . __('Delete', 'gmLang') . '</a>';
+							$media_action_links[] = '<a class="text-danger" href="' . wp_nonce_url($gmCore->get_admin_url(array('delete' => $item->ID, 'save_original_file' => 1)), 'gmedia_delete') . '" data-confirm="' . sprintf(__("You are about to delete record from DB for %s file.\n\r'Cancel' to stop, 'OK' to delete.", "gmLang"), $item->gmuid) . '">' . __('Delete DB record (leave file on the server)', 'gmLang') . '</a>';
 						}
 						echo implode(' | ', $media_action_links);
 						?>

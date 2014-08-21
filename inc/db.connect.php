@@ -453,10 +453,11 @@ class GmediaDB{
 	 * @uses do_action() Calls 'delete_gmedia' hook on gmedia ID.
 	 *
 	 * @param int $gmedia_id Gmedia ID.
+	 * @param bool $delete_original_file delete oroginal image?
 	 *
 	 * @return mixed False on failure. Gmedia data on success.
 	 */
-	function delete_gmedia($gmedia_id){
+	function delete_gmedia($gmedia_id, $delete_original_file = true){
 		/** @var $wpdb wpdb */
 		global $wpdb, $gmGallery, $gmCore;
 
@@ -502,19 +503,23 @@ class GmediaDB{
 		if('image' == $type){
 			$folders = array(
 				$gmGallery->options['folder']['image'],
-				$gmGallery->options['folder']['image_thumb'],
-				$gmGallery->options['folder']['image_original']
+				$gmGallery->options['folder']['image_thumb']
 			);
+			if($delete_original_file){
+				$folders[] = $gmGallery->options['folder']['image_original'];
+			}
 			foreach($folders as $dir){
 				$file = apply_filters('gm_delete_file', $gmCore->upload['path'] . '/' . $dir . '/' . $gmedia->gmuid);
 				@unlink($file);
 			}
 		} else{
-			$dir = $gmCore->upload['path'] . '/' . $gmGallery->options['folder'][$type];
+			if($delete_original_file){
+				$dir = $gmCore->upload['path'] . '/' . $gmGallery->options['folder'][$type];
 
-			$filepath = $dir . '/' . $gmedia->gmuid;
-			$file = apply_filters('gm_delete_file', $filepath);
-			@unlink($file);
+				$filepath = $dir . '/' . $gmedia->gmuid;
+				$file = apply_filters('gm_delete_file', $filepath);
+				@unlink($file);
+			}
 
 			/*
 			$files = glob( $filepath . '*', GLOB_NOSORT);

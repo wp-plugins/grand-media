@@ -282,13 +282,20 @@ flush();
 				$fullpath = ABSPATH . trailingslashit($path);
 				$files = glob($fullpath . '?*.?*', GLOB_NOSORT);
 				if(!empty($files)){
+					$allowed_ext = get_allowed_mime_types();
+					$allowed_ext = array_keys($allowed_ext);
+					$allowed_ext = implode('|', $allowed_ext);
+					$allowed_ext = explode('|', $allowed_ext);
 					if((GMEDIA_UPLOAD_FOLDER == basename(dirname(dirname($path)))) || (GMEDIA_UPLOAD_FOLDER == basename(dirname($path)))){
 						global $wpdb;
 						$gmedias = $wpdb->get_col("SELECT gmuid FROM {$wpdb->prefix}gmedia");
 						foreach($files as $i => $filepath){
 							$gmuid = basename($filepath);
 							if(in_array($gmuid, $gmedias)){
-								unset($files[$i]);
+								$fileinfo = $gmCore->fileinfo($gmuid, false);
+								if(!(('image' == $fileinfo['dirname']) && !file_exists($fileinfo['filepath']))){
+									unset($files[$i]);
+								}
 							}
 						}
 						$move = false;
@@ -296,6 +303,12 @@ flush();
 					} else{
 						$move = $gmCore->_post('delete_source');
 						$exists = 0;
+					}
+					foreach($files as $i => $filepath){
+						$ext = pathinfo($filepath, PATHINFO_EXTENSION);
+						if(!in_array($ext, $allowed_ext)){
+							unset($files[$i]);
+						}
 					}
 					gmedia_import_files($files, $terms, $move, $exists);
 				} else{

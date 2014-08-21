@@ -402,14 +402,19 @@ class GmediaProcessor{
 								$selected_items = $delete_items;
 							}
 							if(($count = count($selected_items))){
+								$delete_original_file = intval($gmCore->_get('save_original_file'))? false : true;
 								foreach($selected_items as $item){
-									if(!$gmDB->delete_gmedia((int)$item)){
+									if(!$gmDB->delete_gmedia((int)$item, $delete_original_file)){
 										$this->error[] = "#{$item}: " . __('Error in deleting...', 'gmLang');
 										$count--;
 									}
 								}
 								if($count){
-									$this->msg[] = sprintf(__('%d items deleted successfuly', 'gmLang'), $count);
+									if($delete_original_file){
+										$this->msg[] = sprintf(__('%d item(s) deleted successfuly', 'gmLang'), $count);
+									} else{
+										$this->msg[] = sprintf(__('%d record(s) deleted from database successfuly. Original file(s) safe', 'gmLang'), $count);
+									}
 								}
 								$this->selected_items = array_diff($this->selected_items, $selected_items);
 								if(empty($this->selected_items)){
