@@ -124,6 +124,8 @@ function gmedit_save(){
 				break;
 			}
 
+			$webis = false;
+			$thumbis = false;
 			// Web-image
 			if('web' == $applyto || 'original' == $applyto){
 				$webimg['resize'] = (($webimg['width'] < $size[0]) || ($webimg['height'] < $size[1]))? true : false;
@@ -136,13 +138,17 @@ function gmedit_save(){
 						$fail = $fileinfo['basename'] . " (" . $resized->get_error_code() . " | editor->resize->webimage({$webimg['width']}, {$webimg['height']}, {$webimg['crop']})): " . $resized->get_error_message();
 						break;
 					}
-
-					rename($fileinfo['filepath'], $fileinfo['filepath'] . '.tmp');
+					if(file_exists($fileinfo['filepath'])){
+						$webis = true;
+						rename($fileinfo['filepath'], $fileinfo['filepath'] . '.tmp');
+					}
 					$saved = $editor->save($fileinfo['filepath']);
 					if(is_wp_error($saved)){
 						@unlink($fileinfo['filepath_original']);
 						rename($fileinfo['filepath_original'] . '.tmp', $fileinfo['filepath_original']);
-						rename($fileinfo['filepath'] . '.tmp', $fileinfo['filepath']);
+						if($webis){
+							rename($fileinfo['filepath'] . '.tmp', $fileinfo['filepath']);
+						}
 						$fail = $fileinfo['basename'] . " (" . $saved->get_error_code() . " | editor->save->webimage): " . $saved->get_error_message();
 						break;
 					}
@@ -159,20 +165,29 @@ function gmedit_save(){
 				if(is_wp_error($resized)){
 					@unlink($fileinfo['filepath_original']);
 					rename($fileinfo['filepath_original'] . '.tmp', $fileinfo['filepath_original']);
-					@unlink($fileinfo['filepath']);
-					rename($fileinfo['filepath'] . '.tmp', $fileinfo['filepath']);
+					if($webis){
+						@unlink($fileinfo['filepath']);
+						rename($fileinfo['filepath'] . '.tmp', $fileinfo['filepath']);
+					}
 					$fail = $fileinfo['basename'] . " (" . $resized->get_error_code() . " | editor->resize->thumb({$thumbimg['width']}, {$thumbimg['height']}, {$thumbimg['crop']})): " . $resized->get_error_message();
 					break;
 				}
 
-				rename($fileinfo['filepath_thumb'], $fileinfo['filepath_thumb'] . '.tmp');
+				if(file_exists($fileinfo['filepath_thumb'])){
+					$thumbis = true;
+					rename($fileinfo['filepath_thumb'], $fileinfo['filepath_thumb'] . '.tmp');
+				}
 				$saved = $editor->save($fileinfo['filepath_thumb']);
 				if(is_wp_error($saved)){
 					@unlink($fileinfo['filepath_original']);
 					rename($fileinfo['filepath_original'] . '.tmp', $fileinfo['filepath_original']);
-					@unlink($fileinfo['filepath']);
-					rename($fileinfo['filepath'] . '.tmp', $fileinfo['filepath']);
-					rename($fileinfo['filepath_thumb'] . '.tmp', $fileinfo['filepath_thumb']);
+					if($webis){
+						@unlink($fileinfo['filepath']);
+						rename($fileinfo['filepath'] . '.tmp', $fileinfo['filepath']);
+					}
+					if($thumbis){
+						rename($fileinfo['filepath_thumb'] . '.tmp', $fileinfo['filepath_thumb']);
+					}
 					$fail = $fileinfo['basename'] . " (" . $saved->get_error_code() . " | editor->save->thumb): " . $saved->get_error_message();
 					break;
 				}

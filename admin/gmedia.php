@@ -771,9 +771,9 @@ function gmediaLib(){
 				<?php } ?>
 
 				var gmedia_date_temp;
-				$('.input-group.date').datetimepicker({useSeconds: true}).on('dp.show',function(e){
+				$('.input-group.date').datetimepicker({useSeconds: true}).on('dp.show',function(){
 					gmedia_date_temp = $('input', this).val();
-				}).on('dp.hide', function(e){
+				}).on('dp.hide', function(){
 					if(gmedia_date_temp != $('input', this).val()){
 						$('input', this).trigger('change');
 					}
