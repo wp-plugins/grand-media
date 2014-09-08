@@ -1,6 +1,6 @@
 /*
  * Title                   : Afflux Gallery Module
- * Version                 : 3.5
+ * Version                 : 3.6
  * Copyright               : 2013 CodEasily.com
  * Website                 : http://www.codeasily.com
  */
@@ -151,7 +151,12 @@ if(typeof jQuery.fn.gmAfflux == 'undefined'){
 						return {'settings': opt, 'content': Content};
 					},
 					noFlash: function(){
-						$('#gmAfflux_ID'+ID+'_Container', Container).html($('#flashmodule_alternative_'+ID, Container).html());
+                        var alt_template = $('#flashmodule_alternative_' + ID, Container);
+                        if (alt_template.length){
+                            $('#gmAfflux_ID' + ID + '_Container', Container).html(alt_template.html()).find('img[data-src]').each(function(){
+                                $(this).attr('src', $(this).data('src'));
+                            });
+                        }
 						$('.gmcatmeta', Container).hide();
 						$('.gmcatlinks a', Container).filter(':first').addClass('active').end().on('click', function(e){
 							e.preventDefault();

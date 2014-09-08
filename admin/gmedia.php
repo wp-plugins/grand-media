@@ -314,6 +314,11 @@ function gmediaLib(){
 	}
 
 	foreach ($gmediaQuery as $item) {
+
+    if(((int)$item->author != $user_ID) && ('private' == $item->status) && !$gmCore->caps['gmedia_edit_others_media']){
+        continue;
+    }
+
 	$meta = $gmDB->get_metadata('gmedia', $item->ID);
 	$type = explode('/', $item->mime_type);
 	$item_url = $gmCore->upload['url'] . '/' . $gmGallery->options['folder'][$type[0]] . '/' . $item->gmuid;
@@ -398,7 +403,10 @@ function gmediaLib(){
 				</div>
 				<div class="col-md-6">
 					<div class="media-meta">
-						<span class="label label-default"><?php _e('Type', 'gmLang'); ?>:</span> <?php echo $item->mime_type; //echo ucfirst($type[0]); ?>
+						<span class="label label-default"><?php _e('Status', 'gmLang'); ?>:</span> <?php echo $item->status; ?>
+					</div>
+					<div class="media-meta">
+						<span class="label label-default"><?php _e('Type', 'gmLang'); ?>:</span> <?php echo $item->mime_type; ?>
 					</div>
 					<?php if('image' == $type[0]){
 						$_metadata = unserialize($meta['_metadata'][0]);
@@ -453,98 +461,101 @@ function gmediaLib(){
 			<div class="gmedia_id">#<?php echo $item->ID; ?></div>
 			<div class="li_media-object">
 				<span data-target="<?php echo $item_url; ?>" class="thumbnail">
-					<img class="gmedia-thumb" src="<?php echo $gmCore->gm_get_media_image($item, 'thumb'); ?>" alt=""/>
-					<?php if(('image' != $type[0]) && isset($meta['cover'][0]) && !empty($meta['cover'][0])){ ?>
-						<img class="gmedia-typethumb" src="<?php echo $gmCore->gm_get_media_image($item, 'thumb', false); ?>" alt=""/>
-					<?php } ?>
+                    <img class="gmedia-thumb" src="<?php echo $gmCore->gm_get_media_image($item, 'thumb'); ?>" alt=""/>
+                    <?php if(('image' != $type[0]) && isset($meta['cover'][0]) && !empty($meta['cover'][0])){ ?>
+                        <img class="gmedia-typethumb" src="<?php echo $gmCore->gm_get_media_image($item, 'thumb', false); ?>" alt=""/>
+                    <?php } ?>
 				</span>
 			</div>
 
 			<div class="media-body">
-				<div class="col-md-6">
-					<p class="media-title"><?php echo esc_html($item->title); ?>&nbsp;</p>
+                <div class="col-md-6">
+                    <p class="media-title"><?php echo esc_html($item->title); ?>&nbsp;</p>
 
-					<p class="media-caption"><?php echo esc_html($item->description); ?></p>
+                    <p class="media-caption"><?php echo esc_html($item->description); ?></p>
 
-					<p class="media-meta"><span class="label label-default"><?php _e('Album', 'gmLang'); ?>:</span>
-						<?php
-						if($albs){
-							$terms_album = array();
-							foreach($albs as $c){
-								$terms_album[] = sprintf('<span class="album">%s</span>', esc_html($c->name));
-							}
-							$terms_album = join(', ', $terms_album);
-						} else{
-							$terms_album = '<span class="album">&#8212;</span>';
-						}
-						echo $terms_album;
+                    <p class="media-meta"><span class="label label-default"><?php _e('Album', 'gmLang'); ?>:</span>
+                        <?php
+                        if($albs){
+                            $terms_album = array();
+                            foreach($albs as $c){
+                                $terms_album[] = sprintf('<span class="album">%s</span>', esc_html($c->name));
+                            }
+                            $terms_album = join(', ', $terms_album);
+                        } else{
+                            $terms_album = '<span class="album">&#8212;</span>';
+                        }
+                        echo $terms_album;
 
-						if($is_webimage){
-							?>
-							<br/><span class="label label-default"><?php _e('Category', 'gmLang'); ?>:</span>
-							<?php
-							if($cats){
-								$terms_category = array();
-								foreach($cats as $c){
-									$terms_category[] = sprintf('<span class="category">%s</span>', esc_html($gmGallery->options['taxonomies']['gmedia_category'][$c->name]));
-								}
-								$terms_category = join(', ', $terms_category);
-							} else{
-								$terms_category = sprintf('<span class="category">%s</span>', __('Uncategorized'));
-							}
-							echo $terms_category;
-						} ?>
-						<br/><span class="label label-default"><?php _e('Tags', 'gmLang'); ?>:</span>
-						<?php
-						if($tags){
-							$terms_tag = array();
-							foreach($tags as $c){
-								$terms_tag[] = sprintf('<span class="tag">%s</span>', esc_html($c->name));
-							}
-							$terms_tag = join(', ', $terms_tag);
-						} else{
-							$terms_tag = '&#8212;';
-						}
-						echo $terms_tag;
-						?>
-					</p>
-				</div>
-				<div class="col-md-6">
-					<div class="media-meta">
-						<span class="label label-default"><?php _e('Type', 'gmLang'); ?>:</span> <?php echo $item->mime_type; //echo ucfirst($type[0]); ?>
-					</div>
-					<?php if('image' == $type[0]){
-						$_metadata = unserialize($meta['_metadata'][0]);
-						?>
-						<div class="media-meta">
-							<span class="label label-default"><?php _e('Size', 'gmLang'); ?>
-								:</span> <?php echo $_metadata['original']['width'] . ' × ' . $_metadata['original']['height']; ?>
-						</div>
-					<?php } ?>
-					<div class="media-meta"><span class="label label-default"><?php _e('Filename', 'gmLang'); ?>:</span>
-						<a href="<?php echo $item_url; ?>"><?php echo $item->gmuid; ?></a></div>
-					<div class="media-meta">
-						<span class="label label-default"><?php _e('Author', 'gmLang'); ?>
-							:</span> <?php printf('<span class="gmedia-author">%s</a>', get_user_option('display_name', $item->author)); ?>
-					</div>
-					<div class="media-meta"><span class="label label-default"><?php _e('Date', 'gmLang'); ?>:</span> <?php echo $item->date;
-						echo ' <small class="modified" title="' . __('Last Modified Date', 'gmLang') . '">' . (($item->modified != $item->date)? $item->modified : '') . '</small>';
-						?></div>
-					<div class="media-meta"><span class="label label-default"><?php _e('Link', 'gmLang'); ?>:</span>
-						<?php if(!empty($item->link)){ ?>
-							<a href="<?php echo $item->link; ?>"><?php echo $item->link; ?></a>
-						<?php
-						} else{
-							echo '&#8212;';
-						} ?></div>
-					<?php if('image' == $type[0]){ ?>
-						<p class="media-meta" style="margin:5px 4px;">
-							<a href="<?php echo $gmCore->gm_get_media_image($item, 'original'); ?>" data-target="#previewModal" class="preview-modal" title="<?php echo esc_attr($item->title); ?>">
-								<?php _e('View Original', 'gmLang'); ?>
-							</a>
-						</p>
-					<?php } ?>
-				</div>
+                        if($is_webimage){
+                            ?>
+                            <br/><span class="label label-default"><?php _e('Category', 'gmLang'); ?>:</span>
+                            <?php
+                            if($cats){
+                                $terms_category = array();
+                                foreach($cats as $c){
+                                    $terms_category[] = sprintf('<span class="category">%s</span>', esc_html($gmGallery->options['taxonomies']['gmedia_category'][$c->name]));
+                                }
+                                $terms_category = join(', ', $terms_category);
+                            } else{
+                                $terms_category = sprintf('<span class="category">%s</span>', __('Uncategorized'));
+                            }
+                            echo $terms_category;
+                        } ?>
+                        <br/><span class="label label-default"><?php _e('Tags', 'gmLang'); ?>:</span>
+                        <?php
+                        if($tags){
+                            $terms_tag = array();
+                            foreach($tags as $c){
+                                $terms_tag[] = sprintf('<span class="tag">%s</span>', esc_html($c->name));
+                            }
+                            $terms_tag = join(', ', $terms_tag);
+                        } else{
+                            $terms_tag = '&#8212;';
+                        }
+                        echo $terms_tag;
+                        ?>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <div class="media-meta">
+                        <span class="label label-default"><?php _e('Status', 'gmLang'); ?>:</span> <?php echo $item->status; ?>
+                    </div>
+                    <div class="media-meta">
+                        <span class="label label-default"><?php _e('Type', 'gmLang'); ?>:</span> <?php echo $item->mime_type; ?>
+                    </div>
+                    <?php if('image' == $type[0]){
+                        $_metadata = unserialize($meta['_metadata'][0]);
+                        ?>
+                        <div class="media-meta">
+                            <span class="label label-default"><?php _e('Size', 'gmLang'); ?>
+                                :</span> <?php echo $_metadata['original']['width'] . ' × ' . $_metadata['original']['height']; ?>
+                        </div>
+                    <?php } ?>
+                    <div class="media-meta"><span class="label label-default"><?php _e('Filename', 'gmLang'); ?>:</span>
+                        <a href="<?php echo $item_url; ?>"><?php echo $item->gmuid; ?></a></div>
+                    <div class="media-meta">
+                        <span class="label label-default"><?php _e('Author', 'gmLang'); ?>
+                            :</span> <?php printf('<span class="gmedia-author">%s</a>', get_user_option('display_name', $item->author)); ?>
+                    </div>
+                    <div class="media-meta"><span class="label label-default"><?php _e('Date', 'gmLang'); ?>:</span> <?php echo $item->date;
+                        echo ' <small class="modified" title="' . __('Last Modified Date', 'gmLang') . '">' . (($item->modified != $item->date)? $item->modified : '') . '</small>';
+                        ?></div>
+                    <div class="media-meta"><span class="label label-default"><?php _e('Link', 'gmLang'); ?>:</span>
+                        <?php if(!empty($item->link)){ ?>
+                            <a href="<?php echo $item->link; ?>"><?php echo $item->link; ?></a>
+                        <?php
+                        } else{
+                            echo '&#8212;';
+                        } ?></div>
+                    <?php if('image' == $type[0]){ ?>
+                        <p class="media-meta" style="margin:5px 4px;">
+                            <a href="<?php echo $gmCore->gm_get_media_image($item, 'original'); ?>" data-target="#previewModal" class="preview-modal" title="<?php echo esc_attr($item->title); ?>">
+                                <?php _e('View Original', 'gmLang'); ?>
+                            </a>
+                        </p>
+                    <?php } ?>
+                </div>
 			</div>
 		</div>
 		<?php
@@ -664,7 +675,11 @@ function gmediaLib(){
 										} else{
 											$author_name .= ' &nbsp; (' . __('shared', 'gmLang') . ')';
 										}
-										$selected_option = ($alb_id == $term->term_id)? ' selected="selected"' : '';
+                                        if ('public' != $term->status) {
+                                            $author_name .= ' [' . $term->status . ']';
+                                        }
+
+                                        $selected_option = ($alb_id == $term->term_id)? ' selected="selected"' : '';
 										$terms_album .= '<option' . $selected_option . ' value="' . $term->term_id . '">' . esc_html($term->name) . $author_name . '</option>' . "\n";
 									}
 								}
@@ -709,6 +724,13 @@ function gmediaLib(){
 								<span class="input-group-btn"><button type="button" class="btn btn-primary">
 										<span class="glyphicon glyphicon-calendar"></span></button></span>
 							</div>
+						</div>
+						<div class="form-group">
+							<label><?php _e('Status', 'gmLang'); ?></label>
+                            <select name="status" class="form-control input-sm">
+                                <option <?php selected($item->status, 'public'); ?> value="public"><?php _e('Public', 'gmLang'); ?></option>
+                                <option <?php selected($item->status, 'private'); ?> value="private"><?php _e('Private', 'gmLang'); ?></option>
+                            </select>
 						</div>
 					</div>
 					<div class="col-lg-6">

@@ -697,6 +697,7 @@ class GmediaDB{
 	 * There are a few filters and actions that can be used to modify the gmedia
 	 * database query.
 	 *
+	 * 'status' (string|array) - Gmedia status
 	 * 'author' (int) - Display or Exclude gmedias from several specific authors
 	 * 'author_name' (string) - Author name (nice_name)
 	 * 'cat' (int) - comma separated list of positive or negative category IDs. Display posts that have this category(ies)
@@ -771,6 +772,7 @@ class GmediaDB{
 
 		// First let's clear some variables
 		$whichmimetype = '';
+		$whichstatus = '';
 		$whichauthor = '';
 		$where = '';
 		$countwhere = '';
@@ -790,6 +792,7 @@ class GmediaDB{
 
 		$keys = array(
 			'error',
+			'status',
 			'author',
 			'author_name',
 			'cat',
@@ -989,7 +992,7 @@ class GmediaDB{
 			$n = !empty($q['exact'])? '' : '%';
 			$searchand = '';
 			foreach((array)$q['search_terms'] as $term){
-				$term = esc_sql(like_escape($term));
+				$term = esc_sql(addcslashes( $term, '_%\\' ));
 				$search .= "{$searchand}(({$wpdb->prefix}gmedia.title LIKE '{$n}{$term}{$n}') OR ({$wpdb->prefix}gmedia.description LIKE '{$n}{$term}{$n}') OR ({$wpdb->prefix}gmedia.gmuid LIKE '{$n}{$term}{$n}'))";
 				$searchand = ' AND ';
 			}
@@ -1422,7 +1425,7 @@ class GmediaDB{
 					$meta_value = array_slice($meta_value, 0, 2);
 					$meta_compare_string = '%s AND %s';
 				} elseif('LIKE' == substr($meta_compare, -4)){
-					$meta_value = '%' . like_escape($meta_value) . '%';
+					$meta_value = '%' . addcslashes( $meta_value, '_%\\' ) . '%';
 					$meta_compare_string = '%s';
 				} else{
 					$meta_compare_string = '%s';
@@ -1457,7 +1460,13 @@ class GmediaDB{
 			$groupby = "{$wpdb->prefix}gmedia.ID";
 		}
 
-		// Author/user stuff for ID
+        // Status
+        if($q['status']){
+            $q['status'] = "'" . implode("','", array_map('esc_sql', array_unique((array)$q['status']))) . "'";
+            $whichstatus .= " AND {$wpdb->prefix}gmedia.status IN ({$q['status']})";
+        }
+
+        // Author/user stuff for ID
 		if(!empty($q['author']) && $q['author'] != '0'){
 			$q['author'] = addslashes_gpc('' . urldecode($q['author']));
 			$authors = array_unique(array_map('intval', preg_split('/[,\s]+/', $q['author'])));
@@ -1491,7 +1500,7 @@ class GmediaDB{
 			$whichmimetype = $this->gmedia_mime_type_where($q['mime_type'], $wpdb->prefix . 'gmedia');
 		}
 
-		$where .= $search;
+		$where .= $whichstatus . $search;
 
 		if(empty($q['order']) || ((strtoupper($q['order']) != 'ASC') && (strtoupper($q['order']) != 'DESC'))){
 			$q['order'] = 'DESC';
@@ -2369,7 +2378,7 @@ class GmediaDB{
 		$where .= $exclusions;
 
 		if(!empty($name__like)){
-			$name__like = like_escape($name__like);
+			$name__like = addcslashes( $name__like, '_%\\' );
 			$where .= $wpdb->prepare(" AND t.name LIKE %s", $name__like . '%');
 		}
 
@@ -2393,7 +2402,7 @@ class GmediaDB{
 		}
 
 		if(!empty($search)){
-			$search = like_escape($search);
+			$search = addcslashes( $search, '_%\\' );
 			$where .= $wpdb->prepare(" AND (t.name LIKE %s)", '%' . $search . '%');
 		}
 

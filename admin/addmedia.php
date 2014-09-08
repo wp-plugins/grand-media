@@ -114,7 +114,7 @@ function gmedia_upload_files(){
 				$terms_album = '';
 				if(count($gm_terms)){
 					foreach($gm_terms as $term){
-						$terms_album .= '<option value="' . esc_attr($term->term_id) . '">' . esc_html($term->name) . ($term->global? '' : __(' (shared)', 'gmLang')) . '</option>' . "\n";
+						$terms_album .= '<option value="' . esc_attr($term->term_id) . '">' . esc_html($term->name) . ($term->global? '' : __(' (shared)', 'gmLang')) . ('public' == $term->status? '' : " [{$term->status}]") . '</option>' . "\n";
 					}
 				}
 				?>
@@ -335,7 +335,7 @@ function gmedia_import(){
 						$terms_album = '';
 						if(count($gm_terms)){
 							foreach($gm_terms as $term){
-								$terms_album .= '<option value="' . esc_attr($term->term_id) . '">' . esc_html($term->name) . ($term->global? '' : __(' (shared)', 'gmLang')) . '</option>' . "\n";
+								$terms_album .= '<option value="' . esc_attr($term->term_id) . '">' . esc_html($term->name) . ($term->global? '' : __(' (shared)', 'gmLang')) . ('public' == $term->status? '' : " [{$term->status}]") . '</option>' . "\n";
 							}
 						}
 						?>

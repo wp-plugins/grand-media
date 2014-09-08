@@ -610,9 +610,8 @@ function gmediaGalleryEdit(){
 							$terms_items = '';
 							if(count($gm_terms)){
 								foreach($gm_terms as $term){
-									//if(!$term->count){ continue; }
 									$selected = (isset($gallery['query'][$term_type]) && in_array($term->term_id, $gallery['query'][$term_type]))? ' selected="selected"' : '';
-									$terms_items .= '<option value="' . $term->term_id . '"' . $selected . '>' . esc_html($term->name) . ' &nbsp; (' . $term->count . ')</option>' . "\n";
+									$terms_items .= '<option value="' . $term->term_id . '"' . $selected . '>' . esc_html($term->name) . ('public' == $term->status? '' : " [{$term->status}]") . ' &nbsp; (' . $term->count . ')</option>' . "\n";
 								}
 							}
 							$setvalue = isset($gallery['query'][$term_type])? 'data-setvalue="' . implode(',', $gallery['query'][$term_type]) . '"' : '';

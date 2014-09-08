@@ -1,6 +1,6 @@
 /*
  * Title                   : Minima Gallery Module
- * Version                 : 2.5
+ * Version                 : 2.6
  * Copyright               : 2013 CodEasily.com
  * Website                 : http://www.codeasily.com
  */
@@ -149,8 +149,13 @@ if(typeof jQuery.fn.gmMinima == 'undefined'){
 					flashContent: function(){
 						return {'settings': opt, 'content': Content};
 					},
-					noFlash: function(){
-						$('#gmMinima_ID'+ID+'_Container', Container).html($('#flashmodule_alternative_'+ID, Container).html());
+					noFlash: function() {
+                        var alt_template = $('#flashmodule_alternative_' + ID, Container);
+                        if (alt_template.length){
+                            $('#gmMinima_ID' + ID + '_Container', Container).html(alt_template.html()).find('img[data-src]').each(function(){
+                                $(this).attr('src', $(this).data('src'));
+                            });
+                        }
 						$('.gmcatmeta', Container).hide();
 						$('.gmcatlinks a', Container).filter(':first').addClass('active').end().on('click', function(e){
 							e.preventDefault();

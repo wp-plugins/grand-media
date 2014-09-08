@@ -51,7 +51,7 @@ if($globaldata){
 
 
 		} else{
-			$out['error'] = array('code' => 'nocookie', 'message' => 'No cookie');
+			$out['error'] = array('code' => 'wrongcookie', 'message' => 'Not Valid User');
 		}
 	} elseif(isset($json->login)){
 		$out = gmedia_ios_app_login($json);
@@ -151,6 +151,7 @@ function gmedia_ios_app_library_data($data = array('site', 'authors', 'filter', 
 	}
 	if(in_array('filter', $data)){
 		$out['filter'] = $gmDB->count_gmedia();
+        $out['filter'] = array_map('intval', $out['filter']);
 	}
 	if(in_array('gmedia_category', $data)){
 		/*
@@ -571,10 +572,11 @@ function gmedia_ios_app_processor($action, $data, $filter = true){
 				if(isset($meta['rating'][0])){
 					$gmedias[$i]->meta['rating'] = maybe_unserialize($meta['rating'][0]);
 				}
+                $gmedias[$i]->sharelink = $share_link . $item->ID;
 			}
 			$out = array_merge($filter, array(
 				'properties' => array(
-					'share_link_base' => $share_link,
+                    'request' => isset($data['request'])? $data['request'] : null,
 					'total_pages' => $gmDB->pages,
 					'current_page' => $gmDB->openPage,
 					'items_count' => $gmDB->gmediaCount

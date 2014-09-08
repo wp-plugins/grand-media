@@ -51,10 +51,9 @@ Help me make it best gallery plugin: test it and [write suggestions](http://code
 Features:
 
 *   Mobile friendly, responsive galleries
-*   Role/Capability Manager intergrated
 *   Add tags, assign categories and group images in albums
 *   Drag'n'drop sorting for files in Album
-*   Easy bulk editing media files data with Edit Mode
+*   Easy editing media files data in Edit Mode
 *   Image Editor with Filters
 *   Create many galleries with different options
 *   Easily adding shortcode to post in one click
@@ -63,13 +62,16 @@ Features:
 *   Uses WordPress' native Image Resizer
 *   Import files from server folder or from others gallery plugins
 *   Full Window Gallery Page permalinks (like GRAND Page in Flagallery) - you can copy gallery permalink and insert it in the website menu
+*   (NEW) Role/Capability Manager intergrated
+*   (NEW) Statuses: public, private (only for logged in users), etc. for files, albums
+*   (NEW) Batch operations with selected Gmedia items
 
 
 TODO List:
 
 *   iOS manage application (work in progress..)
-*   Statuses: public, private, etc. for files, albums and galleries (work in progress..)
-*   Bulk operations with selected Gmedia items (in queue)
+*   Cover for Album. It will be also used for music without cover (work in progress..)
+*   More Batch operations with selected Gmedia items (work in progress..)
 *   Share albums to socials from admin panel (in queue)
 *   Different templates to display Gmedia Library (aka GRAND Pages in Flagallery plugin) (in queue)
 *   More modules for creating photo gallery, audio playlist, video playlist
@@ -104,6 +106,13 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 8. Admin Area - Gmedia Library Filters
 
 == Changelog ==
+
+= 1.2.4 =
+* Compatibility with WP 4.0
+* Added status for gmedia files (public, private)
+* Added status for albums (public, private, draft)
+* Fixed compatibility with Lazy load (unveil.js) plugin and alternative gallery
+* Added icon to assets
 
 = 1.2.3 =
 * Added Batch Edit in Gmedia Library

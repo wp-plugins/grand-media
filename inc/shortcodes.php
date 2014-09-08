@@ -108,13 +108,17 @@ function gmedia_shortcode($atts, $content = ''){
 	$terms = array();
 	$gmedia = array();
 	if(!empty($gallery['query'])){
+        $gmedia_status = array('public');
+        if(is_user_logged_in()){
+            $gmedia_status[] = 'private';
+        }
 		foreach($gallery['query'] as $tax => $term_ids){
 			if(!empty($term_ids)){
 				if('gmedia__in' == $tax){
 					$term_id = (int)$gallery['term_id'];
 					$terms[$term_id] = $gmDB->get_term($term_id, 'gmedia_gallery');
 					$term_ids = implode(',', wp_parse_id_list($term_ids[0]));
-					$gmedia[$term_id] = $gmDB->get_gmedias(array('gmedia__in' => $term_ids, 'orderby' => 'gmedia__in', 'order' => 'ASC'));
+					$gmedia[$term_id] = $gmDB->get_gmedias(array('gmedia__in' => $term_ids, 'orderby' => 'gmedia__in', 'order' => 'ASC', 'status' => $gmedia_status));
 					continue;
 				}
 				foreach($term_ids as $term_id){
@@ -122,15 +126,19 @@ function gmedia_shortcode($atts, $content = ''){
 					if(!empty($terms[$term_id]) && !is_wp_error($terms[$term_id]) && $terms[$term_id]->count){
 						if('gmedia_category' == $tax){
 							$terms[$term_id]->name = $gmGallery->options['taxonomies']['gmedia_category'][$terms[$term_id]->name];
-							$gmedia[$term_id] = $gmDB->get_gmedias(array('category__in' => $term_id));
+							$gmedia[$term_id] = $gmDB->get_gmedias(array('category__in' => $term_id, 'status' => $gmedia_status));
 						} elseif('gmedia_album' == $tax){
+                            if(('draft' == $terms[$term_id]->status) || (('private' == $terms[$term_id]->status) && !is_user_logged_in())){
+                                unset($terms[$term_id]);
+                                continue;
+                            }
 							$term_meta = $gmDB->get_metadata('gmedia_term', $term_id);
 							$term_meta = array_map('reset', $term_meta);
 							$term_meta = array_merge(array('orderby' => 'ID', 'order' => 'DESC'), $term_meta);
-							$args = array('album__in' => $term_id, 'orderby' => $term_meta['orderby'], 'order' => $term_meta['order']);
+							$args = array('album__in' => $term_id, 'orderby' => $term_meta['orderby'], 'order' => $term_meta['order'], 'status' => $gmedia_status);
 							$gmedia[$term_id] = $gmDB->get_gmedias($args);
 						} elseif('gmedia_tag' == $tax){
-							$gmedia[$term_id] = $gmDB->get_gmedias(array('tag__in' => $term_id));
+							$gmedia[$term_id] = $gmDB->get_gmedias(array('tag__in' => $term_id, 'status' => $gmedia_status));
 						}
 					} else{
 						unset($terms[$term_id]);
@@ -149,7 +157,9 @@ function gmedia_shortcode($atts, $content = ''){
 	$out = '<div class="gmedia_gallery ' . $gallery['module'] . '_module" id="GmediaGallery_' . $id . '" data-gallery="' . $id . '" data-module="' . $gallery['module'] . '">';
 	$out .= $content;
 
-	$is_bot = $gmCore->is_bot();
+    if(!($is_bot = wp_is_mobile())) {
+        $is_bot = $gmCore->is_bot();
+    }
 
 	ob_start();
 	include($module['path'] . '/init.php');

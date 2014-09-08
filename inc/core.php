@@ -574,6 +574,10 @@ class GmediaCore{
 	 * @return bool
 	 */
 	function is_bot(){
+        if ( empty($_SERVER['HTTP_USER_AGENT']) ) {
+            return false;
+        }
+
 		$spiders = array(
 			"abot",
 			"dbot",

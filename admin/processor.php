@@ -312,6 +312,10 @@ class GmediaProcessor{
 								$b_title = $gmCore->_post('batch_title');
 								$b_description = $gmCore->_post('batch_description');
 								$b_link = $gmCore->_post('batch_link');
+								$b_status = $gmCore->_post('batch_status');
+                                if($b_status){
+                                    $batch_data['status'] = $b_status;
+                                }
 								$b_author = $gmCore->_post('batch_author');
 								if($b_author){
 									$batch_data['author'] = $b_author;

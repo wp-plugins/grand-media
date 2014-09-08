@@ -555,6 +555,9 @@ function gmedia_get_modal(){
 				} else{
 					$author_name .= '(' . __('shared', 'gmLang') . ')';
 				}
+                if ('public' != $term->status) {
+                    $author_name .= ' [' . $term->status . ']';
+                }
 				if($author_name){
 					$author_name = " <small>{$author_name}</small>";
 				}
@@ -600,6 +603,9 @@ function gmedia_get_modal(){
 				} else{
 					$author_name .= '(' . __('shared', 'gmLang') . ')';
 				}
+                if ('public' != $term->status) {
+                    $author_name .= ' [' . $term->status . ']';
+                }
 				if($author_name){
 					$author_name = " <small>{$author_name}</small>";
 				}
@@ -756,7 +762,7 @@ function gmedia_get_modal(){
 			<div class="form-group">
 				<label><?php _e('Title', 'gmLang'); ?></label>
 				<select class="form-control input-sm batch_set" name="batch_title">
-					<option value="skip"><?php _e('Skip. Do not change', 'gmLang'); ?></option>
+					<option value=""><?php _e('Skip. Do not change', 'gmLang'); ?></option>
 					<option value="empty"><?php _e('Empty Title', 'gmLang'); ?></option>
 					<option value="filename"><?php _e('From Filename', 'gmLang'); ?></option>
 					<option value="custom"><?php _e('Custom', 'gmLang'); ?></option>
@@ -764,29 +770,37 @@ function gmedia_get_modal(){
 				<input class="form-control input-sm batch_set_custom" style="margin-top:5px;display:none;" name="batch_title_custom" value="" placeholder="<?php _e('Enter custom title here'); ?>" />
 			</div>
 			<div class="form-group">
-				<label><?php _e('Set Description', 'gmLang'); ?></label>
+				<label><?php _e('Description', 'gmLang'); ?></label>
 				<select class="form-control input-sm batch_set" name="batch_description">
-					<option value="skip"><?php _e('Skip. Do not change', 'gmLang'); ?></option>
+					<option value=""><?php _e('Skip. Do not change', 'gmLang'); ?></option>
 					<option value="empty"><?php _e('Empty Description', 'gmLang'); ?></option>
 					<option value="custom"><?php _e('Custom', 'gmLang'); ?></option>
 				</select>
 				<textarea class="form-control input-sm batch_set_custom" style="margin-top:5px;display:none;" cols="30" rows="3" name="batch_description_custom" placeholder="<?php _e('Enter description here'); ?>"></textarea>
 			</div>
 			<div class="form-group">
-				<label><?php _e('Set Link', 'gmLang'); ?></label>
+				<label><?php _e('Link', 'gmLang'); ?></label>
 				<select class="form-control input-sm batch_set" name="batch_link">
-					<option value="skip"><?php _e('Skip. Do not change', 'gmLang'); ?></option>
+					<option value=""><?php _e('Skip. Do not change', 'gmLang'); ?></option>
 					<option value="empty"><?php _e('Empty Link', 'gmLang'); ?></option>
 					<option value="self"><?php _e('Link to original file', 'gmLang'); ?></option>
 					<option value="custom"><?php _e('Custom', 'gmLang'); ?></option>
 				</select>
 				<input class="form-control input-sm batch_set_custom" style="margin-top:5px;display:none;" name="batch_link_custom" value="" placeholder="<?php _e('Enter url here'); ?>" />
 			</div>
+			<div class="form-group">
+				<label><?php _e('Status', 'gmLang'); ?></label>
+				<select class="form-control input-sm batch_set" name="batch_status">
+					<option value=""><?php _e('Skip. Do not change', 'gmLang'); ?></option>
+					<option value="public"><?php _e('Public', 'gmLang'); ?></option>
+					<option value="private"><?php _e('Private', 'gmLang'); ?></option>
+				</select>
+			</div>
 			<?php $user_ids = $gmCore->get_editable_user_ids();
 			if($user_ids){
 				?>
 				<div class="form-group">
-					<label><?php _e('Set Author', 'gmLang'); ?></label>
+					<label><?php _e('Author', 'gmLang'); ?></label>
 					<?php wp_dropdown_users(array(
 							'show_option_none' => __('Skip. Do not change', 'gmLang'),
 							'include' => $user_ids,
@@ -974,7 +988,7 @@ function gmedia_import_modal(){
 						$terms_album = '';
 						if(count($gm_terms)){
 							foreach($gm_terms as $term){
-								$terms_album .= '<option value="' . esc_attr($term->term_id) . '">' . esc_html($term->name) . ($term->global? '' : __(' (shared)', 'gmLang')) . '</option>' . "\n";
+								$terms_album .= '<option value="' . esc_attr($term->term_id) . '">' . esc_html($term->name) . ($term->global? '' : __(' (shared)', 'gmLang')) . ('public' == $term->status? '' : " [{$term->status}]") . '</option>' . "\n";
 							}
 						}
 						?>
