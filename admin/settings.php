@@ -185,6 +185,14 @@ function gmSettings(){
 								<p class="help-block"><?php _e('Some themes reformat shortcodes and break it functionality (mostly when you add description to images). Turning this on should solve this problem.', 'gmLang'); ?></p>
 							</div>
 						</div>
+                        <?php
+                        if ( (function_exists('memory_get_usage')) && (ini_get('memory_limit')) ) {
+                            $memory_limit = ini_get('memory_limit');
+                            $memory_usage = memory_get_usage();
+                            echo '<p>' . __('Memory Limit: ', 'gmLang') . $memory_limit . '</p>';
+                            echo '<p>' . __('Memory Used: ', 'gmLang') . $memory_usage . '</p>';
+                        }
+                        ?>
 						<p><?php _e('Under constraction...') ?></p>
 
 						<?php
