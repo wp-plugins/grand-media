@@ -287,9 +287,9 @@ function gmediaTerms()
                     if ('public' != $item->status) {
                         $author_name .= ' [' . $item->status . ']';
                         if('private' == $item->status){
-                            $list_row_class = ' list-group-item-warning';
+                            $list_row_class = ' list-group-item-info';
                         } elseif('draft' == $item->status){
-                            $list_row_class = ' list-group-item-danger';
+                            $list_row_class = ' list-group-item-warning';
                         }
                     }
                     ?>
@@ -734,16 +734,21 @@ function gmediaAlbumEdit()
                             </div>
                         </div>
                         <div class="row">
-                            <div class="form-group col-xs-6">
-                                <label><?php _e('Status', 'gmLang'); ?></label>
-                                <select name="term[status]" class="form-control input-sm">
-                                    <option
-                                        value="public"<?php selected($term->status, 'public'); ?>><?php _e('Public', 'gmLang'); ?></option>
-                                    <option
-                                        value="private"<?php selected($term->status, 'private'); ?>><?php _e('Private', 'gmLang'); ?></option>
-                                    <option
-                                        value="draft"<?php selected($term->status, 'draft'); ?>><?php _e('Draft', 'gmLang'); ?></option>
-                                </select>
+                            <div class="col-xs-6">
+                                <div class="form-group">
+                                    <label><?php _e('Status', 'gmLang'); ?></label>
+                                    <select name="term[status]" class="form-control input-sm">
+                                        <option
+                                            value="public"<?php selected($term->status, 'public'); ?>><?php _e('Public', 'gmLang'); ?></option>
+                                        <option
+                                            value="private"<?php selected($term->status, 'private'); ?>><?php _e('Private', 'gmLang'); ?></option>
+                                        <option
+                                            value="draft"<?php selected($term->status, 'draft'); ?>><?php _e('Draft', 'gmLang'); ?></option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <div class="checkbox"><label><input type="checkbox" name="term[status_global]" value="1"> <?php _e('Apply Status for all items in album', 'gmLang'); ?></label></div>
+                                </div>
                             </div>
                             <div class="col-xs-6">
                                 <div class="form-group">

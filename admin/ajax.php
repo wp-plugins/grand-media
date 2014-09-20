@@ -64,6 +64,13 @@ function gmedia_update_data(){
 				}
 				$result->tags = implode(', ', $tags_list);
 			}
+            if(!empty($gmedia['terms']['gmedia_album'])){
+                $alb_id = (int) $gmedia['terms']['gmedia_album'];
+                $alb = $gmDB->get_term($alb_id, 'gmedia_album');
+                $result->album_status = $alb->status;
+            } else{
+                $result->album_status = 'none';
+            }
 		}
 
 		header('Content-Type: application/json; charset=' . get_option('blog_charset'), true);
@@ -426,7 +433,7 @@ function gmedia_get_modal(){
 			break;
 	}
 	?>
-	<form class="modal-content" autocomplete="off" method="post">
+	<form class="modal-content" id="ajax-modal-form" autocomplete="off" method="post">
 	<div class="modal-header">
 		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 		<h4 class="modal-title"><?php echo $modal_title; ?></h4>
@@ -583,39 +590,77 @@ function gmedia_get_modal(){
 			}
 			$gm_terms = $gmDB->get_terms('gmedia_album', $args);
 
-			if($gmCore->caps['gmedia_album_manage']){
-				?>
-				<div class="radio">
-					<label><input type="radio" name="alb"> <?php _e('Create Album', 'gmLang'); ?></label>
-					<input type="text" class="form-control input-sm" name="alb" value=""/>
-				</div>
-				<hr/>
-			<?php } ?>
-			<div class="radio"><label><input type="radio" name="alb" value="0"> <?php _e('No Album', 'gmLang'); ?></label></div>
-			<hr/>
-			<?php if(count($gm_terms)){
-			foreach($gm_terms as $term){
-				$author_name = '';
-				if($term->global){
-					if($gmCore->caps['gmedia_show_others_media']){
-						$author_name .= sprintf(__('by %s', 'gmLang'), get_the_author_meta('display_name', $term->global));
-					}
-				} else{
-					$author_name .= '(' . __('shared', 'gmLang') . ')';
-				}
-                if ('public' != $term->status) {
-                    $author_name .= ' [' . $term->status . ']';
+            $terms_album = '';
+            if(count($gm_terms)){
+                foreach($gm_terms as $term){
+                    $author_name = '';
+                    if($term->global){
+                        if($gmCore->caps['gmedia_edit_others_media']){
+                            $author_name .= ' &nbsp; ' . sprintf(__('by %s', 'gmLang'), get_the_author_meta('display_name', $term->global));
+                        }
+                    } else{
+                        $author_name .= ' &nbsp; (' . __('shared', 'gmLang') . ')';
+                    }
+                    if ('public' != $term->status) {
+                        $author_name .= ' [' . $term->status . ']';
+                    }
+                    $terms_album .= '<option value="' . $term->term_id . '" data-count="' . $term->count . '" data-name="' . esc_html($term->name) . '" data-meta="' . $author_name . '">' . esc_html($term->name) . $author_name . '</option>' . "\n";
                 }
-				if($author_name){
-					$author_name = " <small>{$author_name}</small>";
-				}
-				?>
-				<div class="radio">
-					<label><input type="radio" name="alb" value="<?php echo $term->term_id; ?>"> <?php echo esc_html($term->name) . $author_name; ?></label>
-					<span class="badge pull-right"><?php echo $term->count; ?></span></div>
+            }
+            ?>
+            <div class="form-group">
+                <label><?php _e('Move to Album', 'gmLang'); ?> </label>
+                <select id="combobox_gmedia_album" name="alb" class="form-control" placeholder="<?php _e('Album Name...', 'gmLang'); ?>">
+                    <option></option>
+                    <option value="0"><?php _e('No Album', 'gmLang'); ?></option>
+                    <?php echo $terms_album; ?>
+                </select>
+            </div>
+            <div class="form-group">
+                <div class="checkbox"><label><input type="checkbox" name="status_global" value="1" checked> <?php _e('Make status of selected items be the same as Album status', 'gmLang'); ?></label></div>
+            </div>
+            <script type="text/javascript">
+                jQuery(function($){
+                    var albums = $('#combobox_gmedia_album');
+                    var albums_data = $('option', albums);
+                    albums.selectize({
+                        <?php if($gmCore->caps['gmedia_album_manage']){ ?>
+                        create: function(input){
+                            return {
+                                value: input,
+                                text: input
+                            }
+                        },
+                        createOnBlur: true,
+                        <?php } else{ ?>
+                        create: false,
+                        <?php } ?>
+                        persist: false,
+                        render: {
+                            item: function(item, escape){
+                                if(0 === (parseInt(item.value, 10) || 0)){
+                                    return '<div>' + escape(item.text) + '</div>';
+                                }
+                                if(item.$order) {
+                                    var data = $(albums_data[item.$order]).data();
+                                    return '<div>' + escape(data.name) + ' <small>' + escape(data.meta) + '</small></div>';
+                                }
+                            },
+                            option: function(item, escape){
+                                if(0 === (parseInt(item.value) || 0)){
+                                    return '<div>' + escape(item.text) + '</div>';
+                                }
+                                if(item.$order) {
+                                    var data = $(albums_data[item.$order]).data();
+                                    return '<div>' + escape(data.name) + ' <small>' + escape(data.meta) + '</small>' + ' <span class="badge pull-right">' + escape(data.count) + '</span></div>';
+                                }
+                            }
+                        }
+
+                    });
+                });
+            </script>
 			<?php
-			}
-		}
 			break;
 		case 'filter_tags':
 			$gm_terms = $gmDB->get_terms('gmedia_tag', array('fields' => 'names_count'));
@@ -794,6 +839,7 @@ function gmedia_get_modal(){
 					<option value=""><?php _e('Skip. Do not change', 'gmLang'); ?></option>
 					<option value="public"><?php _e('Public', 'gmLang'); ?></option>
 					<option value="private"><?php _e('Private', 'gmLang'); ?></option>
+					<option value="draft"><?php _e('Draft', 'gmLang'); ?></option>
 				</select>
 			</div>
 			<?php $user_ids = $gmCore->get_editable_user_ids();
@@ -834,7 +880,8 @@ function gmedia_get_modal(){
 	<div class="modal-footer">
 		<button type="button" class="btn btn-default" data-dismiss="modal"><?php _e('Cancel', 'gmLang'); ?></button>
 		<?php if($modal_button){ ?>
-			<button type="submit" name="<?php echo $modal; ?>" class="btn <?php echo $button_class; ?>"><?php echo $modal_button; ?></button>
+            <input type="hidden" name="<?php echo $modal; ?>" />
+			<button type="button" onclick="jQuery('#ajax-modal-form').submit()" name="<?php echo $modal; ?>" class="btn <?php echo $button_class; ?>"><?php echo $modal_button; ?></button>
 		<?php }
 		wp_nonce_field('gmedia_modal');
 		?>

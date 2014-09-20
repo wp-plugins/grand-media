@@ -212,27 +212,43 @@ class GmediaProcessor{
 							}
 							$term = $gmCore->_post('alb');
 							if((false !== $term) && ($count = count($selected_items))){
-								if('0' == $term){
+								if(empty($term)){
 									foreach($selected_items as $item){
 										$gmDB->delete_gmedia_term_relationships($item, 'gmedia_album');
 									}
 									$this->msg[] = sprintf(__('%d items updated with "No Album"', 'gmLang'), $count);
 								} else{
+                                    $term_ids = array();
 									foreach($selected_items as $item){
 										$result = $gmDB->set_gmedia_terms($item, $term, 'gmedia_album', $append = 0);
 										if(is_wp_error($result)){
 											$this->error[] = $result;
-											$count--;
-										} elseif(!$result){
-											$count--;
-										}
+										} elseif($result){
+                                            foreach($result as $t_id) {
+                                                $term_ids[$t_id][] = $item;
+                                            }
+                                        }
 									}
-									if($gmCore->is_digit($term)){
-										$alb_name = $gmDB->get_alb_name($term);
-									} else{
-										$alb_name = $term;
-									}
-									$this->msg[] = sprintf(__('Album `%s` assigned to %d items', 'gmLang'), esc_html($alb_name), $count);
+                                    if(!empty($term_ids)){
+                                        global $wpdb;
+
+                                        foreach($term_ids as $term_id => $item_ids){
+                                            $term = $gmDB->get_term($term_id, 'gmedia_album');
+                                            if(isset($_POST['status_global'])){
+                                                $values = array();
+                                                foreach ($selected_items as $item) {
+                                                    $values[] = $wpdb->prepare("%d", $item);
+                                                }
+                                                if ($values) {
+                                                    $status = esc_sql($term->status);
+                                                    if (false === $wpdb->query("UPDATE {$wpdb->prefix}gmedia SET status = '{$status}' WHERE ID IN (" . join(',', $values) . ")")) {
+                                                        $this->error[] = __('Could not update statuses for gmedia items in the database');
+                                                    }
+                                                }
+                                            }
+                                            $this->msg[] = sprintf(__('Album `%s` assigned to %d items', 'gmLang'), esc_html($term->name), count($item_ids));
+                                        }
+                                    }
 								}
 							}
 						} else{

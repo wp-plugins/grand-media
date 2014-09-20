@@ -107,6 +107,13 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 
 == Changelog ==
 
+= 1.2.5 =
+* Improved "edit status" for albums and gmedia items
+* New options on upload form
+* Different colors depended on item status
+* Fixed preview template
+* Check PHP Memory Limit on update images
+
 = 1.2.4 =
 * Compatibility with WP 4.0
 * Added status for gmedia files (public, private)

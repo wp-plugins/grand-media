@@ -5,6 +5,12 @@ html { background:#708090; }
 #TB_caption { height:auto; }
 a { color:#0074a2; }
 input[type="checkbox"] { margin-top:2px; margin-right:2px }
+input::-moz-focus-inner {
+    border: 0;
+    padding: 0;
+    margin-top:-2px;
+    margin-bottom: -2px;
+}
 form {margin:0;}
 body.gmedia-busy { cursor:wait !important; }
 iframe, iframe html { background-color:#ffffff; }
@@ -93,11 +99,15 @@ a.text-danger{ color:#a94442; }
 
 div#gm-list-table { font-size:13px; }
 .list-group-item.row { position:relative; margin-left:0; margin-right:0; padding-left:0; padding-right:0; }
-.list-group-item.d-row { position:relative; }
+.list-group-item.d-row { position:relative; color: inherit; }
 .no-touch div.list-group-item.d-row:hover { background-color:#fafafa; }
 .no-touch form.list-group-item.d-row:hover { background-color:#fcfcfc; }
 .list-group-item.d-row.active { color:#444; border-color: #ddd; background-color:rgb(250, 255, 245); box-shadow:inset -1px 0 0 2px rgb(250, 255, 245), inset 7px 0 0 0 #1e8cbe; }
 .no-touch .list-group-item.d-row.active:hover { color:#444; border-color: #ddd; background-color:rgb(245, 255, 240); box-shadow:inset -1px 0 0 2px rgb(245, 255, 240), inset 7px 0 0 0 #1e8cbe; }
+.list-group-item-info { background-color: #d9edf7 !important; }
+.list-group-item-warning { background-color: #fcf8e3 !important; }
+.bg-status-private { background-color: #d9edf7; box-shadow:3px 0 0 5px #d9edf7, -2px 0 0 5px #6fbfff; }
+.bg-status-draft { background-color: #fcf8e3; box-shadow:3px 0 0 5px #fcf8e3, -2px 0 0 5px #ffd87c; }
 
 label.cb_media-object { margin-right:15px; float:left; width:310px; max-width: 100%; }
 div.li_media-object { margin-right:15px; padding-left:15px; float:left; width:310px; max-width: 100%; }
@@ -124,13 +134,14 @@ form#adv-settings .form-inline .form-group { margin-right:20px; }
 form.changed { }
 form.changed.saved { }
 form.changed .gm-last-edited { text-decoration:line-through; }
+.selectize-input.full input { width: 4px !important; }
 
 .rel-selected-hide { display:none; }
 
 div#pluploadUploader { padding:0; }
 div#pluploadUploader * { box-sizing:content-box; }
 .plupload_container { padding:0; }
-div#pluploadUploader_container { border-bottom-right-radius: 4px; }
+div#pluploadUploader_container { min-height: 450px; border-bottom-right-radius: 4px; }
 div#pluploadUploader_container .plupload_filelist_footer { border-bottom-right-radius: 4px; }
 div.panel-body, div#gmedia-msg-panel { -webkit-transition:all .2s ease-in-out; transition:all .2s ease-in-out; }
 div.panel-body:empty, div#gmedia-msg-panel:empty { padding:0; }

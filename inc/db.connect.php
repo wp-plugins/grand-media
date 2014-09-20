@@ -2701,30 +2701,44 @@ class GmediaDB{
 			return new WP_Error('gm_empty_term_name', __('A name is required for term'));
 		}
 
-		$term_id = $wpdb->get_var($wpdb->prepare("SELECT t.term_id FROM {$wpdb->prefix}gmedia_term AS t WHERE t.taxonomy = %s AND t.term_id = %d", $taxonomy, $term_id));
+        $term_id = $wpdb->get_var($wpdb->prepare("SELECT t.term_id FROM {$wpdb->prefix}gmedia_term AS t WHERE t.taxonomy = %s AND t.term_id = %d", $taxonomy, $term_id));
 		do_action("edit_gmedia_term", $term_id, $taxonomy);
 		$wpdb->update($wpdb->prefix . 'gmedia_term', compact('term_id', 'name', 'taxonomy', 'description', 'global', 'status'), array('term_id' => $term_id));
 		do_action('edited_gmedia_term', $term_id, $taxonomy);
 
-		if(('gmedia_album' == $taxonomy) && ('custom' == $orderby) && !empty($gmedia_ids)){
+		if(('gmedia_album' == $taxonomy) && (isset($status) || ('custom' == $orderby)) && !empty($gmedia_ids)){
 			$db_gmedia_ids = $this->get_gmedias(array('no_found_rows' => true, 'album__in' => $term_id, 'orderby' => $orderby, 'order' => 'ASC', 'fields' => 'ids'));
 			if(!empty($db_gmedia_ids)){
-				$db_gmedia_ids = array_flip($db_gmedia_ids);
-				if($gmedia_ids != $db_gmedia_ids){
-					$final_gmedia_ids = array_intersect_key($gmedia_ids, $db_gmedia_ids) + $db_gmedia_ids;
-					asort($final_gmedia_ids, SORT_NUMERIC);
-					$final_gmedia_ids = array_keys($final_gmedia_ids);
+                if(isset($status_global)){
+                    $values = array();
+                    foreach ($db_gmedia_ids as $gmedia_id) {
+                        $values[] = $wpdb->prepare("%d", $gmedia_id);
+                    }
+                    if ($values) {
+                        $status = esc_sql($status);
+                        if (false === $wpdb->query("UPDATE {$wpdb->prefix}gmedia SET status = '{$status}' WHERE ID IN (" . join(',', $values) . ")")) {
+                            return new WP_Error('db_insert_error', __('Could not update statuses for gmedia items in the database'), $wpdb->last_error);
+                        }
+                    }
+                }
+                if('custom' == $orderby) {
+                    $db_gmedia_ids = array_flip($db_gmedia_ids);
+                    if ($gmedia_ids != $db_gmedia_ids) {
+                        $final_gmedia_ids = array_intersect_key($gmedia_ids, $db_gmedia_ids) + $db_gmedia_ids;
+                        asort($final_gmedia_ids, SORT_NUMERIC);
+                        $final_gmedia_ids = array_keys($final_gmedia_ids);
 
-					$values = array();
-					foreach($final_gmedia_ids as $gmedia_order => $gmedia_id){
-						$values[] = $wpdb->prepare("(%d, %d, %d)", $gmedia_id, $term_id, $gmedia_order);
-					}
-					if($values){
-						if(false === $wpdb->query("INSERT INTO {$wpdb->prefix}gmedia_term_relationships (gmedia_id, gmedia_term_id, gmedia_order) VALUES " . join(',', $values) . " ON DUPLICATE KEY UPDATE gmedia_order = VALUES(gmedia_order)")){
-							return new WP_Error('db_insert_error', __('Could not insert gmedia term relationship into the database'), $wpdb->last_error);
-						}
-					}
-				}
+                        $values = array();
+                        foreach ($final_gmedia_ids as $gmedia_order => $gmedia_id) {
+                            $values[] = $wpdb->prepare("(%d, %d, %d)", $gmedia_id, $term_id, $gmedia_order);
+                        }
+                        if ($values) {
+                            if (false === $wpdb->query("INSERT INTO {$wpdb->prefix}gmedia_term_relationships (gmedia_id, gmedia_term_id, gmedia_order) VALUES " . join(',', $values) . " ON DUPLICATE KEY UPDATE gmedia_order = VALUES(gmedia_order)")) {
+                                return new WP_Error('db_insert_error', __('Could not insert gmedia term relationship into the database'), $wpdb->last_error);
+                            }
+                        }
+                    }
+                }
 			}
 		}
 
@@ -2871,9 +2885,9 @@ class GmediaDB{
 						$args = array();
 					}
 					$term_id = $this->insert_term($term, $taxonomy, $args);
-				}
-				if(is_wp_error($term_id)){
-					return $term_id;
+                    if(is_wp_error($term_id)){
+                        return $term_id;
+                    }
 				}
 				$term_ids[] = $term_id;
 
@@ -2888,7 +2902,7 @@ class GmediaDB{
 				$wpdb->insert($wpdb->prefix . 'gmedia_term_relationships', array('gmedia_id' => $object_id, 'gmedia_term_id' => $term_id));
 				do_action('added_gmedia_term_relationships', $object_id, $term_id);
 				$new_term_ids[] = $term_id;
-			}
+            }
 		}
 
 		if(!empty($new_term_ids)){

@@ -194,6 +194,8 @@ function gmedia_import_files($files, $terms, $move, $exists = 0){
 			}
 		}
 
+        global $gmDB;
+
 		// Write media data to DB
 		// TODO Option to set title empty string or from metadata or from filename or both
 		// use image exif/iptc data for title and caption defaults if possible
@@ -217,7 +219,20 @@ function gmedia_import_files($files, $terms, $move, $exists = 0){
 		}
 
 		$_terms = $terms;
-		if(!$is_webimage && isset($_terms['gmedia_category'])){
+
+        $gmedia_album = isset($_terms['gmedia_album'])? $_terms['gmedia_album'] : false;
+        if($gmedia_album && $this->is_digit($gmedia_album)){
+            $album = $gmDB->get_term($gmedia_album, 'gmedia_album');
+            if(empty($album) || is_wp_error($album)){
+                $status = 'public';
+            } else{
+                $status = $album->status;
+            }
+        } else{
+            $status = 'public';
+        }
+
+		if(!$is_webimage){
 			unset($_terms['gmedia_category']);
 		}
 
@@ -228,12 +243,12 @@ function gmedia_import_files($files, $terms, $move, $exists = 0){
 			'title' => $title,
 			'link' => $link,
 			'description' => $description,
+			'status' => $status,
 			'terms' => $_terms
 		);
 
 		unset($title, $description);
 
-		global $gmDB;
 		// Save the data
 		$id = $gmDB->insert_gmedia($media_data);
 		$gmDB->update_metadata($meta_type = 'gmedia', $id, $meta_key = '_metadata', $gmDB->generate_gmedia_metadata($id, $fileinfo));

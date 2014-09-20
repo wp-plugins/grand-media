@@ -74,16 +74,35 @@ function gmedia_upload_files(){
 	?>
 	<form class="row" id="gmUpload" name="upload_form" method="POST" accept-charset="utf-8" onsubmit="return false;">
 	<div class="col-md-4" id="uploader_multipart_params">
-		<br/>
+        <br/>
+        <?php if('false' == $gm_screen_options['uploader_chunking'] || ('html4' == $gm_screen_options['uploader_runtime'])){ ?>
+		    <p class="clearfix text-right"><span class="label label-default"><?php echo __('Maximum file size', 'gmLang') . ": {$maxupsize_mb}Mb"; ?></span></p>
+        <?php } else{ ?>
+            <p class="clearfix text-right hidden">
+                <span class="label label-default"><?php echo __('Maximum $_POST size', 'gmLang') . ": {$maxupsize_mb}Mb"; ?></span>
+                <span class="label label-default"><?php echo __('Chunk size', 'gmLang') . ': ' . min($maxupsize_mb, $gm_screen_options['uploader_chunk_size']) . 'Mb'; ?></span>
+            </p>
+        <?php } ?>
 
-		<p class="clearfix text-right">
-			<?php if('false' == $gm_screen_options['uploader_chunking'] || ('html4' == $gm_screen_options['uploader_runtime'])){ ?>
-				<span class="label label-default"><?php echo __('Maximum file size', 'gmLang') . ": {$maxupsize_mb}Mb"; ?></span>
-			<?php } else{ ?>
-				<span class="label label-default"><?php echo __('Maximum $_POST size', 'gmLang') . ": {$maxupsize_mb}Mb"; ?></span>
-				<span class="label label-default hidden"><?php echo __('Chunk size', 'gmLang') . ': ' . min($maxupsize_mb, $gm_screen_options['uploader_chunk_size']) . 'Mb'; ?></span>
-			<?php } ?>
-		</p>
+        <div class="form-group">
+            <label><?php _e('Title', 'gmLang'); ?></label>
+            <select name="set_title" class="form-control input-sm">
+                <option value="exif"><?php _e('EXIF or File Name', 'gmLang'); ?></option>
+                <option value="filename"><?php _e('File Name', 'gmLang'); ?></option>
+                <option value="empty"><?php _e('Empty', 'gmLang'); ?></option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label><?php _e('Status', 'gmLang'); ?></label>
+            <select name="set_status" class="form-control input-sm">
+                <option value="inherit"><?php _e('Same as Album or Public', 'gmLang'); ?></option>
+                <option value="public"><?php _e('Public', 'gmLang'); ?></option>
+                <option value="private"><?php _e('Private', 'gmLang'); ?></option>
+                <option value="draft"><?php _e('Draft', 'gmLang'); ?></option>
+            </select>
+        </div>
+
+        <hr />
 
 		<?php if($gmCore->caps['gmedia_terms']){ ?>
 			<div class="form-group">

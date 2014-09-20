@@ -270,6 +270,8 @@ jQuery(function($){
 					console.log(data);
 					var item = $('#list-item-' + data.ID);
 					item.find('.modified').text(data.modified);
+					item.find('.status-album').attr('class', 'form-group status-album bg-status-' + data.album_status);
+					item.find('.status-item').attr('class', 'form-group status-item bg-status-' + data.status);
 					if(data.tags){
 						item.find('.gmedia_tags_input').val(data.tags);
 					}

@@ -1391,37 +1391,60 @@ class GmediaCore{
 					}
 				}
 
-				// Write media data to DB
+                global $gmDB;
+
+                // Write media data to DB
+                $title = '';
+                $description = '';
 				$link = '';
-				$description = '';
 				// TODO Option to set title empty string or from metadata or from filename or both
-				$title = $fileinfo['title'];
 				// use image exif/iptc data for title and caption defaults if possible
 				if($size){
 					$image_meta = @wp_read_image_metadata($fileinfo['filepath_original']);
 					if(trim($image_meta['caption'])){
 						$description = $image_meta['caption'];
 					}
-					if(trim($image_meta['title']) && !is_numeric(sanitize_title($image_meta['title']))){
-						$title = $image_meta['title'];
-					}
+                    if('exif' == $post_data['set_title']) {
+                        if (trim($image_meta['title']) && !is_numeric(sanitize_title($image_meta['title']))) {
+                            $title = $image_meta['title'];
+                        }
+                    }
 				}
+                if(('empty' != $post_data['set_title']) && empty($title)) {
+                    $title = $fileinfo['title'];
+                }
 
-				// Construct the media array
+                $status = $post_data['set_status'];
+                if('inherit' == $post_data['set_status']){
+                    $gmedia_album = isset($post_data['terms']['gmedia_album'])? $post_data['terms']['gmedia_album'] : false;
+                    if($gmedia_album && $this->is_digit($gmedia_album)){
+                        $album = $gmDB->get_term($gmedia_album, 'gmedia_album');
+                        if(empty($album) || is_wp_error($album)){
+                            $status = 'public';
+                        } else{
+                            $status = $album->status;
+                        }
+                    } else{
+                        $status = 'public';
+                    }
+                }
+
+                unset($post_data['gmuid'], $post_data['mime_type'], $post_data['set_title'], $post_data['set_status']);
+                if(!$is_webimage && isset($post_data['terms']['gmedia_category'])){
+                    unset($post_data['terms']['gmedia_category']);
+                }
+
+                // Construct the media array
 				$media_data = array(
 					'mime_type' => $fileinfo['mime_type'],
 					'gmuid' => $fileinfo['basename'],
 					'title' => $title,
 					'link' => $link,
-					'description' => $description
+					'description' => $description,
+					'status' => $status
 				);
-				unset($post_data['gmuid'], $post_data['mime_type']);
-				if(!$is_webimage && isset($post_data['terms']['gmedia_category'])){
-					unset($post_data['terms']['gmedia_category']);
-				}
 				$media_data = wp_parse_args($post_data, $media_data);
 
-				global $gmDB;
 				// Save the data
 				$id = $gmDB->insert_gmedia($media_data);
 				$gmDB->update_metadata($meta_type = 'gmedia', $id, $meta_key = '_metadata', $gmDB->generate_gmedia_metadata($id, $fileinfo));
