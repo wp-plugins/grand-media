@@ -107,6 +107,9 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 
 == Changelog ==
 
+= 1.2.6 =
+* Disable PHP error reporting on update.php file
+
 = 1.2.5 =
 * Improved "edit status" for albums and gmedia items
 * New options on upload form
