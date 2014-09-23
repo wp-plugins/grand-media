@@ -116,7 +116,7 @@ class GmediaCore{
 		$remove_args = array_unique(array_merge(array('doing_wp_cron', '_wpnonce', 'delete'), $remove_args, array_keys($add_args)));
 		$new_uri = remove_query_arg($remove_args, $uri);
 		if(!empty($add_args)){
-			$new_uri = add_query_arg($add_args, $uri);
+			$new_uri = add_query_arg($add_args, $new_uri);
 		}
 
 		return $new_uri;
@@ -1397,6 +1397,12 @@ class GmediaCore{
                 $title = '';
                 $description = '';
 				$link = '';
+                if(!isset($post_data['set_title'])){
+                    $post_data['set_title'] = 'filename';
+                }
+                if(!isset($post_data['set_status'])){
+                    $post_data['set_status'] = isset($post_data['status'])? $post_data['status'] : 'inherit';
+                }
 				// TODO Option to set title empty string or from metadata or from filename or both
 				// use image exif/iptc data for title and caption defaults if possible
 				if($size){
