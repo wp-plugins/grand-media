@@ -2194,6 +2194,8 @@ class GmediaDB{
 	 *
 	 * offset - The number by which to offset the terms query.
 	 *
+     * status - can be used generaly for albums. Defaults: 'public', 'private', 'draft'.
+	 *
 	 * fields - Default is 'all', which returns an array of term objects.
 	 * If 'fields' is 'ids' or 'names', returns an array of
 	 * integers or strings, respectively.
@@ -2206,12 +2208,6 @@ class GmediaDB{
 	 *
 	 * The 'get' argument, if set to 'all' instead of its default empty string,
 	 * returns terms regardless of ancestry or whether the terms are empty.
-	 *
-	 * The 'child_of' argument, when used, should be set to the integer of a term ID.  Its default
-	 * is 0.  If set to a non-zero value, all returned terms will be descendants
-	 * of that term according to the given taxonomy.  Hence 'child_of' is set to 0
-	 * if more than one taxonomy is passed in $taxonomies, because multiple taxonomies
-	 * make term ancestry ambiguous.
 	 *
 	 * The 'global' argument, when used, should be set to the integer of a term ID.  Its default is
 	 * the empty string '', which has a different meaning from the integer 0.
@@ -2259,6 +2255,7 @@ class GmediaDB{
 			'offset' => '',
 			'search' => '',
 			'global' => '',
+			'status' => '',
 			'page' => 1,
 			'no_found_rows' => false
 		);
@@ -2286,6 +2283,7 @@ class GmediaDB{
 		 * @var  $offset
 		 * @var  $search
 		 * @var  $global
+		 * @var  $status
 		 * @var  $page
 		 * @var  $no_found_rows
 		 * */
@@ -2404,6 +2402,18 @@ class GmediaDB{
 		if(!empty($search)){
 			$search = addcslashes( $search, '_%\\' );
 			$where .= $wpdb->prepare(" AND (t.name LIKE %s)", '%' . $search . '%');
+		}
+
+		if(!empty($status)){
+            if(is_array($status)){
+                $arr_status = array();
+                foreach($status as $_status){
+                    $arr_status[] = $wpdb->prepare("t.status = %s", $_status);
+                }
+                $where .= ' AND (' . implode(' OR ', $arr_status) . ')';
+            } else {
+                $where .= $wpdb->prepare(" AND t.status = %s", $status);
+            }
 		}
 
 		switch($fields){
@@ -2565,7 +2575,7 @@ class GmediaDB{
 	 */
 	function insert_term($term, $taxonomy, $args = array()){
 		/** @var $wpdb wpdb */
-		global $wpdb, $gmDB, $gmGallery;
+		global $wpdb, $gmDB, $gmGallery, $user_ID;
 
 		if(!isset($gmGallery->options['taxonomies'][$taxonomy])){
 			return new WP_Error('gm_invalid_taxonomy', __('Invalid taxonomy'));
@@ -2584,7 +2594,7 @@ class GmediaDB{
 			return new WP_Error('gm_empty_term_name', __('A name is required for this term'));
 		}
 
-		$defaults = array('description' => '', 'global' => 0, 'status' => 'public');
+		$defaults = array('description' => '', 'global' => intval($user_ID), 'status' => 'public');
 		$args = wp_parse_args($args, $defaults);
 		$args['name'] = $term;
 		$args['taxonomy'] = $taxonomy;
@@ -2680,12 +2690,11 @@ class GmediaDB{
 		// Merge old and new args with new args overwriting old ones.
 		$args = array_merge($term, $args);
 
-		$defaults = array('name' => '', 'description' => '', 'global' => 0, 'orderby' => 'ID', 'order' => 'DESC', 'status' => 'public', 'gmedia_ids' => array());
+		$defaults = array('name' => '', 'description' => '', 'orderby' => 'ID', 'order' => 'DESC', 'status' => 'public', 'gmedia_ids' => array());
 		$args = wp_parse_args($args, $defaults);
 
 		/** @var $name
 		 * @var  $description
-		 * @var  $global
 		 * @var  $orderby
 		 * @var  $order
 		 * @var  $status
@@ -2700,6 +2709,9 @@ class GmediaDB{
 		if('' == trim($name)){
 			return new WP_Error('gm_empty_term_name', __('A name is required for term'));
 		}
+        if(!isset($global) || !current_user_can('gmedia_edit_others_media')){
+            $global = $term->global;
+        }
 
         $term_id = $wpdb->get_var($wpdb->prepare("SELECT t.term_id FROM {$wpdb->prefix}gmedia_term AS t WHERE t.taxonomy = %s AND t.term_id = %d", $taxonomy, $term_id));
 		do_action("edit_gmedia_term", $term_id, $taxonomy);
@@ -2875,7 +2887,11 @@ class GmediaDB{
 				}
 				if(!$term_id = $this->term_exists($term, $taxonomy, $global)){
 					// Skip if a non-existent term ID is passed or if taxonomy is category or if user is not allowed to add new terms.
-					if($gmCore->is_digit($term) || ($append < 0) || ('gmedia_category' == $taxonomy && !array_key_exists($term, $gmGallery->options['taxonomies']['gmedia_category'])) || ('gmedia_category' != $taxonomy && !current_user_can($taxonomy . '_manage'))
+					if(
+                        $gmCore->is_digit($term) ||
+                        ($append < 0) ||
+                        ('gmedia_category' == $taxonomy && !array_key_exists($term, $gmGallery->options['taxonomies']['gmedia_category'])) ||
+                        ('gmedia_category' != $taxonomy && !current_user_can($taxonomy . '_manage'))
 					){
 						continue;
 					}
@@ -2888,7 +2904,14 @@ class GmediaDB{
                     if(is_wp_error($term_id)){
                         return $term_id;
                     }
-				}
+				} else{
+                    if(('gmedia_album' == $taxonomy) && !current_user_can('gmedia_edit_others_media')){
+                        $alb = $this->get_term($term_id, 'gmedia_album');
+                        if($alb->global && ($alb->global != get_current_user_id())){
+                            continue;
+                        }
+                    }
+                }
 				$term_ids[] = $term_id;
 
 				if($append < 0){

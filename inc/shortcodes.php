@@ -65,6 +65,15 @@ function gmedia_shortcode($atts, $content = ''){
 	} elseif(empty($gallery)){
 		return '<div class="gmedia_gallery gmediaShortcodeError">#' . $id . ': ' . sprintf(__('No gallery with ID #%s in database'), $id) . '<br />' . $content . '</div>';
 	} else{
+		if(is_user_logged_in()){
+			if(($gallery['status'] == 'draft') && ($gallery['global'] != get_current_user_id())){
+				return '';
+			}
+		} else {
+			if ( in_array($gallery['status'], array('private', 'draft') )){
+				return '';
+			}
+		}
 		$gallery = array_merge($_gallery, $gallery);
 		$gallery_meta = $gmDB->get_metadata('gmedia_term', $id);
 		$gallery_meta = array_map('reset', $gallery_meta);

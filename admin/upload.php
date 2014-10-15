@@ -37,6 +37,10 @@ if(!isset($_REQUEST["name"])){
 global $gmCore;
 $filename = $_REQUEST["name"];
 $fileinfo = $gmCore->fileinfo($filename);
+if(false === $fileinfo){
+    $return = json_encode(array("error" => array("code" => 100, "message" => __("File type not allowed.", 'gmLang')), "id" => $_REQUEST["name"]));
+    die($return);
+}
 
 // Look for the content type header
 $contentType = '';

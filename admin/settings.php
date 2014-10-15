@@ -11,7 +11,7 @@ if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])){
 function gmSettings(){
 	global $gmDB, $gmCore, $gmGallery;
 
-	?>
+    ?>
 
 	<form class="panel panel-default" method="post">
 		<div class="panel-heading clearfix">
@@ -67,53 +67,55 @@ function gmSettings(){
 							</div>
 							<hr/>
 
+                            <div class="form-group">
+                                <label><?php _e('Upload Media Files', 'gmLang') ?>:</label>
+                                <select name="capability[gmedia_upload]" class="form-control input-sm"><?php wp_dropdown_roles($gmDB->get_role('gmedia_upload')); ?></select>
+
+                                <p class="help-block"><?php _e('Who can upload files to Gmedia Library', 'gmLang'); ?></p>
+                            </div>
+                            <div class="col-xs-offset-1">
+                                <div class="form-group">
+                                    <label><?php _e('Import Media Files', 'gmLang') ?>:</label>
+                                    <select name="capability[gmedia_import]" class="form-control input-sm"><?php wp_dropdown_roles($gmDB->get_role('gmedia_import')); ?></select>
+
+                                    <p class="help-block"><?php _e('Who can import files to Gmedia Library', 'gmLang'); ?></p>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label><?php _e('Show Others Media in Library', 'gmLang') ?>:</label>
+                                <select name="capability[gmedia_show_others_media]" class="form-control input-sm"><?php wp_dropdown_roles($gmDB->get_role('gmedia_show_others_media')); ?></select>
+
+                                <p class="help-block"><?php _e('Who can see files uploaded by other users', 'gmLang'); ?></p>
+                            </div>
 							<div class="form-group">
 								<label><?php _e('Edit Media', 'gmLang') ?>:</label>
 								<select name="capability[gmedia_edit_media]" class="form-control input-sm"><?php wp_dropdown_roles($gmDB->get_role('gmedia_edit_media')); ?></select>
 
 								<p class="help-block"><?php _e('Who can edit media title, description and other properties of uploaded files', 'gmLang'); ?></p>
 							</div>
+                            <div class="col-xs-offset-1">
+                                <div class="form-group">
+                                    <label><?php _e('Edit Others Media', 'gmLang') ?>:</label>
+                                    <select name="capability[gmedia_edit_others_media]" class="form-control input-sm"><?php wp_dropdown_roles($gmDB->get_role('gmedia_edit_others_media')); ?></select>
+
+                                    <p class="help-block"><?php _e('Who can edit files, albums/tags and galleries of other users', 'gmLang'); ?></p>
+                                </div>
+                            </div>
 							<div class="form-group">
 								<label><?php _e('Delete Media', 'gmLang') ?>:</label>
 								<select name="capability[gmedia_delete_media]" class="form-control input-sm"><?php wp_dropdown_roles($gmDB->get_role('gmedia_delete_media')); ?></select>
 
 								<p class="help-block"><?php _e('Who can delete uploaded files from Gmedia Library', 'gmLang'); ?></p>
 							</div>
-							<div class="form-group">
-								<label><?php _e('Show Others Media', 'gmLang') ?>:</label>
-								<select name="capability[gmedia_show_others_media]" class="form-control input-sm"><?php wp_dropdown_roles($gmDB->get_role('gmedia_show_others_media')); ?></select>
+                            <div class="col-xs-offset-1">
+                                <div class="form-group">
+                                    <label><?php _e('Delete Others Media', 'gmLang') ?>:</label>
+                                    <select name="capability[gmedia_delete_others_media]" class="form-control input-sm"><?php wp_dropdown_roles($gmDB->get_role('gmedia_delete_others_media')); ?></select>
 
-								<p class="help-block"><?php _e('Who can see files uploaded by other users', 'gmLang'); ?></p>
-							</div>
-							<div class="col-xs-offset-1">
-								<div class="form-group">
-									<label><?php _e('Edit Others Media', 'gmLang') ?>:</label>
-									<select name="capability[gmedia_edit_others_media]" class="form-control input-sm"><?php wp_dropdown_roles($gmDB->get_role('gmedia_edit_others_media')); ?></select>
-
-									<p class="help-block"><?php _e('Who can edit files, albums/tags and galleries of other users', 'gmLang'); ?></p>
-								</div>
-								<div class="form-group">
-									<label><?php _e('Delete Others Media', 'gmLang') ?>:</label>
-									<select name="capability[gmedia_delete_others_media]" class="form-control input-sm"><?php wp_dropdown_roles($gmDB->get_role('gmedia_delete_others_media')); ?></select>
-
-									<p class="help-block"><?php _e('Who can delete files, albums/tags and galleries of other users', 'gmLang'); ?></p>
-								</div>
-							</div>
-
-							<div class="form-group">
-								<label><?php _e('Upload Media Files', 'gmLang') ?>:</label>
-								<select name="capability[gmedia_upload]" class="form-control input-sm"><?php wp_dropdown_roles($gmDB->get_role('gmedia_upload')); ?></select>
-
-								<p class="help-block"><?php _e('Who can upload files to Gmedia Library', 'gmLang'); ?></p>
-							</div>
-							<div class="col-xs-offset-1">
-								<div class="form-group">
-									<label><?php _e('Import Media Files', 'gmLang') ?>:</label>
-									<select name="capability[gmedia_import]" class="form-control input-sm"><?php wp_dropdown_roles($gmDB->get_role('gmedia_import')); ?></select>
-
-									<p class="help-block"><?php _e('Who can import files to Gmedia Library', 'gmLang'); ?></p>
-								</div>
-							</div>
+                                    <p class="help-block"><?php _e('Who can delete files, albums/tags and galleries of other users', 'gmLang'); ?></p>
+                                </div>
+                            </div>
 
 							<div class="form-group">
 								<label><?php _e('Albums, Tags...', 'gmLang') ?>:</label>
@@ -126,19 +128,19 @@ function gmSettings(){
 									<label><?php _e('Manage Albums', 'gmLang') ?>:</label>
 									<select name="capability[gmedia_album_manage]" class="form-control input-sm"><?php wp_dropdown_roles($gmDB->get_role('gmedia_album_manage')); ?></select>
 
-									<p class="help-block"><?php _e('Who can add and edit own albums', 'gmLang'); ?></p>
+									<p class="help-block"><?php _e('Who can create and edit own albums. It is required "Edit Others Media" capability to edit others and shared albums', 'gmLang'); ?></p>
 								</div>
 								<div class="form-group">
 									<label><?php _e('Manage Tags', 'gmLang') ?>:</label>
 									<select name="capability[gmedia_tag_manage]" class="form-control input-sm"><?php wp_dropdown_roles($gmDB->get_role('gmedia_tag_manage')); ?></select>
 
-									<p class="help-block"><?php _e('Who can add and edit tags', 'gmLang'); ?></p>
+									<p class="help-block"><?php _e('Who can create new tags. It is required "Edit Others Media" capability to edit tags', 'gmLang'); ?></p>
 								</div>
 								<div class="form-group">
 									<label><?php _e('Delete Terms', 'gmLang') ?>:</label>
 									<select name="capability[gmedia_terms_delete]" class="form-control input-sm"><?php wp_dropdown_roles($gmDB->get_role('gmedia_terms_delete')); ?></select>
 
-									<p class="help-block"><?php _e('Who can delete own albums or all terms if allowed "Delete Others Media"', 'gmLang'); ?></p>
+									<p class="help-block"><?php _e('Who can delete own albums. It is required "Delete Others Media" capability to delete others terms', 'gmLang'); ?></p>
 								</div>
 							</div>
 
@@ -146,7 +148,7 @@ function gmSettings(){
 								<label><?php _e('Galleries', 'gmLang') ?>:</label>
 								<select name="capability[gmedia_gallery_manage]" class="form-control input-sm"><?php wp_dropdown_roles($gmDB->get_role('gmedia_gallery_manage')); ?></select>
 
-								<p class="help-block"><?php _e('Who can add, edit and delete own galleries', 'gmLang'); ?></p>
+								<p class="help-block"><?php _e('Who can create, edit and delete own galleries', 'gmLang'); ?></p>
 							</div>
 
 							<div class="form-group">

@@ -217,9 +217,11 @@ function gmediaTerms()
                             <div class="col-xs-6">
                                 <div class="form-group">
                                     <label><?php _e('Author', 'gmLang'); ?></label>
-                                    <?php $user_ids = $gmCore->get_editable_user_ids();
+                                    <?php $user_ids = $gmCore->caps['gmedia_delete_others_media']? $gmCore->get_editable_user_ids() : array($user_ID);
                                     if ($user_ids && $gmCore->caps['gmedia_edit_others_media']) {
-                                        $shared_option = current_user_can('manage_options') ? __('Shared', 'gmLang') : '';
+                                        if(!in_array($user_ID, $user_ids)){
+                                            array_push($user_ids, $user_ID);
+                                        }
                                         wp_dropdown_users(array(
                                             'include' => $user_ids,
                                             'include_selected' => true,
@@ -227,7 +229,7 @@ function gmediaTerms()
                                             'selected' => $user_ID,
                                             'class' => 'form-control input-sm',
                                             'multi' => true,
-                                            'show_option_all' => $shared_option
+                                            'show_option_all' => __('Shared', 'gmLang')
                                         ));
                                     } else {
                                         echo '<input type="hidden" name="term[global]" value="' . $user_ID . '"/>';
@@ -753,9 +755,11 @@ function gmediaAlbumEdit()
                             <div class="col-xs-6">
                                 <div class="form-group">
                                     <label><?php _e('Author', 'gmLang'); ?></label>
-                                    <?php $user_ids = $gmCore->caps['gmedia_edit_others_media'] ? $gmCore->get_editable_user_ids() : false;
-                                    if ($user_ids) {
-                                        $shared_option = current_user_can('manage_options') ? __('Shared', 'gmLang') : '';
+                                    <?php $user_ids = $gmCore->caps['gmedia_delete_others_media'] ? $gmCore->get_editable_user_ids() : array($user_ID);
+                                    if ($user_ids && $gmCore->caps['gmedia_edit_others_media']) {
+                                        if(!in_array($user_ID, $user_ids)){
+                                            array_push($user_ids, $user_ID);
+                                        }
                                         wp_dropdown_users(array(
                                             'include' => $user_ids,
                                             'include_selected' => true,
@@ -763,7 +767,7 @@ function gmediaAlbumEdit()
                                             'selected' => $term->global,
                                             'class' => 'form-control input-sm',
                                             'multi' => true,
-                                            'show_option_all' => $shared_option
+                                            'show_option_all' => __('Shared', 'gmLang')
                                         ));
                                     } else {
                                         echo '<input type="hidden" name="term[global]" value="' . $user_ID . '"/>';

@@ -73,8 +73,13 @@ function gmediaGalleries(){
 		<div class="panel-heading clearfix">
 			<form class="form-inline gmedia-search-form" role="search" method="get">
 				<div class="form-group">
-					<input type="hidden" name="page" value="<?php echo $gmProcessor->page; ?>"/>
-					<input type="hidden" name="term" value="<?php echo $taxonomy; ?>"/>
+                    <?php foreach($_GET as $key => $value){
+                        if(in_array($key, array('orderby', 'order', 'number', 'global'))){
+                            ?>
+                            <input type="hidden" name="<?php echo $key; ?>" value="<?php echo $value; ?>"/>
+                        <?php
+                        }
+                    } ?>
 					<input id="gmedia-search" class="form-control input-sm" type="text" name="s" placeholder="<?php _e('Search...', 'gmLang'); ?>" value="<?php echo $gmCore->_get('s', ''); ?>"/>
 				</div>
 				<button type="submit" class="btn btn-default input-sm"><span class="glyphicon glyphicon-search"></span></button>
@@ -160,8 +165,17 @@ function gmediaGalleries(){
 					}
 
 					$is_selected = in_array($term->term_id, $gmProcessor->selected_items)? true : false;
+
+                    $list_row_class = '';
+                    if ('public' != $term->status) {
+                        if('private' == $term->status){
+                            $list_row_class = ' list-group-item-info';
+                        } elseif('draft' == $term->status){
+                            $list_row_class = ' list-group-item-warning';
+                        }
+                    }
 					?>
-					<div class="list-group-item row d-row<?php echo $is_selected? ' active' : ''; ?>" id="list-item-<?php echo $term->term_id; ?>" data-id="<?php echo $term->term_id; ?>" data-type="<?php echo $term_meta['module']; ?>">
+					<div class="list-group-item row d-row<?php echo $list_row_class . ($is_selected? ' active' : ''); ?>" id="list-item-<?php echo $term->term_id; ?>" data-id="<?php echo $term->term_id; ?>" data-type="<?php echo $term_meta['module']; ?>">
 						<div class="term_id">#<?php echo $term->term_id; ?></div>
 						<div class="col-xs-7">
 							<label class="cb_media-object" style="width:130px;">
@@ -512,7 +526,7 @@ function gmediaGalleryEdit(){
 						}  ?></p>
 
 					<p><b><?php _e('Gallery author:', 'gmLang'); ?></b>
-						<?php if($gmCore->caps['gmedia_edit_others_media']){ ?>
+						<?php if($gmCore->caps['gmedia_delete_others_media']){ ?>
 							<a href="#gallModal" data-modal="filter_authors" data-action="gmedia_get_modal" class="gmedia-modal" title="<?php _e('Click to choose author for gallery', 'gmLang'); ?>"><?php echo $gallery['global']? get_the_author_meta('display_name', $gallery['global']) : __('(no author / shared albums)'); ?></a>
 							<?php if($author_new){
 								echo '<br /><span class="text-danger">' . __('Note: Author changed but not saved yet. You can see Albums list only of chosen author') . '</span>';
@@ -534,11 +548,8 @@ function gmediaGalleryEdit(){
 						<label><?php _e('Status', 'gmLang'); ?></label>
 						<select name="gallery[status]" class="form-control input-sm">
 							<option value="public"<?php selected($gallery['status'], 'public'); ?>><?php _e('Public', 'gmLang'); ?></option>
-							<?php /* ?>
-									<option value="private"<?php selected($gallery['status'], 'private'); ?>><?php _e('Private', 'gmLang'); ?></option>
-									<option value="draft"<?php selected($gallery['status'], 'draft'); ?>><?php _e('Draft', 'gmLang'); ?></option>
-								<?php */
-							?>
+							<option value="private"<?php selected($gallery['status'], 'private'); ?>><?php _e('Private', 'gmLang'); ?></option>
+							<option value="draft"<?php selected($gallery['status'], 'draft'); ?>><?php _e('Draft', 'gmLang'); ?></option>
 						</select>
 					</div>
 					<div class="form-group">

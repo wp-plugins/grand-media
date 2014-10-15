@@ -1,100 +1,454 @@
 <?php
-if(preg_match('#' . basename(dirname(__FILE__)) . '/' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])){
-	die('You are not allowed to call this page directly.');
+if ( preg_match( '#' . basename( dirname( __FILE__ ) ) . '/' . basename( __FILE__ ) . '#', $_SERVER['PHP_SELF'] ) ) {
+	die( 'You are not allowed to call this page directly.' );
 }
 
 /**
  * @title  Add action/filter for the upload tab
  */
 
-if(current_user_can('gmedia_library')){
-	add_filter('media_upload_tabs', 'gmedia_upload_tabs');
-	add_action('media_upload_gmedia', 'media_upload_gmedia');
+if ( current_user_can( 'gmedia_library' ) ) {
+	add_filter( 'media_buttons_context', 'gmedia_media_buttons_context', 4 );
+	add_filter( 'media_upload_tabs', 'gmedia_upload_tabs' );
+	add_action( 'media_upload_gmedia_library', 'media_upload_gmedia' );
+	add_action( 'media_upload_gmedia_galleries', 'media_upload_gmedia' );
 }
 
+
+/**
+ * @param $context
+ *
+ * @return string
+ */
+function gmedia_media_buttons_context( $context ) {
+	global $post;
+	$button = '
+	<div style="display:inline-block;">
+	    <a id="gmedia-modal" title="Gmedia Galleries" class="gmedia_button insert-media button" href="#gmedia"><span class="wp-media-buttons-icon" style="background: url(' . plugins_url( GMEDIA_FOLDER . '/admin/images/gm-icon.png' ) . ') no-repeat top left;"></span> ' . __( 'Gmedia', 'gmLang' ) . '</a>
+	    <script type="text/html" id="tpl__gm-uploader">
+            <div id="__gm-uploader" tabindex="0">
+                <div class="media-modal wp-core-ui"><a class="media-modal-close" href="#"><span class="media-modal-icon"></span></a>
+                    <div class="media-modal-content"><div class="media-frame wp-core-ui hide-router hide-toolbar">
+                        <div class="media-frame-title"><h1>' . __( 'Gmedia Galleries', 'gmLang' ) . '</h1></div>
+                        <div class="media-frame-menu"><div class="media-menu">
+                            <a id="gmedia-modal-galleries" class="media-menu-item active" target="gmedia_frame" href="' . add_query_arg( array( 'post_id' => $post->ID, 'tab' => 'gmedia_galleries', 'chromeless' => true ), admin_url( 'media-upload.php' ) ) . '">' . __( 'Gmedia Galleries', 'gmLang' ) . '</a>
+                            <a id="gmedia-modal-library" class="media-menu-item" target="gmedia_frame" href="' . add_query_arg( array( 'post_id' => $post->ID, 'tab' => 'gmedia_library', 'chromeless' => true ), admin_url( 'media-upload.php' ) ) . '">' . __( 'Gmedia Library', 'gmLang' ) . '</a>';
+	if ( current_user_can( 'gmedia_upload' ) ) {
+		$button .= '
+                            <a id="gmedia-modal-upload" class="media-menu-item" target="gmedia_frame" href="' . add_query_arg( array( 'post_id' => $post->ID, 'tab' => 'gmedia_library', 'action' => 'upload', 'chromeless' => true ), admin_url( 'media-upload.php' ) ) . '">' . __( 'Gmedia Upload', 'gmLang' ) . '</a>';
+	}
+	$button .= '
+                        </div></div>
+                        <div class="media-frame-content"><div class="media-iframe"><iframe name="gmedia_frame" src="' . add_query_arg( array( 'post_id' => $post->ID, 'tab' => 'gmedia_galleries', 'chromeless' => true ), admin_url( 'media-upload.php' ) ) . '"></iframe></div></div>
+                    </div></div>
+                </div><div class="media-modal-backdrop"></div>
+            </div>
+        </script>
+	</div>';
+
+	return $context . $button;
+}
 
 /**
  * @param $tabs
  *
  * @return array
  */
-function gmedia_upload_tabs($tabs){
+function gmedia_upload_tabs( $tabs ) {
 
-	$newtab = array('gmedia' => __('Gmedia Gallery', 'gmLang'));
+	$newtab = array(
+		'gmedia_library'   => __( 'Gmedia Library', 'gmLang' ),
+		'gmedia_galleries' => __( 'Gmedia Galleries', 'gmLang' )
+	);
 
-	return array_merge($tabs, $newtab);
+	if ( is_array( $tabs ) ) {
+		return array_merge( $tabs, $newtab );
+	}
+
+	return $newtab;
 }
 
-function media_upload_gmedia(){
+function media_upload_gmedia() {
 	global $gmCore, $gmDB;
 
-	wp_iframe('media_upload_gmedia_form');
+	add_action( 'admin_enqueue_scripts', 'gmedia_add_media_popup_enqueue_scripts' );
 
-	// Generate TinyMCE HTML output
-	if(isset($_POST['media-upload-insert-gmedia'])){
-
-		$id = $gmCore->_post('ID', 0);
-
-		if(($gmedia = $gmDB->get_gmedia($id))){
-
-			$meta = $gmDB->get_metadata('gmedia', $gmedia->ID, '_metadata', true);
-
-			$size = $gmCore->_post('size', 'web');
-			$src = $gmCore->gm_get_media_image($gmedia, $size);
-			$width = $meta[$size]['width'];
-			$height = $meta[$size]['height'];
-			$title = esc_attr($gmCore->_post('title', ''));
-			$align = esc_attr($gmCore->_post('align', 'none'));
-			$link = trim(esc_attr($gmCore->_post('link', '')));
-			$caption = trim($gmCore->_post('description', ''));
-
-			$html = "<img src='{$src}' width='{$width}' height='{$height}' alt='{$title}' title='{$title}' id='gmedia-image-{$id}' class='gmedia-singlepic align{$align}' />";
-
-			if($link){
-				$html = "<a href='{$link}'>{$html}</a>";
-			}
-			if($caption){
-				$html = image_add_caption($html, false, $caption, $title, $align, $src, $size, $title);
-			}
-
-			// Return it to TinyMCE
-			media_send_to_editor($html);
+	$action = $gmCore->_get( 'action' );
+	if ( did_action( 'media_upload_gmedia_galleries' ) ) {
+		wp_iframe( 'gmedia_add_media_galleries' );
+	} elseif ( did_action( 'media_upload_gmedia_library' ) ) {
+		if ( ( 'upload' == $action ) && current_user_can( 'gmedia_upload' ) ) {
+			wp_iframe( 'gmedia_add_media_upload' );
+		} else {
+			wp_iframe( 'gmedia_add_media_library' );
 		}
 	}
 
+	// Generate TinyMCE HTML output
+	if ( isset( $_POST['gmedia_library_insert'] ) ) {
+
+		$id = $gmCore->_post( 'ID', 0 );
+
+		if ( ( $gmedia = $gmDB->get_gmedia( $id ) ) ) {
+
+			$meta = $gmDB->get_metadata( 'gmedia', $gmedia->ID, '_metadata', true );
+
+			$size    = $gmCore->_post( 'size', 'web' );
+			$src     = $gmCore->gm_get_media_image( $gmedia, $size );
+			$width   = $meta[ $size ]['width'];
+			$height  = $meta[ $size ]['height'];
+			$title   = esc_attr( $gmCore->_post( 'title', '' ) );
+			$align   = esc_attr( $gmCore->_post( 'align', 'none' ) );
+			$link    = trim( esc_attr( $gmCore->_post( 'link', '' ) ) );
+			$caption = trim( $gmCore->_post( 'description', '' ) );
+
+			$html = "<img src='{$src}' width='{$width}' height='{$height}' alt='{$title}' title='{$title}' id='gmedia-image-{$id}' class='gmedia-singlepic align{$align}' />";
+
+			if ( $link ) {
+				$html = "<a href='{$link}'>{$html}</a>";
+			}
+			if ( $caption ) {
+				$html = image_add_caption( $html, false, $caption, $title, $align, $src, $size, $title );
+			}
+
+			?>
+			<script type="text/javascript">
+				/* <![CDATA[ */
+				var win = window.dialogArguments || opener || parent || top;
+				jQuery('#__gm-uploader', win.document).css('display', 'none');
+				/* ]]> */
+			</script>
+			<?php
+			// Return it to TinyMCE
+			media_send_to_editor( $html );
+		}
+	}
+	if ( isset( $_POST['gmedia_gallery_insert'] ) ) {
+		$sc = $gmCore->_post( 'shortcode' );
+		?>
+		<script type="text/javascript">
+			/* <![CDATA[ */
+			var win = window.dialogArguments || opener || parent || top;
+			jQuery('#__gm-uploader', win.document).css('display', 'none');
+			/* ]]> */
+		</script>
+		<?php
+		// Return it to TinyMCE
+		media_send_to_editor( $sc );
+	}
+
 }
 
-function media_upload_gmedia_form(){
+function gmedia_add_media_popup_enqueue_scripts() {
+	global $gmCore;
 
-	global $type, $user_ID;
-	global $gmCore, $gmDB, $gmGallery;
+	wp_dequeue_script( 'imgareaselect' );
+	wp_dequeue_script( 'image-edit' );
+	wp_dequeue_script( 'set-post-thumbnail' );
+	wp_dequeue_script( 'media-gallery' );
+	wp_dequeue_script( 'plupload' );
+	wp_dequeue_script( 'plupload-handlers' );
+	wp_dequeue_style( 'imgareaselect' );
 
-	wp_enqueue_style('gmedia-bootstrap');
-	wp_enqueue_script('gmedia-bootstrap');
+	wp_enqueue_style( 'gmedia-bootstrap' );
+	wp_enqueue_script( 'gmedia-bootstrap' );
 
-	wp_enqueue_style('grand-media');
-	wp_enqueue_script('grand-media');
+	wp_enqueue_style( 'grand-media' );
+	wp_enqueue_script( 'grand-media' );
 
-	//media_upload_header();
+	$action = $gmCore->_get( 'action' );
+	if ( did_action( 'media_upload_gmedia_library' ) && ( 'upload' == $action ) && current_user_can( 'gmedia_upload' ) ) {
+		if ( current_user_can( 'gmedia_terms' ) ) {
+			wp_enqueue_style( 'selectize', $gmCore->gmedia_url . '/assets/selectize/selectize.bootstrap3.css', array( 'gmedia-bootstrap' ), '0.8.5', 'screen' );
+			wp_enqueue_script( 'selectize', $gmCore->gmedia_url . '/assets/selectize/selectize.min.js', array( 'jquery' ), '0.8.5' );
+		}
+		wp_enqueue_style( 'jquery-ui-smoothness', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/themes/smoothness/jquery-ui.min.css', array(), '1.10.2', 'screen' );
+		wp_enqueue_script( 'jquery-ui-full', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/jquery-ui.min.js', array(), '1.10.2' );
 
-	$post_id = intval($gmCore->_get('post_id'));
-	//$url = admin_url("media-upload.php?type={$type}&tab=gmedia&post_id={$post_id}");
+		wp_enqueue_script( 'gmedia-plupload', $gmCore->gmedia_url . '/assets/plupload/plupload.full.min.js', array( 'jquery', 'jquery-ui-full' ), '2.1.2' );
 
-	if(current_user_can('gmedia_show_others_media')){
+		wp_enqueue_style( 'jquery.ui.plupload', $gmCore->gmedia_url . '/assets/plupload/jquery.ui.plupload/css/jquery.ui.plupload.css', array( 'jquery-ui-smoothness' ), '2.1.2', 'screen' );
+		wp_enqueue_script( 'jquery.ui.plupload', $gmCore->gmedia_url . '/assets/plupload/jquery.ui.plupload/jquery.ui.plupload.min.js', array( 'gmedia-plupload', 'jquery-ui-full' ), '2.1.2' );
+	}
+
+}
+
+function gmedia_add_media_galleries() {
+
+	global $user_ID, $gmCore, $gmDB, $gmGallery, $gmProcessor;
+
+	$post_id = intval( $gmCore->_get( 'post_id' ) );
+
+	$args           = array(
+		'orderby'    => $gmCore->_get( 'orderby', 'name' ),
+		'order'      => $gmCore->_get( 'order', 'ASC' ),
+		'search'     => $gmCore->_get( 's', '' ),
+		'number'     => $gmCore->_get( 'number', 30 ),
+		'hide_empty' => 0,
+		'page'       => $gmCore->_get( 'pager', 1 ),
+		'status'     => array( 'public', 'private' )
+	);
+	$args['offset'] = ( $args['page'] - 1 ) * $args['number'];
+
+
+	if ( current_user_can( 'gmedia_show_others_media' ) ) {
+		$args['global'] = $gmCore->_get( 'author', '' );
+	} else {
+		$args['global'] = array( $user_ID );
+	}
+
+	$taxonomy    = 'gmedia_gallery';
+	$gmediaTerms = $gmDB->get_terms( $taxonomy, $args );
+	$alert       = '';
+	if ( is_wp_error( $gmediaTerms ) ) {
+		$alert       = $gmProcessor->alert( 'danger', $gmediaTerms->get_error_message() );
+		$gmediaTerms = array();
+	}
+
+	$modules = array();
+	if ( ( $plugin_modules = glob( GMEDIA_ABSPATH . 'module/*', GLOB_ONLYDIR | GLOB_NOSORT ) ) ) {
+		foreach ( $plugin_modules as $path ) {
+			$mfold             = basename( $path );
+			$modules[ $mfold ] = array(
+				'module_name' => $mfold,
+				'module_url'  => $gmCore->gmedia_url . "/module/{$mfold}",
+				'module_path' => $path
+			);
+		}
+	}
+	if ( ( $upload_modules = glob( $gmCore->upload['path'] . '/' . $gmGallery->options['folder']['module'] . '/*', GLOB_ONLYDIR | GLOB_NOSORT ) ) ) {
+		foreach ( $upload_modules as $path ) {
+			$mfold             = basename( $path );
+			$modules[ $mfold ] = array(
+				'module_name' => $mfold,
+				'module_url'  => $gmCore->upload['url'] . "/{$gmGallery->options['folder']['module']}/{$mfold}",
+				'module_path' => $path
+			);
+		}
+	}
+
+	?>
+
+	<div class="panel panel-default">
+		<div class="panel-heading clearfix">
+			<form class="form-inline gmedia-search-form" role="search" method="get">
+				<div class="form-group">
+					<?php foreach ( $_GET as $key => $value ) {
+						if ( in_array( $key, array( 'chromeless', 'post_id', 'tab', 'orderby', 'order', 'number', 'global' ) ) ) {
+							?>
+							<input type="hidden" name="<?php echo $key; ?>" value="<?php echo $value; ?>"/>
+						<?php
+						}
+					} ?>
+					<input id="gmedia-search" class="form-control input-sm" type="text" name="s" placeholder="<?php _e( 'Search...', 'gmLang' ); ?>" value="<?php echo $gmCore->_get( 's', '' ); ?>"/>
+				</div>
+				<button type="submit" class="btn btn-default input-sm"><span class="glyphicon glyphicon-search"></span></button>
+			</form>
+			<?php echo $gmDB->query_pager(); ?>
+
+			<div class="btn-group" style="margin-right:20px;">
+				<a class="btn btn-primary" target="_blank" href="<?php echo add_query_arg( array( 'page' => 'GrandMedia_Modules' ), admin_url( 'admin.php' ) ); ?>"><?php _e( 'Create Gallery', 'gmLang' ); ?></a>
+			</div>
+
+			<div class="btn-group" style="margin-right:20px;">
+				<a class="btn btn-success" href="#" onclick="location.reload(true); return false;"><?php _e( 'Refresh', 'gmLang' ); ?></a>
+			</div>
+
+		</div>
+		<div class="panel-body" id="gmedia-msg-panel"><?php echo $alert; ?></div>
+		<div class="panel-body" id="gm-list-table">
+			<div class="row">
+				<div class="col-xs-7 col-md-9" style="padding: 0">
+					<div class="list-group">
+						<?php
+						if ( count( $gmediaTerms ) ) {
+							$lib_url = add_query_arg( array( 'page' => 'GrandMedia' ), admin_url( 'admin.php' ) );
+							foreach ( $gmediaTerms as $term ) {
+
+								$term_meta = $gmDB->get_metadata( 'gmedia_term', $term->term_id );
+								$term_meta = array_map( 'reset', $term_meta );
+								$term_meta = array_map( 'maybe_unserialize', $term_meta );
+
+								$module      = $gmCore->get_module_path( $term_meta['module'] );
+								$module_info = array( 'type' => '&#8212;' );
+								if ( file_exists( $module['path'] . '/index.php' ) ) {
+									$broken = false;
+									include( $module['path'] . '/index.php' );
+								} else {
+									$broken = true;
+								}
+
+								$list_row_class = '';
+								if ( 'private' == $term->status ) {
+									$list_row_class = ' list-group-item-info';
+								}
+								?>
+								<div class="gmedia-insert-item list-group-item clearfix d-row<?php echo $list_row_class; ?>" id="list-item-<?php echo $term->term_id; ?>" data-id="<?php echo $term->term_id; ?>" data-type="<?php echo $term_meta['module']; ?>">
+									<div class="media-object pull-left" style="width:130px;">
+										<?php if ( ! $broken ) { ?>
+											<span class="thumbnail"><img src="<?php echo $module['url'] . '/screenshot.png'; ?>" alt="<?php echo esc_attr( $term->name ); ?>"/></span>
+										<?php } else { ?>
+											<div class="bg-danger text-center"><?php _e( 'Module broken <br>Reinstall module', 'gmLang' ) ?></div>
+										<?php } ?>
+									</div>
+
+									<div class="media-body" style="margin-left:145px;">
+										<p class="media-title">
+											<span><?php echo esc_html( $term->name ); ?></span>
+										</p>
+
+										<p class="media-meta">
+											<span class="label label-default"><?php _e( 'Author', 'gmLang' ); ?>:</span> <?php echo $term->global ? get_the_author_meta( 'display_name', $term->global ) : '&#8212;'; ?>
+										</p>
+
+										<p class="media-caption"><?php echo esc_html( $term->description ); ?></p>
+									</div>
+
+									<p class="media-meta hidden" style="font-weight:bold">
+										<span class="label label-default"><?php _e( 'Shortcode', 'gmLang' ); ?>:</span> [gmedia id=<?php echo $term->term_id; ?>]
+										<input type="hidden" name="shortcode" value="[gmedia id=<?php echo $term->term_id; ?>]"/>
+									</p>
+
+									<p class="media-meta clear hidden">
+										<span class="label label-default"><?php _e( 'Module', 'gmLang' ); ?>:</span> <?php echo $term_meta['module']; ?>
+										<br><span class="label label-default"><?php _e( 'Type', 'gmLang' ); ?>:</span> <?php echo $module_info['type']; ?>
+										<br><span class="label label-default"><?php _e( 'Last Edited', 'gmLang' ); ?>:</span> <?php echo $term_meta['edited']; ?>
+										<br><span class="label label-default"><?php _e( 'Status', 'gmLang' ); ?>:</span> <?php echo $term->status; ?>
+										<br><span class="label label-default"><?php _e( 'Source', 'gmLang' ); ?>:</span>
+										<?php
+										$gallery_tabs = reset( $term_meta['query'] );
+										$tax_tabs     = key( $term_meta['query'] );
+										if ( 'gmedia__in' == $tax_tabs ) {
+											_e( 'Selected Gmedia', 'gmLang' );
+											if ( ! ( ( (int) $term->global != $user_ID ) && ! current_user_can( 'gmedia_show_others_media' ) ) ) {
+												$gmedia_ids = wp_parse_id_list( $gallery_tabs[0] );
+												$gal_source = sprintf( '<a class="selected__in" target="_blank" href="%s">' . __( 'Show %d items in Gmedia Library', 'gmLang' ) . '</a>', esc_url( add_query_arg( array( 'gmedia__in' => implode( ',', $gmedia_ids ) ), $lib_url ) ), count( $gmedia_ids ) );
+												echo " ($gal_source)";
+											}
+										} else {
+											$tabs         = $gmDB->get_terms( $tax_tabs, array( 'include' => $gallery_tabs ) );
+											$terms_source = array();
+											if ( 'gmedia_category' == $tax_tabs ) {
+												_e( 'Categories', 'gmLang' );
+												foreach ( $tabs as $t ) {
+													$terms_source[] = sprintf( '<a class="category" target="_blank" href="%s">%s</a>', esc_url( add_query_arg( array( 'cat' => $t->term_id ), $lib_url ) ), esc_html( $gmGallery->options['taxonomies']['gmedia_category'][ $t->name ] ) );
+												}
+											} elseif ( 'gmedia_album' == $tax_tabs ) {
+												_e( 'Albums', 'gmLang' );
+												foreach ( $tabs as $t ) {
+													$terms_source[] = sprintf( '<a class="album" target="_blank" href="%s">%s</a>', esc_url( add_query_arg( array( 'alb' => $t->term_id ), $lib_url ) ), esc_html( $t->name ) );
+												}
+											} elseif ( 'gmedia_tag' == $tax_tabs ) {
+												_e( 'Tags', 'gmLang' );
+												foreach ( $tabs as $t ) {
+													$terms_source[] = sprintf( '<a class="tag" target="_blank" href="%s">%s</a>', esc_url( add_query_arg( array( 'tag_id' => $t->term_id ), $lib_url ) ), esc_html( $t->name ) );
+												}
+											} elseif ( 'gmedia_filter' == $tax_tabs ) {
+												_e( 'Filters', 'gmLang' );
+												foreach ( $tabs as $t ) {
+													$terms_source[] = sprintf( '<a class="filter" target="_blank" href="%s">%s</a>', esc_url( add_query_arg( array( 'stack_id' => $t->term_id ), $lib_url ) ), esc_html( $t->name ) );
+												}
+											}
+											if ( ! empty( $terms_source ) ) {
+												$terms_source = join( ', ', $terms_source );
+												if ( ( (int) $term->global != $user_ID ) && ! current_user_can( 'gmedia_show_others_media' ) ) {
+													$terms_source = strip_tags( $terms_source );
+												}
+												echo " ({$terms_source})";
+											}
+										}
+										?>
+									</p>
+									<?php if ( current_user_can( 'gmedia_gallery_manage' ) ) {
+										if ( ! ( ( (int) $term->global != $user_ID ) && ! current_user_can( 'gmedia_edit_others_media' ) ) ) {
+											?>
+											<p class="media-meta hidden"><a target="_blank" href="<?php echo add_query_arg( array( 'page' => 'GrandMedia_Galleries', 'edit_gallery' => $term->term_id ), admin_url( 'admin.php' ) ); ?>"><?php _e( 'Edit gallery', 'gmLang' ); ?></a></p>
+										<?php
+										}
+									} ?>
+
+								</div>
+							<?php
+							}
+						} else {
+							?>
+							<div class="list-group-item">
+								<div class="well well-lg text-center">
+									<h4><?php _e( 'No items to show.', 'gmLang' ); ?></h4>
+								</div>
+							</div>
+						<?php } ?>
+					</div>
+				</div>
+				<div class="col-xs-5 col-md-3 media-upload-sidebar">
+					<form method="post" id="gmedia-form" role="form">
+						<div id="media-upload-form-container" class="media-upload-form-container"></div>
+						<div class="panel-footer">
+							<input type="hidden" name="post_id" id="post_id" value="<?php echo $post_id; ?>"/>
+							<?php wp_nonce_field( 'media-form' ); ?>
+							<button type="submit" id="media-upload-form-submit" disabled class="btn btn-primary pull-right" name="gmedia_gallery_insert"><?php _e( 'Insert into post', 'gmLang' ); ?></button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+		<script type="text/javascript">
+			jQuery(function ($) {
+				function divFrame() {
+					$('.panel-body').css({top: $('.panel-heading').outerHeight()});
+				}
+
+				divFrame();
+				$(window).on('resize', function () {
+					divFrame();
+				});
+				$('.gmedia-insert-item').on('click', function () {
+					if ($(this).hasClass('active')) {
+						$(this).removeClass('active');
+						$('#media-upload-form-container').empty();
+						$('#media-upload-form-submit').prop('disabled', true);
+						return;
+					}
+					$(this).addClass('active').siblings().removeClass('active');
+					var info = $(this).clone();
+					info.find('.media-caption').remove().end().find('.hidden').removeClass('hidden');
+					$('#media-upload-form-container').html(info.html());
+					$('#media-upload-form-submit').prop('disabled', false);
+				});
+			});
+		</script>
+	</div>
+<?php
+}
+
+
+function gmedia_add_media_library() {
+
+	global $user_ID, $gmCore, $gmDB, $gmGallery;
+
+	wp_enqueue_style( 'gmedia-bootstrap' );
+	wp_enqueue_script( 'gmedia-bootstrap' );
+
+	wp_enqueue_style( 'grand-media' );
+	wp_enqueue_script( 'grand-media' );
+
+	$post_id = intval( $gmCore->_get( 'post_id' ) );
+
+	if ( current_user_can( 'gmedia_show_others_media' ) ) {
 		$author = 0;
-	} else{
+	} else {
 		$author = $user_ID;
 	}
-	$args = array(
-		'mime_type' => $gmCore->_get('mime_type', 'image/*'),
-		'author' => $author,
-		'orderby' => 'ID',
-		'order' => 'DESC',
-		'per_page' => 30,
-		'page' => $gmCore->_get('pager', 1),
-		's' => $gmCore->_get('s', null)
+	$args        = array(
+		'mime_type' => $gmCore->_get( 'mime_type', 'image/*' ),
+		'author'    => $author,
+		'orderby'   => 'ID',
+		'order'     => 'DESC',
+		'per_page'  => 30,
+		'page'      => $gmCore->_get( 'pager', 1 ),
+		's'         => $gmCore->_get( 's', null )
 	);
-	$gmediaQuery = $gmDB->get_gmedias($args);
+	$gmediaQuery = $gmDB->get_gmedias( $args );
 
 
 	?>
@@ -103,14 +457,14 @@ function media_upload_gmedia_form(){
 		<div class="panel-heading clearfix">
 			<form class="form-inline gmedia-search-form" role="search">
 				<div class="form-group">
-					<?php foreach($_GET as $key => $value){
-						if(in_array($key, array('type', 'post_id', 'tab', 'mime_type', 'tag_id', 'tag__in', 'cat', 'category__in', 'alb', 'album__in'))){
+					<?php foreach ( $_GET as $key => $value ) {
+						if ( in_array( $key, array( 'chromeless', 'post_id', 'tab', 'mime_type', 'tag_id', 'tag__in', 'cat', 'category__in', 'alb', 'album__in' ) ) ) {
 							?>
 							<input type="hidden" name="<?php echo $key; ?>" value="<?php echo $value; ?>"/>
 						<?php
 						}
 					} ?>
-					<input id="gmedia-search" class="form-control input-sm" type="text" name="s" placeholder="<?php _e('Search...', 'gmLang'); ?>" value="<?php echo $gmCore->_get('s', ''); ?>"/>
+					<input id="gmedia-search" class="form-control input-sm" type="text" name="s" placeholder="<?php _e( 'Search...', 'gmLang' ); ?>" value="<?php echo $gmCore->_get( 's', '' ); ?>"/>
 				</div>
 				<button type="submit" class="btn btn-default input-sm"><span class="glyphicon glyphicon-search"></span></button>
 			</form>
@@ -121,10 +475,10 @@ function media_upload_gmedia_form(){
 			<div class="row">
 				<div class="col-xs-7 col-md-9" style="text-align:justify;">
 					<?php
-					if(count($gmediaQuery)){
-						foreach($gmediaQuery as $item){
-							$meta = $gmDB->get_metadata('gmedia', $item->ID);
-							$type = explode('/', $item->mime_type);
+					if ( count( $gmediaQuery ) ) {
+						foreach ( $gmediaQuery as $item ) {
+							$meta = $gmDB->get_metadata( 'gmedia', $item->ID );
+							$type = explode( '/', $item->mime_type );
 
 							/*
 							$item_url = $gmCore->upload['url'] . '/' . $gmGallery->options['folder'][$type[0]] . '/' . $item->gmuid;
@@ -144,36 +498,36 @@ function media_upload_gmedia_form(){
 							*/
 							?>
 							<form class="thumbnail" id="list-item-<?php echo $item->ID; ?>" data-id="<?php echo $item->ID; ?>" data-type="<?php echo $type[0]; ?>">
-								<img src="<?php echo $gmCore->gm_get_media_image($item, 'thumb'); ?>" style="height:100px;width:auto;" alt=""/>
+								<img src="<?php echo $gmCore->gm_get_media_image( $item, 'thumb' ); ?>" style="height:100px;width:auto;" alt=""/>
 								<span class="glyphicon glyphicon-ok text-success"></span>
 
 								<div class="media-upload-form" style="display:none;">
 									<input name="ID" type="hidden" value="<?php echo $item->ID; ?>"/>
 
 									<div class="form-group">
-										<label><?php _e('Title', 'gmLang'); ?></label>
-										<input name="title" type="text" class="form-control input-sm" placeholder="<?php _e('Title', 'gmLang'); ?>" value="<?php echo esc_attr($item->title); ?>">
+										<label><?php _e( 'Title', 'gmLang' ); ?></label>
+										<input name="title" type="text" class="form-control input-sm" placeholder="<?php _e( 'Title', 'gmLang' ); ?>" value="<?php echo esc_attr( $item->title ); ?>">
 									</div>
 									<div class="form-group">
-										<label><?php _e('Link To', 'gmLang'); ?></label>
+										<label><?php _e( 'Link To', 'gmLang' ); ?></label>
 										<select id="gmedia_url" class="form-control input-sm" style="display:block;margin-bottom:5px;">
-											<option value="customurl" selected="selected"><?php _e('Custom URL'); ?></option>
-											<option value="weburl"><?php _e('Web size image'); ?></option>
-											<option value="originalurl"><?php _e('Original image'); ?></option>
+											<option value="customurl" selected="selected"><?php _e( 'Custom URL' ); ?></option>
+											<option value="weburl"><?php _e( 'Web size image' ); ?></option>
+											<option value="originalurl"><?php _e( 'Original image' ); ?></option>
 										</select>
 										<input name="link" type="text" class="customurl form-control input-sm" value="<?php echo $item->link; ?>" placeholder="http://"/>
 										<input name="link" type="text" style="display:none;font-size:80%;" readonly="readonly" disabled="disabled" class="weburl form-control input-sm" value="<?php echo $gmCore->upload['url'] . '/' . $gmGallery->options['folder']['image'] . '/' . $item->gmuid; ?>"/>
 										<input name="link" type="text" style="display:none;font-size:80%;" readonly="readonly" disabled="disabled" class="originalurl form-control input-sm" value="<?php echo $gmCore->upload['url'] . '/' . $gmGallery->options['folder']['image_original'] . '/' . $item->gmuid; ?>"/>
 									</div>
 									<div class="form-group">
-										<label><?php _e('Description', 'gmLang'); ?></label>
-										<textarea name="description" class="form-control input-sm" rows="4" cols="10"><?php echo esc_html($item->description); ?></textarea>
+										<label><?php _e( 'Description', 'gmLang' ); ?></label>
+										<textarea name="description" class="form-control input-sm" rows="4" cols="10"><?php echo esc_html( $item->description ); ?></textarea>
 									</div>
 									<?php //if($is_webimage){ ?>
-									<?php if('image' == $type[0]){
-										$_metadata = unserialize($meta['_metadata'][0]); ?>
+									<?php if ( 'image' == $type[0] ) {
+										$_metadata = unserialize( $meta['_metadata'][0] ); ?>
 										<div class="form-group">
-											<label><?php _e('Size', 'gmLang'); ?></label>
+											<label><?php _e( 'Size', 'gmLang' ); ?></label>
 											<select name="size" class="form-control input-sm">
 												<option value="thumb"><?php echo 'Thumb - ' . $_metadata['thumb']['width'] . ' × ' . $_metadata['thumb']['height']; ?></option>
 												<option value="web" selected="selected"><?php echo 'Web - ' . $_metadata['web']['width'] . ' × ' . $_metadata['web']['height']; ?></option>
@@ -183,26 +537,26 @@ function media_upload_gmedia_form(){
 									<?php } ?>
 									<?php //} ?>
 									<div class="form-group">
-										<label><?php _e('Alignment', 'gmLang'); ?></label>
+										<label><?php _e( 'Alignment', 'gmLang' ); ?></label>
 										<select name="align" class="form-control input-sm">
-											<option value="none" selected="selected"><?php _e('None', 'gmLang'); ?></option>
-											<option value="left"><?php _e('Left', 'gmLang'); ?></option>
-											<option value="center"><?php _e('Center', 'gmLang'); ?></option>
-											<option value="right"><?php _e('Right', 'gmLang'); ?></option>
+											<option value="none" selected="selected"><?php _e( 'None', 'gmLang' ); ?></option>
+											<option value="left"><?php _e( 'Left', 'gmLang' ); ?></option>
+											<option value="center"><?php _e( 'Center', 'gmLang' ); ?></option>
+											<option value="right"><?php _e( 'Right', 'gmLang' ); ?></option>
 										</select>
 									</div>
 								</div>
 							</form>
 						<?php
 						}
-					} else{
+					} else {
 						?>
 						<div class="list-group-item">
 							<div class="well well-lg text-center">
-								<h4><?php _e('No items to show.', 'gmLang'); ?></h4>
-								<?php if($gmCore->caps['gmedia_upload']){ ?>
+								<h4><?php _e( 'No items to show.', 'gmLang' ); ?></h4>
+								<?php if ( $gmCore->caps['gmedia_upload'] ) { ?>
 									<p>
-										<a href="<?php echo admin_url('admin.php?page=GrandMedia_AddMedia') ?>" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> <?php _e('Add Media', 'gmLang'); ?>
+										<a href="<?php echo admin_url( 'admin.php?page=GrandMedia_AddMedia' ) ?>" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> <?php _e( 'Add Media', 'gmLang' ); ?>
 										</a></p>
 								<?php } ?>
 							</div>
@@ -211,43 +565,336 @@ function media_upload_gmedia_form(){
 				</div>
 				<div class="col-xs-5 col-md-3 media-upload-sidebar">
 					<form method="post" id="gmedia-form" role="form">
-						<div id="media-upload-form-container"></div>
+						<div id="media-upload-form-container" class="media-upload-form-container"></div>
 						<div class="panel-footer">
 							<input type="hidden" name="post_id" id="post_id" value="<?php echo $post_id; ?>"/>
-							<?php wp_nonce_field('media-form'); ?>
-							<button type="submit" id="media-upload-form-submit" disabled class="btn btn-primary pull-right" name="media-upload-insert-gmedia"><?php _e('Insert into post', 'gmLang'); ?></button>
+							<?php wp_nonce_field( 'media-form' ); ?>
+							<button type="submit" id="media-upload-form-submit" disabled class="btn btn-primary pull-right" name="gmedia_library_insert"><?php _e( 'Insert into post', 'gmLang' ); ?></button>
+							<?php if ( $post_id && current_theme_supports( 'post-thumbnails', get_post_type( $post_id ) ) ) { ?>
+								<a id="gmedia-post-thumbnail" class="btn disabled" href="javascript:void(0);"><?php _e( 'Use as featured image', 'gmLang' ); ?></a>
+							<?php } ?>
 						</div>
 					</form>
 				</div>
 			</div>
 		</div>
 		<script type="text/javascript">
-			jQuery(function($){
-				function divFrame(){
+			jQuery(function ($) {
+				function divFrame() {
 					$('.panel-body').css({top: $('.panel-heading').outerHeight()});
 				}
 
 				divFrame();
-				$(window).on('resize', function(){
+				$(window).on('resize', function () {
 					divFrame();
 				});
-				$('.thumbnail').on('click', function(){
-					if($(this).hasClass('active')){
+				$('.thumbnail').on('click', function () {
+					var form = $('#media-upload-form-container');
+					var but = $('.panel-footer .btn');
+					if ($(this).hasClass('active')) {
 						$(this).removeClass('active');
-						$('#media-upload-form-container').empty();
-						$('#media-upload-form-submit').prop('disabled', true);
+						form.empty();
+						but.prop('disabled', true).addClass('disabled');
 						return;
 					}
 					$(this).addClass('active').siblings().removeClass('active');
-					$('#media-upload-form-container').html($('.media-upload-form', this).html());
-					$('#media-upload-form-submit').prop('disabled', false);
+					form.html($('.media-upload-form', this).html());
+					but.prop('disabled', false).removeClass('disabled');
 				});
-				$('#gmedia-form').on('change', '#gmedia_url', function(){
+				$('#gmedia-form').on('change', '#gmedia_url', function () {
 					var val = $(this).val();
 					$(this).nextAll('input.' + val).show().prop('disabled', false).siblings('input').hide().prop('disabled', true);
 				});
+
+				<?php
+				if ( $post_id && current_theme_supports( 'post-thumbnails', get_post_type( $post_id ) ) ){
+					$featured_nonce = wp_create_nonce( "set_post_thumbnail-$post_id" );
+				?>
+
+				$('#gmedia-post-thumbnail').on('click', function () {
+					if ($(this).hasClass('disabled')) {
+						return false;
+					}
+					var id = $('form.active').data('id');
+					$.post(ajaxurl, {
+							action: "gmedia_set_post_thumbnail", post_id: '<?php echo $post_id; ?>', img_id: id, _wpnonce: '<?php echo $featured_nonce; ?>'
+						}, function (str) {
+							var win = window.dialogArguments || opener || parent || top;
+							if ( str == '0' ) {
+								alert( win.setPostThumbnailL10n.error );
+							} else if (str == '-1') {
+								// image removed
+							} else {
+								win.WPSetThumbnailID(id);
+								win.WPSetThumbnailHTML(str);
+							}
+							$('#__gm-uploader', win.document).css('display', 'none');
+						}
+					);
+				});
+
+				<?php } ?>
 			});
 		</script>
 	</div>
 <?php
 }
+
+function gmedia_add_media_upload() {
+
+	global $gmCore, $gmDB, $gmProcessor, $gmGallery, $user_ID;
+
+	if ( ! current_user_can( 'gmedia_upload' ) ) {
+		_e( 'You do not have permissions to upload media', 'gmLang' );
+
+		return;
+	}
+
+	$maxupsize    = wp_max_upload_size();
+	$maxupsize    = floor( $maxupsize * 0.99 );
+	$maxupsize_mb = floor( $maxupsize / 1024 / 1024 );
+
+	$gm_screen_options = $gmProcessor->user_options();
+
+	?>
+	<div class="panel panel-default">
+	<div class="panel-body" style="top:0">
+	<form class="row" id="gmUpload" name="upload_form" method="POST" accept-charset="utf-8" onsubmit="return false;">
+	<div class="col-md-4" id="uploader_multipart_params">
+		<div id="gmedia-msg-panel"></div>
+		<br/>
+		<?php if ( 'false' == $gm_screen_options['uploader_chunking'] || ( 'html4' == $gm_screen_options['uploader_runtime'] ) ) { ?>
+			<p class="clearfix text-right"><span class="label label-default"><?php echo __( 'Maximum file size', 'gmLang' ) . ": {$maxupsize_mb}Mb"; ?></span></p>
+		<?php } else { ?>
+			<p class="clearfix text-right hidden">
+				<span class="label label-default"><?php echo __( 'Maximum $_POST size', 'gmLang' ) . ": {$maxupsize_mb}Mb"; ?></span>
+				<span class="label label-default"><?php echo __( 'Chunk size', 'gmLang' ) . ': ' . min( $maxupsize_mb, $gm_screen_options['uploader_chunk_size'] ) . 'Mb'; ?></span>
+			</p>
+		<?php } ?>
+
+		<div class="form-group">
+			<label><?php _e( 'Title', 'gmLang' ); ?></label>
+			<select name="set_title" class="form-control input-sm">
+				<option value="exif"><?php _e( 'EXIF or File Name', 'gmLang' ); ?></option>
+				<option value="filename"><?php _e( 'File Name', 'gmLang' ); ?></option>
+				<option value="empty"><?php _e( 'Empty', 'gmLang' ); ?></option>
+			</select>
+		</div>
+		<div class="form-group">
+			<label><?php _e( 'Status', 'gmLang' ); ?></label>
+			<select name="set_status" class="form-control input-sm">
+				<option value="inherit"><?php _e( 'Same as Album or Public', 'gmLang' ); ?></option>
+				<option value="public"><?php _e( 'Public', 'gmLang' ); ?></option>
+				<option value="private"><?php _e( 'Private', 'gmLang' ); ?></option>
+				<option value="draft"><?php _e( 'Draft', 'gmLang' ); ?></option>
+			</select>
+		</div>
+
+		<hr/>
+
+		<?php if ( $gmCore->caps['gmedia_terms'] ) { ?>
+			<div class="form-group">
+				<?php
+				$term_type = 'gmedia_category';
+				$gm_terms  = $gmGallery->options['taxonomies'][ $term_type ];
+
+				$terms_category = '';
+				if ( count( $gm_terms ) ) {
+					foreach ( $gm_terms as $term_name => $term_title ) {
+						$terms_category .= '<option value="' . $term_name . '">' . esc_html( $term_title ) . '</option>' . "\n";
+					}
+				}
+				?>
+				<label><?php _e( 'Assign Category', 'gmLang' ); ?>
+					<small><?php _e( '(for images only)' ) ?></small>
+				</label>
+				<select id="gmedia_category" name="terms[gmedia_category]" class="form-control input-sm">
+					<option value=""><?php _e( 'Uncategorized', 'gmLang' ); ?></option>
+					<?php echo $terms_category; ?>
+				</select>
+			</div>
+			<div class="form-group">
+				<?php
+				$term_type = 'gmedia_album';
+				$gm_terms  = $gmDB->get_terms( $term_type, array( 'global' => array( 0, $user_ID ), 'orderby' => 'global_desc_name' ) );
+
+				$terms_album = '';
+				if ( count( $gm_terms ) ) {
+					foreach ( $gm_terms as $term ) {
+						$terms_album .= '<option value="' . esc_attr( $term->term_id ) . '">' . esc_html( $term->name ) . ( $term->global ? '' : __( ' (shared)', 'gmLang' ) ) . ( 'public' == $term->status ? '' : " [{$term->status}]" ) . '</option>' . "\n";
+					}
+				}
+				?>
+				<label><?php _e( 'Add to Album', 'gmLang' ); ?> </label>
+				<select id="combobox_gmedia_album" name="terms[gmedia_album]" class="form-control input-sm" placeholder="<?php _e( 'Album Name...', 'gmLang' ); ?>">
+					<option value=""></option>
+					<?php echo $terms_album; ?>
+				</select>
+			</div>
+			<div class="form-group" style="margin-bottom: 210px;">
+				<?php
+				$term_type = 'gmedia_tag';
+				$gm_terms  = $gmDB->get_terms( $term_type, array( 'fields' => 'names' ) );
+				?>
+				<label><?php _e( 'Add Tags', 'gmLang' ); ?> </label>
+				<input id="combobox_gmedia_tag" name="terms[gmedia_tag]" class="form-control input-sm" value="" placeholder="<?php _e( 'Add Tags...', 'gmLang' ); ?>"/>
+			</div>
+		<?php } else { ?>
+			<p><?php _e( 'You are not allowed to assign terms', 'gmLang' ) ?></p>
+		<?php } ?>
+
+		<script type="text/javascript">
+			jQuery(function ($) {
+				<?php if($gmCore->caps['gmedia_terms']){ ?>
+				$('#combobox_gmedia_album').selectize({
+					<?php if($gmCore->caps['gmedia_album_manage']){ ?>
+					create: true,
+					createOnBlur: true,
+					<?php } else{ ?>
+					create: false,
+					<?php } ?>
+					persist: false
+				});
+				var gm_terms = <?php echo json_encode($gm_terms); ?>;
+				var items = gm_terms.map(function (x) {
+					return {item: x};
+				});
+				$('#combobox_gmedia_tag').selectize({
+					<?php if($gmCore->caps['gmedia_tag_manage']){ ?>
+					create: function (input) {
+						return {
+							item: input
+						}
+					},
+					createOnBlur: true,
+					<?php } else{ ?>
+					create: false,
+					<?php } ?>
+					delimiter: ',',
+					maxItems: null,
+					openOnFocus: false,
+					persist: false,
+					options: items,
+					labelField: 'item',
+					valueField: 'item',
+					hideSelected: true
+				});
+				<?php } ?>
+				$('#uploader_runtime select').change(function () {
+					if ('html4' == $(this).val()) {
+						$('#uploader_chunking').addClass('hide');
+						$('#uploader_urlstream_upload').addClass('hide');
+					} else {
+						$('#uploader_chunking').removeClass('hide');
+						$('#uploader_urlstream_upload').removeClass('hide');
+					}
+				});
+			});
+		</script>
+	</div>
+	<div class="col-md-8" id="pluploadUploader" style="padding: 0;">
+		<p><?php _e( "You browser doesn't have Flash or HTML5 support. Check also if page have no JavaScript errors.", 'gmLang' ); ?></p>
+		<?php
+		$mime_types = get_allowed_mime_types( $user_ID );
+		$type_ext   = array();
+		$filters    = array();
+		foreach ( $mime_types as $ext => $mime ) {
+			$type                = strtok( $mime, '/' );
+			$type_ext[ $type ][] = $ext;
+		}
+		foreach ( $type_ext as $filter => $ext ) {
+			$filters[] = array(
+				'title'      => $filter,
+				'extensions' => str_replace( '|', ',', implode( ',', $ext ) )
+			);
+		}
+		?>
+		<script type="text/javascript">
+			// Convert divs to queue widgets when the DOM is ready
+			jQuery(function ($) {
+				$("#pluploadUploader").plupload({
+					<?php if('auto' != $gm_screen_options['uploader_runtime']){ ?>
+					runtimes: '<?php echo $gm_screen_options['uploader_runtime']; ?>',
+					<?php } ?>
+					url: '<?php echo wp_nonce_url($gmCore->gmedia_url . '/admin/upload.php', 'grandMedia' ); ?>',
+					<?php if(('true' == $gm_screen_options['uploader_urlstream_upload']) && ('html4' != $gm_screen_options['uploader_runtime'])){ ?>
+					urlstream_upload: true,
+					multipart: false,
+					<?php } else{ ?>
+					multipart: true,
+					<?php } ?>
+					multipart_params: {params: ''},
+					<?php if('true' == $gm_screen_options['uploader_chunking'] && ('html4' != $gm_screen_options['uploader_runtime'])){ ?>
+					max_file_size: '2000Mb',
+					chunk_size: 200000<?php //echo min($maxupsize, $gm_screen_options['uploader_chunk_size']*1024*1024); ?>,
+					<?php } else{ ?>
+					max_file_size: <?php echo $maxupsize; ?>,
+					<?php } ?>
+					max_retries: 2,
+					unique_names: false,
+					rename: true,
+					sortable: true,
+					dragdrop: true,
+					views: {
+						list: true,
+						thumbs: true,
+						active: 'thumbs'
+					},
+					filters: <?php echo json_encode($filters); ?>,
+					flash_swf_url: '<?php echo $gmCore->gmedia_url; ?>/assets/plupload/Moxie.swf',
+					silverlight_xap_url: '<?php echo $gmCore->gmedia_url; ?>/assets/plupload/Moxie.xap'
+
+				});
+				var closebtn = '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+				var uploader = $("#pluploadUploader").plupload('getUploader');
+				uploader.bind('StateChanged', function (up) {
+					if (up.state == plupload.STARTED) {
+						up.settings.multipart_params = {params: jQuery('#uploader_multipart_params :input').serialize()};
+					}
+					console.log('[StateChanged]', up.state, up.settings.multipart_params);
+				});
+				uploader.bind('ChunkUploaded', function (up, file, info) {
+					console.log('[ChunkUploaded] File:', file, "Info:", info);
+					var response = $.parseJSON(info.response);
+					if (response && response.error) {
+						up.stop();
+						file.status = plupload.FAILED;
+						$('<div/>').addClass('alert alert-danger alert-dismissable').html(closebtn + '<strong>' + response.id + ':</strong> ' + response.error.message).appendTo('#gmedia-msg-panel');
+						console.log(response.error);
+						up.trigger('QueueChanged StateChanged');
+						up.trigger('UploadProgress', file);
+						up.start();
+					}
+				});
+				uploader.bind('FileUploaded', function (up, file, info) {
+					console.log('[FileUploaded] File:', file, "Info:", info);
+					var response = jQuery.parseJSON(info.response);
+					if (response && response.error) {
+						file.status = plupload.FAILED;
+						$('<div/>').addClass('alert alert-danger alert-dismissable').html(closebtn + '<strong>' + response.id + ':</strong> ' + response.error.message).appendTo('#gmedia-msg-panel');
+						console.log(response.error);
+					}
+				});
+				uploader.bind('UploadProgress', function (up, file) {
+					var percent = uploader.total.percent;
+					$('#total-progress-info .progress-bar').css('width', percent + "%").attr('aria-valuenow', percent);
+				});
+				uploader.bind('Error', function (up, args) {
+					console.log('[Error] ', args);
+					$('<div/>').addClass('alert alert-danger alert-dismissable').html(closebtn + '<strong>' + args.file.name + ':</strong> ' + args.message + ' ' + args.status).appendTo('#gmedia-msg-panel');
+				});
+				uploader.bind('UploadComplete', function (up, files) {
+					console.log('[UploadComplete]', files);
+					$('<div/>').addClass('alert alert-success alert-dismissable').html(closebtn + "<?php echo esc_attr(__('Upload finished', 'gmLang')); ?>").appendTo('#gmedia-msg-panel');
+					$('#total-progress-info .progress-bar').css('width', '0').attr('aria-valuenow', '0');
+				});
+
+			});
+		</script>
+	</div>
+	</form>
+	</div>
+	</div>
+<?php
+}
+

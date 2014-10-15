@@ -527,6 +527,11 @@ class GmediaProcessor{
 							}
 						}
 						if($edit_term){
+                            $_term = $gmDB->get_term($edit_term, $taxonomy);
+                            if(((int)$_term->global != (int)$user_ID) && !current_user_can('gmedia_edit_others_media')){
+                                $this->error[] = __('You are not allowed to edit others media', 'gmLang');
+                                break;
+                            }
 							$term_id = $gmDB->update_term($edit_term, $term['taxonomy'], $term);
 						} else{
 							$term_id = $gmDB->insert_term($term['name'], $term['taxonomy'], $term);
@@ -822,7 +827,46 @@ class GmediaProcessor{
 
 					$capabilities = $gmCore->_post('capability', array());
 					if(!empty($capabilities) && current_user_can('manage_options')){
-						foreach($capabilities as $key => $val){
+                        global $wp_roles;
+                        $_roles = $wp_roles->roles;
+                        $_roles = array_keys(apply_filters( 'editable_roles', $_roles ));
+                        $roles = array_flip($_roles);
+
+                        // upload cap.
+                        if($roles[$capabilities['gmedia_upload']] < $roles[$capabilities['gmedia_import']]){
+                            $capabilities['gmedia_import'] = $capabilities['gmedia_upload'];
+                        }
+                        // edit/delete cap.
+                        if($roles[$capabilities['gmedia_edit_media']] < $roles[$capabilities['gmedia_edit_others_media']]){
+                            $capabilities['gmedia_edit_others_media'] = $capabilities['gmedia_edit_media'];
+                        }
+                        if($roles[$capabilities['gmedia_edit_media']] < $roles[$capabilities['gmedia_delete_media']]){
+                            $capabilities['gmedia_delete_media'] = $capabilities['gmedia_edit_media'];
+                        }
+                        if($roles[$capabilities['gmedia_delete_media']] < $roles[$capabilities['gmedia_delete_others_media']]){
+                            $capabilities['gmedia_delete_others_media'] = $capabilities['gmedia_delete_media'];
+                        }
+                        if($roles[$capabilities['gmedia_edit_others_media']] < $roles[$capabilities['gmedia_delete_others_media']]){
+                            $capabilities['gmedia_delete_others_media'] = $capabilities['gmedia_edit_others_media'];
+                        }
+                        // terms cap.
+                        if($roles[$capabilities['gmedia_terms']] < $roles[$capabilities['gmedia_album_manage']]){
+                            $capabilities['gmedia_album_manage'] = $capabilities['gmedia_terms'];
+                        }
+                        if($roles[$capabilities['gmedia_terms']] < $roles[$capabilities['gmedia_tag_manage']]){
+                            $capabilities['gmedia_tag_manage'] = $capabilities['gmedia_terms'];
+                        }
+                        if($roles[$capabilities['gmedia_terms']] < $roles[$capabilities['gmedia_terms_delete']]){
+                            $capabilities['gmedia_terms_delete'] = $capabilities['gmedia_terms'];
+                        } else{
+                            $rolekey = max($roles[$capabilities['gmedia_album_manage']], $roles[$capabilities['gmedia_tag_manage']]);
+                            $role = $_roles[$rolekey];
+                            if($role < $roles[$capabilities['gmedia_terms_delete']]){
+                                $capabilities['gmedia_terms_delete'] = $role;
+                            }
+                        }
+
+                        foreach($capabilities as $key => $val){
 							$gmDB->set_capability($val, $key);
 						}
 					}

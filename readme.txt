@@ -21,6 +21,8 @@ Create Slideshow Galleries with using tags and automatically add images to sever
 
 Easily add related photos from Gmedia Library to the Post by using Add Media -> Gmedia Gallery tab MetaBox. One click for inserting image or gallery right in your page.
 
+Set Post Featured Image (Post Thumbnail) from Gmedia Library if your theme support post thumbnail.
+
 Friendly for iPad and iPhone. Doesn’t slow down your website. **Unlimited galleries** on your website with **unlimited customizations** for each gallery.
 
 With our versatile plugin you can magically change the look and feel of your photo gallery, a huge selection of modules will help you embed the gallery in your posts and web pages making them feel complete. You will appreciate user friendly interface of admin panel, making the creation of unique and contemporary style gallery an easy and funny process, and attracting increasing attention from viewers.
@@ -58,6 +60,7 @@ Features:
 *   Create many galleries with different options
 *   Easily adding shortcode to post in one click
 *   Easily adding images from Gmedia Library to post
+*   Set Featured Post Image (Post Thumbnail) from Gmedia Library
 *   Import Wordpress Media Library files
 *   Uses WordPress' native Image Resizer
 *   Import files from server folder or from others gallery plugins
@@ -69,11 +72,12 @@ Features:
 
 TODO List:
 
-*   iOS manage application (work in progress..)
+*   iOS manage application (work in progress.. finish stage)
 *   Cover for Album. It will be also used for music without cover (work in progress..)
 *   More Batch operations with selected Gmedia items (work in progress..)
+*   Related Post images on Edit Post. Option to automatically create gallery in Post with related images (work in progress..)
 *   Share albums to socials from admin panel (in queue)
-*   Different templates to display Gmedia Library (aka GRAND Pages in Flagallery plugin) (in queue)
+*   Different templates to display Gmedia Library (something like GRAND Pages in Flagallery plugin) (in queue)
 *   More modules for creating photo gallery, audio playlist, video playlist
 *   Easily add to Post audio and video files with tags related to post tags
 *   Watermark feature
@@ -106,6 +110,13 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 8. Admin Area - Gmedia Library Filters
 
 == Changelog ==
+
+= 1.3.0 =
+* Add Set Post Featured Image
+* Add Upload from Edit Post
+* Change/Improve process of Gallery's Shortcode Insert
+* Improve multiuser experience (Roles and Capabilities)
+* Improve upload security
 
 = 1.2.6 =
 * Disable PHP error reporting on update.php file

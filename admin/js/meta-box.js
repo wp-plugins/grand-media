@@ -1,6 +1,8 @@
 var gmActiveEditor = false;
 (function($, window, document, undefined){
-	$('body').on('click', 'textarea.wp-editor-area', function(){
+
+    /*
+    $('body').on('click', 'textarea.wp-editor-area', function(){
 		gmActiveEditor = $(this).attr('id');
 		setTimeout(function(){
 			gm_check_scode(gmActiveEditor);
@@ -83,6 +85,43 @@ var gmActiveEditor = false;
 			}
 		}
 	});
+
+    */
+
+    $('#wp-content-media-buttons').on( 'click', '#gmedia-modal', function( event ) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        var modal = $('#__gm-uploader');
+
+        if(modal.length) {
+            modal.css('display','block');
+        } else{
+            var title = $(this).attr('title');
+            modal = $($('#tpl__gm-uploader').html());
+            modal.find('.media-modal-close, .media-modal-backdrop').on('click', function(){
+                modal.css('display', 'none');
+            });
+            modal.find('.media-menu-item').on('click', function(){
+                $('iframe', modal).attr('src', '');
+                $(this).addClass('active').siblings('a').removeClass('active');
+                $('.media-frame-title h1', modal).text($(this).text());
+            });
+            $("body").append(modal);
+        }
+    });
+
+    $('#postimagediv').on('click', '#set-gmedia-post-thumbnail', function(){
+        $('#wp-content-media-buttons').find('#gmedia-modal').trigger('click');
+        var modal = $('#__gm-uploader');
+        var library = modal.find('#gmedia-modal-library');
+        if(!library.hasClass('active')){
+            var ifr = modal.find('iframe').clone();
+            ifr.attr('src', library.attr('href'));
+            library.trigger('click');
+            modal.find('iframe').replaceWith(ifr);
+        }
+    });
 
 })(jQuery, window, document, undefined);
 

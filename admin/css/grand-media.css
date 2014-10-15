@@ -139,7 +139,8 @@ form.changed .gm-last-edited { text-decoration:line-through; }
 .rel-selected-hide { display:none; }
 
 div#pluploadUploader { padding:0; }
-div#pluploadUploader * { box-sizing:content-box; }
+div#pluploadUploader * { box-sizing:border-box; }
+div#pluploadUploader > div > div  * { box-sizing:content-box; }
 .plupload_container { padding:0; }
 div#pluploadUploader_container { min-height: 450px; border-bottom-right-radius: 4px; }
 div#pluploadUploader_container .plupload_filelist_footer { border-bottom-right-radius: 4px; }
@@ -202,18 +203,26 @@ a.edit_tag_save.btn {padding-top:0;padding-bottom:0;}
 .choose-module .thumbnail {margin-bottom:0;}
 
 
-body#media-upload { height:100%; overflow:auto; margin:0; padding:0 }
-body#media-upload .panel {position:relative; height:100%; overflow:auto; margin:0; border-top-left-radius: 0; border-top-right-radius: 0; border-top:none;}
+body#media-upload { height:100%; overflow:auto; margin:0; padding:0; background: #ffffff; }
+body#media-upload .panel {position:relative; height:100%; overflow:auto; margin:0; border-radius: 0; border-top:none;}
 body#media-upload .panel-heaading {position:relative; z-index:100;}
 body#media-upload .panel-body {position:absolute; top:55px; bottom:0; width:100%; overflow:hidden; z-index:50; padding-top:0; padding-bottom:0;}
-body#media-upload .panel-body .row {height:100%;}
-body#media-upload .panel-body .row > div {height:100%; overflow:auto; padding-top:15px; padding-bottom:15px;}
-body#media-upload .media-upload-sidebar {border-left:1px solid #cccccc; background-color:#eeeeee; padding-bottom:55px;position:relative;}
-body#media-upload .media-upload-sidebar .panel-footer {position:absolute; left:0; bottom:0; right:0;}
+body#media-upload .panel-body > .row {height:100%;}
+body#media-upload .panel-body > .row > div {height:100%; overflow:auto; padding-top:15px; padding-bottom:15px;}
+body#media-upload .panel-body .list-group-item {border-width: 0; border-top-width: 1px; margin: 0;}
+body#media-upload .panel-body .list-group-item:first-child {border-width: 0;}
+body#media-upload .media-upload-sidebar {border-left:1px solid #cccccc; background-color:#eeeeee; padding:0 !important;position:relative;}
+body#media-upload .media-upload-sidebar form {display: flex; flex-direction: column; height: 100%; width: 100%;}
+body#media-upload .media-upload-sidebar .media-upload-form-container {flex: 1 auto; overflow: auto; padding: 15px;}
+body#media-upload .media-upload-sidebar .panel-footer {min-height: 57px;}
 body#media-upload .thumbnail {margin:0 5px 5px 0; position:relative; display:inline-block;}
 body#media-upload .thumbnail.active {background-color:lightblue;border-color:cadetblue;}
 body#media-upload .thumbnail .glyphicon {display:none; position:absolute; right:-3px; top:-7px; font-size:30px;}
 body#media-upload .thumbnail.active .glyphicon {display:inline-block;}
+body#media-upload .plupload_wrapper {height: 100%; box-sizing: border-box;}
+body#media-upload div#pluploadUploader .plupload_container {height: 100%; min-height: inherit !important;}
+body#media-upload .ui-resizable-handle {display: none !important; bottom: -1px;}
+#gmedia-post-thumbnail {font-size: 12px;padding: 0;display: inline;white-space: normal;}
 
 body.gmedia-blank.image_editor { height:100%; overflow:auto; margin:0; padding:0 }
 body.gmedia-blank.image_editor .panel {position:relative; height:100%; overflow:auto; margin:0;}

@@ -301,10 +301,4 @@ div#gmedia-galleries .ui-resizable-s {
 	text-decoration: none;
 }
 
-.wp-media-buttons .gmedia_button { padding-left: .4em; }
-.wp-media-buttons .gmedia_button.hidden { display: inline-block !important; }
-.wp-media-buttons .gmedia_button span.wp-media-buttons-icon {
-	background: url(../images/gm-icon.png) no-repeat top left;
-}
-
 .ui-dialog.gmedia-tool-dialog .ui-dialog-content { overflow: hidden !important; }

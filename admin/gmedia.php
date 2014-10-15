@@ -748,8 +748,11 @@ function gmediaLib(){
 					<div class="col-lg-6">
 						<div class="form-group">
 							<label><?php _e('Author', 'gmLang'); ?></label>
-							<?php $user_ids = $gmCore->caps['gmedia_edit_others_media']? $gmCore->get_editable_user_ids() : false;
+							<?php $user_ids = $gmCore->caps['gmedia_delete_others_media']? $gmCore->get_editable_user_ids() : false;
 							if($user_ids){
+                                if(!in_array($user_ID, $user_ids)){
+                                    array_push($user_ids, $user_ID);
+                                }
 								wp_dropdown_users(array(
 									'include' => $user_ids,
 									'include_selected' => true,

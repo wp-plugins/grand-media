@@ -42,6 +42,8 @@ function gmedia_uninstall(){
 		$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}gmedia_term");
 		$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}gmedia_term_meta");
 		$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}gmedia_term_relationships");
+
+		delete_metadata('post', 0, '_gmedia_image_id', '', true);
 	}
 
 	$capabilities = gmedia_plugin_capabilities();
