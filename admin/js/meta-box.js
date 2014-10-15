@@ -88,7 +88,7 @@ var gmActiveEditor = false;
 
     */
 
-    $('#wp-content-media-buttons').on( 'click', '#gmedia-modal', function( event ) {
+    $(document).on( 'click', '#gmedia-modal', function( event ) {
         event.preventDefault();
         event.stopPropagation();
 
