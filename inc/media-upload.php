@@ -24,7 +24,7 @@ function gmedia_media_buttons_context( $context ) {
 	global $post;
 	$button = '
 	<div style="display:inline-block;">
-	    <a id="gmedia-modal" title="Gmedia Galleries" class="gmedia_button insert-media button" href="#gmedia"><span class="wp-media-buttons-icon" style="background: url(' . plugins_url( GMEDIA_FOLDER . '/admin/images/gm-icon.png' ) . ') no-repeat top left;"></span> ' . __( 'Gmedia', 'gmLang' ) . '</a>
+	    <a id="gmedia-modal" title="Gmedia Galleries" class="gmedia_button button" href="#gmedia"><span class="wp-media-buttons-icon" style="background: url(' . plugins_url( GMEDIA_FOLDER . '/admin/images/gm-icon.png' ) . ') no-repeat top left;"></span> ' . __( 'Gmedia', 'gmLang' ) . '</a>
 	    <script type="text/html" id="tpl__gm-uploader">
             <div id="__gm-uploader" tabindex="0">
                 <div class="media-modal wp-core-ui"><a class="media-modal-close" href="#"><span class="media-modal-icon"></span></a>
@@ -444,7 +444,7 @@ function gmedia_add_media_library() {
 		'author'    => $author,
 		'orderby'   => 'ID',
 		'order'     => 'DESC',
-		'per_page'  => 30,
+		'per_page'  => 50,
 		'page'      => $gmCore->_get( 'pager', 1 ),
 		's'         => $gmCore->_get( 's', null )
 	);

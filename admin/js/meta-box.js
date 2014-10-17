@@ -89,8 +89,8 @@ var gmActiveEditor = false;
     */
 
     $(document).on( 'click', '#gmedia-modal', function( event ) {
-        event.preventDefault();
         event.stopPropagation();
+        event.preventDefault();
 
         var modal = $('#__gm-uploader');
 
