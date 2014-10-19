@@ -849,6 +849,12 @@ class GmediaProcessor{
                         if($roles[$capabilities['gmedia_edit_others_media']] < $roles[$capabilities['gmedia_delete_others_media']]){
                             $capabilities['gmedia_delete_others_media'] = $capabilities['gmedia_edit_others_media'];
                         }
+                        if($roles[$capabilities['gmedia_show_others_media']] < $roles[$capabilities['gmedia_edit_others_media']]){
+                            $capabilities['gmedia_edit_others_media'] = $capabilities['gmedia_show_others_media'];
+                        }
+                        if($roles[$capabilities['gmedia_show_others_media']] < $roles[$capabilities['gmedia_delete_others_media']]){
+                            $capabilities['gmedia_delete_others_media'] = $capabilities['gmedia_show_others_media'];
+                        }
                         // terms cap.
                         if($roles[$capabilities['gmedia_terms']] < $roles[$capabilities['gmedia_album_manage']]){
                             $capabilities['gmedia_album_manage'] = $capabilities['gmedia_terms'];

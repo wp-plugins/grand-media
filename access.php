@@ -63,26 +63,16 @@ if ( $globaldata ) {
 			$user = wp_set_current_user( $out['user']['id'] );
 
 			$gmedia_capabilities_list = array(
-				'gmedia_library'
-			,
-				'gmedia_show_others_media'
-			,
-				'gmedia_edit_media'
-			,
-				'gmedia_edit_others_media'
-			,
-				'gmedia_delete_media'
-			,
-				'gmedia_delete_others_media'
-			,
-				'gmedia_upload'
-			,
-				'gmedia_terms'
-			,
-				'gmedia_album_manage'
-			,
-				'gmedia_tag_manage'
-			,
+				'gmedia_library',
+				'gmedia_show_others_media',
+				'gmedia_edit_media',
+				'gmedia_edit_others_media',
+				'gmedia_delete_media',
+				'gmedia_delete_others_media',
+				'gmedia_upload',
+				'gmedia_terms',
+				'gmedia_album_manage',
+				'gmedia_tag_manage',
 				'gmedia_terms_delete'
 			);
 			$gmedia_capabilities      = array();
@@ -223,7 +213,16 @@ function gmedia_ios_app_library_data( $data = array( 'site', 'authors', 'filter'
 	if ( in_array( 'gmedia_album', $data ) ) {
 		$args = array();
 		if ( $user_ID ) {
-			$cap = ( is_super_admin( $user_ID ) || user_can( $user_ID, 'gmedia_album_delete' ) ) ? 4 : ( user_can( $user_ID, 'gmedia_album_edit' ) ? 2 : 0 );
+			if( current_user_can('gmedia_delete_terms' ) ){
+				$cap = 4;
+			} elseif( current_user_can( 'gmedia_album_edit' ) ){
+				$cap = 2;
+			} else{
+				$cap = 0;
+			}
+			if( !current_user_can('gmedia_edit_others_media')){
+				$args['global'] = array( $user_ID, 0 );
+			}
 		} else {
 			$cap  = 0;
 			$args = array( 'status' => 'public' );

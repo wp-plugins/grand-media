@@ -2690,7 +2690,7 @@ class GmediaDB{
 		// Merge old and new args with new args overwriting old ones.
 		$args = array_merge($term, $args);
 
-		$defaults = array('name' => '', 'description' => '', 'orderby' => 'ID', 'order' => 'DESC', 'status' => 'public', 'gmedia_ids' => array());
+		$defaults = array('global' => $term['global'], 'name' => '', 'description' => '', 'orderby' => 'ID', 'order' => 'DESC', 'status' => 'public', 'gmedia_ids' => array());
 		$args = wp_parse_args($args, $defaults);
 
 		/** @var $name
@@ -2698,6 +2698,7 @@ class GmediaDB{
 		 * @var  $orderby
 		 * @var  $order
 		 * @var  $status
+		 * @var  $global
 		 * @var  $gmedia_ids
 		 */
 		extract($args, EXTR_SKIP);
@@ -2709,8 +2710,10 @@ class GmediaDB{
 		if('' == trim($name)){
 			return new WP_Error('gm_empty_term_name', __('A name is required for term'));
 		}
-        if(!isset($global) || !current_user_can('gmedia_edit_others_media')){
-            $global = $term->global;
+        if(current_user_can('gmedia_edit_others_media')){
+	        $global = (int) $global;
+        } else{
+	        $global = $term['global'];
         }
 
         $term_id = $wpdb->get_var($wpdb->prepare("SELECT t.term_id FROM {$wpdb->prefix}gmedia_term AS t WHERE t.taxonomy = %s AND t.term_id = %d", $taxonomy, $term_id));

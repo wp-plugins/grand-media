@@ -48,6 +48,11 @@ See demo of Gmedia Gallery Modules:
 *   [3D Sphere Module](http://codeasily.com/portfolio-item/gmedia-sphere/) - is 3D picture gallery which arranges your images in beautiful sphere which rotates and interacts on your mouse move.
 *   ...
 
+Translations:
+
+*   English (default)
+*   Serbian (next update)
+
 Help me make it best gallery plugin: test it and [write suggestions](http://codeasily.com/community/forum/gmedia-gallery-wordpress-plugin/) how it could be improved in feature versions.
 
 Features:
