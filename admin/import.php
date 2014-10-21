@@ -42,12 +42,28 @@ $terms  = $gmCore->_post( 'terms', array() );
  * @param int $exists
  */
 function gmedia_import_files( $files, $terms, $move, $exists = 0 ) {
-	global $gmCore, $gmGallery;
+	global $gmCore, $gmGallery, $gmDB;
 
 	if ( ob_get_level() == 0 ) {
 		ob_start();
 	}
 	$eol = '</pre>' . PHP_EOL;
+
+	$_terms = $terms;
+
+	$gmedia_album = isset( $_terms['gmedia_album'] ) ? $_terms['gmedia_album'] : false;
+	if ( $gmedia_album && $gmCore->is_digit( $gmedia_album ) ) {
+		$album = $gmDB->get_term( $gmedia_album, 'gmedia_album' );
+		if ( empty( $album ) || is_wp_error( $album ) ) {
+			$status = 'public';
+		} else {
+			$status = $album->status;
+			$album_name = $album->name;
+		}
+	} else {
+		$status = 'public';
+	}
+
 	$c   = count( $files );
 	$i   = 0;
 	foreach ( $files as $file ) {
@@ -194,8 +210,6 @@ function gmedia_import_files( $files, $terms, $move, $exists = 0 ) {
 			}
 		}
 
-		global $gmDB;
-
 		// Write media data to DB
 		// TODO Option to set title empty string or from metadata or from filename or both
 		// use image exif/iptc data for title and caption defaults if possible
@@ -216,20 +230,6 @@ function gmedia_import_files( $files, $terms, $move, $exists = 0 ) {
 		}
 		if ( ! isset( $link ) ) {
 			$link = '';
-		}
-
-		$_terms = $terms;
-
-		$gmedia_album = isset( $_terms['gmedia_album'] ) ? $_terms['gmedia_album'] : false;
-		if ( $gmedia_album && $this->is_digit( $gmedia_album ) ) {
-			$album = $gmDB->get_term( $gmedia_album, 'gmedia_album' );
-			if ( empty( $album ) || is_wp_error( $album ) ) {
-				$status = 'public';
-			} else {
-				$status = $album->status;
-			}
-		} else {
-			$status = 'public';
 		}
 
 		if ( ! $is_webimage ) {
@@ -265,7 +265,7 @@ function gmedia_import_files( $files, $terms, $move, $exists = 0 ) {
 	}
 
 	echo '<p><b>' . __( 'Category' ) . ':</b> ' . ( ( isset( $terms['gmedia_category'] ) && ! empty( $terms['gmedia_category'] ) ) ? esc_html( $gmGallery->options['taxonomies']['gmedia_category'][ $terms['gmedia_category'] ] ) : '-' ) . PHP_EOL;
-	echo '<br /><b>' . __( 'Album' ) . ':</b> ' . ( ( isset( $terms['gmedia_album'] ) && ! empty( $terms['gmedia_album'] ) ) ? esc_html( $terms['gmedia_album'] ) : '-' ) . PHP_EOL;
+	echo '<br /><b>' . __( 'Album' ) . ':</b> ' . ( ( isset( $terms['gmedia_album'] ) && ! empty( $terms['gmedia_album'] ) ) ? ( isset($album_name)? $album_name : esc_html( $terms['gmedia_album'] ) ) : '-' ) . PHP_EOL;
 	echo '<br /><b>' . __( 'Tags' ) . ':</b> ' . ( ( isset( $terms['gmedia_tag'] ) && ! empty( $terms['gmedia_tag'] ) ) ? esc_html( str_replace( ',', ', ', $terms['gmedia_tag'] ) ) : '-' ) . '</p>' . PHP_EOL;
 
 	wp_ob_end_flush_all();

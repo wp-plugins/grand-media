@@ -51,7 +51,7 @@ See demo of Gmedia Gallery Modules:
 Translations:
 
 *   English (default)
-*   Serbian (next update)
+*   Serbian by Ogi Djuraskovic (http://firstsiteguide.com/)
 
 Help me make it best gallery plugin: test it and [write suggestions](http://codeasily.com/community/forum/gmedia-gallery-wordpress-plugin/) how it could be improved in feature versions.
 
@@ -115,6 +115,11 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 8. Admin Area - Gmedia Library Filters
 
 == Changelog ==
+
+= 1.3.1 =
+* Added Serbian language
+* Fix for roles and save album
+* Fix for import files
 
 = 1.3.0 =
 * Add Set Post Featured Image
