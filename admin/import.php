@@ -118,6 +118,43 @@ function gmedia_import_files( $files, $terms, $move, $exists = 0 ) {
 		if ( 'image' == $fileinfo['dirname'] ) {
 			$size = @getimagesize( $fileinfo['filepath'] );
 			if ( $size && file_is_displayable_image( $fileinfo['filepath'] ) ) {
+				if ( function_exists( 'memory_get_usage' ) ) {
+					$extensions = array( '1' => 'GIF', '2' => 'JPG', '3' => 'PNG', '6' => 'BMP' );
+					switch ( $extensions[ $size[2] ] ) {
+						case 'GIF':
+							$CHANNEL = 1;
+							break;
+						case 'JPG':
+							$CHANNEL = $size['channels'];
+							break;
+						case 'PNG':
+							$CHANNEL = 3;
+							break;
+						case 'BMP':
+						default:
+							$CHANNEL = 6;
+							break;
+					}
+					$MB                = 1048576;  // number of bytes in 1M
+					$K64               = 65536;    // number of bytes in 64K
+					$TWEAKFACTOR       = 1.8;     // Or whatever works for you
+					$memoryNeeded      = round( ( $size[0] * $size[1] * $size['bits'] * $CHANNEL / 8 + $K64 ) * $TWEAKFACTOR );
+					$memoryNeeded      = memory_get_usage() + $memoryNeeded;
+					$current_limit     = @ini_get( 'memory_limit' );
+					$current_limit_int = intval( $current_limit );
+					if ( false !== strpos( $current_limit, 'M' ) ) {
+						$current_limit_int *= $MB;
+					}
+					if ( false !== strpos( $current_limit, 'G' ) ) {
+						$current_limit_int *= 1024;
+					}
+
+					if ( - 1 != $current_limit && $memoryNeeded > $current_limit_int ) {
+						$newLimit = $current_limit_int / $MB + ceil( ( $memoryNeeded - $current_limit_int ) / $MB );
+						@ini_set( 'memory_limit', $newLimit . 'M' );
+					}
+				}
+
 				if ( ! wp_mkdir_p( $fileinfo['dirpath_thumb'] ) ) {
 					echo $prefix_ko . sprintf( __( 'Unable to create directory `%s`. Is its parent directory writable by the server?', 'gmLang' ), $fileinfo['dirpath_thumb'] ) . $eol;
 					continue;
@@ -340,7 +377,7 @@ flush();
 					}
 					foreach ( $files as $i => $filepath ) {
 						$ext = pathinfo( $filepath, PATHINFO_EXTENSION );
-						if ( ! in_array( $ext, $allowed_ext ) ) {
+						if ( ! in_array( strtolower($ext), $allowed_ext ) ) {
 							unset( $files[ $i ] );
 						}
 					}

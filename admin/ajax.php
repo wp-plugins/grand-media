@@ -128,6 +128,43 @@ function gmedit_save() {
 		$size = @getimagesize( $fileinfo['filepath_original'] );
 
 		do {
+			if ( function_exists( 'memory_get_usage' ) ) {
+				$extensions = array( '1' => 'GIF', '2' => 'JPG', '3' => 'PNG', '6' => 'BMP' );
+				switch ( $extensions[ $size[2] ] ) {
+					case 'GIF':
+						$CHANNEL = 1;
+						break;
+					case 'JPG':
+						$CHANNEL = $size['channels'];
+						break;
+					case 'PNG':
+						$CHANNEL = 3;
+						break;
+					case 'BMP':
+					default:
+						$CHANNEL = 6;
+						break;
+				}
+				$MB                = 1048576;  // number of bytes in 1M
+				$K64               = 65536;    // number of bytes in 64K
+				$TWEAKFACTOR       = 1.8;     // Or whatever works for you
+				$memoryNeeded      = round( ( $size[0] * $size[1] * $size['bits'] * $CHANNEL / 8 + $K64 ) * $TWEAKFACTOR );
+				$memoryNeeded      = memory_get_usage() + $memoryNeeded;
+				$current_limit     = @ini_get( 'memory_limit' );
+				$current_limit_int = intval( $current_limit );
+				if ( false !== strpos( $current_limit, 'M' ) ) {
+					$current_limit_int *= $MB;
+				}
+				if ( false !== strpos( $current_limit, 'G' ) ) {
+					$current_limit_int *= 1024;
+				}
+
+				if ( - 1 != $current_limit && $memoryNeeded > $current_limit_int ) {
+					$newLimit = $current_limit_int / $MB + ceil( ( $memoryNeeded - $current_limit_int ) / $MB );
+					@ini_set( 'memory_limit', $newLimit . 'M' );
+				}
+			}
+
 			$editor = wp_get_image_editor( $fileinfo['filepath_original'] );
 			if ( is_wp_error( $editor ) ) {
 				@unlink( $fileinfo['filepath_original'] );
@@ -288,6 +325,43 @@ function gmedit_restore() {
 		$size = @getimagesize( $fileinfo['filepath_original'] );
 
 		do {
+			if ( function_exists( 'memory_get_usage' ) ) {
+				$extensions = array( '1' => 'GIF', '2' => 'JPG', '3' => 'PNG', '6' => 'BMP' );
+				switch ( $extensions[ $size[2] ] ) {
+					case 'GIF':
+						$CHANNEL = 1;
+						break;
+					case 'JPG':
+						$CHANNEL = $size['channels'];
+						break;
+					case 'PNG':
+						$CHANNEL = 3;
+						break;
+					case 'BMP':
+					default:
+						$CHANNEL = 6;
+						break;
+				}
+				$MB                = 1048576;  // number of bytes in 1M
+				$K64               = 65536;    // number of bytes in 64K
+				$TWEAKFACTOR       = 1.8;     // Or whatever works for you
+				$memoryNeeded      = round( ( $size[0] * $size[1] * $size['bits'] * $CHANNEL / 8 + $K64 ) * $TWEAKFACTOR );
+				$memoryNeeded      = memory_get_usage() + $memoryNeeded;
+				$current_limit     = @ini_get( 'memory_limit' );
+				$current_limit_int = intval( $current_limit );
+				if ( false !== strpos( $current_limit, 'M' ) ) {
+					$current_limit_int *= $MB;
+				}
+				if ( false !== strpos( $current_limit, 'G' ) ) {
+					$current_limit_int *= 1024;
+				}
+
+				if ( - 1 != $current_limit && $memoryNeeded > $current_limit_int ) {
+					$newLimit = $current_limit_int / $MB + ceil( ( $memoryNeeded - $current_limit_int ) / $MB );
+					@ini_set( 'memory_limit', $newLimit . 'M' );
+				}
+			}
+
 			$editor = wp_get_image_editor( $fileinfo['filepath_original'] );
 			if ( is_wp_error( $editor ) ) {
 				$fail = $fileinfo['basename'] . " (wp_get_image_editor): " . $editor->get_error_message();
@@ -850,12 +924,12 @@ function gmedia_get_modal() {
 				<option value="draft"><?php _e( 'Draft', 'gmLang' ); ?></option>
 			</select>
 		</div>
-	<?php $user_ids = current_user_can('gmedia_delete_others_media')? $gmCore->get_editable_user_ids() : false;
+	<?php $user_ids = current_user_can( 'gmedia_delete_others_media' ) ? $gmCore->get_editable_user_ids() : false;
 	if ($user_ids){
-		if ( ! in_array( $user_ID, $user_ids ) ) {
-			array_push( $user_ids, $user_ID );
-		}
-		?>
+	if ( ! in_array( $user_ID, $user_ids ) ) {
+		array_push( $user_ids, $user_ID );
+	}
+	?>
 		<div class="form-group">
 			<label><?php _e( 'Author', 'gmLang' ); ?></label>
 			<?php wp_dropdown_users( array(
@@ -1308,7 +1382,7 @@ function gmedia_set_post_thumbnail() {
 		$image = $gmDB->get_gmedia( $img_id );
 		if ( $image ) {
 
-			$args = array(
+			$args          = array(
 				'post_type'    => 'attachment',
 				'meta_key'     => '_gmedia_image_id',
 				'meta_compare' => '==',
@@ -1319,19 +1393,19 @@ function gmedia_set_post_thumbnail() {
 
 			if ( $posts != null ) {
 				$attachment_id = $posts[0]->ID;
-				$target_path = get_attached_file( $attachment_id );
+				$target_path   = get_attached_file( $attachment_id );
 			} else {
-				$upload_dir      = wp_upload_dir();
-				$basedir         = $upload_dir['basedir'];
-				$thumbs_dir      = implode( DIRECTORY_SEPARATOR, array( $basedir, 'gmedia_featured' ) );
+				$upload_dir = wp_upload_dir();
+				$basedir    = $upload_dir['basedir'];
+				$thumbs_dir = implode( DIRECTORY_SEPARATOR, array( $basedir, 'gmedia_featured' ) );
 
-				$type            = explode('/', $image->mime_type);
+				$type = explode( '/', $image->mime_type );
 
-				$url = $gmCore->upload['url'] . '/' . $gmGallery->options['folder'][$type[0]] . '/' . $image->gmuid;
-				$image_abspath   = $gmCore->upload['path'] . '/' . $gmGallery->options['folder'][$type[0]] . '/' . $image->gmuid;
+				$url           = $gmCore->upload['url'] . '/' . $gmGallery->options['folder'][ $type[0] ] . '/' . $image->gmuid;
+				$image_abspath = $gmCore->upload['path'] . '/' . $gmGallery->options['folder'][ $type[0] ] . '/' . $image->gmuid;
 
-				$img_name = current_time('ymd_Hi').'_'.basename($image->gmuid);
-				$target_path    = path_join( $thumbs_dir, $img_name );
+				$img_name    = current_time( 'ymd_Hi' ) . '_' . basename( $image->gmuid );
+				$target_path = path_join( $thumbs_dir, $img_name );
 				wp_mkdir_p( $thumbs_dir );
 
 				if ( @copy( $image_abspath, $target_path ) ) {
@@ -1352,13 +1426,13 @@ function gmedia_set_post_thumbnail() {
 					// Save the data
 					$attachment_id = wp_insert_attachment( $attachment, $target_path );
 					wp_update_attachment_metadata( $attachment_id, wp_generate_attachment_metadata( $attachment_id, $target_path ) );
-					add_post_meta( $attachment_id , '_gmedia_image_id' , $img_id, true);
+					add_post_meta( $attachment_id, '_gmedia_image_id', $img_id, true );
 				}
 			}
 
 			if ( $attachment_id ) {
 				delete_post_meta( $post_ID, '_thumbnail_id' );
-				add_post_meta( $post_ID , '_thumbnail_id' , $attachment_id, true);
+				add_post_meta( $post_ID, '_thumbnail_id', $attachment_id, true );
 
 				echo _wp_post_thumbnail_html( $attachment_id, $post_ID );
 				die();

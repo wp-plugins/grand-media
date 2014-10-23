@@ -290,62 +290,42 @@ function gmedia_images_update($files){
 			$size = @getimagesize($fileinfo['filepath']);
 			if(!file_exists($fileinfo['filepath_thumb']) && file_is_displayable_image($fileinfo['filepath'])){
 
-                if ( (function_exists('memory_get_usage')) && (ini_get('memory_limit')) ) {
-                    $extensions = array('1' => 'GIF', '2' => 'JPG', '3' => 'PNG', '4' => 'BMP');
-                    switch ($extensions[$size[2]]) {
-                        case 'GIF':
-                            // measured factor 1 is better
-                            $CHANNEL = 1;
-                            break;
-                        case 'JPG':
-                            $CHANNEL = $size['channels'];
-                            break;
-                        case 'PNG':
-                            // didn't get the channel for png
-                            $CHANNEL = 3;
-                            break;
-                        case 'BMP':
-                        default:
-                            $CHANNEL = 4;
-                            break;
-                    }
-                    $MB = 1048576;  // number of bytes in 1M
-                    $K64 = 65536;    // number of bytes in 64K
-                    $TWEAKFACTOR = 1.68;  // Or whatever works for you
-                    $memoryNeeded = round(($size[0] * $size[1]
-                            * $size['bits']
-                            * $CHANNEL / 8
-                            + $K64
-                        ) * $TWEAKFACTOR
-                    );
-                    $memoryNeeded = memory_get_usage() + $memoryNeeded;
-                    // get memory limit
-                    $memory_limit = ini_get('memory_limit');
+				if ( function_exists( 'memory_get_usage' ) ) {
+					$extensions = array( '1' => 'GIF', '2' => 'JPG', '3' => 'PNG', '6' => 'BMP' );
+					switch ( $extensions[ $size[2] ] ) {
+						case 'GIF':
+							$CHANNEL = 1;
+							break;
+						case 'JPG':
+							$CHANNEL = $size['channels'];
+							break;
+						case 'PNG':
+							$CHANNEL = 3;
+							break;
+						case 'BMP':
+						default:
+							$CHANNEL = 6;
+							break;
+					}
+					$MB                = 1048576;  // number of bytes in 1M
+					$K64               = 65536;    // number of bytes in 64K
+					$TWEAKFACTOR       = 1.8;     // Or whatever works for you
+					$memoryNeeded      = round( ( $size[0] * $size[1] * $size['bits'] * $CHANNEL / 8 + $K64 ) * $TWEAKFACTOR );
+					$memoryNeeded      = memory_get_usage() + $memoryNeeded;
+					$current_limit     = @ini_get( 'memory_limit' );
+					$current_limit_int = intval( $current_limit );
+					if ( false !== strpos( $current_limit, 'M' ) ) {
+						$current_limit_int *= $MB;
+					}
+					if ( false !== strpos( $current_limit, 'G' ) ) {
+						$current_limit_int *= 1024;
+					}
 
-                    // PHP docs : Note that to have no memory limit, set this directive to -1.
-                    if ($memory_limit !== -1) {
-                        // Just check megabyte limits, not higher
-                        if (strtolower(substr($memory_limit, -1)) == 'm') {
-
-                            if ($memory_limit != '') {
-                                $memoryLimit = substr($memory_limit, 0, -1);
-                                $memory_limit = $memoryLimit * 1024 * 1024;
-                            } else{
-                                $memoryLimit = 'NaN';
-                            }
-
-                            if ($memoryNeeded > $memory_limit) {
-                                $memoryNeeded = round($memoryNeeded / 1024 / 1024, 2);
-                                echo $prefix_ko . sprintf(__('Exceed Memory limit: %s', 'gmLang'), $file) . '<br>&nbsp;&nbsp;&nbsp;';
-                                echo __('Require: ', 'gmLang') . $memoryNeeded . 'Mb' . '<br>&nbsp;&nbsp;&nbsp;';
-                                echo __('You have: ', 'gmLang') . $memoryLimit . 'Mb' . $eol;
-                                continue;
-                            }
-                        }
-                        //echo '<p>' . __('Memory Limit: ', 'gmLang') . ini_get('memory_limit') . '</p>';
-                        //echo '<p>' . __('Memory Used: ', 'gmLang') . memory_get_usage() . '</p>';
-                    }
-                }
+					if ( - 1 != $current_limit && $memoryNeeded > $current_limit_int ) {
+						$newLimit = $current_limit_int / $MB + ceil( ( $memoryNeeded - $current_limit_int ) / $MB );
+						@ini_set( 'memory_limit', $newLimit . 'M' );
+					}
+				}
 
                 if(!wp_mkdir_p($fileinfo['dirpath_thumb'])){
 					echo $prefix_ko . sprintf(__('Unable to create directory `%s`. Is its parent directory writable by the server?', 'gmLang'), $fileinfo['dirpath_thumb']) . $eol;

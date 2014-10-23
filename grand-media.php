@@ -307,8 +307,9 @@ if(!class_exists('Gmedia')){
 
 		function load_module_scripts(){
 			$deps = array();
-			foreach($this->do_module as $module){
+			foreach($this->do_module as $m => $module){
 				$deps = array_merge($deps, explode(',', $module['info']['dependencies']));
+				$deps = apply_filters('gmedia_'.$m.'_dependencies', $deps);
 				foreach($deps as $handle){
 					if(wp_script_is($handle, 'registered')){
 						wp_enqueue_script($handle, $_src = false, $_deps = array('jquery'), $_ver = false, $_in_footer = true);

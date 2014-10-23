@@ -263,28 +263,28 @@ function gmedia_upload_files(){
 					if(up.state == plupload.STARTED){
 						up.settings.multipart_params = { params: jQuery('#uploader_multipart_params :input').serialize() };
 					}
-					console.log('[StateChanged]', up.state, up.settings.multipart_params);
+					//console.log('[StateChanged]', up.state, up.settings.multipart_params);
 				});
 				uploader.bind('ChunkUploaded', function(up, file, info){
-					console.log('[ChunkUploaded] File:', file, "Info:", info);
+					//console.log('[ChunkUploaded] File:', file, "Info:", info);
 					var response = jQuery.parseJSON(info.response);
 					if(response && response.error){
 						up.stop();
 						file.status = plupload.FAILED;
-						jQuery('<div/>').addClass('alert alert-danger alert-dismissable').html(closebtn + '<strong>' + response.id + ':</strong> ' + response.error.message).appendTo('#gmedia-msg-panel');
-						console.log(response.error);
+						//jQuery('<div/>').addClass('alert alert-danger alert-dismissable').html(closebtn + '<strong>' + response.id + ':</strong> ' + response.error.message).appendTo('#gmedia-msg-panel');
+						console.log('[ChunkUploaded] ', response.error);
 						up.trigger('QueueChanged StateChanged');
 						up.trigger('UploadProgress', file);
 						up.start();
 					}
 				});
 				uploader.bind('FileUploaded', function(up, file, info){
-					console.log('[FileUploaded] File:', file, "Info:", info);
+					//console.log('[FileUploaded] File:', file, "Info:", info);
 					var response = jQuery.parseJSON(info.response);
 					if(response && response.error){
 						file.status = plupload.FAILED;
 						jQuery('<div/>').addClass('alert alert-danger alert-dismissable').html(closebtn + '<strong>' + response.id + ':</strong> ' + response.error.message).appendTo('#gmedia-msg-panel');
-						console.log(response.error);
+						console.log('[FileUploaded] ', response.error);
 					}
 				});
 				uploader.bind('UploadProgress', function(up, file){
