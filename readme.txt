@@ -52,6 +52,7 @@ Translations:
 
 *   English (default)
 *   Serbian by Ogi Djuraskovic (http://firstsiteguide.com/)
+*   French by Serge Couture (http://www.choeurlabruyante.org/)
 
 Help me make it best gallery plugin: test it and [write suggestions](http://codeasily.com/community/forum/gmedia-gallery-wordpress-plugin/) how it could be improved in feature versions.
 
@@ -115,6 +116,11 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 8. Admin Area - Gmedia Library Filters
 
 == Changelog ==
+
+= 1.3.2 =
+* Added French language
+* Added option to Batch Edit for Description: 'replace', 'append', 'prepend'
+* Added auth_redirect() function to avoid error when login session expire
 
 = 1.3.1 =
 * Added Serbian language

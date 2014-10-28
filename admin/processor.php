@@ -85,6 +85,8 @@ class GmediaProcessor{
 			return;
 		}
 
+		auth_redirect();
+
 		switch($this->page){
 			case 'GrandMedia':
 				if(!$gmCore->caps['gmedia_library']){
@@ -361,7 +363,14 @@ class GmediaProcessor{
 										case 'custom':
 											$description_custom = $gmCore->_post('batch_description_custom');
 											if(false !== $description_custom){
-												$batch_data['description'] = $description_custom;
+												$what_description_custom = $gmCore->_post('what_description_custom');
+												if('replace' == $what_description_custom) {
+													$batch_data['description'] = $description_custom;
+												} elseif('append' == $what_description_custom){
+													$batch_data['description'] = $gmedia['description'] . $description_custom;
+												} elseif('prepend' == $what_description_custom){
+													$batch_data['description'] = $description_custom . $gmedia['description'];
+												}
 											}
 											break;
 									}

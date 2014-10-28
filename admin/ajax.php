@@ -903,7 +903,15 @@ function gmedia_get_modal() {
 				<option value="empty"><?php _e( 'Empty Description', 'gmLang' ); ?></option>
 				<option value="custom"><?php _e( 'Custom', 'gmLang' ); ?></option>
 			</select>
-			<textarea class="form-control input-sm batch_set_custom" style="margin-top:5px;display:none;" cols="30" rows="3" name="batch_description_custom" placeholder="<?php _e( 'Enter description here' ); ?>"></textarea>
+
+			<div class="batch_set_custom" style="margin-top:5px;display:none;">
+				<select class="form-control input-sm" name="what_description_custom" style="margin-bottom:5px;">
+					<option value="replace"><?php _e( 'Replace', 'gmLang' ); ?></option>
+					<option value="append"><?php _e( 'Append', 'gmLang' ); ?></option>
+					<option value="prepend"><?php _e( 'Prepend', 'gmLang' ); ?></option>
+				</select>
+				<textarea class="form-control input-sm" cols="30" rows="3" name="batch_description_custom" placeholder="<?php _e( 'Enter description here' ); ?>"></textarea>
+			</div>
 		</div>
 		<div class="form-group">
 			<label><?php _e( 'Link', 'gmLang' ); ?></label>
