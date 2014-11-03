@@ -2087,7 +2087,7 @@ class GmediaDB{
 	 */
 	function get_term($term, $taxonomy, $output = OBJECT){
 		/** @var $wpdb wpdb */
-		global $wpdb;
+		global $wpdb, $user_ID, $gmCore;
 		$null = null;
 
 		if(empty($term)){
@@ -2106,15 +2106,25 @@ class GmediaDB{
 		if(is_object($term)){
 			$term = $term->term_id;
 		}
-		if(!$term = (int)$term){
-			return $null;
-		}
-		if(!$_term = wp_cache_get($term, $taxonomy)){
-			$_term = $wpdb->get_row($wpdb->prepare("SELECT t.* FROM {$wpdb->prefix}gmedia_term AS t WHERE t.taxonomy = %s AND t.term_id = %d LIMIT 1", $taxonomy, $term));
-			if(!$_term){
+		if(!$gmCore->is_digit($term)){
+			if($user_ID) {
+				$_term = $wpdb->get_row( $wpdb->prepare( "SELECT t.* FROM {$wpdb->prefix}gmedia_term AS t WHERE t.taxonomy = %s AND t.name = %s AND t.global = %d LIMIT 1", $taxonomy, $term, $user_ID ) );
+				if ( !$_term ) {
+					return $null;
+				}
+				wp_cache_add( $_term->term_id, $_term, $taxonomy );
+			} else {
 				return $null;
 			}
-			wp_cache_add($term, $_term, $taxonomy);
+		} else {
+			$term = (int) $term;
+			if ( ! $_term = wp_cache_get( $term, $taxonomy ) ) {
+				$_term = $wpdb->get_row( $wpdb->prepare( "SELECT t.* FROM {$wpdb->prefix}gmedia_term AS t WHERE t.taxonomy = %s AND t.term_id = %d LIMIT 1", $taxonomy, $term ) );
+				if ( ! $_term ) {
+					return $null;
+				}
+				wp_cache_add( $term, $_term, $taxonomy );
+			}
 		}
 
 		$_term = apply_filters('get_gmedia_term', $_term, $taxonomy);
@@ -2607,7 +2617,11 @@ class GmediaDB{
 
 		// expected_slashed ($name)
 		$name = stripslashes($name);
-		$description = stripslashes($description);
+		if('gmedia_module' == $taxonomy){
+			$description = maybe_serialize( $description );
+		} else {
+			$description = stripslashes( $description );
+		}
 
 		if(($term_id = $this->term_exists($name, $taxonomy, $global))){
 			// Same name, same global.
@@ -2690,7 +2704,7 @@ class GmediaDB{
 		// Merge old and new args with new args overwriting old ones.
 		$args = array_merge($term, $args);
 
-		$defaults = array('global' => $term['global'], 'name' => '', 'description' => '', 'orderby' => 'ID', 'order' => 'DESC', 'status' => 'public', 'gmedia_ids' => array());
+		$defaults = array('global' => $term['global'], 'name' => $term['name'], 'description' => '', 'status' => 'public', 'orderby' => 'ID', 'order' => 'DESC', 'gmedia_ids' => array());
 		$args = wp_parse_args($args, $defaults);
 
 		/** @var $name
@@ -2705,7 +2719,11 @@ class GmediaDB{
 
 		// expected_slashed ($name)
 		$name = stripslashes($name);
-		$description = stripslashes($description);
+		if('gmedia_module' == $taxonomy){
+			$description = maybe_serialize( $description );
+		} else {
+			$description = stripslashes( $description );
+		}
 
 		if('' == trim($name)){
 			return new WP_Error('gm_empty_term_name', __('A name is required for term'));

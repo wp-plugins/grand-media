@@ -60,7 +60,7 @@ function gmediaModules(){
 	<div id="gmedia_modules">
 		<div class="panel panel-default">
 			<div class="panel-heading clearfix">
-				<a href="#installModuleModal" class="btn btn-primary pull-right<?php if(!$gmCore->caps['gmedia_module_manage']){
+				<a href="#installModuleModal" class="btn btn-primary pull-right<?php if(!current_user_can('manage_options')){
 					echo ' disabled';
 				} ?>" data-toggle="modal"><?php _e('Install Module ZIP'); ?></a>
 

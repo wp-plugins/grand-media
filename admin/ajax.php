@@ -1026,6 +1026,30 @@ function gmedia_tag_edit() {
 
 }
 
+add_action( 'wp_ajax_gmedia_module_preset_delete', 'gmedia_module_preset_delete' );
+function gmedia_module_preset_delete() {
+	global $gmCore, $gmDB, $gmProcessor;
+	$out = array('error' => '');
+
+	check_ajax_referer( 'GmediaGallery' );
+	if ( ! current_user_can( 'gmedia_gallery_manage' ) ) {
+		$out['error'] = $gmProcessor->alert( 'danger', __( "You are not allowed to manage galleries", 'gmLang' ) );
+	} else {
+		$taxonomy = 'gmedia_module';
+		$term_id  = intval( $gmCore->_post( 'preset_id', 0 ) );
+		$delete   = $gmDB->delete_term( $term_id, $taxonomy );
+		if ( is_wp_error( $delete ) ) {
+			$out['error'] = $delete->get_error_message();
+		}
+	}
+
+	header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
+	echo json_encode( $out );
+
+	die();
+
+}
+
 add_action( 'wp_ajax_gmedia_module_install', 'gmedia_module_install' );
 function gmedia_module_install() {
 	global $gmCore, $gmProcessor, $gmGallery;
@@ -1046,6 +1070,17 @@ function gmedia_module_install() {
 
 		$mzip      = str_replace( "\\", "/", $mzip );
 		$to_folder = $gmCore->upload['path'] . '/' . $gmGallery->options['folder']['module'] . '/';
+		if ( ! wp_mkdir_p( $to_folder ) ) {
+			echo $gmProcessor->alert( 'danger', sprintf( __( 'Unable to create directory %s. Is its parent directory writable by the server?', 'gmLang' ), $to_folder ));
+			die();
+		}
+		if ( ! is_writable( $to_folder ) ) {
+			@chmod( $to_folder, 0755 );
+			if ( ! is_writable( $to_folder ) ) {
+				echo $gmProcessor->alert( 'danger', sprintf( __( 'Directory %s is not writable by the server.', 'gmLang' ), $to_folder ));
+				die();
+			}
+		}
 
 		global $wp_filesystem;
 		// Is a filesystem accessor setup?

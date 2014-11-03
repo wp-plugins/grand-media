@@ -68,6 +68,7 @@ function gmedia_default_options(){
 
 	$gm['taxonomies']['gmedia_filter'] = array(); // not linked with gmedia_term_relationships table
 	$gm['taxonomies']['gmedia_gallery'] = array(); // not linked with gmedia_term_relationships table
+	$gm['taxonomies']['gmedia_module'] = array(); // not linked with gmedia_term_relationships table
 
 	$gm['gm_screen_options']['per_page_gmedia'] = 30;
 	$gm['gm_screen_options']['orderby_gmedia'] = 'ID';

@@ -692,6 +692,12 @@ class GmediaProcessor{
 					}
 				}
 
+				if(isset($_POST['module_preset_restore_original'])){
+					$preset_id  = intval( $gmCore->_post( 'preset_default', 0 ) );
+					$gmDB->delete_term( $preset_id, 'gmedia_module' );
+					$this->msg[] = __('Original module settings restored. Click "Reset to default" button to save original module settings for gallery', 'gmLang');
+				}
+
 				if(isset($_POST['gmedia_gallery_reset'])){
 					check_admin_referer('GmediaGallery');
 					$edit_gallery = (int)$gmCore->_get('edit_gallery');
@@ -717,6 +723,11 @@ class GmediaProcessor{
 						 */
 						if(file_exists($module_path['path'] . '/settings.php')){
 							include($module_path['path'] . '/settings.php');
+							$preset = $gmDB->get_term('['.$gallery_module.']', 'gmedia_module');
+							if($preset){
+								$default_preset = maybe_unserialize($preset->description);
+								$default_options = $gmCore->array_replace_recursive($default_options, $default_preset);
+							}
 						} else{
 							$this->error[] = sprintf(__('Can\'t load data from `%s` module'), $gallery_module);
 							break;
@@ -733,6 +744,58 @@ class GmediaProcessor{
 
 					} while(0);
 
+				}
+
+				if(isset($_POST['module_preset_save_as']) || isset($_POST['module_preset_save_default'])){
+					check_admin_referer('GmediaGallery');
+					do{
+						$gallery = $gmCore->_post('gallery');
+						if(empty($gallery['module'])){
+							$this->error[] = __('Something goes wrong... Choose module, please', 'gmLang');
+							break;
+						}
+						$module_settings = $gmCore->_post('module', array());
+						$module_path = $gmCore->get_module_path($gallery['module']);
+						$default_options = array();
+						if(file_exists($module_path['path'] . '/settings.php')){
+							include($module_path['path'] . '/settings.php');
+						} else{
+							$this->error[] = sprintf(__('Can\'t load data from `%s` module'), $gallery['module']);
+							break;
+						}
+						$module_settings = $gmCore->array_replace_recursive($default_options, $module_settings);
+
+						$preset_name = $gmCore->_post('module_preset_name', '');
+						if(isset($_POST['module_preset_save_default'])){
+							$preset_name = '['.$gallery['module'].']';
+						} else {
+							$preset_name = trim( $preset_name );
+							if(empty($preset_name)){
+								$this->error[] = __('Preset name is not specified', 'gmLang');
+								break;
+							}
+							$preset_name = '['.$gallery['module'].'] '.$preset_name;
+						}
+						$args = array();
+						$args['description'] = $module_settings;
+						$args['status'] = $gallery['module'];
+						$args['global'] = $user_ID;
+
+						$taxonomy = 'gmedia_module';
+						$term_id = $gmDB->term_exists($preset_name, $taxonomy, $user_ID);
+						if($term_id){
+							$term_id = $gmDB->update_term( $term_id, $taxonomy, $args );
+						} else {
+							$term_id = $gmDB->insert_term( $preset_name, $taxonomy, $args );
+						}
+						if(is_wp_error($term_id)){
+							$this->error[] = $term_id->get_error_message();
+							break;
+						} else{
+							$this->msg[] = sprintf(__('Preset `%s` successfuly saved', 'gmLang'), $preset_name);
+						}
+
+					} while(0);
 				}
 
 				if(!empty($this->selected_items)){
@@ -773,13 +836,28 @@ class GmediaProcessor{
 				if(!$gmCore->caps['gmedia_gallery_manage']){
 					wp_die(__('You are not allowed to manage gmedia galleries', 'gmLang'));
 				}
+				if(!$gmCore->caps['gmedia_module_manage']){
+					wp_die(__('You are not allowed to manage gmedia modules', 'gmLang'));
+				}
 				if(isset($_FILES['modulezip']['tmp_name'])){
 					if(!empty($_FILES['modulezip']['tmp_name'])){
 						check_admin_referer('GmediaModule');
-						if(!$gmCore->caps['gmedia_module_manage']){
-							wp_die(__('You are not allowed to manage gmedia modules', 'gmLang'));
+						if(!current_user_can('manage_options')){
+							wp_die(__('You are not allowed to install module ZIP', 'gmLang'));
 						}
 						$to_folder = $gmCore->upload['path'] . '/' . $gmGallery->options['folder']['module'] . '/';
+						if ( ! wp_mkdir_p( $to_folder ) ) {
+							$this->error[] = sprintf( __( 'Unable to create directory %s. Is its parent directory writable by the server?', 'gmLang' ), $to_folder );
+							break;
+						}
+						if ( ! is_writable( $to_folder ) ) {
+							@chmod( $to_folder, 0755 );
+							if ( ! is_writable( $to_folder ) ) {
+								//@unlink( $_FILES['modulezip']['tmp_name'] );
+								$this->error[] = sprintf( __( 'Directory %s is not writable by the server.', 'gmLang' ), $to_folder );
+								break;
+							}
+						}
 						$filename = wp_unique_filename($to_folder, $_FILES['modulezip']['name']);
 
 						// Move the file to the modules dir

@@ -25,14 +25,20 @@ class GmediaCore {
 	}
 
 	function capabilities() {
-		$curuser      = wp_get_current_user();
 		$capabilities = gmedia_plugin_capabilities();
 		$capabilities = apply_filters( 'gmedia_capabilities', $capabilities );
-		foreach ( $capabilities as $cap ) {
-			if ( isset( $curuser->allcaps[ $cap ] ) && intval( $curuser->allcaps[ $cap ] ) ) {
+		if(is_multisite() && is_super_admin()){
+			foreach ( $capabilities as $cap ) {
 				$this->caps[ $cap ] = 1;
-			} else {
-				$this->caps[ $cap ] = 0;
+			}
+		} else {
+			$curuser = wp_get_current_user();
+			foreach ( $capabilities as $cap ) {
+				if ( isset( $curuser->allcaps[ $cap ] ) && intval( $curuser->allcaps[ $cap ] ) ) {
+					$this->caps[ $cap ] = 1;
+				} else {
+					$this->caps[ $cap ] = 0;
+				}
 			}
 		}
 	}

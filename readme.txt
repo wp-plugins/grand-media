@@ -117,6 +117,11 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 
 == Changelog ==
 
+= 1.3.4 =
+* Added Module Presets
+* Added Module Default Preset
+* Fixed compatibility with Wordpress MU
+
 = 1.3.2 =
 * Added French language
 * Added option to Batch Edit for Description: 'replace', 'append', 'prepend'

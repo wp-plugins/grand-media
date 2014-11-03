@@ -124,17 +124,17 @@ class GmediaAdmin
                 </div>
                 <h2><?php echo $sideLinks['grandTitle']; ?></h2>
             </div>
-            <div id="gm-message"></div>
             <div class="container-fluid">
                 <div class="row row-fx180-fl">
                     <div class="col-sm-2 hidden-xs" id="sidebar" role="navigation">
                         <?php echo $sideLinks['sideLinks']; ?>
                     </div>
                     <div class="col-sm-10 col-xs-12">
-                        <?php
+	                    <div id="gm-message"><?php
                         echo $gmProcessor->alert('success', $gmProcessor->msg);
                         echo $gmProcessor->alert('danger', $gmProcessor->error);
-
+		                ?></div>
+						<?php
                         if (isset($update_frame)) {
                             ?>
                             <div class="panel panel-default">

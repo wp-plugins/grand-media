@@ -388,11 +388,12 @@ function gmediaGalleryEdit(){
 		}
 	} elseif($module_name){
 		$url = add_query_arg(array('page' => $gmProcessor->page, 'gallery_module' => $module_name), admin_url('admin.php'));
-		$error_post = $gmCore->_post('gallery');
-		if($error_post){
-			$gallery = $gmCore->array_replace_recursive($gallery, $error_post);
-		}
 		$gallery['module'] = $module_name;
+	}
+
+	$gallery_post = $gmCore->_post('gallery');
+	if($gallery_post){
+		$gallery = $gmCore->array_replace_recursive($gallery, $gallery_post);
 	}
 
 	if(!empty($alert)){
@@ -427,6 +428,10 @@ function gmediaGalleryEdit(){
 	}
 
 	$default_options = array();
+	$presets = false;
+	$default_preset = array();
+	$load_preset = array();
+
 	/**
 	 * @var $place
 	 * @var $module_name
@@ -434,6 +439,21 @@ function gmediaGalleryEdit(){
 	 * @var $module_path
 	 */
 	if($module_name){
+		$presets = $gmDB->get_terms('gmedia_module', array('global' => $user_ID, 'status' => $module_name));
+		foreach($presets as $i => $preset){
+			if('['.$module_name.']' == $preset->name){
+				$default_preset = maybe_unserialize($preset->description);
+				$default_preset['term_id'] = $preset->term_id;
+				$default_preset['name'] = $preset->name;
+				unset($presets[$i]);
+			}
+			if((int) $preset->term_id == (int) $gmCore->_get('preset', 0)){
+				$load_preset = maybe_unserialize($preset->description);
+				$load_preset['term_id'] = $preset->term_id;
+				$load_preset['name'] = $preset->name;
+			}
+		}
+
 		if(isset($modules[$module_name])){
 			extract($modules[$module_name]);
 
@@ -446,6 +466,10 @@ function gmediaGalleryEdit(){
 			if(file_exists($module_path . '/index.php') && file_exists($module_path . '/settings.php')){
 				include($module_path . '/index.php');
 				include($module_path . '/settings.php');
+
+				if(!empty($default_preset)){
+					$default_options = $gmCore->array_replace_recursive($default_options, $default_preset);
+				}
 			} else{
 				$alert[] = sprintf(__('Module `%s` is broken. Choose another module from the list and save settings'), $module_name);
 			}
@@ -460,6 +484,10 @@ function gmediaGalleryEdit(){
 		echo $gmProcessor->alert('danger', $alert);
 	}
 
+	if(!empty($load_preset)){
+		$gallery['settings'][$module_name] = $gmCore->array_replace_recursive($gallery['settings'][$module_name], $load_preset);
+		echo $gmProcessor->alert('info', sprintf(__('Preset `%s` loaded. To apply it for current gallery click Save button'), $load_preset['name']));
+	}
 	if(isset($gallery['settings'][$module_name])){
 		$gallery_settings = $gmCore->array_replace_recursive($default_options, $gallery['settings'][$module_name]);
 	} else{
@@ -477,7 +505,7 @@ function gmediaGalleryEdit(){
 				<a href="<?php echo add_query_arg(array('page' => 'GrandMedia_Galleries'), admin_url('admin.php')); ?>" class="btn btn-default"><span class="glyphicon glyphicon-arrow-left"></span> <?php _e('Manage Galleries', 'gmLang'); ?>
 				</a>
 			</div>
-			<div class="btn-group">
+			<div class="btn-group" id="save_buttons">
 				<?php if($gallery['module'] != $module_name){ ?>
 					<a href="<?php echo $url; ?>" class="btn btn-default"><?php _e('Cancel preview module', 'gmLang'); ?></a>
 					<button type="submit" name="gmedia_gallery_save" class="btn btn-primary"><?php _e('Save with new module', 'gmLang'); ?></button>
@@ -490,6 +518,44 @@ function gmediaGalleryEdit(){
 					<button type="submit" name="gmedia_gallery_save" class="btn btn-primary"><?php _e('Save', 'gmLang'); ?></button>
 				<?php } ?>
 			</div>
+		</div>
+		<div class="btn-toolbar pull-right" id="module_preset">
+			<div class="btn-group">
+				<button type="button" class="btn btn-default" id="save_preset" data-toggle="popover"><?php _e('Module Presets', 'gmLang'); ?></button>
+			</div>
+			<script type="text/html" id="_save_preset">
+				<div style="padding-top: 5px;">
+					<p style="white-space: nowrap">
+						<button type="submit" name="module_preset_save_default" class="ajax-submit btn btn-default btn-sm"><?php _e('Save as Default', 'gmLang'); ?></button>
+						&nbsp; <em><?php _e('or', 'gmLang'); ?></em> &nbsp;
+						<?php if(!empty($default_preset)){ ?>
+							<button type="submit" name="module_preset_restore_original" class="ajax-submit btn btn-default btn-sm"><?php _e('Restore Original', 'gmLang'); ?></button>
+							<input type="hidden" name="preset_default" value="<?php echo $default_preset['term_id']; ?>" />
+						<?php } ?>
+					</p>
+					<div class="form-group clearfix" style="border-top: 1px solid #444444; padding-top: 5px;">
+						<label><?php _e('Save Preset as:', 'gmLang'); ?></label>
+						<div class="input-group input-group-sm">
+							<input type="text" class="form-control input-sm" name="module_preset_name" placeholder="<?php _e('Preset Name', 'gmLang'); ?>" value="" />
+							<span class="input-group-btn"><button type="submit" name="module_preset_save_as" class="ajax-submit btn btn-primary"><?php _e('Save', 'gmLang'); ?></button></span>
+						</div>
+					</div>
+
+					<?php if(!empty($presets)){	?>
+						<ul class="list-group presetlist">
+							<?php foreach($presets as $preset){
+								$trim = '['.$module_name.'] ';
+								$count = 1;
+								?>
+								<li class="list-group-item">
+									<span class="delpreset"><span class="label label-danger" data-id="<?php echo $preset->term_id; ?>">&times;</span></span>
+									<a href="<?php echo $gmCore->get_admin_url(array('preset' => $preset->term_id), array(), $url); ?>"><?php echo str_replace($trim, '', $preset->name, $count); ?></a>
+								</li>
+							<?php } ?>
+						</ul>
+					<?php } ?>
+				</div>
+			</script>
 		</div>
 	</div>
 	<div class="panel-body" id="gmedia-msg-panel"></div>
