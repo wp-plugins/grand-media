@@ -539,7 +539,8 @@ function gmedia_import() {
 					<script type="text/javascript">
 						function gmedia_import_done() {
 							if (jQuery('#importModal').is(':visible')) {
-								jQuery('#import-done').button('complete').prop('disabled', false);
+								var btn = jQuery('#import-done');
+								btn.text(btn.data('complete-text')).prop('disabled', false);
 							}
 						}
 					</script>

@@ -1230,7 +1230,7 @@ function gmedia_import_modal() {
 
 						$('#import-done').one('click', function (e) {
 							$('#import_form').submit();
-							$(this).button('loading').prop('disabled', true);
+							$(this).text($(this).data('loading-text')).prop('disabled', true);
 							$('#import_window').show();
 							$(this).one('click', function (e) {
 								$('#importModal').modal('hide');
@@ -1244,7 +1244,7 @@ function gmedia_import_modal() {
 		</div>
 		<div class="modal-footer">
 			<button type="button" class="btn btn-default" data-dismiss="modal"><?php _e( 'Cancel', 'gmLang' ); ?></button>
-			<button type="button" id="import-done" class="btn btn-primary" data-complete-text="<?php _e( 'Close', 'gmLang' ); ?>" data-loading-text="<?php _e( 'Working...', 'gmLang' ); ?>"><?php _e( 'Import', 'gmLang' ); ?></button>
+			<button type="button" id="import-done" class="btn btn-primary" data-complete-text="<?php _e( 'Close', 'gmLang' ); ?>" data-loading-text="<?php _e( 'Working...', 'gmLang' ); ?>" data-reset-text="<?php _e( 'Import', 'gmLang' ); ?>"><?php _e( 'Import', 'gmLang' ); ?></button>
 		</div>
 	</div><!-- /.modal-content -->
 	<?php

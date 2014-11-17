@@ -20,7 +20,7 @@ function gmedia_image_editor(){
 				<?php } ?>
 				<div class="btn-group pull-left">
 					<button type="button" id="gmedit-reset" name="gmedit_reset" class="btn btn-default" data-confirm="<?php _e('Do you really want reset all changes?') ?>"><?php _e('Reset', 'gmLang'); ?></button>
-					<button type="button" id="gmedit-save" name="gmedit_save" data-loading-text="<?php _e('Working', 'gmLang'); ?>" class="btn btn-primary"><?php _e('Save image', 'gmLang'); ?></button>
+					<button type="button" id="gmedit-save" name="gmedit_save" data-loading-text="<?php _e('Working', 'gmLang'); ?>" data-reset-text="<?php _e('Save image', 'gmLang'); ?>" class="btn btn-primary"><?php _e('Save image', 'gmLang'); ?></button>
 				</div>
 				<?php wp_nonce_field('gmedit-save'); ?>
 			</div>
@@ -177,7 +177,8 @@ function gmedia_image_editor(){
 			$('.gmedit-tool-button').tooltip({placement: 'bottom'});
 
 			var gmeditSave = function(a, b){
-				$('#gmedit-save').button('loading').prop('disabled', true);
+				var btn = $('#gmedit-save');
+				btn.text(btn.data('loading-text')).prop('disabled', true);
 				var post_data = {
 					action: 'gmedit_save', id: gmid, image: a, applyto: $('#applyto').val(), _wpnonce: $('#_wpnonce').val()
 				};
@@ -190,7 +191,7 @@ function gmedia_image_editor(){
 						$('#gmedia-panel', parent_doc).before(c.msg);
 						window.parent.closeModal('gmeditModal');
 					} else{
-						$('#gmedit-save').button('reset').prop('disabled', false);
+						btn.text(btn.data('reset-text')).prop('disabled', false);
 						if(c.error){
 							$('#media-edit-form-container .alert-box').html(c.error).show();
 						} else{
@@ -207,7 +208,8 @@ function gmedia_image_editor(){
 
 			jQuery("#gmedit").on("click", "#gmedit-restore", function(){
 				$('#applyto').val('original');
-				$('#gmedit-save').button('loading').prop('disabled', true);
+				var btn = $('#gmedit-save');
+				btn.text(btn.data('loading-text')).prop('disabled', true);
 				var post_data = {
 					action: 'gmedit_restore', id: gmid, _wpnonce: $('#_wpnonce').val()
 				};
@@ -229,7 +231,7 @@ function gmedia_image_editor(){
 							$('#media-edit-form-container .alert-box').text(c).show();
 						}
 					}
-					$('#gmedit-save').button('reset').prop('disabled', false);
+					btn.text(btn.data('reset-text')).prop('disabled', false);
 				});
 			});
 

@@ -298,7 +298,8 @@ jQuery(function($){
 				}).on('shown.bs.modal',function(){
 					$('#import_form').submit();
 				}).on('hidden.bs.modal', function(){
-					$('#import-done').button('reset').prop('disabled', true);
+                    var btn = $('#import-done');
+					btn.text(btn.data('reset-text')).prop('disabled', true);
 					$('#import_window').attr('src', 'about:blank');
 				});
 			});
@@ -307,7 +308,8 @@ jQuery(function($){
 				e.preventDefault();
 				$('body').addClass('gmedia-busy');
 				var module = $(this).data('module');
-				$('.module_install').filter('[data-module="' + module + '"]').button('loading');
+                var btn = $('.module_install').filter('[data-module="' + module + '"]');
+				btn.text(btn.data('loading-text'));
 				var post_data = {
 					action: 'gmedia_module_install', download: $(this).attr('href'), module: module, _wpnonce: $('#_wpnonce').val()
 				};
