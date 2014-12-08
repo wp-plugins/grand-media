@@ -7,6 +7,7 @@ if(preg_match('#' . basename(dirname(__FILE__)) . '/' . basename(__FILE__) . '#'
 /** Shortcodes Declarations **/
 /** *********************** **/
 add_shortcode('gmedia', 'gmedia_shortcode');
+add_shortcode('gm', 'gmedia_term_shortcode');
 
 //add_filter('the_content', 'do_shortcode');
 add_filter('the_content', 'get_gmedia_unformatted_shortcode_blocks', 4);
@@ -15,6 +16,51 @@ add_filter('the_content', 'get_gmedia_unformatted_shortcode_blocks', 4);
 /** Shortcodes Functions and Markup **/
 /** ******************************* **/
 $gmedia_shortcode_instance = array();
+
+/**
+ * @param        $atts
+ * @param string $content
+ *
+ * @return string
+ */
+function gmedia_term_shortcode($atts, $content = '') {
+	/**
+	 * @var $album
+	 * @var $tag
+	 * @var $category
+	 * @var $module
+	 * @var $preset
+	 */
+	extract( shortcode_atts( array(
+		'album'   => 0,
+		'tag'     => 0,
+		'category'=> 0,
+		'module'  => '',
+		'preset'  => 0,
+	), $atts ) );
+	if($album){
+		$_tax = 'album';
+		$id = $album;
+	} elseif($tag){
+		$_tax = 'tag';
+		$id = $tag;
+	} elseif($category){
+		$_tax = 'category';
+		$id = $category;
+	} else{
+		return '';
+	}
+	$sc_atts = array(
+		'id' => $id,
+		'preview' => $module,
+		'preset' => $preset,
+		'_tax' => $_tax
+	);
+	$out = gmedia_shortcode($sc_atts, $content);
+
+	return $out;
+}
+
 /**
  * @param        $atts
  * @param string $content
@@ -27,12 +73,14 @@ function gmedia_shortcode($atts, $content = ''){
 	/**
 	 * @var $id
 	 * @var $preview
+	 * @var $preset
 	 * @var $_tax
 	 * @var $_raw
 	 */
 	extract(shortcode_atts(array(
 		'id' => 0,
 		'preview' => '',
+		'preset' => 0,
 		'_tax' => 'gallery',
 		'_raw' => false
 	), $atts));
@@ -113,6 +161,14 @@ function gmedia_shortcode($atts, $content = ''){
 	}
 
 	$settings = $gmCore->array_diff_keyval_recursive($module['options'], $gallery['settings'][$gallery['module']], true);
+
+	if($preset){
+		$preset = $gmDB->get_term($preset, 'gmedia_module');
+		if(!empty($preset) && !is_wp_error($preset) && ($gallery['module'] == $preset->status)){
+			$presettings = maybe_unserialize($preset->description);
+			$settings = $gmCore->array_diff_keyval_recursive($settings, $presettings, true);
+		}
+	}
 
 	$terms = array();
 	$gmedia = array();

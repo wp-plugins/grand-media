@@ -3,7 +3,7 @@ Contributors: Rattus
 Donate link: http://codeasily.com/donate/
 Tags: gallery, image, images, library, music, video, slideshow, responsive, admin, Post, posts, easy gallery, iphone gallery, best gallery, portfolio, image gallery, photo gallery, photo, slider, header slider, admin, page, relative image, gallery slider
 Requires at least: 3.5
-Tested up to: 4.0.0
+Tested up to: 4.0.1
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -116,6 +116,10 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 8. Admin Area - Gmedia Library Filters
 
 == Changelog ==
+
+= 1.3.5 =
+* Added ability to generate gallery shortcode from collections. Just choose term, then choose module with preset and click Insert.
+* Now you can show album, tag or category on fronted without creating gallery.
 
 = 1.3.4 =
 * Added Module Presets

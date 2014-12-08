@@ -649,12 +649,9 @@ function gmediaAlbumEdit()
             <div class="panel-heading clearfix">
                 <div class="btn-toolbar pull-left">
                     <div class="btn-group" style="margin-right:20px;">
-                        <a class="btn btn-primary active"
-                           href="<?php echo add_query_arg(array('term' => 'gmedia_album'), $url); ?>"><?php _e('Albums', 'gmLang'); ?></a>
-                        <a class="btn btn-default"
-                           href="<?php echo add_query_arg(array('term' => 'gmedia_tag'), $url); ?>"><?php _e('Tags', 'gmLang'); ?></a>
-                        <a class="btn btn-default"
-                           href="<?php echo add_query_arg(array('term' => 'gmedia_category'), $url); ?>"><?php _e('Categories', 'gmLang'); ?></a>
+                        <a class="btn btn-primary active" href="<?php echo add_query_arg(array('term' => 'gmedia_album'), $url); ?>"><?php _e('Albums', 'gmLang'); ?></a>
+                        <a class="btn btn-default" href="<?php echo add_query_arg(array('term' => 'gmedia_tag'), $url); ?>"><?php _e('Tags', 'gmLang'); ?></a>
+                        <a class="btn btn-default" href="<?php echo add_query_arg(array('term' => 'gmedia_category'), $url); ?>"><?php _e('Categories', 'gmLang'); ?></a>
                     </div>
 
                     <div class="btn-group">

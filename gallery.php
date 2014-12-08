@@ -24,6 +24,7 @@ if($gmedia){
 			$atts = array(
 				'id' => $term_id,
 				'preview' => $gmCore->_get('preview', ''),
+				'preset' => $gmCore->_get('preset', 0),
 				'_tax' => $type
 			);
 			$content = gmedia_shortcode($atts);

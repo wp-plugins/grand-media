@@ -2739,7 +2739,7 @@ class GmediaDB{
 		$wpdb->update($wpdb->prefix . 'gmedia_term', compact('term_id', 'name', 'taxonomy', 'description', 'global', 'status'), array('term_id' => $term_id));
 		do_action('edited_gmedia_term', $term_id, $taxonomy);
 
-		if(('gmedia_album' == $taxonomy) && (isset($status) || ('custom' == $orderby)) && !empty($gmedia_ids)){
+		if(('gmedia_album' == $taxonomy) && (isset($status) || ('custom' == $orderby))){
 			$db_gmedia_ids = $this->get_gmedias(array('no_found_rows' => true, 'album__in' => $term_id, 'orderby' => $orderby, 'order' => 'ASC', 'fields' => 'ids'));
 			if(!empty($db_gmedia_ids)){
                 if(isset($status_global)){
@@ -2754,7 +2754,7 @@ class GmediaDB{
                         }
                     }
                 }
-                if('custom' == $orderby) {
+                if(('custom' == $orderby) && !empty($gmedia_ids)) {
                     $db_gmedia_ids = array_flip($db_gmedia_ids);
                     if ($gmedia_ids != $db_gmedia_ids) {
                         $final_gmedia_ids = array_intersect_key($gmedia_ids, $db_gmedia_ids) + $db_gmedia_ids;
