@@ -117,6 +117,9 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 
 == Changelog ==
 
+= Photobox module =
+* Updated Photobox module. Added option to set thumbs size, fixed problems with portrait images.
+
 = 1.3.5 =
 * Added ability to generate gallery shortcode from collections. Just choose term, then choose module with preset and click Insert.
 * Now you can show album, tag or category on fronted without creating gallery.
