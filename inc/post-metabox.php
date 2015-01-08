@@ -159,8 +159,8 @@ function gmedia_admin_post_thumbnail_html( $content, $post_id = null ) {
 	$set_thumbnail_link = '<p class="hide-if-no-js"><a title="' . esc_attr__( 'Set GmediaGallery featured image', 'gmLang' ) . '" href="javascript:void(0)" id="set-gmedia-post-thumbnail">%s</a></p>';
 
 	$thumbnail_id = get_post_meta( $post_id, '_thumbnail_id', true );
-	if($thumbnail_id) {
-		$gmedia_id    = get_post_meta( $thumbnail_id, '_gmedia_image_id', true );
+	if ( $thumbnail_id ) {
+		$gmedia_id = get_post_meta( $thumbnail_id, '_gmedia_image_id', true );
 		if ( ! empty( $gmedia_id ) ) {
 			$content = str_replace( 'attachment-post-thumbnail', 'attachment-post-thumbnail gmedia-post-thumbnail gmedia-image-' . $gmedia_id, $content );
 		}
