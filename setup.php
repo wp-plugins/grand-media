@@ -14,6 +14,7 @@ function gmedia_default_options(){
 
 	$gm['uninstall_dropdata'] = 'all'; // can be 'all', 'none', 'db'
 
+	$gm['isolation_mode'] = '0';
 	$gm['shortcode_raw'] = '0';
 	$gm['endpoint'] = 'gmedia';
 

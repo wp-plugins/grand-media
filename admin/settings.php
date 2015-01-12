@@ -177,8 +177,17 @@ function gmSettings(){
 							</select>
 						</div>
 						<div class="form-group">
-							<label><?php _e('Forbid theme to format Gmedia shortcode\'s content', 'gmLang') ?>:</label>
+							<label><?php _e('Forbid other plugins to load their JS and CSS on Gmedia admin pages', 'gmLang') ?>:</label>
+							<div class="checkbox" style="margin:0;">
+								<input type="hidden" name="set[isolation_mode]" value="0"/>
+								<label><input type="checkbox" name="set[isolation_mode]" value="1" <?php checked($gmGallery->options['isolation_mode'], '1'); ?> /> <?php _e('Enable Gmedia admin panel Isolation Mode', 'gmLang'); ?>
+								</label>
 
+								<p class="help-block"><?php _e('This option could help to avoid JS and CSS conflicts with other plugins in admin panel.', 'gmLang'); ?></p>
+							</div>
+						</div>
+						<div class="form-group">
+							<label><?php _e('Forbid theme to format Gmedia shortcode\'s content', 'gmLang') ?>:</label>
 							<div class="checkbox" style="margin:0;">
 								<input type="hidden" name="set[shortcode_raw]" value="0"/>
 								<label><input type="checkbox" name="set[shortcode_raw]" value="1" <?php checked($gmGallery->options['shortcode_raw'], '1'); ?> /> <?php _e('Raw output for Gmedia Shortcode', 'gmLang'); ?>

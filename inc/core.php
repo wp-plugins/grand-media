@@ -178,6 +178,8 @@ class GmediaCore {
 		$dir = WP_CONTENT_DIR . $slash . GMEDIA_UPLOAD_FOLDER;
 		$url = WP_CONTENT_URL . $slash . GMEDIA_UPLOAD_FOLDER;
 
+		$url = set_url_scheme($url);
+
 		$uploads = apply_filters( 'gm_upload_dir', array( 'path' => $dir, 'url' => $url, 'error' => false ) );
 
 		if ( $create ) {

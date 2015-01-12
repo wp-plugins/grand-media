@@ -218,11 +218,31 @@ class GmediaAdmin {
 	 * @param $hook
 	 */
 	function load_scripts( $hook ) {
-		global $gmCore, $gmProcessor;
+		global $gmCore, $gmProcessor, $gmGallery;
 
 		// no need to go on if it's not a plugin page
 		if ( 'admin.php' != $hook && strpos( $gmCore->_get( 'page' ), 'GrandMedia' ) === false ) {
 			return;
+		}
+
+		if($gmGallery->options['isolation_mode']) {
+			global $wp_scripts, $wp_styles;
+			foreach ( $wp_scripts->registered as $handle => $wp_script ) {
+				if ( ( false !== strpos( $wp_script->src, '/plugins/' ) ) && ( false === strpos( $wp_script->src, GMEDIA_FOLDER ) ) ) {
+					if ( in_array( $handle, $wp_scripts->queue ) ) {
+						wp_dequeue_script( $handle );
+					}
+					wp_deregister_script( $handle );
+				}
+			}
+			foreach ( $wp_styles->registered as $handle => $wp_style ) {
+				if ( ( false !== strpos( $wp_style->src, '/plugins/' ) ) && ( false === strpos( $wp_style->src, GMEDIA_FOLDER ) ) ) {
+					if ( in_array( $handle, $wp_styles->queue ) ) {
+						wp_dequeue_style( $handle );
+					}
+					wp_deregister_style( $handle );
+				}
+			}
 		}
 
 		wp_enqueue_style( 'gmedia-bootstrap' );
