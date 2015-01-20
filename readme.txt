@@ -25,7 +25,7 @@ Set Post Featured Image (Post Thumbnail) from Gmedia Library if your theme suppo
 
 Friendly for iPad and iPhone. Doesn’t slow down your website. **Unlimited galleries** on your website with **unlimited customizations** for each gallery.
 
-With our versatile plugin you can magically change the look and feel of your photo gallery, a huge selection of modules will help you embed the gallery in your posts and web pages making them feel complete. You will appreciate user friendly interface of admin panel, making the creation of unique and contemporary style gallery an easy and funny process, and attracting increasing attention from viewers.
+With our versatile plugin you can magically change the look and feel of your photo gallery, a huge selection of modules will help you embed the gallery in your posts and web pages making them feel complete. You will appreciate user friendly interface of admin panel, making the creation of unique and contemporary style gallery an easy and fun process, and attracting increasing attention from viewers.
 
 **[Home Page](http://codeasily.com/), [More Info and Screens](http://codeasily.com/wordpress-plugins/gmedia-gallery/), [Skins Portfolio](http://codeasily.com/portfolio/gmedia-gallery-modules/), [Support Forum](http://codeasily.com/community/forum/gmedia-gallery-wordpress-plugin/)**
 
