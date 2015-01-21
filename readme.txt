@@ -78,7 +78,7 @@ Features:
 
 TODO List:
 
-*   iOS manage application (work in progress.. finish stage)
+*   iOS manage application (work in progress.. final stage)
 *   Cover for Album. It will be also used for music without cover (work in progress..)
 *   More Batch operations with selected Gmedia items (work in progress..)
 *   Related Post images on Edit Post. Option to automatically create gallery in Post with related images (work in progress..)
@@ -119,6 +119,9 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 
 = Photobox module =
 * Updated Photobox module. Added option to set thumbs size, fixed problems with portrait images.
+
+= 1.3.7 =
+* Fixed css on Modules page
 
 = 1.3.6 =
 * Fixed galleries to work in force SSL mode

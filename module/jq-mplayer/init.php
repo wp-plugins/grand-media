@@ -29,7 +29,7 @@ foreach($terms as $term){
 			 'id' => $item->ID
 			,$ext => "{$gmCore->upload['url']}/{$gmGallery->options['folder']['audio']}/{$item->gmuid}"
 			,'cover' => $cover
-			,'title' => $item->title
+			,'title' => stripslashes($item->title)
 			,'text' => str_replace(array("\r\n", "\r", "\n"), '', wpautop($item->description))
 			,'button' => $item->link
 			,'rating' => $rating['value']

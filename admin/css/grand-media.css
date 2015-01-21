@@ -200,9 +200,11 @@ a.edit_tag_save.btn {padding-top:0;padding-bottom:0;}
 .termItems .gm-img-thumbnail {width:160px;height:120px;text-align:center;line-height:107px;}
 .termItems .gm-img-thumbnail img {height:auto;width:auto;max-width:100%;max-height:100%;display:inline-block;vertical-align:middle;}
 
-.choose-module {padding:10px;cursor:pointer;}
+.choose-module {padding:10px;cursor:pointer;overflow: hidden;margin: 0;}
 .no-touch .choose-module:hover {background-color:#d0e9c6;}
 .choose-module .thumbnail {margin-bottom:0;}
+.media { overflow: hidden; }
+.media > .thumbnail.pull-left {padding: 4px; margin-right: 10px}
 
 .presetlist a {position: relative;padding-right: 30px;}
 .delpreset { position: absolute; right: 0; top: 0; bottom: 0; padding: 0.8em 7px 0; line-height: 100%;}
