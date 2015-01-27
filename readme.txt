@@ -14,6 +14,9 @@ Gmedia Gallery - powerfull media library plugin for creating beautiful galleries
 
 Manage files, show image galleries and photo slideshows, play music on your site Gmedia Gallery plugin. Gmedia Library provides a comprehensive interface for handling galleries, image and audio files.
 
+> **NEW:** Now You can upload and manage your Gmedia Library (images, tags, albums) anywhere!!!
+> Download new **[Gmedia application for iPhone](https://itunes.apple.com/ua/app/gmedia/id947515626?mt=8)**
+
 With Gmedia plugin you can upload an unlimited number of photo and audio files, create dozens of galleries and playlists, group pictures and other files in albums, and add tags for each file.
 Handle any file format and link any files with images in few clicks. You can import images with captions from Worpress Media Library, Flagallery plugin and from NextGen Gallery plugin right to Gmedia Library.
 
@@ -58,6 +61,7 @@ Help me make it best gallery plugin: test it and [write suggestions](http://code
 
 Features:
 
+*   (NEW) Gmedia for iOS - [iOS manage application](https://itunes.apple.com/ua/app/gmedia/id947515626?mt=8) to manage your Library with your iPhone
 *   Mobile friendly, responsive galleries
 *   Add tags, assign categories and group images in albums
 *   Drag'n'drop sorting for files in Album
@@ -71,15 +75,15 @@ Features:
 *   Uses WordPress' native Image Resizer
 *   Import files from server folder or from others gallery plugins
 *   Full Window Gallery Page permalinks (like GRAND Page in Flagallery) - you can copy gallery permalink and insert it in the website menu
-*   (NEW) Role/Capability Manager intergrated
-*   (NEW) Statuses: public, private (only for logged in users), etc. for files, albums
-*   (NEW) Batch operations with selected Gmedia items
+*   Role/Capability Manager intergrated
+*   Statuses: public, private (only for logged in users), etc. for files, albums
+*   Batch operations with selected Gmedia items
 
 
 TODO List:
 
-*   iOS manage application (work in progress.. final stage)
 *   Cover for Album. It will be also used for music without cover (work in progress..)
+*   Templates for galleries (work in progress..)
 *   More Batch operations with selected Gmedia items (work in progress..)
 *   Related Post images on Edit Post. Option to automatically create gallery in Post with related images (work in progress..)
 *   Share albums to socials from admin panel (in queue)
@@ -119,6 +123,11 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 
 = Photobox module =
 * Updated Photobox module. Added option to set thumbs size, fixed problems with portrait images.
+
+= 1.4.0 =
+* New: Gmedia iOS application for managing Library with your iPhone
+* Fixed error getting xml on Modules page
+* Small fixes and improvements
 
 = 1.3.7 =
 * Fixed css on Modules page

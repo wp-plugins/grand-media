@@ -16,6 +16,25 @@ if ( ! $gmedia_app ) {
 global $gmCore;
 $out = array();
 
+if(isset($_GET['service-link'])){
+	$transient_key = preg_replace('/[^A-Za-z0-9]/', '', $_GET['service-link']);
+	if(($result = get_transient($transient_key))){
+		//$result['mypgc_REMOTE_ADDR'] = $_SERVER['REMOTE_ADDR']; //216.70.94.77
+		header('Content-Type: application/json; charset=' . get_option('blog_charset'), true);
+		echo json_encode($result);
+	}
+	die();
+}
+
+$gmedia_options = get_option('gmediaOptions');
+if(empty($gmedia_options['mobile_app'])){
+	$out['error'] = array( 'code' => 'app_inactive', 'message' => 'Service not enabled/activated for this site' );
+	header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
+	echo json_encode( $out );
+	die();
+}
+
+
 if ( isset( $_FILES['userfile']['name'] ) ) {
 	$globaldata = isset( $_POST['account'] ) ? $_POST['account'] : false;
 	if ( $globaldata ) {
@@ -246,7 +265,7 @@ function gmedia_ios_app_library_data( $data = array( 'site', 'authors', 'filter'
 			$gmediaTerms[ $i ]->user = array( 'id' => $author_id, 'displayname' => $display_name, 'firstname' => $first_name, 'lastname' => $last_name );
 
 			if ( $term->count ) {
-				$args                         = array( 'no_found_rows' => true, 'per_page' => 1, 'album__in' => array( $term->term_id ) );
+				$args                         = array( 'no_found_rows' => true, 'mime_type' => 'image/*', 'per_page' => 1, 'album__in' => array( $term->term_id ) );
 				$termItems                    = $gmDB->get_gmedias( $args );
 				$gmediaTerms[ $i ]->thumbnail = $gmCore->gm_get_media_image( $termItems[0], 'thumb', false );
 			}
@@ -584,7 +603,7 @@ function gmedia_ios_app_processor( $action, $data, $filter = true ) {
 			$filter = $filter ? gmedia_ios_app_library_data( array( 'filter' ) ) : array();
 
 			$args      = array(
-				'mime_type'    => null,
+				'mime_type'    => 'image/*',
 				'orderby'      => 'ID',
 				'order'        => 'DESC',
 				'per_page'     => 100,
@@ -938,7 +957,3 @@ function gmedia_ios_app_counters( $data ) {
 
 header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
 echo json_encode( $out );
-
-/*if(isset($_GET['test'])){
-	echo "\n\n".print_r($out, true);
-}*/

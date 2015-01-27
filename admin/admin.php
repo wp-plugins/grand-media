@@ -79,7 +79,8 @@ class GmediaAdmin {
 			$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Albums, Tags...', 'gmLang' ), __( 'Albums, Tags...', 'gmLang' ), 'gmedia_library', 'GrandMedia_Terms', array( &$this, 'shell' ) );
 			$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Gmedia Galleries', 'gmLang' ), __( 'Create/Manage Galleries...', 'gmLang' ), 'gmedia_gallery_manage', 'GrandMedia_Galleries', array( &$this, 'shell' ) );
 			$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Modules', 'gmLang' ), __( 'Modules', 'gmLang' ), 'gmedia_gallery_manage', 'GrandMedia_Modules', array( &$this, 'shell' ) );
-			$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Gmedia Settings', 'gmLang' ), __( 'Settings', 'gmLang' ), 'gmedia_settings', 'GrandMedia_Settings', array( &$this, 'shell' ) );
+			$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Gmedia Settings', 'gmLang' ), __( 'Settings', 'gmLang' ), 'manage_options', 'GrandMedia_Settings', array( &$this, 'shell' ) );
+			$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Mobile Application', 'gmLang' ), __( 'Mobile Application', 'gmLang' ), 'gmedia_settings', 'GrandMedia_App', array( &$this, 'shell' ) );
 			$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Wordpress Media Library', 'gmLang' ), __( 'WP Media Library', 'gmLang' ), 'gmedia_import', 'GrandMedia_WordpressLibrary', array( &$this, 'shell' ) );
 		}
 
@@ -202,6 +203,10 @@ class GmediaAdmin {
 				include_once( dirname( __FILE__ ) . '/settings.php' );
 				gmSettings();
 				break;
+			case 'GrandMedia_App':
+				include_once( dirname( __FILE__ ) . '/app.php' );
+				gmediaApp();
+				break;
 			case 'GrandMedia_WordpressLibrary':
 				include_once( dirname( __FILE__ ) . '/wpmedia.php' );
 				grandWPMedia();
@@ -313,7 +318,8 @@ class GmediaAdmin {
 					}
 					break;
 				case "GrandMedia_Settings" :
-					// enqueue jscolor
+				case "GrandMedia_App" :
+					// under construction
 					break;
 				case "GrandMedia_Galleries" :
 					if ( $gmCore->caps['gmedia_gallery_manage'] && ( isset( $_GET['gallery_module'] ) || isset( $_GET['edit_gallery'] ) ) ) {

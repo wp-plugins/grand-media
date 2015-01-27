@@ -12,6 +12,11 @@ if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])){
  */
 function gmedia_default_options(){
 
+	$gm['site_email'] = get_bloginfo('admin_email');
+	$gm['site_category'] = '';
+	$gm['site_ID'] = '';
+	$gm['mobile_app'] = 0;
+
 	$gm['uninstall_dropdata'] = 'all'; // can be 'all', 'none', 'db'
 
 	$gm['isolation_mode'] = '0';
@@ -259,6 +264,11 @@ function gmedia_install(){
  * @return void
  */
 function gmedia_deactivate(){
+	$gm_options = get_option('gmediaOptions');
+	if((int) $gm_options['mobile_app']){
+		global $gmCore;
+		$gmCore->app_service('app_deactivate');
+	}
 	// remove & reset the init check option
 	delete_option('gmediaInitCheck');
 }

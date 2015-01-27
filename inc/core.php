@@ -1532,6 +1532,78 @@ class GmediaCore {
 		}
 	}
 
+	/**
+	 * @param string $service
+	 * @param array $data
+	 *
+	 * @return array json
+	 */
+	function app_service($service, $data = array()){
+		global $gmProcessor;
+
+		if ( !current_user_can( 'manage_options') ) {
+			die('-1');
+		}
+		if(!$service || !is_array($data)){
+			die('0');
+		}
+
+		$result = array();
+		$defaults = array('email' => '', 'category' => '');
+		$data = array_merge($defaults, $data);
+
+		$gm_options = get_option('gmediaOptions');
+
+		$gm_options['site_email'] = $data['email'];
+		$gm_options['site_category'] = $data['category'];
+
+		if($service == 'app_deactivate'){
+			$gm_options['mobile_app'] = 0;
+		}
+
+		if(in_array($service, array('app_activate','app_updateinfo')) && !is_email($data['email'])){
+			$result['error'] = $gmProcessor->alert('danger', __('Enter valid email, please', 'gmLang'));
+		} else {
+
+			$hash = wp_generate_password('6', false);
+
+			$data['service'] = $service;
+			$data['title'] = get_bloginfo('name');
+			$data['description'] = get_bloginfo('description');
+			$data['url'] = home_url();
+			$data['license'] = $gm_options['license_key'];
+			$data['site_ID'] = $gm_options['site_ID'];
+			$data['site_hash'] = $hash;
+
+			set_transient($hash, $data, 45);
+
+			$pgcpost = wp_remote_post( 'http://mypgc.co/?gmservice=' . $service, array(
+				'method'  => 'POST',
+				'timeout' => 45,
+				'body'    => array( 'hash' => $hash, 'url' => $data['url'] ),
+			) );
+
+			if ( is_wp_error( $pgcpost ) ) {
+				$result['error'] = $gmProcessor->alert( 'danger', $pgcpost->get_error_message() );
+			}
+			$pgcpost_body = wp_remote_retrieve_body($pgcpost);
+			$result = (array) json_decode($pgcpost_body);
+			if(isset($result['error'])){
+				$result['error'] = $gmProcessor->alert( 'danger', $result['error'] );
+			} else {
+				if(isset($result['message'])){
+					$result['message'] = $gmProcessor->alert( 'info', $result['message'] );
+				}
+
+				$gm_options['site_ID'] = $result['site_ID'];
+				$gm_options['mobile_app'] = $result['mobile_app'];
+				$gm_options['site_category'] = $result['site_category'];
+			}
+		}
+		update_option('gmediaOptions', $gm_options);
+
+		return $result;
+	}
 }
 
 global $gmCore;

@@ -1486,3 +1486,28 @@ function gmedia_set_post_thumbnail() {
 	die( '0' );
 }
 
+add_action( 'wp_ajax_gmedia_application', 'gmedia_application' );
+function gmedia_application() {
+	global $gmCore, $gmProcessor;
+
+	// if nonce is not correct it returns -1
+	check_ajax_referer( 'GmediaService' );
+	if ( !current_user_can( 'manage_options') ) {
+		die( '-1' );
+	}
+
+	$service = $gmCore->_post('service');
+	if(!$service){
+		die('0');
+	}
+	$_data = $gmCore->_post('data');
+	wp_parse_str($_data, $data);
+
+	$result = $gmCore->app_service($service, $data);
+
+	header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
+	echo json_encode( $result );
+
+	die();
+}
+
