@@ -124,6 +124,10 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 = Photobox module =
 * Updated Photobox module. Added option to set thumbs size, fixed problems with portrait images.
 
+= 1.4.1 =
+* New: Gmedia iOS application for managing Library with your iPhone
+* Fixed Gmedia Mobile Application admin page.
+
 = 1.4.0 =
 * New: Gmedia iOS application for managing Library with your iPhone
 * Fixed error getting xml on Modules page
