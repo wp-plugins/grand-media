@@ -88,31 +88,16 @@ var gmActiveEditor = false;
 
     */
 
-    $(document).on( 'click', '#gmedia-modal', function( event ) {
-        event.stopPropagation();
-        event.preventDefault();
-
-        var modal = $('#__gm-uploader');
-
-        if(modal.length) {
-            modal.css('display','block');
-        } else{
-            var title = $(this).attr('title');
-            modal = $($('#tpl__gm-uploader').html());
-            modal.find('.media-modal-close, .media-modal-backdrop').on('click', function(){
-                modal.css('display', 'none');
-            });
-            modal.find('.media-menu-item').on('click', function(){
-                $('iframe', modal).attr('src', '');
-                $(this).addClass('active').siblings('a').removeClass('active');
-                $('.media-frame-title h1', modal).text($(this).text());
-            });
-            $("body").append(modal);
-        }
+    $(document).on( 'click', '#gmedia-modal', function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+		gmedia_post_modal();
     });
 
-    $('#postimagediv').on('click', '#set-gmedia-post-thumbnail', function(){
-        $('#wp-content-media-buttons').find('#gmedia-modal').trigger('click');
+    $('#postimagediv').on('click', '#set-gmedia-post-thumbnail', function(e){
+		e.stopPropagation();
+		e.preventDefault();
+		gmedia_post_modal();
         var modal = $('#__gm-uploader');
         var library = modal.find('#gmedia-modal-library');
         if(!library.hasClass('active')){
@@ -124,6 +109,26 @@ var gmActiveEditor = false;
     });
 
 })(jQuery, window, document, undefined);
+
+function gmedia_post_modal(){
+	var modal = jQuery('#__gm-uploader');
+
+	if(modal.length) {
+		modal.css('display','block');
+	} else{
+		var title = jQuery(this).attr('title');
+		modal = jQuery(jQuery('#tpl__gm-uploader').html());
+		modal.find('.media-modal-close, .media-modal-backdrop').on('click', function(){
+			modal.css('display', 'none');
+		});
+		modal.find('.media-menu-item').on('click', function(){
+			jQuery('iframe', modal).attr('src', '');
+			jQuery(this).addClass('active').siblings('a').removeClass('active');
+			jQuery('.media-frame-title h1', modal).text(jQuery(this).text());
+		});
+		jQuery("body").append(modal);
+	}
+}
 
 function gm_check_scode(id){
 	if(!id && ("undefined" != typeof(tinymce)) && tinymce.activeEditor){

@@ -23,6 +23,8 @@ function gmedia_default_options(){
 	$gm['shortcode_raw'] = '0';
 	$gm['endpoint'] = 'gmedia';
 
+	$gm['gmedia_post_types_support'] = '';
+
 	$gm['folder']['image'] = 'image';
 	$gm['folder']['image_thumb'] = 'image/thumb';
 	$gm['folder']['image_original'] = 'image/original';

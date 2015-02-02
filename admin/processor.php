@@ -360,6 +360,13 @@ class GmediaProcessor{
 										case 'empty':
 											$batch_data['description'] = '';
 											break;
+										case 'metadata':
+											$metatext = $gmCore->metadata_text($id);
+											if($gmedia['description']){
+												$gmedia['description'] .= "\n\n";
+											}
+											$batch_data['description'] = $gmedia['description'] . $metatext;
+											break;
 										case 'custom':
 											$description_custom = $gmCore->_post('batch_description_custom');
 											if(false !== $description_custom){

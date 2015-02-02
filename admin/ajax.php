@@ -900,6 +900,7 @@ function gmedia_get_modal() {
 			<label><?php _e( 'Description', 'gmLang' ); ?></label>
 			<select class="form-control input-sm batch_set" name="batch_description">
 				<option value=""><?php _e( 'Skip. Do not change', 'gmLang' ); ?></option>
+				<option value="metadata"><?php _e( 'Add MetaData to Description', 'gmLang' ); ?></option>
 				<option value="empty"><?php _e( 'Empty Description', 'gmLang' ); ?></option>
 				<option value="custom"><?php _e( 'Custom', 'gmLang' ); ?></option>
 			</select>

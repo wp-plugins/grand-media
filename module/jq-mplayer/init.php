@@ -22,7 +22,13 @@ foreach($terms as $term){
 		if($ext == 'ogg'){
 			$ext = 'oga';
 		}
-		$cover = $gmCore->gm_get_media_image($item, 'thumb', true, '');
+		$default_cover = '';
+
+		$_metadata = $gmDB->get_metadata('gmedia', $item->ID, '_metadata', true);
+		if(isset($_metadata['image']['data']) && !empty($_metadata['image']['data'])){
+			$default_cover = $_metadata['image']['data'];
+		}
+		$cover = $gmCore->gm_get_media_image($item, 'thumb', true, $default_cover);
 		$rating = $gmDB->get_metadata('gmedia', $item->ID, 'rating', true);
 		$rating = array_merge(array('value' => 0, 'votes' => 0), (array) $rating);
 		$content[] = array(

@@ -338,7 +338,7 @@ function gmediaTerms() {
 								</div>
 							</div>
 							<?php if ( ! empty( $item->description ) ) { ?>
-								<div class="term-description"><?php echo esc_html( $item->description ); ?></div>
+								<div class="term-description"><?php echo nl2br(esc_html( $item->description )); ?></div>
 							<?php } ?>
 						</div>
 					<?php

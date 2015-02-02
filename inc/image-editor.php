@@ -154,8 +154,8 @@ function gmedia_image_editor(){
 						<div class="form-group pull-right">
 							<label class="control-label"><?php _e('Apply to', 'gmLang'); ?>: &nbsp;</label>
 							<select name="applyto" id="applyto" class="form-control input-sm">
-								<option value="original" selected="selected"><?php _e('Original, Web-image, Thumbnail') ?></option>
-								<option value="web"><?php _e('Web-image, Thumbnail') ?></option>
+								<option value="original"><?php _e('Original, Web-image, Thumbnail') ?></option>
+								<option value="web" selected="selected"><?php _e('Web-image, Thumbnail') ?></option>
 								<option value="thumb"><?php _e('Thumbnail') ?></option>
 							</select>
 						</div>

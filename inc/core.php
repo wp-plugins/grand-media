@@ -119,7 +119,7 @@ class GmediaCore {
 		if ( true === $uri ) {
 			$uri = admin_url( 'admin.php' );
 		}
-		$remove_args = array_unique( array_merge( array( 'doing_wp_cron', '_wpnonce', 'delete' ), $remove_args, array_keys( $add_args ) ) );
+		$remove_args = array_unique( array_merge( array( 'doing_wp_cron', '_wpnonce', 'delete', 'update_meta' ), $remove_args, array_keys( $add_args ) ) );
 		$new_uri     = remove_query_arg( $remove_args, $uri );
 		if ( ! empty( $add_args ) ) {
 			$new_uri = add_query_arg( $add_args, $new_uri );
@@ -266,7 +266,7 @@ class GmediaCore {
 				if ( ! empty( $cover ) ) {
 					if ( $this->is_digit( $cover ) ) {
 						$image = $this->gm_get_media_image( (int) $cover, $size, false );
-					} elseif ( ( 'thumb' != $size ) && ( false !== filter_var( $cover, FILTER_VALIDATE_URL ) ) ) {
+					} elseif ( false !== filter_var( $cover, FILTER_VALIDATE_URL ) ) {
 						return $cover;
 					}
 				} elseif ( false !== $default ) {
@@ -1155,6 +1155,11 @@ class GmediaCore {
 
 		$this->wp_add_id3_tag_data( $metadata, $data );
 
+		if(isset($metadata['image']['data']) && !empty($metadata['image']['data'])){
+			$image = 'data:'.$metadata['image']['mime'].';charset=utf-8;base64,'.base64_encode($metadata['image']['data']);
+			$metadata['image']['data'] = $image;
+		}
+
 		return $metadata;
 	}
 
@@ -1604,6 +1609,133 @@ class GmediaCore {
 
 		return $result;
 	}
+
+	function i18n_exif_name($key) {
+		$_key = strtolower($key);
+		$tagnames = array(
+			'aperture' 			=> __('Aperture','gmLang'),
+			'credit' 			=> __('Credit','gmLang'),
+			'camera' 			=> __('Camera','gmLang'),
+			'caption' 			=> __('Caption','gmLang'),
+			'created_timestamp' => __('Date/Time','gmLang'),
+			'copyright' 		=> __('Copyright','gmLang'),
+			'focal_length' 		=> __('Focal length','gmLang'),
+			'iso' 				=> __('ISO','gmLang'),
+			'shutter_speed' 	=> __('Shutter speed','gmLang'),
+			'title' 			=> __('Title','gmLang'),
+			'author' 			=> __('Author','gmLang'),
+			'tags' 				=> __('Tags','gmLang'),
+			'subject' 			=> __('Subject','gmLang'),
+			'make' 				=> __('Make','gmLang'),
+			'status' 			=> __('Edit Status','gmLang'),
+			'category'			=> __('Category','gmLang'),
+			'keywords' 			=> __('Keywords','gmLang'),
+			'created_date' 		=> __('Date Created','gmLang'),
+			'created_time'		=> __('Time Created','gmLang'),
+			'position'			=> __('Author Position','gmLang'),
+			'city'				=> __('City','gmLang'),
+			'location'			=> __('Location','gmLang'),
+			'state' 			=> __('Province/State','gmLang'),
+			'country_code'		=> __('Country code','gmLang'),
+			'country'			=> __('Country','gmLang'),
+			'headline' 			=> __('Headline','gmLang'),
+			'source'			=> __('Source','gmLang'),
+			'contact'			=> __('Contact','gmLang'),
+			'last_modfied'		=> __('Last modified','gmLang'),
+			'tool'				=> __('Program tool','gmLang'),
+			'format'			=> __('Format','gmLang'),
+			'width'				=> __('Width','gmLang'),
+			'height'			=> __('Height','gmLang'),
+			'flash'				=> __('Flash','gmLang')
+		);
+
+		if (isset($tagnames[$_key])){
+			$key = $tagnames[$_key];
+		}
+
+		return($key);
+	}
+
+	/** Get item Meta
+	 *
+	 * @param int|object $item
+	 *
+	 * @return array metadata[key] = array(name, value);
+	 */
+	function metadata_info($item){
+		global $gmDB;
+
+		if(is_object($item)){
+			$item_id = $item->ID;
+		} elseif($this->is_digit($item)){
+			$item_id = (int) $item;
+		} else{
+			return null;
+		}
+
+		$metadata = array();
+
+		$meta = $gmDB->get_metadata( 'gmedia', $item_id, '_metadata', true );
+		if(isset($meta['image_meta'])){
+			$metainfo = $meta['image_meta'];
+		} else{
+			$metainfo = $meta;
+		}
+
+		if(!empty($metainfo)){
+			foreach($metainfo as $key => $value){
+				if(empty($value)){
+					continue;
+				}
+				if($key == 'aperture'){
+					$value = 'F ' . $value;
+				}
+				if($key == 'focal_length'){
+					$value = $value . ' mm';
+				}
+				if($key == 'shutter_speed'){
+					$value = $value . ' sec';
+				}
+				if($key == 'created_timestamp'){
+					$value = date_i18n(get_option('date_format') . ' ' . get_option('time_format'), $value);
+				}
+
+				$key_name = $this->i18n_exif_name($key);
+				$key_name = ucwords(str_replace('_', ' ', $key_name));
+
+				$metadata[$key] = array('name' => $key_name, 'value' => $value);
+			}
+		}
+
+		return $metadata;
+	}
+
+	/** Get item Meta Text
+	 *
+	 * @param int $id
+	 *
+	 * @return string Meta text;
+	 */
+	function metadata_text($id){
+		$metatext = '';
+		if(($metadata = $this->metadata_info($id))){
+			$metatext .= '<h4>' . __('Meta Data', 'gmLang') . '</h4>';
+			foreach($metadata as $meta){
+				if(!is_array($meta['value'])){
+					$metatext .= "\n<b>{$meta['name']}:</b> {$meta['value']}";
+				} else{
+					$metatext .= "\n<b>{$meta['name']}:</b>";
+					foreach($meta['value'] as $key => $value){
+						$key_name = ucwords(str_replace('_', ' ', $key));
+						$metatext .= "\n - <b>{$key_name}:</b> {$value}";
+					}
+				}
+			}
+		}
+
+		return $metatext;
+	}
+
 }
 
 global $gmCore;

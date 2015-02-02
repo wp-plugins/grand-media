@@ -118,7 +118,7 @@ function gmedia_upload_files() {
 				}
 				?>
 				<label><?php _e( 'Assign Category', 'gmLang' ); ?>
-					<small><?php _e( '(for images only)' ) ?></small>
+					<small><?php _e( '(for images only)', 'gmLang' ) ?></small>
 				</label>
 				<select id="gmedia_category" name="terms[gmedia_category]" class="form-control input-sm">
 					<option value=""><?php _e( 'Uncategorized', 'gmLang' ); ?></option>
@@ -339,7 +339,7 @@ function gmedia_import() {
 					}
 					?>
 					<label><?php _e( 'Assign Category', 'gmLang' ); ?>
-						<small><?php _e( '(for images only)' ) ?></small>
+						<small><?php _e( '(for images only)', 'gmLang' ) ?></small>
 					</label>
 					<select id="gmedia_category" name="terms[gmedia_category]" class="form-control input-sm">
 						<option value=""><?php _e( 'Uncategorized', 'gmLang' ); ?></option>
@@ -436,12 +436,12 @@ function gmedia_import() {
 				<input type="hidden" id="folderpath" name="path" value="/"/>
 
 				<div class="tab-inside">
-					<h5><?php _e( 'Sever folders' ) ?>:</h5>
+					<h5><?php _e( 'Sever folders', 'gmLang' ) ?>:</h5>
 
 					<div id="file_browser"></div>
 				</div>
 				<div class="tab-footer">
-					<div class="checkbox pull-left"><label><input type="checkbox" name="delete_source" value="1"/> <?php _e( 'delete source files after importing' ) ?>
+					<div class="checkbox pull-left"><label><input type="checkbox" name="delete_source" value="1"/> <?php _e( 'delete source files after importing', 'gmLang' ) ?>
 						</label></div>
 					<button class="pull-right btn btn-info gmedia-import" type="button" name="import-folder"><?php _e( 'Import folder', 'gmLang' ); ?></button>
 				</div>
@@ -463,12 +463,12 @@ function gmedia_import() {
 			<?php if ( ! empty( $import['flagallery'] ) ) { ?>
 				<fieldset id="import_flagallery" class="tab-pane">
 					<?php
-					$import['flagallery'] = $wpdb->get_results( "SELECT gid, title, galdesc FROM `{$wpdb->prefix}flag_gallery`" );
+					$import['flagallery'] = $wpdb->get_results( "SELECT gid, title, galdesc FROM {$wpdb->prefix}flag_gallery" );
 					if ( ! empty( $import['flagallery'] ) ) {
 						?>
 						<div class="tab-inside">
-							<p><?php _e( 'If Album is not specified, then gallery name will be used as Album' ) ?></p>
-							<h5><?php _e( 'Flagallery Galleries' ) ?>:
+							<p><?php _e( 'If Album is not specified, then gallery name will be used as Album', 'gmLang' ) ?></p>
+							<h5><?php _e( 'Flagallery Galleries', 'gmLang' ) ?>:
 								<small>(<a href="#toggle-flaggalery" class="gm-toggle-cb"><?php _e( 'Toggle checkboxes', 'gmLang' ) ?></a>)</small>
 							</h5>
 							<div id="toggle-flaggalery">
@@ -495,12 +495,12 @@ function gmedia_import() {
 			<?php if ( ! empty( $import['nextgen'] ) ) { ?>
 				<fieldset id="import_nextgen" class="tab-pane">
 					<?php
-					$import['nextgen'] = $wpdb->get_results( "SELECT gid, title, galdesc FROM `{$wpdb->prefix}ngg_gallery`" );
+					$import['nextgen'] = $wpdb->get_results( "SELECT gid, title, galdesc FROM {$wpdb->prefix}ngg_gallery" );
 					if ( ! empty( $import['nextgen'] ) ) {
 						?>
 						<div class="tab-inside">
-							<p><?php _e( 'If Album is not specified, then gallery name will be used as Album' ) ?></p>
-							<h5><?php _e( 'Flagallery Galleries' ) ?>:
+							<p><?php _e( 'If Album is not specified, then gallery name will be used as Album', 'gmLang' ) ?></p>
+							<h5><?php _e( 'NextGen Galleries', 'gmLang' ) ?>:
 								<small>(<a href="#toggle-nextgen" class="gm-toggle-cb"><?php _e( 'Toggle checkboxes', 'gmLang' ) ?></a>)</small>
 							</h5>
 							<div id="toggle-nextgen">
@@ -533,7 +533,7 @@ function gmedia_import() {
 			<div class="modal-content">
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-					<h4 class="modal-title"><?php _e( 'Import' ); ?></h4>
+					<h4 class="modal-title"><?php _e( 'Import', 'gmLang' ); ?></h4>
 				</div>
 				<div class="modal-body">
 					<script type="text/javascript">

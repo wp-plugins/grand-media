@@ -124,6 +124,16 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 = Photobox module =
 * Updated Photobox module. Added option to set thumbs size, fixed problems with portrait images.
 
+= 1.4.2 =
+* Fixed music and video Custom Cover when image url is set instead of ID
+* Fixed View Original link on Gmedia Library page
+* Added option to add Gmedia button on custom posts
+* Added option to add image Exif data to image description via Batch Edit
+* If mp3 have ID3Tag image cover in it, this image shows automatically. (You need update metadata for music files)
+* Small changes on Gmedia Library page
+* Small CSS changes on admin pages
+* Music player module updated to new version
+
 = 1.4.1 =
 * New: Gmedia iOS application for managing Library with your iPhone
 * Fixed Gmedia Mobile Application admin page.

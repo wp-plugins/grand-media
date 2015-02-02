@@ -201,7 +201,7 @@ function gmediaGalleries(){
 										:</span> <?php echo $term->global? get_the_author_meta('display_name', $term->global) : '&#8212;'; ?>
 								</p>
 
-								<p class="media-caption"><?php echo esc_html($term->description); ?></p>
+								<p class="media-caption"><?php echo nl2br(esc_html($term->description)); ?></p>
 
 								<p class="media-meta" title="<?php _e('Shortcode', 'gmLang'); ?>" style="font-weight:bold">
 									<span class="label label-default"><?php _e('Shortcode', 'gmLang'); ?>:</span> [gmedia id=<?php echo $term->term_id; ?>]
@@ -310,7 +310,7 @@ function gmediaGalleries(){
 
 									<p class="version"><?php echo __('Version', 'gmLang') . ': ' . $module_info['version']; ?></p>
 
-									<div class="description"><?php echo str_replace("\n", '<br />', $module_info['description']); ?></div>
+									<div class="description"><?php echo nl2br($module_info['description']); ?></div>
 								</div>
 							</div>
 						<?php
@@ -975,7 +975,7 @@ function gmediaGalleryEdit(){
 
 									<p class="version"><?php echo __('Version', 'gmLang') . ': ' . $module_info['version']; ?></p>
 
-									<div class="description"><?php echo str_replace("\n", '<br />', $module_info['description']); ?></div>
+									<div class="description"><?php echo nl2br($module_info['description']); ?></div>
 								</div>
 							</div>
 						<?php

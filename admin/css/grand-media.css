@@ -231,11 +231,13 @@ div#gm-list-table {
     box-shadow: inset -1px 0 0 2px rgb(245, 255, 240), inset 7px 0 0 0 #1e8cbe;
 }
 
-div#gmedia-container .list-group-item-info {
+div#gmedia-container .list-group-item-info,
+div#gmedia-container .list-group-item-info:hover {
     background-color: #d9edf7 !important;
 }
 
-div#gmedia-container .list-group-item-warning {
+div#gmedia-container .list-group-item-warning,
+div#gmedia-container .list-group-item-warning:hover {
     background-color: #fcf8e3 !important;
 }
 
@@ -291,6 +293,21 @@ div.li_media-object {
     font-weight: bold;
 }
 
+.media-caption:empty { display:none; }
+.media-caption.in-library {
+    max-height:215px;
+}
+.media-caption {
+    background-color: #f5f5f5;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding:5px 7px;
+    margin:0 -6px 5px;
+    overflow:auto;
+    word-break: normal;
+    word-wrap: break-word;
+}
+
 .media-meta {
     width: 100%;
     overflow: hidden;
@@ -326,8 +343,8 @@ div.li_media-object {
 }
 
 .term-list-item.active .term_id {
-    background-color: #428bca;
-    box-shadow: -10px 0 3px -2px #428bca;
+    background-color: #337ab7;
+    box-shadow: -10px 0 3px -2px #337ab7;
     display: block;
 }
 
@@ -451,7 +468,6 @@ div#gmedia-msg-panel .alert {
 
 .term-list-item .term-label .checkbox {
     padding-left: 35px;
-    min-height: 40px;
 }
 
 .term-list-item .term-label .checkbox > input {
@@ -686,6 +702,7 @@ body#media-upload .panel-body .list-group-item:first-child {
 body#media-upload .term-list-item .term-label .no-checkbox {
     display: inline-block;
     width: 100%;
+    margin: 10px 0;
 }
 
 body#media-upload .term-list-item .term-info {
@@ -876,6 +893,11 @@ body.gmedia-blank .media-edit-sidebar .panel-footer {
     padding-bottom: 10px;
 }
 
+#previewModal {
+    z-index:9999;
+    overflow-x:auto;
+}
+
 @media (min-width: 782px) {
     div.modal {
         top: 32px;
@@ -884,6 +906,7 @@ body.gmedia-blank .media-edit-sidebar .panel-footer {
     div#termsModal .modal-dialog {
         width: 350px;
     }
+
 }
 
 @media screen and (max-width: 782px) {
@@ -899,6 +922,9 @@ body.gmedia-blank .media-edit-sidebar .panel-footer {
     #adminmenu #toplevel_page_GrandMedia ul.wp-submenu {
         display: block;
     }
+
+    label.cb_media-object {float:none;}
+    .media-body {display:block;}
 }
 
 /* custom inclusion of right, left tabs */

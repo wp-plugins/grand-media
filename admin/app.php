@@ -47,9 +47,9 @@ function gmediaApp(){
 							echo '<br>Remote address: '.$_SERVER['REMOTE_ADDR'];
 							?></p>-->
 							<p><?php _e('On the right side you can see information about your website that will be used by iOS application, so you\'ll be able to manage your Gmedia Library with your smartphone.', 'gmLang'); ?></p>
-							<p><?php _e('Download Gmedia iOS application from the Appstore to manage your Gmedia Library from iPhone.', 'gmLang'); ?></p>
+							<p><?php _e('Download Gmedia iOS application from the App Store to manage your Gmedia Library from iPhone.', 'gmLang'); ?></p>
 							<div class="text-center"><img style="max-width:100%;" src="<?php echo $gmCore->gmedia_url; ?>/admin/images/mobile_app.png" />
-								<br /><a target="_blank" href="https://itunes.apple.com/ua/app/gmedia/id947515626?mt=8"><img style="max-width:45%;" src="<?php echo $gmCore->gmedia_url; ?>/admin/images/appstore_button.png" /></a></div>
+								<br /><a target="_blank" href="https://itunes.apple.com/ua/app/gmedia/id947515626?mt=8"><img style="max-width:100%;" src="<?php echo $gmCore->gmedia_url; ?>/admin/images/appstore_button.png" /></a></div>
 						</div>
 						<div class="col-xs-5">
 							<div class="form-group">

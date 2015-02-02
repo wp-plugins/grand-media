@@ -239,16 +239,20 @@ jQuery(function($){
 
 			$('a.preview-modal').click(function(e){
 				e.preventDefault();
-				var modal_div = $($(this).data('target'));
+				var data = $(this).data(),
+					modal_div = $(data['target']);
 				$('.modal-title', modal_div).text($(this).attr('title'));
+				$('.modal-dialog', modal_div).css('width', (data['width'] + 32));
 				$('.modal-body', modal_div).html(
 					$('<iframe />', {
 						name: 'previewFrame',
 						id: 'previewFrame',
 						width: '100%',
+						height: (data['height'] + 7),
 						src: $(this).attr('href'),
 						load: function(){
-							$(this).height(this.contentWindow.document.body.offsetHeight + 30);
+							$(this.contentWindow.document.body).css('margin', 0);
+							$('.modal-backdrop', modal_div).css({'width': (data['width'] + 32), 'min-width': '100%'});
 						}
 					}).css({display: 'block', margin: '4px 0'})
 				);

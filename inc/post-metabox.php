@@ -13,12 +13,16 @@ function gmedia_add_meta_box( $page, $context ) {
 	if ( ! current_user_can( 'gmedia_library' ) ) {
 		return;
 	}
+	$gm_options = get_option('gmediaOptions');
+	$gmedia_post_types = array_merge(array( 'post', 'page' ), (array) $gm_options['gmedia_post_types_support']);
 	// Plugins that use custom post types can use this filter to show the Gmedia UI in their post type.
-	$gm_post_types = apply_filters( 'gmedia-post-types', array( 'post', 'page' ) );
+	$gm_post_types = apply_filters( 'gmedia-post-types', $gmedia_post_types );
 
 	if ( function_exists( 'add_meta_box' ) && ! empty( $gm_post_types ) && in_array( $page, $gm_post_types ) && 'side' === $context ) {
 		add_action( 'admin_enqueue_scripts', 'gmedia_meta_box_load_scripts', 20 );
 		//add_meta_box('gmedia-MetaBox', __('Gmedia Gallery MetaBox', 'gmLang'), 'gmedia_post_metabox', $page, 'side', 'low');
+		add_action( 'admin_footer', 'gmedia_post_modal_tpl' );
+		add_filter( 'admin_post_thumbnail_html', 'gmedia_admin_post_thumbnail_html', 10, 2 );
 	}
 
 }
@@ -32,9 +36,33 @@ function gmedia_meta_box_load_scripts( $hook ) {
 	if ( ( in_array( $hook, array( 'post.php', 'edit.php' ) ) && isset( $_GET['post'] ) && isset( $_GET['action'] ) && $_GET['action'] == 'edit' ) || $hook == 'post-new.php' ) {
 		//wp_enqueue_style('wp-jquery-ui-dialog');
 		//wp_enqueue_style('gmedia-meta-box', plugins_url(GMEDIA_FOLDER) . '/admin/css/meta-box.css', array('wp-jquery-ui-dialog'), '1.3.0');
-		//wp_enqueue_script('gmedia-meta-box', plugins_url(GMEDIA_FOLDER) . '/admin/js/meta-box.js', array('jquery','jquery-ui-dialog','gmedia-global-backend'), '1.3.0', true);
-		wp_enqueue_script( 'gmedia-meta-box', plugins_url( GMEDIA_FOLDER ) . '/admin/js/meta-box.js', array( 'jquery', 'gmedia-global-backend' ), '1.3.0', true );
+		//wp_enqueue_script('gmedia-meta-box', plugins_url(GMEDIA_FOLDER) . '/admin/js/meta-box.js', array('jquery','jquery-ui-dialog','gmedia-global-backend'), '1.4.2', true);
+		wp_enqueue_script( 'gmedia-meta-box', plugins_url( GMEDIA_FOLDER ) . '/admin/js/meta-box.js', array( 'jquery', 'gmedia-global-backend' ), '1.4.2', true );
 	}
+}
+
+function gmedia_post_modal_tpl() {
+	global $post;
+?>
+<script type="text/html" id="tpl__gm-uploader">
+    <div id="__gm-uploader" tabindex="0">
+        <div class="media-modal wp-core-ui"><a class="media-modal-close" href="javascript:void(0)"><span class="media-modal-icon"></span></a>
+            <div class="media-modal-content"><div class="media-frame wp-core-ui hide-router hide-toolbar">
+                <div class="media-frame-title"><h1><?php _e( 'Gmedia Galleries', 'gmLang' ); ?></h1></div>
+                <div class="media-frame-menu"><div class="media-menu">
+                    <a id="gmedia-modal-galleries" class="media-menu-item active" target="gmedia_frame" href="<?php echo add_query_arg( array( 'post_id' => $post->ID, 'tab' => 'gmedia_galleries', 'chromeless' => true ), admin_url( 'media-upload.php' ) ); ?>"><?php _e( 'Gmedia Galleries', 'gmLang' ); ?></a>
+                    <a id="gmedia-modal-terms" class="media-menu-item" target="gmedia_frame" href="<?php echo add_query_arg( array( 'post_id' => $post->ID, 'tab' => 'gmedia_terms', 'chromeless' => true ), admin_url( 'media-upload.php' ) ); ?>"><?php _e( 'Gmedia Collections', 'gmLang' ); ?></a>
+                    <a id="gmedia-modal-library" class="media-menu-item" target="gmedia_frame" href="<?php echo add_query_arg( array( 'post_id' => $post->ID, 'tab' => 'gmedia_library', 'chromeless' => true ), admin_url( 'media-upload.php' ) ); ?>"><?php _e( 'Gmedia Library', 'gmLang' ); ?></a>
+					<?php if ( current_user_can( 'gmedia_upload' ) ) { ?>
+                        <a id="gmedia-modal-upload" class="media-menu-item" target="gmedia_frame" href="<?php echo add_query_arg( array( 'post_id' => $post->ID, 'tab' => 'gmedia_library', 'action' => 'upload', 'chromeless' => true ), admin_url( 'media-upload.php' ) ); ?>"><?php _e( 'Gmedia Upload', 'gmLang' ); ?></a>
+					<?php } ?>
+                </div></div>
+                <div class="media-frame-content"><div class="media-iframe"><iframe name="gmedia_frame" src="<?php echo add_query_arg( array( 'post_id' => $post->ID, 'tab' => 'gmedia_galleries', 'chromeless' => true ), admin_url( 'media-upload.php' ) ); ?>"></iframe></div></div>
+            </div></div>
+        </div><div class="media-modal-backdrop"></div>
+    </div>
+</script>
+<?php
 }
 
 /*
@@ -135,9 +163,6 @@ function gmedia_post_metabox() {
 <?php
 }
 
-if ( current_user_can( 'gmedia_library' ) ) {
-	add_filter( 'admin_post_thumbnail_html', 'gmedia_admin_post_thumbnail_html', 10, 2 );
-}
 /**
  * Filter for the post meta box. look for a NGG image if the ID is "ngg-<imageID>"
  *

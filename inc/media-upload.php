@@ -22,30 +22,9 @@ if ( current_user_can( 'gmedia_library' ) ) {
  * @return string
  */
 function gmedia_media_buttons_context( $context ) {
-	global $post;
 	$button = '
 	<div style="display:inline-block;">
 	    <a id="gmedia-modal" title="Gmedia Galleries" class="gmedia_button button" href="#gmedia"><span class="wp-media-buttons-icon" style="background: url(' . plugins_url( GMEDIA_FOLDER . '/admin/images/gm-icon.png' ) . ') no-repeat top left;"></span> ' . __( 'Gmedia', 'gmLang' ) . '</a>
-	    <script type="text/html" id="tpl__gm-uploader">
-            <div id="__gm-uploader" tabindex="0">
-                <div class="media-modal wp-core-ui"><a class="media-modal-close" href="#"><span class="media-modal-icon"></span></a>
-                    <div class="media-modal-content"><div class="media-frame wp-core-ui hide-router hide-toolbar">
-                        <div class="media-frame-title"><h1>' . __( 'Gmedia Galleries', 'gmLang' ) . '</h1></div>
-                        <div class="media-frame-menu"><div class="media-menu">
-                            <a id="gmedia-modal-galleries" class="media-menu-item active" target="gmedia_frame" href="' . add_query_arg( array( 'post_id' => $post->ID, 'tab' => 'gmedia_galleries', 'chromeless' => true ), admin_url( 'media-upload.php' ) ) . '">' . __( 'Gmedia Galleries', 'gmLang' ) . '</a>
-                            <a id="gmedia-modal-terms" class="media-menu-item" target="gmedia_frame" href="' . add_query_arg( array( 'post_id' => $post->ID, 'tab' => 'gmedia_terms', 'chromeless' => true ), admin_url( 'media-upload.php' ) ) . '">' . __( 'Gmedia Collections', 'gmLang' ) . '</a>
-                            <a id="gmedia-modal-library" class="media-menu-item" target="gmedia_frame" href="' . add_query_arg( array( 'post_id' => $post->ID, 'tab' => 'gmedia_library', 'chromeless' => true ), admin_url( 'media-upload.php' ) ) . '">' . __( 'Gmedia Library', 'gmLang' ) . '</a>';
-	if ( current_user_can( 'gmedia_upload' ) ) {
-		$button .= '
-                            <a id="gmedia-modal-upload" class="media-menu-item" target="gmedia_frame" href="' . add_query_arg( array( 'post_id' => $post->ID, 'tab' => 'gmedia_library', 'action' => 'upload', 'chromeless' => true ), admin_url( 'media-upload.php' ) ) . '">' . __( 'Gmedia Upload', 'gmLang' ) . '</a>';
-	}
-	$button .= '
-                        </div></div>
-                        <div class="media-frame-content"><div class="media-iframe"><iframe name="gmedia_frame" src="' . add_query_arg( array( 'post_id' => $post->ID, 'tab' => 'gmedia_galleries', 'chromeless' => true ), admin_url( 'media-upload.php' ) ) . '"></iframe></div></div>
-                    </div></div>
-                </div><div class="media-modal-backdrop"></div>
-            </div>
-        </script>
 	</div>';
 
 	return $context . $button;
@@ -261,7 +240,7 @@ function gmedia_add_media_galleries() {
 
 	?>
 
-	<div class="panel panel-default">
+	<div class="panel panel-default" id="gmedia-container">
 		<div class="panel-heading clearfix">
 			<form class="form-inline gmedia-search-form" role="search" method="get">
 				<div class="form-group">
@@ -279,7 +258,7 @@ function gmedia_add_media_galleries() {
 			<?php echo $gmDB->query_pager(); ?>
 
 			<div class="btn-group" style="margin-right:20px;">
-				<a class="btn btn-primary" target="_blank" href="<?php echo add_query_arg( array( 'page' => 'GrandMedia_Modules' ), admin_url( 'admin.php' ) ); ?>"><?php _e( 'Create Gallery', 'gmLang' ); ?></a>
+				<a class="btn btn-primary" target="_blank" href="<?php echo add_query_arg( array( 'page' => 'GrandMedia_Modules' ), admin_url( 'admin.php' ) ); ?>"><?php _e( 'Create New Gallery', 'gmLang' ); ?></a>
 			</div>
 
 			<div class="btn-group" style="margin-right:20px;">
@@ -316,7 +295,7 @@ function gmedia_add_media_galleries() {
 								}
 								?>
 								<div class="gmedia-insert-item list-group-item clearfix d-row<?php echo $list_row_class; ?>" id="list-item-<?php echo $term->term_id; ?>" data-id="<?php echo $term->term_id; ?>" data-type="<?php echo $term_meta['module']; ?>">
-									<div class="media-object pull-left" style="width:130px;">
+									<div class="media-object pull-left" style="width:130px;margin-right:15px;">
 										<?php if ( ! $broken ) { ?>
 											<span class="thumbnail"><img src="<?php echo $module['url'] . '/screenshot.png'; ?>" alt="<?php echo esc_attr( $term->name ); ?>"/></span>
 										<?php } else { ?>
@@ -333,7 +312,7 @@ function gmedia_add_media_galleries() {
 											<span class="label label-default"><?php _e( 'Author', 'gmLang' ); ?>:</span> <?php echo $term->global ? get_the_author_meta( 'display_name', $term->global ) : '&#8212;'; ?>
 										</p>
 
-										<p class="media-caption"><?php echo esc_html( $term->description ); ?></p>
+										<p class="media-caption"><?php echo nl2br(esc_html( $term->description )); ?></p>
 									</div>
 
 									<p class="media-meta hidden" style="font-weight:bold">
@@ -651,7 +630,6 @@ function gmedia_add_media_terms() {
 												<span class="term_info_author"><?php echo $author_name; ?></span>
 												<span class="badge pull-right"><?php echo $item->count; ?></span>
 											</div>
-											<span class="blank-aligner"></span>
 										</div>
 										<div class="col-xs-7">
 											<div class="term-images">
@@ -715,7 +693,7 @@ function gmedia_add_media_terms() {
 										</p>
 									</div>
 									<?php if ( ! empty( $item->description ) ) { ?>
-										<div class="term-description"><?php echo esc_html( $item->description ); ?></div>
+										<div class="term-description"><?php echo nl2br(esc_html( $item->description )); ?></div>
 									<?php } ?>
 								</div>
 							<?php
@@ -828,7 +806,7 @@ function gmedia_add_media_library() {
 
 	?>
 
-	<div class="panel panel-default">
+	<div class="panel panel-default" id="gmedia-container">
 		<div class="panel-heading clearfix">
 			<form class="form-inline gmedia-search-form" role="search">
 				<div class="form-group">

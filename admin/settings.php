@@ -11,7 +11,7 @@ if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])){
 function gmSettings(){
 	global $gmDB, $gmCore, $gmGallery;
 
-    ?>
+	?>
 
 	<form class="panel panel-default" method="post">
 		<div class="panel-heading clearfix">
@@ -30,9 +30,10 @@ function gmSettings(){
 			<div class="tabable tabs-left">
 				<ul class="nav nav-tabs" style="padding:10px 0;">
 					<li class="active"><a href="#gmedia_premium" data-toggle="tab"><?php _e('Premium Settings', 'gmLang'); ?></a></li>
-					<?php if(current_user_can('manage_options')){ ?><li>
-						<a href="#gmedia_settings1" data-toggle="tab"><?php _e('Roles/Capabilities Manager', 'gmLang'); ?></a></li><?php } ?>
+					<?php if(current_user_can('manage_options')){ ?>
+						<li><a href="#gmedia_settings1" data-toggle="tab"><?php _e('Roles/Capabilities Manager', 'gmLang'); ?></a></li><?php } ?>
 					<li><a href="#gmedia_settings2" data-toggle="tab"><?php _e('Other Settings', 'gmLang'); ?></a></li>
+					<li><a href="#gmedia_settings3" data-toggle="tab"><?php _e('System Info', 'gmLang'); ?></a></li>
 				</ul>
 				<div class="tab-content" style="padding-top:21px;">
 					<fieldset id="gmedia_premium" class="tab-pane active">
@@ -67,55 +68,55 @@ function gmSettings(){
 							</div>
 							<hr/>
 
-                            <div class="form-group">
-                                <label><?php _e('Upload Media Files', 'gmLang') ?>:</label>
-                                <select name="capability[gmedia_upload]" class="form-control input-sm"><?php wp_dropdown_roles($gmDB->get_role('gmedia_upload')); ?></select>
+							<div class="form-group">
+								<label><?php _e('Upload Media Files', 'gmLang') ?>:</label>
+								<select name="capability[gmedia_upload]" class="form-control input-sm"><?php wp_dropdown_roles($gmDB->get_role('gmedia_upload')); ?></select>
 
-                                <p class="help-block"><?php _e('Who can upload files to Gmedia Library', 'gmLang'); ?></p>
-                            </div>
-                            <div class="col-xs-offset-1">
-                                <div class="form-group">
-                                    <label><?php _e('Import Media Files', 'gmLang') ?>:</label>
-                                    <select name="capability[gmedia_import]" class="form-control input-sm"><?php wp_dropdown_roles($gmDB->get_role('gmedia_import')); ?></select>
+								<p class="help-block"><?php _e('Who can upload files to Gmedia Library', 'gmLang'); ?></p>
+							</div>
+							<div class="col-xs-offset-1">
+								<div class="form-group">
+									<label><?php _e('Import Media Files', 'gmLang') ?>:</label>
+									<select name="capability[gmedia_import]" class="form-control input-sm"><?php wp_dropdown_roles($gmDB->get_role('gmedia_import')); ?></select>
 
-                                    <p class="help-block"><?php _e('Who can import files to Gmedia Library', 'gmLang'); ?></p>
-                                </div>
-                            </div>
+									<p class="help-block"><?php _e('Who can import files to Gmedia Library', 'gmLang'); ?></p>
+								</div>
+							</div>
 
-                            <div class="form-group">
-                                <label><?php _e('Show Others Media in Library', 'gmLang') ?>:</label>
-                                <select name="capability[gmedia_show_others_media]" class="form-control input-sm"><?php wp_dropdown_roles($gmDB->get_role('gmedia_show_others_media')); ?></select>
+							<div class="form-group">
+								<label><?php _e('Show Others Media in Library', 'gmLang') ?>:</label>
+								<select name="capability[gmedia_show_others_media]" class="form-control input-sm"><?php wp_dropdown_roles($gmDB->get_role('gmedia_show_others_media')); ?></select>
 
-                                <p class="help-block"><?php _e('Who can see files uploaded by other users', 'gmLang'); ?></p>
-                            </div>
+								<p class="help-block"><?php _e('Who can see files uploaded by other users', 'gmLang'); ?></p>
+							</div>
 							<div class="form-group">
 								<label><?php _e('Edit Media', 'gmLang') ?>:</label>
 								<select name="capability[gmedia_edit_media]" class="form-control input-sm"><?php wp_dropdown_roles($gmDB->get_role('gmedia_edit_media')); ?></select>
 
 								<p class="help-block"><?php _e('Who can edit media title, description and other properties of uploaded files', 'gmLang'); ?></p>
 							</div>
-                            <div class="col-xs-offset-1">
-                                <div class="form-group">
-                                    <label><?php _e('Edit Others Media', 'gmLang') ?>:</label>
-                                    <select name="capability[gmedia_edit_others_media]" class="form-control input-sm"><?php wp_dropdown_roles($gmDB->get_role('gmedia_edit_others_media')); ?></select>
+							<div class="col-xs-offset-1">
+								<div class="form-group">
+									<label><?php _e('Edit Others Media', 'gmLang') ?>:</label>
+									<select name="capability[gmedia_edit_others_media]" class="form-control input-sm"><?php wp_dropdown_roles($gmDB->get_role('gmedia_edit_others_media')); ?></select>
 
-                                    <p class="help-block"><?php _e('Who can edit files, albums/tags and galleries of other users', 'gmLang'); ?></p>
-                                </div>
-                            </div>
+									<p class="help-block"><?php _e('Who can edit files, albums/tags and galleries of other users', 'gmLang'); ?></p>
+								</div>
+							</div>
 							<div class="form-group">
 								<label><?php _e('Delete Media', 'gmLang') ?>:</label>
 								<select name="capability[gmedia_delete_media]" class="form-control input-sm"><?php wp_dropdown_roles($gmDB->get_role('gmedia_delete_media')); ?></select>
 
 								<p class="help-block"><?php _e('Who can delete uploaded files from Gmedia Library', 'gmLang'); ?></p>
 							</div>
-                            <div class="col-xs-offset-1">
-                                <div class="form-group">
-                                    <label><?php _e('Delete Others Media', 'gmLang') ?>:</label>
-                                    <select name="capability[gmedia_delete_others_media]" class="form-control input-sm"><?php wp_dropdown_roles($gmDB->get_role('gmedia_delete_others_media')); ?></select>
+							<div class="col-xs-offset-1">
+								<div class="form-group">
+									<label><?php _e('Delete Others Media', 'gmLang') ?>:</label>
+									<select name="capability[gmedia_delete_others_media]" class="form-control input-sm"><?php wp_dropdown_roles($gmDB->get_role('gmedia_delete_others_media')); ?></select>
 
-                                    <p class="help-block"><?php _e('Who can delete files, albums/tags and galleries of other users', 'gmLang'); ?></p>
-                                </div>
-                            </div>
+									<p class="help-block"><?php _e('Who can delete files, albums/tags and galleries of other users', 'gmLang'); ?></p>
+								</div>
+							</div>
 
 							<div class="form-group">
 								<label><?php _e('Albums, Tags...', 'gmLang') ?>:</label>
@@ -178,32 +179,57 @@ function gmSettings(){
 						</div>
 						<div class="form-group">
 							<label><?php _e('Forbid other plugins to load their JS and CSS on Gmedia admin pages', 'gmLang') ?>:</label>
+
 							<div class="checkbox" style="margin:0;">
 								<input type="hidden" name="set[isolation_mode]" value="0"/>
-								<label><input type="checkbox" name="set[isolation_mode]" value="1" <?php checked($gmGallery->options['isolation_mode'], '1'); ?> /> <?php _e('Enable Gmedia admin panel Isolation Mode', 'gmLang'); ?>
-								</label>
+								<label><input type="checkbox" name="set[isolation_mode]" value="1" <?php checked($gmGallery->options['isolation_mode'], '1'); ?> /> <?php _e('Enable Gmedia admin panel Isolation Mode', 'gmLang'); ?></label>
 
 								<p class="help-block"><?php _e('This option could help to avoid JS and CSS conflicts with other plugins in admin panel.', 'gmLang'); ?></p>
 							</div>
 						</div>
 						<div class="form-group">
 							<label><?php _e('Forbid theme to format Gmedia shortcode\'s content', 'gmLang') ?>:</label>
+
 							<div class="checkbox" style="margin:0;">
 								<input type="hidden" name="set[shortcode_raw]" value="0"/>
-								<label><input type="checkbox" name="set[shortcode_raw]" value="1" <?php checked($gmGallery->options['shortcode_raw'], '1'); ?> /> <?php _e('Raw output for Gmedia Shortcode', 'gmLang'); ?>
-								</label>
+								<label><input type="checkbox" name="set[shortcode_raw]" value="1" <?php checked($gmGallery->options['shortcode_raw'], '1'); ?> /> <?php _e('Raw output for Gmedia Shortcode', 'gmLang'); ?></label>
 
 								<p class="help-block"><?php _e('Some themes reformat shortcodes and break it functionality (mostly when you add description to images). Turning this on should solve this problem.', 'gmLang'); ?></p>
 							</div>
 						</div>
-                        <?php
-                        if ( (function_exists('memory_get_usage')) && (ini_get('memory_limit')) ) {
-                            $memory_limit = ini_get('memory_limit');
-                            $memory_usage = memory_get_usage();
-                            echo '<p>' . __('Memory Limit: ', 'gmLang') . $memory_limit . '</p>';
-                            echo '<p>' . __('Memory Used: ', 'gmLang') . $memory_usage . '</p>';
-                        }
-                        ?>
+						<?php
+						$allowed_post_types = (array) $gmGallery->options['gmedia_post_types_support'];
+						$args = array(
+							'public' => true,
+							'_builtin' => false
+						);
+						$output = 'objects'; // names or objects, note names is the default
+						$operator = 'and'; // 'and' or 'or'
+						$post_types = get_post_types($args, $output, $operator);
+						if(!empty($post_types)){ ?>
+							<div class="form-group">
+								<label style="margin-bottom:-5px;"><?php _e('Enable Gmedia Library button on custom post types', 'gmLang') ?>:</label>
+								<input type="hidden" name="set[gmedia_post_types_support]" value=""/>
+								<?php
+								foreach($post_types as $post_type){ ?>
+									<div class="checkbox">
+										<label><input type="checkbox" name="set[gmedia_post_types_support][]" value="<?php echo $post_type->name; ?>" <?php if(in_array($post_type->name, $allowed_post_types)){
+												echo 'checked="checked"';
+											}; ?> /> <?php echo $post_type->label . ' (' . $post_type->name . ')'; ?></label>
+									</div>
+								<?php } ?>
+							</div>
+						<?php } ?>
+					</fieldset>
+					<fieldset id="gmedia_settings3" class="tab-pane">
+						<?php
+						if((function_exists('memory_get_usage')) && (ini_get('memory_limit'))){
+							$memory_limit = ini_get('memory_limit');
+							$memory_usage = memory_get_usage();
+							echo '<p>' . __('Memory Limit: ', 'gmLang') . $memory_limit . '</p>';
+							echo '<p>' . __('Memory Used: ', 'gmLang') . $memory_usage . '</p>';
+						}
+						?>
 						<p><?php _e('Under constraction...') ?></p>
 
 						<?php
