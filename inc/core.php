@@ -1600,9 +1600,15 @@ class GmediaCore {
 					$result['message'] = $gmProcessor->alert( 'info', $result['message'] );
 				}
 
-				$gm_options['site_ID'] = $result['site_ID'];
-				$gm_options['mobile_app'] = $result['mobile_app'];
-				$gm_options['site_category'] = $result['site_category'];
+				if(isset($result['site_ID'])){
+					$gm_options['site_ID'] = $result['site_ID'];
+				}
+				if(isset($result['mobile_app'])){
+					$gm_options['mobile_app'] = $result['mobile_app'];
+				}
+				if(isset($result['site_category'])){
+					$gm_options['site_category'] = $result['site_category'];
+				}
 			}
 		}
 		update_option('gmediaOptions', $gm_options);
@@ -1719,15 +1725,17 @@ class GmediaCore {
 	function metadata_text($id){
 		$metatext = '';
 		if(($metadata = $this->metadata_info($id))){
-			$metatext .= '<h4>' . __('Meta Data', 'gmLang') . '</h4>';
 			foreach($metadata as $meta){
+				if($meta['name'] == 'Image'){
+					continue;
+				}
 				if(!is_array($meta['value'])){
-					$metatext .= "\n<b>{$meta['name']}:</b> {$meta['value']}";
+					$metatext .= "<b>{$meta['name']}:</b> {$meta['value']}\n";
 				} else{
-					$metatext .= "\n<b>{$meta['name']}:</b>";
+					$metatext .= "<b>{$meta['name']}:</b>\n";
 					foreach($meta['value'] as $key => $value){
 						$key_name = ucwords(str_replace('_', ' ', $key));
-						$metatext .= "\n - <b>{$key_name}:</b> {$value}";
+						$metatext .= " - <b>{$key_name}:</b> {$value}\n";
 					}
 				}
 			}

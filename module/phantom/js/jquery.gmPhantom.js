@@ -1,6 +1,6 @@
 /*
  * Title                   : gmPhantom
- * Version                 : 2.1
+ * Version                 : 2.2
  * Copyright               : 2013 CodEasily.com
  * Website                 : http://www.codeasily.com
  */
@@ -101,6 +101,8 @@ if(typeof jQuery.fn.gmPhantom == 'undefined'){
 						methods.parseContent();
 
 						$(window).bind('resize.gmPhantom', methods.initRP);
+
+						setTimeout(methods.initRP, 0);
 					},
 					parseContent: function(){// Parse Content.
 						$.each(Content, function(index){
@@ -143,6 +145,7 @@ if(typeof jQuery.fn.gmPhantom == 'undefined'){
 						methods.rpResponsive();
 
 						methods.initGallery();
+
 					},
 					initGallery: function(){// Init the Gallery
 						var LightboxHTML = [];

@@ -64,7 +64,7 @@ if(!empty($content)){
 		jQuery('#GmediaGallery_<?php echo $gallery['term_id'] ?>').gmPhantom([content, settings]);
 	});
 </script><?php if($shortcode_raw){ echo '</pre>'; } ?>
-<div class="gmPhantom_Container delay" style="opacity:0.1">
+<div class="gmPhantom_Container delay" style="opacity:0.01">
 	<div class="gmPhantom_Background"></div>
 	<div class="gmPhantom_thumbsWrapper">
 		<?php $i = 0; $wrapper_r = $settings['thumbWidth']/$settings['thumbHeight'];
@@ -89,7 +89,7 @@ if(!empty($content)){
 
 <?php
 } else{
-	echo GMEDIA_GALLERY_EMPTY;
+	echo '<div class="gmedia-no-files">' . GMEDIA_GALLERY_EMPTY . '</div>';
 }
 
 

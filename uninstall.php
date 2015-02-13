@@ -65,6 +65,7 @@ function gmedia_uninstall(){
 	delete_option('gmediaOptions');
 	delete_option('gmediaDbVersion');
 	delete_option('gmediaVersion');
+	delete_option('GmediaHashID_salt');
 	delete_metadata('user', 0, 'gm_screen_options', '', true);
 
 	if(!$upload['error']){

@@ -167,11 +167,11 @@ function gmedia_ios_app_library_data( $data = array( 'site', 'authors', 'filter'
 
 	$out = array();
 
-	if ( get_option( 'permalink_structure' ) ) {
-		$ep         = $gmGallery->options['endpoint'];
-		$share_link = home_url( $ep . '/$2/$1' );
-	} else {
-		$share_link = home_url( 'index.php?gmedia=$1&type=$2' );
+	$ep = $gmGallery->options['endpoint'];
+	if(get_option('permalink_structure')){
+		$share_link = home_url(urlencode($ep) . '/$2/$1');
+	} else{
+		$share_link = add_query_arg(array("$ep" => '$1', 't' => '$2'), home_url('index.php'));
 	}
 
 	if ( in_array( 'site', $data ) ) {
@@ -222,7 +222,10 @@ function gmedia_ios_app_library_data( $data = array( 'site', 'authors', 'filter'
 			foreach ( $gmediaTerms as $name => $term ) {
 				unset( $gmediaTerms[ $name ]->description, $gmediaTerms[ $name ]->global, $gmediaTerms[ $name ]->status );
 				$gmediaTerms[ $name ]->title     = $terms[ $name ];
-				$gmediaTerms[ $name ]->sharelink = str_replace( array( '$1', '$2' ), array( $term->term_id, 'category' ), $share_link );
+
+				$gmedia_hashid = gmedia_hash_id_encode($gmediaTerms[ $name ]->term_id, 'category');
+				$gmediaTerms[ $name ]->sharelink = str_replace( array( '$1', '$2' ), array( urlencode($gmedia_hashid), 'k' ), $share_link );
+
 				$gmediaTerms[ $name ]->cap       = 0;
 			}
 
@@ -255,9 +258,15 @@ function gmedia_ios_app_library_data( $data = array( 'site', 'authors', 'filter'
 					continue;
 				}
 				$authordata   = get_userdata( $author_id );
-				$display_name = $authordata->display_name;
-				$first_name   = $authordata->first_name;
-				$last_name    = $authordata->last_name;
+				if($authordata){
+					$display_name = $authordata->display_name;
+					$first_name = $authordata->first_name;
+					$last_name = $authordata->last_name;
+				} else{
+					$display_name = __('Deleted User', 'gmLang');
+					$first_name = '';
+					$last_name = '';
+				}
 			} else {
 				$display_name = __( 'Shared', 'gmLang' );
 				$first_name   = $last_name = '';
@@ -273,7 +282,10 @@ function gmedia_ios_app_library_data( $data = array( 'site', 'authors', 'filter'
 			$term_meta                    = array_map( 'reset', $term_meta );
 			$term_meta                    = array_merge( array( 'orderby' => 'ID', 'order' => 'DESC' ), $term_meta );
 			$gmediaTerms[ $i ]->meta      = $term_meta;
-			$gmediaTerms[ $i ]->sharelink = str_replace( array( '$1', '$2' ), array( $term->term_id, 'album' ), $share_link );
+
+			$gmedia_hashid = gmedia_hash_id_encode($term->term_id, 'album');
+			$gmediaTerms[ $i ]->sharelink = str_replace( array( '$1', '$2' ), array( urlencode($gmedia_hashid), 'a' ), $share_link );
+
 			$gmediaTerms[ $i ]->cap       = ( 4 == $cap ) ? 4 : 0;
 		}
 		$out['albums'] = array(
@@ -290,7 +302,10 @@ function gmedia_ios_app_library_data( $data = array( 'site', 'authors', 'filter'
 		$gmediaTerms = $gmDB->get_terms( 'gmedia_tag' );
 		foreach ( $gmediaTerms as $i => $term ) {
 			unset( $gmediaTerms[ $i ]->description, $gmediaTerms[ $i ]->global, $gmediaTerms[ $i ]->status );
-			$gmediaTerms[ $i ]->sharelink = str_replace( array( '$1', '$2' ), array( $term->term_id, 'tag' ), $share_link );
+
+			$gmedia_hashid = gmedia_hash_id_encode($term->term_id, 'tag');
+			$gmediaTerms[ $i ]->sharelink = str_replace( array( '$1', '$2' ), array( urlencode($gmedia_hashid), 't' ), $share_link );
+
 			$gmediaTerms[ $i ]->cap       = ( 4 == $cap ) ? 4 : 0;
 		}
 		$out['tags'] = array(
@@ -594,11 +609,11 @@ function gmedia_ios_app_processor( $action, $data, $filter = true ) {
 			break;
 
 		case 'library':
-			if ( get_option( 'permalink_structure' ) ) {
-				$ep         = $gmGallery->options['endpoint'];
-				$share_link = home_url( $ep . '/single/' );
-			} else {
-				$share_link = home_url( 'index.php?type=single&gmedia=' );
+			$ep = $gmGallery->options['endpoint'];
+			if(get_option('permalink_structure')){
+				$share_link = home_url(urlencode($ep) . '/$2/$1');
+			} else{
+				$share_link = add_query_arg(array("$ep" => '$1', 't' => '$2'), home_url('index.php'));
 			}
 			$filter = $filter ? gmedia_ios_app_library_data( array( 'filter' ) ) : array();
 
@@ -735,7 +750,10 @@ function gmedia_ios_app_processor( $action, $data, $filter = true ) {
 				if ( isset( $meta['rating'][0] ) ) {
 					$gmedias[ $i ]->meta['rating'] = maybe_unserialize( $meta['rating'][0] );
 				}
-				$gmedias[ $i ]->sharelink = $share_link . $item->ID;
+
+				$item_name = $item->title? $item->title : pathinfo($item->gmuid, PATHINFO_FILENAME);
+				$gmedia_hashid = gmedia_hash_id_encode($item->ID, 'single');
+				$gmedias[ $i ]->sharelink = str_replace( array( '$1', '$2' ), array( urlencode($gmedia_hashid), 's' ), $share_link );
 			}
 			$out = array_merge( $filter, array(
 				'properties' => array(

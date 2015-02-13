@@ -1512,3 +1512,72 @@ function gmedia_application() {
 	die();
 }
 
+add_action( 'wp_ajax_gmedia_share_page', 'gmedia_share_page' );
+function gmedia_share_page() {
+	global $gmCore, $gmProcessor, $user_ID;
+	// if nonce is not correct it returns -1
+	check_ajax_referer( 'share_modal', '_sharenonce' );
+
+	$sharelink = $gmCore->_post('sharelink', '');
+	$email = $gmCore->_post('email', '');
+	$sharemessage = $gmCore->_post('message', '');
+	if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+		echo $gmProcessor->alert( 'danger', __('Invalid email', 'gmLang'). ': '. esc_html($email) );
+		die();
+	}
+
+	$display_name = get_the_author_meta( 'display_name', $user_ID );
+	$subject = sprintf(__('%s shared GmediaCloud Page with you', 'gmLang'), $display_name);
+	$sharetitle = sprintf(__('%s used Gmedia to share something interesting with you!', 'gmLang'), $display_name);
+	$sharelinktext = __('Click here to view page', 'gmLang');
+	if($sharemessage){
+		$sharemessage = '<blockquote>"'.nl2br(esc_html($sharemessage)).'"</blockquote>';
+	}
+	$footer = '© '.date('Y').' Gmedia';
+	$message = <<<EOT
+<center>
+<table cellpadding="0" cellspacing="0" style="border-radius:4px;border:1px #dceaf5 solid;" border="0" align="center">
+	<tr><td colspan="3" height="20"></td></tr>
+	<tr style="line-height:0;">
+		<td width="100%" style="font-size:0;" align="center" height="1">
+			<img width="72" style="max-height:72px;width:72px;" alt="GmediaGallery" src="http://mypgc.co/images/email/logo-128.png" />
+		</td>
+	</tr>
+	<tr><td>
+			<table cellpadding="0" cellspacing="0" style="line-height:25px;" border="0" align="center">
+				<tr><td colspan="3" height="20"></td></tr>
+				<tr>
+					<td width="36"></td>
+					<td width="454" align="left" style="color:#444444;border-collapse:collapse;font-size:11pt;font-family:proxima_nova,'Open Sans','Lucida Grande','Segoe UI',Arial,Verdana,'Lucida Sans Unicode',Tahoma,'Sans Serif';max-width:454px;" valign="top">{$sharetitle}<br />
+						{$sharemessage}
+						<br /><a style="color:#0D8FB3" href="{$sharelink}">{$sharelinktext}</a>.</td>
+					<td width="36"></td>
+				</tr>
+				<tr><td colspan="3" height="36"></td></tr>
+			</table>
+		</td>
+	</tr>
+</table>
+<table cellpadding="0" cellspacing="0" align="center" border="0">
+	<tr><td height="10"></td></tr>
+	<tr><td style="padding:0;border-collapse:collapse;">
+			<table cellpadding="0" cellspacing="0" align="center" border="0">
+				<tr style="color:#a8b9c6;font-size:11px;font-family:proxima_nova,'Open Sans','Lucida Grande','Segoe UI',Arial,Verdana,'Lucida Sans Unicode',Tahoma,'Sans Serif';">
+					<td width="128" align="left"></td>
+					<td width="400" align="right">{$footer}</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+</table>
+</center>
+EOT;
+
+	$headers = array('Content-Type: text/html; charset=UTF-8');
+	if(wp_mail( $email, $subject, $message, $headers )){
+		echo $gmProcessor->alert( 'success', sprintf(__('Message sent to %s', 'gmLang'), $email) );
+	}
+
+	die();
+}
+

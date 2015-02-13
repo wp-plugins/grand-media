@@ -170,6 +170,18 @@ function gmSettings(){
 					<?php } ?>
 					<fieldset id="gmedia_settings2" class="tab-pane">
 						<div class="form-group">
+							<label><?php _e('HashID salt for unique template URL', 'gmLang') ?>:</label>
+							<input type="text" name="GmediaHashID_salt" value="<?php echo get_option('GmediaHashID_salt'); ?>" class="form-control input-sm" />
+
+							<p class="help-block"><?php _e('Changing this string you\'ll change Gmedia template URLs.', 'gmLang'); ?></p>
+						</div>
+						<div class="form-group">
+							<label><?php _e('Permalink Endpoint', 'gmLang') ?>:</label>
+							<input type="text" name="set[endpoint]" value="<?php echo $gmGallery->options['endpoint']; ?>" class="form-control input-sm" />
+
+							<p class="help-block"><?php _e('Changing endpoint you\'ll change Gmedia template URLs.', 'gmLang'); ?></p>
+						</div>
+						<div class="form-group">
 							<label><?php _e('When delete (uninstall) plugin', 'gmLang') ?>:</label>
 							<select name="set[uninstall_dropdata]" class="form-control input-sm">
 								<option value="all" <?php selected($gmGallery->options['uninstall_dropdata'], 'all'); ?>><?php _e('Delete database and all uploaded files', 'gmLang'); ?></option>

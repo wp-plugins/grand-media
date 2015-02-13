@@ -3577,15 +3577,21 @@ class GmediaDB{
 	 */
 	function reassign_media($user_id, $reassign){
 		$gmedias = $this->get_gmedias(array('nopaging' => true, 'author' => $user_id));
+		$taxonomies = $this->get_terms(array('gmedia_album', 'gmedia_gallery', 'gmedia_module'), array('global' => $user_id));
+		if(empty($reassign)){
+			$reassign = get_current_user_id();
+		}
 		if(!empty($gmedias)){
-			if(empty($reassign)){
-				$reassign = get_current_user_id();
-			}
 			$modified = current_time('mysql');
 			foreach($gmedias as $item){
 				$item->author = $reassign;
 				$item->modified = $modified;
 				$this->insert_gmedia($item);
+			}
+		}
+		if(!empty($taxonomies)){
+			foreach($taxonomies as $item){
+				$this->update_term($item->term_id, $item->taxonomy, array('global' => $reassign));
 			}
 		}
 	}

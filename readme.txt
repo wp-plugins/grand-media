@@ -62,6 +62,8 @@ Help me make it best gallery plugin: test it and [write suggestions](http://code
 Features:
 
 *   (NEW) Gmedia for iOS - [iOS manage application](https://itunes.apple.com/ua/app/gmedia/id947515626?mt=8) to manage your Library with your iPhone
+*   (NEW) Full Page Template for Galleries with permalink support
+*   (NEW) Share Images, Albums, Tags, Galleries via admin panel
 *   Mobile friendly, responsive galleries
 *   Add tags, assign categories and group images in albums
 *   Drag'n'drop sorting for files in Album
@@ -83,15 +85,13 @@ Features:
 TODO List:
 
 *   Cover for Album. It will be also used for music without cover (work in progress..)
-*   Templates for galleries (work in progress..)
+*   Templates for galleries (partially done. Work in progress..)
 *   More Batch operations with selected Gmedia items (work in progress..)
 *   Related Post images on Edit Post. Option to automatically create gallery in Post with related images (work in progress..)
 *   Share albums to socials from admin panel (in queue)
-*   Different templates to display Gmedia Library (something like GRAND Pages in Flagallery plugin) (in queue)
 *   More modules for creating photo gallery, audio playlist, video playlist
 *   Easily add to Post audio and video files with tags related to post tags
 *   Watermark feature
-*   Intergration with social services (plans)
 
 
 == Installation ==
@@ -123,6 +123,17 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 
 = Photobox module =
 * Updated Photobox module. Added option to set thumbs size, fixed problems with portrait images.
+
+= 1.5.0 =
+* Changed permalinks for Gmedia pages
+* Added Templates for Full Page Galleries and Single Template Page
+* Added "Share GmediaCloud Page" option for items in Library, terms and galleries
+* Added options for changing gmedia permalink base and salt for creating unique urls
+* Added actions icons for albums, tags and galleries
+* Added Meta Info popup for Library items
+* Added Terms search by term ID (enter # before numbers separated by comma)
+* Fixed Albums with deleted authors
+* Admin CSS improvemens
 
 = 1.4.2 =
 * Fixed music and video Custom Cover when image url is set instead of ID

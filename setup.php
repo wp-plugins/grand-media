@@ -12,7 +12,7 @@ if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])){
  */
 function gmedia_default_options(){
 
-	$gm['site_email'] = get_bloginfo('admin_email');
+	$gm['site_email'] = '';
 	$gm['site_category'] = '';
 	$gm['site_ID'] = '';
 	$gm['mobile_app'] = 0;
@@ -35,7 +35,7 @@ function gmedia_default_options(){
 	$gm['folder']['module'] = 'module';
 
 	$gm['thumb'] = array('width' => 300, 'height' => 300, 'quality' => 70, 'crop' => 0);
-	$gm['image'] = array('width' => 1600, 'height' => 1600, 'quality' => 85, 'crop' => 0);
+	$gm['image'] = array('width' => 2000, 'height' => 2000, 'quality' => 85, 'crop' => 0);
 
 	$gm['modules_xml'] = 'https://dl.dropboxusercontent.com/u/6295502/gmedia_modules/modules_v1.xml';
 	$gm['license_name'] = '';
@@ -239,6 +239,10 @@ function gmedia_install(){
 	// Set installation date
 	if(empty($gmGallery->options['installDate'])){
 		$gmGallery->options['installDate'] = time();
+	}
+	if(!get_option('GmediaHashID_salt')){
+		$ustr = wp_generate_password(12, false);
+		add_option('GmediaHashID_salt', $ustr);
 	}
 
 	// set the default settings, if we didn't upgrade

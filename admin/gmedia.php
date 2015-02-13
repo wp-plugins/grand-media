@@ -12,6 +12,7 @@ function gmediaLib(){
 	global $user_ID, $gmDB, $gmCore, $gmGallery, $gmProcessor;
 
 	$url = add_query_arg(array('page' => $gmProcessor->page, 'mode' => $gmProcessor->mode), admin_url('admin.php'));
+	$endpoint = $gmGallery->options['endpoint'];
 
 	$gm_screen_options = get_user_meta($user_ID, 'gm_screen_options', true);
 	if(!is_array($gm_screen_options)){
@@ -71,7 +72,7 @@ function gmediaLib(){
 	}
 	?>
 	<?php if(!empty($author)){ ?>
-		<div class="library-author alert alert-info">
+		<div class="library-author alert alert-info" xmlns="http://www.w3.org/1999/html">
 			<strong><?php _e('Selected Author:', 'gmLang'); ?></strong>
 			<a href="#libModal" data-modal="filter_authors" data-action="gmedia_get_modal" class="gmedia-modal"><?php echo get_the_author_meta('display_name', $author); ?></a>
 		</div>
@@ -353,9 +354,9 @@ function gmediaLib(){
 	?>
 	<?php if (!$gmProcessor->mode){
 	$is_selected = in_array($item->ID, $gmProcessor->selected_items)? true : false; ?>
-		<div class="list-group-item d-row clearfix<?php echo ($is_selected? ' active' : '') . $list_row_class; ?>" id="list-item-<?php echo $item->ID; ?>" data-id="<?php echo $item->ID; ?>" data-type="<?php echo $type[0]; ?>">
+		<div class="list-group-item d-row clearfix<?php echo ($is_selected? ' active-row' : '') . $list_row_class; ?>" id="list-item-<?php echo $item->ID; ?>" data-id="<?php echo $item->ID; ?>" data-type="<?php echo $type[0]; ?>">
 			<div class="gmedia_id">#<?php echo $item->ID; ?></div>
-			<label class="cb_media-object">
+			<label class="cb_media-object col-sm-4" style="max-width:350px;">
 				<input name="doaction[]" type="checkbox"<?php echo $is_selected? ' checked="checked"' : ''; ?> data-type="<?php echo $type[0]; ?>" class="hidden" value="<?php echo $item->ID; ?>"/>
 				<span data-target="<?php echo $item_url; ?>" class="thumbnail">
 					<?php if(('image' == $type[0])){ ?>
@@ -381,7 +382,7 @@ function gmediaLib(){
 				</span>
 			</label>
 
-			<div class="media-body">
+			<div class="col-sm-8">
 				<div class="row" style="margin:0;">
 					<div class="col-lg-6">
 						<p class="media-title"><?php echo esc_html($item->title); ?>&nbsp;</p>
@@ -459,9 +460,18 @@ function gmediaLib(){
 							} else{
 								echo '&#8212;';
 							} ?></div>
+
 						<p class="media-meta" style="margin:5px 4px;">
 							<?php $media_action_links = array();
 							if(($gmCore->caps['gmedia_edit_media'] && ((int) $item->author == get_current_user_id())) || $gmCore->caps['gmedia_edit_others_media']){
+								$gmedia_hashid = gmedia_hash_id_encode($item->ID, 'single');
+								if(get_option('permalink_structure')){
+									$cloud_link = home_url(urlencode($endpoint) . '/s/' . $gmedia_hashid);
+								} else{
+									$cloud_link = add_query_arg(array("$endpoint" => $gmedia_hashid, 't' => 's'), home_url('index.php'));
+								}
+								$media_action_links[] = '<a target="_blank" data-target="#shareModal" data-share="' . $item->ID . '" class="share-modal" title="'.__('GmediaCloud Page', 'gmLang').'" href="' . $cloud_link . '">' . __('Share', 'gmLang') . '</a>';
+
 								$media_action_links[] = '<a href="' . admin_url("admin.php?page=GrandMedia&mode=edit&gmedia__in={$item->ID}") . '">' . __('Edit Data', 'gmLang') . '</a>';
 							}
 							if('image' == $type[0]){
@@ -473,16 +483,28 @@ function gmediaLib(){
 							} elseif(in_array($type[1], array('mp4', 'mp3', 'mpeg', 'webm', 'ogg', 'wave', 'wav'))){
 								$media_action_links[] = '<a href="' . $item_url . '" data-target="#previewModal" data-width="'.$modal_web_width.'" data-height="'.$modal_web_height.'" class="preview-modal" title="'.esc_attr($item->title).'">' . __('Play', 'gmLang') . '</a>';
 							}
+							$metainfo = $gmCore->metadata_text($item->ID);
+							if($metainfo){
+								$media_action_links[] = '<a href="#metaInfo" data-target="#previewModal" data-metainfo="' . $item->ID . '" class="preview-modal" title="'.__('Meta Info', 'gmLang').'">' . __('Meta Info', 'gmLang') . '</a>';
+							}
 							if(($gmCore->caps['gmedia_delete_media'] && ((int) $item->author == get_current_user_id())) || $gmCore->caps['gmedia_delete_others_media']){
 								$media_action_links[] = '<a class="text-danger" href="' . wp_nonce_url($gmCore->get_admin_url(array('delete' => $item->ID)), 'gmedia_delete') . '" data-confirm="' . sprintf(__("You are about to permanently delete %s file.\n\r'Cancel' to stop, 'OK' to delete.", "gmLang"), $item->gmuid) . '">' . __('Delete', 'gmLang') . '</a>';
-								$media_action_links[] = '<a class="text-danger" href="' . wp_nonce_url($gmCore->get_admin_url(array(
-										'delete' => $item->ID,
-										'save_original_file' => 1
-									)), 'gmedia_delete') . '" data-confirm="' . sprintf(__("You are about to delete record from DB for %s file.\n\r'Cancel' to stop, 'OK' to delete.", "gmLang"), $item->gmuid) . '">' . __('Delete DB record (leave file on the server)', 'gmLang') . '</a>';
+								if($gmCore->_get('showmore')){
+									$media_action_links[] = '<a class="text-danger" href="' . wp_nonce_url($gmCore->get_admin_url(array(
+											'delete' => $item->ID,
+											'save_original_file' => 1
+										)), 'gmedia_delete') . '" data-confirm="' . sprintf(__("You are about to delete record from DB for %s file.\n\r'Cancel' to stop, 'OK' to delete.", "gmLang"), $item->gmuid) . '">' . __('Delete DB record (leave file on the server)', 'gmLang') . '</a>';
+								}
 							}
 							echo implode(' | ', $media_action_links);
 							?>
 						</p>
+						<?php if($metainfo){ ?>
+							<div class="metainfo hidden" id="metainfo_<?php echo $item->ID; ?>">
+								<?php echo nl2br($metainfo); ?>
+							</div>
+						<?php } ?>
+
 					</div>
 				</div>
 			</div>
@@ -492,7 +514,7 @@ function gmediaLib(){
 		<?php if(((int) $item->author != $user_ID) && !$gmCore->caps['gmedia_edit_others_media']){ ?>
 		<div class="list-group-item row d-row" id="list-item-<?php echo $item->ID; ?>" data-id="<?php echo $item->ID; ?>" data-type="<?php echo $type[0]; ?>">
 			<div class="gmedia_id">#<?php echo $item->ID; ?></div>
-			<div class="li_media-object">
+			<div class="li_media-object col-sm-4" style="max-width:350px;">
 				<span data-target="<?php echo $item_url; ?>" class="thumbnail">
 					<?php if(('image' == $type[0])){ ?>
 						<img class="gmedia-thumb" src="<?php echo $gmCore->gm_get_media_image($item, 'thumb'); ?>" alt=""/>
@@ -517,7 +539,7 @@ function gmediaLib(){
 				</span>
 			</div>
 
-			<div class="media-body">
+			<div class="col-sm-8">
 				<div class="col-md-6">
 					<p class="media-title"><?php echo esc_html($item->title); ?>&nbsp;</p>
 
@@ -619,25 +641,16 @@ function gmediaLib(){
 		<form class="list-group-item row d-row edit-gmedia" id="list-item-<?php echo $item->ID; ?>" data-id="<?php echo $item->ID; ?>" data-type="<?php echo $type[0]; ?>" role="form">
 			<div class="col-sm-4" style="max-width:350px;">
 				<input name="ID" type="hidden" value="<?php echo $item->ID; ?>"/>
-				<?php if(('image' == $type[0])){ ?>
+				<?php $media_action_links = array();
+				if(('image' == $type[0])){ ?>
 					<a href="<?php echo $item_url; ?>" data-target="#previewModal" data-width="<?php echo $modal_web_width; ?>" data-height="<?php echo $modal_web_height; ?>" class="thumbnail preview-modal" title="<?php echo esc_attr($item->title); ?>">
 						<img class="gmedia-thumb" src="<?php echo $gmCore->gm_get_media_image($item, 'thumb'); ?>" alt=""/>
 					</a>
-					<p>
-						<a href="<?php echo admin_url("admin.php?page=GrandMedia&gmediablank=image_editor&id={$item->ID}"); ?>" data-target="#gmeditModal" class="btn btn-link btn-sm gmedit-modal">
-							<?php _e('Edit Image', 'gmLang'); ?>
-						</a> |
-						<a href="<?php echo $gmCore->gm_get_media_image($item, 'original'); ?>" data-target="#previewModal" data-width="<?php echo $modal_width; ?>" data-height="<?php echo $modal_height; ?>" class="btn btn-link btn-sm preview-modal" title="<?php echo esc_attr($item->title); ?>">
-							<?php _e('View Original', 'gmLang'); ?>
-						</a>
-						<?php if(($gmCore->caps['gmedia_delete_media'] && ((int) $item->author == get_current_user_id())) || $gmCore->caps['gmedia_delete_others_media']){ ?>
-							|
-							<a class="btn btn-link btn-sm text-danger" href="<?php echo wp_nonce_url($gmCore->get_admin_url(array('delete' => $item->ID)), 'gmedia_delete') ?>" data-confirm="<?php printf(__("You are about to permanently delete %s file.\n\r'Cancel' to stop, 'OK' to delete.", "gmLang"), $item->gmuid); ?>">
-								<?php _e('Delete', 'gmLang'); ?>
-							</a>
-						<?php } ?>
-					</p>
-				<?php } else{ ?>
+					<?php
+					$media_action_links[] = '<a href="'.admin_url("admin.php?page=GrandMedia&gmediablank=image_editor&id={$item->ID}").'" data-target="#gmeditModal" class="btn btn-link btn-sm gmedit-modal">'.__('Edit Image', 'gmLang').'</a>';
+					$media_action_links[] = '<a href="'.$gmCore->gm_get_media_image($item, 'original').'" data-target="#previewModal" data-width="'.$modal_width.'" data-height="'.$modal_height.'" class="btn btn-link btn-sm preview-modal" title="'.esc_attr($item->title).'">'.__('View Original', 'gmLang').'</a>';
+
+				} else{ ?>
 					<a href="<?php echo $item_url; ?>" data-target="#previewModal" data-width="<?php echo $modal_web_width; ?>" data-height="<?php echo $modal_web_height; ?>" class="thumbnail preview-modal" title="<?php echo esc_attr($item->title); ?>">
 						<?php $typethumb = false;
 						if(isset($meta['cover'][0]) && !empty($meta['cover'][0])){
@@ -655,16 +668,25 @@ function gmediaLib(){
 							<img class="gmedia-typethumb" src="<?php echo $gmCore->gm_get_media_image($item, 'thumb', false); ?>" alt=""/>
 						<?php } ?>
 					</a>
-					<p>
-						<?php if(in_array($type[1], array('mp4', 'mp3', 'mpeg', 'webm', 'ogg', 'wave', 'wav'))){
-							echo '<a href="' . $item_url . '" data-target="#previewModal" data-width="' . $modal_width . '" data-height="' . $modal_height . '" class="btn btn-link btn-sm preview-modal" title="' . esc_attr($item->title) . '">' . __('Play', 'gmLang') . '</a> | ';
-						}
-						if(($gmCore->caps['gmedia_delete_media'] && ((int) $item->author == get_current_user_id())) || $gmCore->caps['gmedia_delete_others_media']){ ?>
-							<a class="btn btn-link btn-sm text-danger" href="<?php echo wp_nonce_url($gmCore->get_admin_url(array('delete' => $item->ID)), 'gmedia_delete') ?>" data-confirm="<?php printf(__("You are about to permanently delete %s file.\n\r'Cancel' to stop, 'OK' to delete.", "gmLang"), $item->gmuid); ?>">
-								<?php _e('Delete', 'gmLang'); ?>
-							</a>
-						<?php } ?>
-					</p>
+					<?php
+					if(in_array($type[1], array('mp4', 'mp3', 'mpeg', 'webm', 'ogg', 'wave', 'wav'))){
+						$media_action_links[] = '<a href="' . $item_url . '" data-target="#previewModal" data-width="' . $modal_width . '" data-height="' . $modal_height . '" class="btn btn-link btn-sm preview-modal" title="' . esc_attr($item->title) . '">' . __('Play', 'gmLang') . '</a>';
+					}
+				}
+
+				$metainfo = $gmCore->metadata_text($item->ID);
+				if($metainfo){
+					$media_action_links[] = '<a href="#metaInfo" data-target="#previewModal" data-metainfo="' . $item->ID . '" class="btn btn-link btn-sm preview-modal" title="'.__('Meta Info', 'gmLang').'">' . __('Meta Info', 'gmLang') . '</a>';
+				}
+				if(($gmCore->caps['gmedia_delete_media'] && ((int) $item->author == get_current_user_id())) || $gmCore->caps['gmedia_delete_others_media']){
+					$media_action_links[] = '<a class="btn btn-link btn-sm text-danger" href="'.wp_nonce_url($gmCore->get_admin_url(array('delete' => $item->ID)), 'gmedia_delete').'" data-confirm="'.sprintf(__("You are about to permanently delete %s file.\n\r'Cancel' to stop, 'OK' to delete.", "gmLang"), $item->gmuid).'">'.__('Delete', 'gmLang').'</a>';
+				}
+				echo '<p>'.implode(' | ', $media_action_links).'</p>';
+				?>
+				<?php if($metainfo){ ?>
+					<div class="metainfo hidden" id="metainfo_<?php echo $item->ID; ?>">
+						<?php echo nl2br($metainfo); ?>
+					</div>
 				<?php } ?>
 			</div>
 			<div class="col-sm-8">
@@ -950,13 +972,40 @@ function gmediaLib(){
 		</div>
 	<?php } ?>
 	<div class="modal fade gmedia-modal" id="previewModal" tabindex="-1" role="dialog" aria-hidden="true">
-		<div class="modal-dialog modal-lg">
+		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 					<h4 class="modal-title"></h4>
 				</div>
 				<div class="modal-body"></div>
+			</div>
+		</div>
+	</div>
+	<div class="modal fade gmedia-modal" id="shareModal" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title"><?php _e('GmediaCloud Page'); ?></h4>
+				</div>
+				<form class="modal-body" method="post" id="shareForm">
+					<div class="form-group">
+						<label><?php _e('Link to page', 'gmLang'); ?></label>
+						<input name="sharelink" type="text" class="form-control sharelink" readonly="readonly" value="" />
+					</div>
+					<div class="form-group">
+						<label><?php _e('Send this link to', 'gmLang'); ?></label>
+						<input name="email" type="email" class="form-control sharetoemail" value="" placeholder="<?php _e('Email', 'gmLang'); ?>" />
+						<textarea name="message" cols="20" rows="3" class="form-control" placeholder="<?php _e('Message (optional)', 'gmLang'); ?>"></textarea>
+					</div>
+					<input type="hidden" name="action" value="gmedia_share_page" />
+					<?php wp_nonce_field( 'share_modal', '_sharenonce' );	?>
+				</form>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary sharebutton" disabled="disabled"><?php _e( 'Send', 'gmLang' ); ?></button>
+					<button type="button" class="btn btn-default" data-dismiss="modal"><?php _e( 'Close', 'gmLang' ); ?></button>
+				</div>
 			</div>
 		</div>
 	</div>

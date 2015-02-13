@@ -52,7 +52,7 @@ function gmedia_term_shortcode( $atts, $content = '' ) {
 	}
 	$sc_atts = array(
 		'id'      => $id,
-		'preview' => $module,
+		'set_module' => $module,
 		'preset'  => $preset,
 		'_tax'    => $_tax
 	);
@@ -72,14 +72,14 @@ function gmedia_shortcode( $atts, $content = '' ) {
 	global $gmedia_shortcode_instance;
 	/**
 	 * @var $id
-	 * @var $preview
+	 * @var $set_module
 	 * @var $preset
 	 * @var $_tax
 	 * @var $_raw
 	 */
 	extract( shortcode_atts( array(
 		'id'      => 0,
-		'preview' => '',
+		'set_module' => '',
 		'preset'  => 0,
 		'_tax'    => 'gallery',
 		'_raw'    => false
@@ -129,8 +129,8 @@ function gmedia_shortcode( $atts, $content = '' ) {
 		$gallery      = array_merge( $gallery, $gallery_meta );
 	}
 
-	if ( ! empty( $preview ) && $gallery['module'] != $preview ) {
-		$gallery['module']                         = sanitize_key( $preview );
+	if ( ! empty( $set_module ) && $gallery['module'] != $set_module ) {
+		$gallery['module']                         = sanitize_key( $set_module );
 		$gallery['settings'][ $gallery['module'] ] = array();
 	} elseif ( ! isset( $gallery['settings'][ $gallery['module'] ] ) ) {
 		$gallery['settings'][ $gallery['module'] ] = array();
@@ -218,13 +218,15 @@ function gmedia_shortcode( $atts, $content = '' ) {
 	}
 
 	$gmGallery->do_module[ $gallery['module'] ] = $module;
-
-	$out = '<div class="gmedia_gallery ' . $gallery['module'] . '_module" id="GmediaGallery_' . $id . '" data-gallery="' . $id . '" data-module="' . $gallery['module'] . '">';
-	$out .= $content;
+	$gmGallery->shortcode = compact('module', 'gallery', 'terms', 'gmedia');
 
 	if ( ! ( $is_bot = wp_is_mobile() ) ) {
+		$is_mobile_class = ' is_mobile';
 		$is_bot = $gmCore->is_bot();
 	}
+
+	$out = '<div class="gmedia_gallery ' . $gallery['module'] . '_module'.($is_bot? ' is_mobile' : '').'" id="GmediaGallery_' . $id . '" data-gallery="' . $id . '" data-module="' . $gallery['module'] . '">';
+	$out .= $content;
 
 	ob_start();
 	include( $module['path'] . '/init.php' );

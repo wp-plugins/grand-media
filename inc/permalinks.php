@@ -8,7 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class gmediaPermalinks {
 
-	private $endpoint;
+	private $endpoint = 'gmedia';
 
 	/**
 	 * __construct function.
@@ -17,14 +17,32 @@ class gmediaPermalinks {
 	 * @return \gmediaPermalinks
 	 */
 	public function __construct() {
-		global $gmGallery;
-		$this->endpoint = ( isset( $gmGallery->options['endpoint'] ) && ( $endpoint = $gmGallery->options['endpoint'] ) ) ? $endpoint : 'gmedia';
-
 		add_filter( 'rewrite_rules_array', array( $this, 'add_rewrite_rules' ) );
 		add_filter( 'query_vars', array( $this, 'add_query_vars' ) );
 		add_action( 'parse_request', array( $this, 'handler' ) );
 
 		add_filter( 'post_thumbnail_html', array( $this, 'gmedia_post_thumbnail' ), 10, 5 );
+	}
+
+	/**
+	 * @param $rules
+	 *
+	 * @return array
+	 */
+	function add_rewrite_rules( $rules ) {
+		global $wp_rewrite, $gmGallery;
+		$this->endpoint = !empty($gmGallery->options['endpoint'])? $gmGallery->options['endpoint'] : 'gmedia';
+
+		$this->add_endpoint();
+
+		$new_rules = array(
+			$this->endpoint . '/(g|s|a|t|k)/(.+?)/?$' => 'index.php?' . $this->endpoint . '=' . $wp_rewrite->preg_index( 2 ) . '&t=' . $wp_rewrite->preg_index( 1 ),
+			'gmedia-app/?$' => 'index.php?gmedia-app=1'
+		);
+
+		$new_rules = $new_rules + $rules;
+
+		return $new_rules;
 	}
 
 	/**
@@ -36,27 +54,6 @@ class gmediaPermalinks {
 	public function add_endpoint() {
 		add_rewrite_endpoint( $this->endpoint, EP_NONE );
 		add_rewrite_endpoint( 'gmedia-app', EP_NONE );
-		//add_rewrite_rule('gmedia(/(gallery|single|album|tag|category))?/(.+?)/?$', 'index.php?gmedia=$matches[3]&type=$matches[2]', 'top');
-	}
-
-	/**
-	 * @param $rules
-	 *
-	 * @return array
-	 */
-	function add_rewrite_rules( $rules ) {
-		global $wp_rewrite;
-
-		$this->add_endpoint();
-
-		$new_rules = array(
-			$this->endpoint . '(/(gallery|single|album|tag|category))?/(.+?)/?$' => 'index.php?gmedia=' . $wp_rewrite->preg_index( 3 ) . '&type=' . ( $wp_rewrite->preg_index( 2 ) ? $wp_rewrite->preg_index( 2 ) : 'gallery' ),
-			'gmedia-app/?$'                                                      => 'index.php?gmedia-app=1'
-		);
-
-		$new_rules = $new_rules + $rules;
-
-		return $new_rules;
 	}
 
 	/**
@@ -69,8 +66,11 @@ class gmediaPermalinks {
 	 * @return array
 	 */
 	public function add_query_vars( $vars ) {
-		$vars[] = 'gmedia';
-		$vars[] = 'type';
+		global $gmGallery;
+		$endpoint = !empty($gmGallery->options['endpoint'])? $gmGallery->options['endpoint'] : 'gmedia';
+
+		$vars[] = $endpoint;
+		$vars[] = 't';
 
 		return $vars;
 	}
@@ -82,18 +82,17 @@ class gmediaPermalinks {
 	 * @return void
 	 */
 	public function handler() {
-		global $wp;
+		global $wp, $gmGallery;
+		$endpoint = !empty($gmGallery->options['endpoint'])? $gmGallery->options['endpoint'] : 'gmedia';
 
-		if ( isset( $_GET['gmedia'] ) && ! empty( $_GET['gmedia'] ) ) {
-			$wp->query_vars['gmedia'] = $_GET['gmedia'];
+		if ( isset( $_GET[$endpoint] ) && ! empty( $_GET[$endpoint] ) ) {
+			$wp->query_vars[$endpoint] = $_GET[$endpoint];
 		}
+		if ( isset( $wp->query_vars[$endpoint] ) && ! empty( $wp->query_vars[$endpoint] ) ) {
 
-		if ( isset( $_GET['type'] ) && ! empty( $_GET['type'] ) ) {
-			$wp->query_vars['type'] = $_GET['type'];
-		}
-
-		if ( isset( $wp->query_vars['gmedia'] ) && ! empty( $wp->query_vars['gmedia'] ) ) {
-
+			if ( isset( $_GET['t'] ) && ! empty( $_GET['t'] ) ) {
+				$wp->query_vars['t'] = $_GET['t'];
+			}
 			global $wp_query;
 			$wp_query->is_single  = false;
 			$wp_query->is_page    = false;
@@ -101,17 +100,23 @@ class gmediaPermalinks {
 			$wp_query->is_search  = false;
 			$wp_query->is_home    = false;
 
+			/*
 			$template = get_query_template( 'gmedia-gallery' );
 			// Get default slug-name.php
 			if ( ! $template ) {
-				$template = GMEDIA_ABSPATH . "/gallery.php";
+				$template = GMEDIA_ABSPATH . "/load-template.php";
 			}
 
 			load_template( $template, false );
+			*/
+
+			require_once(GMEDIA_ABSPATH . "/load-template.php");
+
 			exit();
 
 		}
 
+		/* Application only template */
 		if ( isset( $_GET['gmedia-app'] ) && ! empty( $_GET['gmedia-app'] ) ) {
 			$wp->query_vars['gmedia-app'] = $_GET['gmedia-app'];
 		}

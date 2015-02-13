@@ -178,7 +178,7 @@ class GmediaProcessor{
 									foreach($selected_items as $item){
 										$gmDB->delete_gmedia_term_relationships($item, 'gmedia_category');
 									}
-									$this->msg[] = sprintf(__('%d items now uncategorized', 'gmLang'), $count);
+									$this->msg[] = sprintf(__('%d item(s) was uncategorized', 'gmLang'), $count);
 								} else{
 									foreach($selected_items as $item){
 										$result = $gmDB->set_gmedia_terms($item, $term, 'gmedia_category', $append = 0);
@@ -191,7 +191,7 @@ class GmediaProcessor{
 									}
 									if(isset($gmGallery->options['taxonomies']['gmedia_category'][$term])){
 										$cat_name = $gmGallery->options['taxonomies']['gmedia_category'][$term];
-										$this->msg[] = sprintf(__("Category `%s` assigned to %d images.", 'gmLang'), esc_html($cat_name), $count);
+										$this->msg[] = sprintf(__("Category `%s` assigned to %d image(s).", 'gmLang'), esc_html($cat_name), $count);
 									} else{
 										$this->error[] = sprintf(__("Category `%s` can't be assigned.", 'gmLang'), $term);
 									}
@@ -218,7 +218,7 @@ class GmediaProcessor{
 									foreach($selected_items as $item){
 										$gmDB->delete_gmedia_term_relationships($item, 'gmedia_album');
 									}
-									$this->msg[] = sprintf(__('%d items updated with "No Album"', 'gmLang'), $count);
+									$this->msg[] = sprintf(__('%d item(s) updated with "No Album"', 'gmLang'), $count);
 								} else{
                                     $term_ids = array();
 									foreach($selected_items as $item){
@@ -248,7 +248,7 @@ class GmediaProcessor{
                                                     }
                                                 }
                                             }
-                                            $this->msg[] = sprintf(__('Album `%s` assigned to %d items', 'gmLang'), esc_html($term->name), count($item_ids));
+                                            $this->msg[] = sprintf(__('Album `%s` assigned to %d item(s)', 'gmLang'), esc_html($term->name), count($item_ids));
                                         }
                                     }
 								}
@@ -279,7 +279,7 @@ class GmediaProcessor{
 										$count--;
 									}
 								}
-								$this->msg[] = sprintf(__('%d tags added to %d items', 'gmLang'), count($term), $count);
+								$this->msg[] = sprintf(__('%d tag(s) added to %d item(s)', 'gmLang'), count($term), $count);
 							}
 						} else{
 							$this->error[] = __('You are not allowed to assign terms', 'gmLang');
@@ -307,7 +307,7 @@ class GmediaProcessor{
 										$count--;
 									}
 								}
-								$this->msg[] = sprintf(__('%d tags deleted from %d items', 'gmLang'), count($term), $count);
+								$this->msg[] = sprintf(__('%d tag(s) deleted from %d item(s)', 'gmLang'), count($term), $count);
 							}
 						} else{
 							$this->error[] = __('You are not allowed to assign terms', 'gmLang');
@@ -363,7 +363,7 @@ class GmediaProcessor{
 										case 'metadata':
 											$metatext = $gmCore->metadata_text($id);
 											if($gmedia['description']){
-												$gmedia['description'] .= "\n\n";
+												$gmedia['description'] .= "\n";
 											}
 											$batch_data['description'] = $gmedia['description'] . $metatext;
 											break;
@@ -399,7 +399,7 @@ class GmediaProcessor{
 									$gmedia_data = array_replace($gmedia, $batch_data);
 									$gmDB->insert_gmedia($gmedia_data);
 								}
-								$this->msg[] = sprintf(__('%d items updated successfuly', 'gmLang'), $count);
+								$this->msg[] = sprintf(__('%d item(s) updated successfuly', 'gmLang'), $count);
 							}
 						} else{
 							$this->error[] = __('You are not allowed to edit media', 'gmLang');
@@ -414,7 +414,7 @@ class GmediaProcessor{
 									$id = (int)$item;
 									$gmDB->update_metadata($meta_type = 'gmedia', $id, $meta_key = '_metadata', $gmDB->generate_gmedia_metadata($id));
 								}
-								$this->msg[] = sprintf(__('%d items updated successfuly', 'gmLang'), $count);
+								$this->msg[] = sprintf(__('%d item(s) updated successfuly', 'gmLang'), $count);
 							}
 						} else{
 							$this->error[] = __('You are not allowed to edit media', 'gmLang');
@@ -478,41 +478,47 @@ class GmediaProcessor{
 					wp_die(__('You are not allowed to be here', 'gmLang'));
 				}
 				$taxonomy = $gmCore->_get('term', 'gmedia_album');
-				if(!empty($this->selected_items)){
-					if('selected' == $gmCore->_get('delete')){
-						check_admin_referer('gmedia_delete');
-						if($gmCore->caps['gmedia_terms_delete']){
+
+				if(($delete = $gmCore->_get('delete'))){
+					check_admin_referer('gmedia_delete');
+					if($gmCore->caps['gmedia_terms_delete']){
+						if('selected' == $gmCore->_get('delete')){
 							$selected_items = $this->selected_items;
-							if(!$gmCore->caps['gmedia_delete_others_media']){
-								$selected_items = array();
-								if('gmedia_album' == $taxonomy){
-									$selected_items = $gmDB->get_terms($taxonomy, array('fields' => 'ids', 'global' => $user_ID, 'include' => $this->selected_items));
-								}
-								if(count($selected_items) < count($this->selected_items)){
-									$this->error[] = __('You are not allowed to delete others media', 'gmLang');
-								}
-							}
-							if(($count = count($selected_items))){
-								;
-								foreach($selected_items as $item){
-									$delete = $gmDB->delete_term($item, $taxonomy);
-									if(is_wp_error($delete)){
-										$this->error[] = $delete->get_error_message();
-										$count--;
-									}
-								}
-								if($count){
-									$this->msg[] = sprintf(__('%d items deleted successfuly', 'gmLang'), $count);
-								}
-								setcookie("gmuser_{$user_ID}_{$taxonomy}", '', time() - 3600);
-								unset($_COOKIE["gmuser_{$user_ID}_{$taxonomy}"]);
-								$this->selected_items = array();
-							}
 						} else{
-							$this->error[] = __('You are not allowed to delete terms', 'gmLang');
+							$selected_items = wp_parse_id_list($delete);
 						}
+						if(!$gmCore->caps['gmedia_delete_others_media']){
+							$_selected_items = array();
+							if('gmedia_album' == $taxonomy){
+								$_selected_items = $gmDB->get_terms($taxonomy, array('fields' => 'ids', 'global' => $user_ID, 'include' => $selected_items));
+							}
+							if(count($_selected_items) < count($selected_items)){
+								$this->error[] = __('You are not allowed to delete others media', 'gmLang');
+							}
+							$selected_items = $_selected_items;
+						}
+						if(($count = count($selected_items))){
+							foreach($selected_items as $item){
+								$delete = $gmDB->delete_term($item, $taxonomy);
+								if(!$delete){
+									$count--;
+								} elseif(is_wp_error($delete)){
+									$this->error[] = $delete->get_error_message();
+									$count--;
+								}
+							}
+							if($count){
+								$this->msg[] = sprintf(__('%d item(s) deleted successfuly', 'gmLang'), $count);
+							}
+							setcookie("gmuser_{$user_ID}_{$taxonomy}", '', time() - 3600);
+							unset($_COOKIE["gmuser_{$user_ID}_{$taxonomy}"]);
+							$this->selected_items = array();
+						}
+					} else{
+						$this->error[] = __('You are not allowed to delete terms', 'gmLang');
 					}
 				}
+
 				if(isset($_POST['gmedia_album_save'])){
 					check_admin_referer('GmediaTerms', 'term_save_wpnonce');
 					$edit_term = (int)$gmCore->_get('edit_album');
@@ -805,32 +811,34 @@ class GmediaProcessor{
 					} while(0);
 				}
 
-				if(!empty($this->selected_items)){
-					if('selected' == $gmCore->_get('delete')){
-						check_admin_referer('gmedia_delete');
-						$taxonomy = 'gmedia_gallery';
-						$count = count($this->selected_items);
-						foreach($this->selected_items as $item){
-							if(!$gmCore->caps['gmedia_delete_others_media']){
-								$gallery = $gmDB->get_term($item, $taxonomy);
-								if(is_wp_error($gallery) || empty($gallery)){
-									$this->error[] = sprintf(__('Error while delete gallery #%d', 'gmLang'), $item);
-									$count--;
-									continue;
-								} elseif($gallery->global != $user_ID){
-									$this->error['others_gallery_delete'] = __('You are not allowed to delete others media', 'gmLang');
-									$count--;
-									continue;
-								}
-							}
+				if(($delete = $gmCore->_get('delete'))){
+					check_admin_referer('gmedia_delete');
+					$taxonomy = 'gmedia_gallery';
+					if('selected' == $delete){
+						$selected_items = $this->selected_items;
+					} else{
+						$selected_items = wp_parse_id_list($delete);
+					}
+					if(!$gmCore->caps['gmedia_delete_others_media']){
+						$_selected_items = $gmDB->get_terms($taxonomy, array('fields' => 'ids', 'global' => $user_ID, 'include' => $selected_items));
+						if(count($_selected_items) < count($selected_items)){
+							$this->error[] = __('You are not allowed to delete others media', 'gmLang');
+						}
+						$selected_items = $_selected_items;
+					}
+					if(($count = count($selected_items))){
+						foreach($selected_items as $item){
 							$delete = $gmDB->delete_term($item, $taxonomy);
-							if(is_wp_error($delete)){
+							if(!$delete){
+								$this->error[] = sprintf(__('Error while delete gallery #%d', 'gmLang'), $item);
+								$count--;
+							} elseif(is_wp_error($delete)){
 								$this->error[] = $delete->get_error_message();
 								$count--;
 							}
 						}
 						if($count){
-							$this->msg[] = sprintf(__('%d items deleted successfuly', 'gmLang'), $count);
+							$this->msg[] = sprintf(__('%d item(s) deleted successfuly', 'gmLang'), $count);
 						}
 						setcookie("gmuser_{$user_ID}_{$taxonomy}", '', time() - 3600);
 						unset($_COOKIE["gmuser_{$user_ID}_{$taxonomy}"]);
@@ -906,6 +914,7 @@ class GmediaProcessor{
 					check_admin_referer('GmediaSettings');
 
 					$set = $gmCore->_post('set', array());
+
 					if(!empty($set['license_key']) && empty($set['license_key2'])){
 						$lk_check = true;
 					}
@@ -915,6 +924,15 @@ class GmediaProcessor{
 						$set['license_key2'] = '';
 						$this->error[] = __('License Key deactivated', 'gmLang');
 					}
+
+					$flush_rewrite_rules = false;
+					if(empty($set['endpoint'])){
+						$set['endpoint'] = 'gmedia';
+					}
+					if($set['endpoint'] !== $gmGallery->options['endpoint']){
+						$flush_rewrite_rules = true;
+					}
+
 					foreach($set as $key => $val){
 						$gmGallery->options[$key] = $val;
 					}
@@ -972,6 +990,12 @@ class GmediaProcessor{
 					}
 
 					update_option('gmediaOptions', $gmGallery->options);
+					if(isset($_POST['GmediaHashID_salt'])){
+						update_option('GmediaHashID_salt', (string) $_POST['GmediaHashID_salt']);
+					}
+					if($flush_rewrite_rules){
+						flush_rewrite_rules(false);
+					}
 					$this->msg[] .= __('Settings saved', 'gmLang');
 				}
 

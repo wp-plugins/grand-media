@@ -414,13 +414,13 @@ function gmedia_add_media_galleries() {
 					divFrame();
 				});
 				$('.gmedia-insert-item').on('click', function () {
-					if ($(this).hasClass('active')) {
-						$(this).removeClass('active');
+					if ($(this).hasClass('active-row')) {
+						$(this).removeClass('active-row');
 						$('#media-upload-form-container').empty();
 						$('#media-upload-form-submit').prop('disabled', true);
 						return;
 					}
-					$(this).addClass('active').siblings().removeClass('active');
+					$(this).addClass('active-row').siblings().removeClass('active-row');
 					var info = $(this).clone();
 					info.find('.media-caption').remove().end().find('.hidden').removeClass('hidden');
 					$('#media-upload-form-container').html(info.html());
@@ -621,12 +621,12 @@ function gmedia_add_media_terms() {
 									$termItems = $gmDB->get_gmedias( $args );
 								}
 								?>
-								<div class="list-group-item term-list-item<?php echo $list_row_class; ?>">
+								<div class="list-group-item term-list-item d-row<?php echo $list_row_class; ?>">
 									<div class="row<?php echo $row_class; ?>">
 										<div class="term_id">#<?php echo $item->term_id; ?></div>
 										<div class="col-xs-5 term-label">
 											<div class="no-checkbox">
-												<span><?php echo esc_html( $item_name ); ?></span>
+												<strong class="term_name"><?php echo esc_html( $item_name ); ?></strong>
 												<span class="term_info_author"><?php echo $author_name; ?></span>
 												<span class="badge pull-right"><?php echo $item->count; ?></span>
 											</div>
@@ -754,7 +754,7 @@ function gmedia_add_media_terms() {
 					divFrame();
 				});
 				$('.term-list-item').on('click', function () {
-					$(this).addClass('active').siblings().removeClass('active');
+					$(this).addClass('active-row').siblings().removeClass('active-row');
 					var info = $('.term-info', this).clone();
 					$('#media-upload-form-container').html(info.html());
 					if($('#module_preset').val()) {
@@ -1013,7 +1013,107 @@ function gmedia_add_media_upload() {
 	<div class="panel panel-default">
 	<div class="panel-body" style="top:0">
 	<form class="row" id="gmUpload" name="upload_form" method="POST" accept-charset="utf-8" onsubmit="return false;">
-	<div class="col-md-4" id="uploader_multipart_params">
+		<div class="col-md-8 col-md-push-4" id="pluploadUploader" style="padding: 0;">
+			<p><?php _e( "You browser doesn't have Flash or HTML5 support. Check also if page have no JavaScript errors.", 'gmLang' ); ?></p>
+			<?php
+			$mime_types = get_allowed_mime_types( $user_ID );
+			$type_ext   = array();
+			$filters    = array();
+			foreach ( $mime_types as $ext => $mime ) {
+				$type                = strtok( $mime, '/' );
+				$type_ext[ $type ][] = $ext;
+			}
+			foreach ( $type_ext as $filter => $ext ) {
+				$filters[] = array(
+					'title'      => $filter,
+					'extensions' => str_replace( '|', ',', implode( ',', $ext ) )
+				);
+			}
+			?>
+			<script type="text/javascript">
+				// Convert divs to queue widgets when the DOM is ready
+				jQuery(function ($) {
+					$("#pluploadUploader").plupload({
+						<?php if('auto' != $gm_screen_options['uploader_runtime']){ ?>
+						runtimes: '<?php echo $gm_screen_options['uploader_runtime']; ?>',
+						<?php } ?>
+						url: '<?php echo wp_nonce_url($gmCore->gmedia_url . '/admin/upload.php', 'grandMedia' ); ?>',
+						<?php if(('true' == $gm_screen_options['uploader_urlstream_upload']) && ('html4' != $gm_screen_options['uploader_runtime'])){ ?>
+						urlstream_upload: true,
+						multipart: false,
+						<?php } else{ ?>
+						multipart: true,
+						<?php } ?>
+						multipart_params: {params: ''},
+						<?php if('true' == $gm_screen_options['uploader_chunking'] && ('html4' != $gm_screen_options['uploader_runtime'])){ ?>
+						max_file_size: '2000Mb',
+						chunk_size: 200000<?php //echo min($maxupsize, $gm_screen_options['uploader_chunk_size']*1024*1024); ?>,
+						<?php } else{ ?>
+						max_file_size: <?php echo $maxupsize; ?>,
+						<?php } ?>
+						max_retries: 2,
+						unique_names: false,
+						rename: true,
+						sortable: true,
+						dragdrop: true,
+						views: {
+							list: true,
+							thumbs: true,
+							active: 'thumbs'
+						},
+						filters: <?php echo json_encode($filters); ?>,
+						flash_swf_url: '<?php echo $gmCore->gmedia_url; ?>/assets/plupload/Moxie.swf',
+						silverlight_xap_url: '<?php echo $gmCore->gmedia_url; ?>/assets/plupload/Moxie.xap'
+
+					});
+					var closebtn = '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+					var uploader = $("#pluploadUploader").plupload('getUploader');
+					uploader.bind('StateChanged', function (up) {
+						if (up.state == plupload.STARTED) {
+							up.settings.multipart_params = {params: jQuery('#uploader_multipart_params :input').serialize()};
+						}
+						console.log('[StateChanged]', up.state, up.settings.multipart_params);
+					});
+					uploader.bind('ChunkUploaded', function (up, file, info) {
+						console.log('[ChunkUploaded] File:', file, "Info:", info);
+						var response = $.parseJSON(info.response);
+						if (response && response.error) {
+							up.stop();
+							file.status = plupload.FAILED;
+							$('<div/>').addClass('alert alert-danger alert-dismissable').html(closebtn + '<strong>' + response.id + ':</strong> ' + response.error.message).appendTo('#gmedia-msg-panel');
+							console.log(response.error);
+							up.trigger('QueueChanged StateChanged');
+							up.trigger('UploadProgress', file);
+							up.start();
+						}
+					});
+					uploader.bind('FileUploaded', function (up, file, info) {
+						console.log('[FileUploaded] File:', file, "Info:", info);
+						var response = jQuery.parseJSON(info.response);
+						if (response && response.error) {
+							file.status = plupload.FAILED;
+							$('<div/>').addClass('alert alert-danger alert-dismissable').html(closebtn + '<strong>' + response.id + ':</strong> ' + response.error.message).appendTo('#gmedia-msg-panel');
+							console.log(response.error);
+						}
+					});
+					uploader.bind('UploadProgress', function (up, file) {
+						var percent = uploader.total.percent;
+						$('#total-progress-info .progress-bar').css('width', percent + "%").attr('aria-valuenow', percent);
+					});
+					uploader.bind('Error', function (up, args) {
+						console.log('[Error] ', args);
+						$('<div/>').addClass('alert alert-danger alert-dismissable').html(closebtn + '<strong>' + args.file.name + ':</strong> ' + args.message + ' ' + args.status).appendTo('#gmedia-msg-panel');
+					});
+					uploader.bind('UploadComplete', function (up, files) {
+						console.log('[UploadComplete]', files);
+						$('<div/>').addClass('alert alert-success alert-dismissable').html(closebtn + "<?php echo esc_attr(__('Upload finished', 'gmLang')); ?>").appendTo('#gmedia-msg-panel');
+						$('#total-progress-info .progress-bar').css('width', '0').attr('aria-valuenow', '0');
+					});
+
+				});
+			</script>
+		</div>
+		<div class="col-md-4 col-md-pull-8" id="uploader_multipart_params">
 		<div id="gmedia-msg-panel"></div>
 		<br/>
 		<?php if ( 'false' == $gm_screen_options['uploader_chunking'] || ( 'html4' == $gm_screen_options['uploader_runtime'] ) ) { ?>
@@ -1084,7 +1184,7 @@ function gmedia_add_media_upload() {
 					<?php echo $terms_album; ?>
 				</select>
 			</div>
-			<div class="form-group" style="margin-bottom: 210px;">
+			<div class="form-group">
 				<?php
 				$term_type = 'gmedia_tag';
 				$gm_terms  = $gmDB->get_terms( $term_type, array( 'fields' => 'names' ) );
@@ -1092,6 +1192,7 @@ function gmedia_add_media_upload() {
 				<label><?php _e( 'Add Tags', 'gmLang' ); ?> </label>
 				<input id="combobox_gmedia_tag" name="terms[gmedia_tag]" class="form-control input-sm" value="" placeholder="<?php _e( 'Add Tags...', 'gmLang' ); ?>"/>
 			</div>
+			<div class="addtags-gap">&nbsp;</div>
 		<?php } else { ?>
 			<p><?php _e( 'You are not allowed to assign terms', 'gmLang' ) ?></p>
 		<?php } ?>
@@ -1142,106 +1243,6 @@ function gmedia_add_media_upload() {
 						$('#uploader_urlstream_upload').removeClass('hide');
 					}
 				});
-			});
-		</script>
-	</div>
-	<div class="col-md-8" id="pluploadUploader" style="padding: 0;">
-		<p><?php _e( "You browser doesn't have Flash or HTML5 support. Check also if page have no JavaScript errors.", 'gmLang' ); ?></p>
-		<?php
-		$mime_types = get_allowed_mime_types( $user_ID );
-		$type_ext   = array();
-		$filters    = array();
-		foreach ( $mime_types as $ext => $mime ) {
-			$type                = strtok( $mime, '/' );
-			$type_ext[ $type ][] = $ext;
-		}
-		foreach ( $type_ext as $filter => $ext ) {
-			$filters[] = array(
-				'title'      => $filter,
-				'extensions' => str_replace( '|', ',', implode( ',', $ext ) )
-			);
-		}
-		?>
-		<script type="text/javascript">
-			// Convert divs to queue widgets when the DOM is ready
-			jQuery(function ($) {
-				$("#pluploadUploader").plupload({
-					<?php if('auto' != $gm_screen_options['uploader_runtime']){ ?>
-					runtimes: '<?php echo $gm_screen_options['uploader_runtime']; ?>',
-					<?php } ?>
-					url: '<?php echo wp_nonce_url($gmCore->gmedia_url . '/admin/upload.php', 'grandMedia' ); ?>',
-					<?php if(('true' == $gm_screen_options['uploader_urlstream_upload']) && ('html4' != $gm_screen_options['uploader_runtime'])){ ?>
-					urlstream_upload: true,
-					multipart: false,
-					<?php } else{ ?>
-					multipart: true,
-					<?php } ?>
-					multipart_params: {params: ''},
-					<?php if('true' == $gm_screen_options['uploader_chunking'] && ('html4' != $gm_screen_options['uploader_runtime'])){ ?>
-					max_file_size: '2000Mb',
-					chunk_size: 200000<?php //echo min($maxupsize, $gm_screen_options['uploader_chunk_size']*1024*1024); ?>,
-					<?php } else{ ?>
-					max_file_size: <?php echo $maxupsize; ?>,
-					<?php } ?>
-					max_retries: 2,
-					unique_names: false,
-					rename: true,
-					sortable: true,
-					dragdrop: true,
-					views: {
-						list: true,
-						thumbs: true,
-						active: 'thumbs'
-					},
-					filters: <?php echo json_encode($filters); ?>,
-					flash_swf_url: '<?php echo $gmCore->gmedia_url; ?>/assets/plupload/Moxie.swf',
-					silverlight_xap_url: '<?php echo $gmCore->gmedia_url; ?>/assets/plupload/Moxie.xap'
-
-				});
-				var closebtn = '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
-				var uploader = $("#pluploadUploader").plupload('getUploader');
-				uploader.bind('StateChanged', function (up) {
-					if (up.state == plupload.STARTED) {
-						up.settings.multipart_params = {params: jQuery('#uploader_multipart_params :input').serialize()};
-					}
-					console.log('[StateChanged]', up.state, up.settings.multipart_params);
-				});
-				uploader.bind('ChunkUploaded', function (up, file, info) {
-					console.log('[ChunkUploaded] File:', file, "Info:", info);
-					var response = $.parseJSON(info.response);
-					if (response && response.error) {
-						up.stop();
-						file.status = plupload.FAILED;
-						$('<div/>').addClass('alert alert-danger alert-dismissable').html(closebtn + '<strong>' + response.id + ':</strong> ' + response.error.message).appendTo('#gmedia-msg-panel');
-						console.log(response.error);
-						up.trigger('QueueChanged StateChanged');
-						up.trigger('UploadProgress', file);
-						up.start();
-					}
-				});
-				uploader.bind('FileUploaded', function (up, file, info) {
-					console.log('[FileUploaded] File:', file, "Info:", info);
-					var response = jQuery.parseJSON(info.response);
-					if (response && response.error) {
-						file.status = plupload.FAILED;
-						$('<div/>').addClass('alert alert-danger alert-dismissable').html(closebtn + '<strong>' + response.id + ':</strong> ' + response.error.message).appendTo('#gmedia-msg-panel');
-						console.log(response.error);
-					}
-				});
-				uploader.bind('UploadProgress', function (up, file) {
-					var percent = uploader.total.percent;
-					$('#total-progress-info .progress-bar').css('width', percent + "%").attr('aria-valuenow', percent);
-				});
-				uploader.bind('Error', function (up, args) {
-					console.log('[Error] ', args);
-					$('<div/>').addClass('alert alert-danger alert-dismissable').html(closebtn + '<strong>' + args.file.name + ':</strong> ' + args.message + ' ' + args.status).appendTo('#gmedia-msg-panel');
-				});
-				uploader.bind('UploadComplete', function (up, files) {
-					console.log('[UploadComplete]', files);
-					$('<div/>').addClass('alert alert-success alert-dismissable').html(closebtn + "<?php echo esc_attr(__('Upload finished', 'gmLang')); ?>").appendTo('#gmedia-msg-panel');
-					$('#total-progress-info .progress-bar').css('width', '0').attr('aria-valuenow', '0');
-				});
-
 			});
 		</script>
 	</div>

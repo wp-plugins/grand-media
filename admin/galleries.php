@@ -12,6 +12,7 @@ function gmediaGalleries(){
 	global $user_ID, $gmDB, $gmCore, $gmGallery, $gmProcessor;
 
 	$url = add_query_arg(array('page' => $gmProcessor->page), admin_url('admin.php'));
+	$endpoint = $gmGallery->options['endpoint'];
 
 	/* todo: per_page and order options for gmedia_terms
 	$gm_screen_options = get_user_meta($user_ID, 'gm_screen_options', true);
@@ -159,9 +160,9 @@ function gmediaGalleries(){
 					}
 
 					if($term->global == $user_ID){
-						$allow_edit = true;
+						$allow_edit = $allow_delete = true;
 					} else{
-						$allow_edit = $gmCore->caps['gmedia_edit_others_media'];
+						$allow_edit = $allow_delete = $gmCore->caps['gmedia_edit_others_media'];
 					}
 
 					$is_selected = in_array($term->term_id, $gmProcessor->selected_items)? true : false;
@@ -175,10 +176,10 @@ function gmediaGalleries(){
                         }
                     }
 					?>
-					<div class="list-group-item row d-row<?php echo $list_row_class . ($is_selected? ' active' : ''); ?>" id="list-item-<?php echo $term->term_id; ?>" data-id="<?php echo $term->term_id; ?>" data-type="<?php echo $term_meta['module']; ?>">
+					<div class="list-group-item row d-row<?php echo $list_row_class . ($is_selected? ' active-row' : ''); ?>" id="list-item-<?php echo $term->term_id; ?>" data-id="<?php echo $term->term_id; ?>" data-type="<?php echo $term_meta['module']; ?>">
 						<div class="term_id">#<?php echo $term->term_id; ?></div>
 						<div class="col-xs-7">
-							<label class="cb_media-object" style="width:130px;">
+							<label class="cb_media-object cb_media-object-gallery">
 								<input name="doaction[]" type="checkbox"<?php echo $is_selected? ' checked="checked"' : ''; ?> data-type="<?php echo $term_meta['module']; ?>" class="hidden" value="<?php echo $term->term_id; ?>"/>
 								<?php if(!$broken){ ?>
 									<span class="thumbnail"><img src="<?php echo $module['url'] . '/screenshot.png'; ?>" alt="<?php echo esc_attr($term->name); ?>"/></span>
@@ -187,7 +188,7 @@ function gmediaGalleries(){
 								<?php } ?>
 							</label>
 
-							<div class="media-body" style="margin-left:145px;">
+							<div class="media-info-body" style="margin-left:150px;">
 								<p class="media-title">
 									<?php if($allow_edit){ ?>
 										<a href="<?php echo add_query_arg(array('edit_gallery' => $term->term_id), $url); ?>"><?php echo esc_html($term->name); ?></a>
@@ -209,6 +210,44 @@ function gmediaGalleries(){
 							</div>
 						</div>
 						<div class="col-xs-5">
+							<div class="object-actions gallery-object-actions">
+								<?php
+								/*
+								$filter_icon = '<span class="glyphicon glyphicon-filter"></span>';
+								echo '<a title="' . __('Filter in Gmedia Library', 'gmLang') . '" href="#">'.$filter_icon.'</a>';
+								*/
+
+								$gmedia_hashid = gmedia_hash_id_encode($term->term_id, 'gallery');
+								if(get_option('permalink_structure')){
+									$cloud_link = home_url(urlencode($endpoint) . '/g/' . $gmedia_hashid);
+								} else{
+									$cloud_link = add_query_arg(array("$endpoint" => $gmedia_hashid, 't' => 'g'), home_url('index.php'));
+								}
+								$share_icon = '<span class="glyphicon glyphicon-share"></span>';
+								if ( 'draft' !== $term->status ){
+									echo '<a target="_blank" data-target="#shareModal" data-share="' . $term->term_id . '" class="share-modal" title="' . __('Share', 'gmLang') . '" href="' . $cloud_link . '">'.$share_icon.'</a>';
+								} else{
+									echo "<span class='action-inactive'>$share_icon</span>";
+								}
+
+								$edit_icon = '<span class="glyphicon glyphicon-edit"></span>';
+								if ( $allow_edit ){
+									echo '<a title="' . __('Edit', 'gmLang') . '" href="' . add_query_arg( array( 'edit_gallery' => $term->term_id ), $url ) . '">'.$edit_icon.'</a>';
+								} else{
+									echo "<span class='action-inactive'>$edit_icon</span>";
+								}
+
+								$trash_icon = '<span class="glyphicon glyphicon-trash"></span>';
+								if($allow_delete){
+									echo '<a class="trash-icon" title="' . __('Delete', 'gmLang') . '" href="' . wp_nonce_url(add_query_arg(array(
+											'term' => $taxonomy,
+											'delete' => $term->term_id
+										), $url), 'gmedia_delete') . '" data-confirm="' . __("You are about to permanently delete the selected items.\n\r'Cancel' to stop, 'OK' to delete.", "gmLang") . '">' . $trash_icon . '</a>';
+								} else{
+									echo "<span class='action-inactive'>$trash_icon</span>";
+								}
+								?>
+							</div>
 							<p class="media-meta">
 								<span class="label label-default"><?php _e('Module', 'gmLang'); ?>:</span> <?php echo $term_meta['module']; ?>
 								<br><span class="label label-default"><?php _e('Type', 'gmLang'); ?>:</span> <?php echo $module_info['type']; ?>
@@ -322,6 +361,34 @@ function gmediaGalleries(){
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal"><?php _e('Cancel', 'gmLang'); ?></button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal fade gmedia-modal" id="shareModal" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title"><?php _e('GmediaCloud Page'); ?></h4>
+				</div>
+				<form class="modal-body" method="post" id="shareForm">
+					<div class="form-group">
+						<label><?php _e('Link to page', 'gmLang'); ?></label>
+						<input name="sharelink" type="text" class="form-control sharelink" readonly="readonly" value="" />
+					</div>
+					<div class="form-group">
+						<label><?php _e('Send this link to', 'gmLang'); ?></label>
+						<input name="email" type="email" class="form-control sharetoemail" value="" placeholder="<?php _e('Email', 'gmLang'); ?>" />
+						<textarea name="message" cols="20" rows="3" class="form-control" placeholder="<?php _e('Message (optional)', 'gmLang'); ?>"></textarea>
+					</div>
+					<input type="hidden" name="action" value="gmedia_share_page" />
+					<?php wp_nonce_field( 'share_modal', '_sharenonce' );	?>
+				</form>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary sharebutton" disabled="disabled"><?php _e( 'Send', 'gmLang' ); ?></button>
+					<button type="button" class="btn btn-default" data-dismiss="modal"><?php _e( 'Close', 'gmLang' ); ?></button>
 				</div>
 			</div>
 		</div>
@@ -728,15 +795,16 @@ function gmediaGalleryEdit(){
 			<p><b><?php _e('Last edited:'); ?></b> <?php echo $gallery['edited']; ?></p>
 			<?php if($gallery_id){
 				$params = array();
-				$params['preview'] = ($gallery['module'] != $module_name)? $module_name : false;
+				$params['set_module'] = ($gallery['module'] != $module_name)? $module_name : false;
 				$params['iframe'] = 1;
 				?>
 				<p><b><?php _e('Gallery ID:'); ?></b> #<?php echo $gallery_id; ?></p>
 				<p><b><?php _e('Gallery URL:'); ?></b> <?php
-					$gallery_link_default = home_url('index.php?gmedia=' . $gallery_id);
+					$endpoint = $gmGallery->options['endpoint'];
+					$gmedia_hashid = gmedia_hash_id_encode($gallery_id, 'gallery');
+					$gallery_link_default = add_query_arg(array("$endpoint" => $gmedia_hashid, 't' => 'g'), home_url('index.php'));
 					if(get_option('permalink_structure')){
-						$ep = $gmGallery->options['endpoint'];
-						$gallery_link = home_url($ep . '/' . $gallery_id);
+						$gallery_link = home_url(urlencode($endpoint) . '/g/' . $gmedia_hashid);
 					} else{
 						$gallery_link = $gallery_link_default;
 					} ?>

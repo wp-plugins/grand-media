@@ -399,7 +399,7 @@ flush();
 
 			$album = ( ! isset( $terms['gmedia_album'] ) || empty( $terms['gmedia_album'] ) ) ? false : true;
 			foreach ( $gallery as $gid ) {
-				$flag_gallery = $wpdb->get_row( $wpdb->prepare( "SELECT gid, path, title, galdesc FROM `{$wpdb->prefix}flag_gallery` WHERE gid = %d", $gid ), ARRAY_A );
+				$flag_gallery = $wpdb->get_row( $wpdb->prepare( "SELECT gid, path, title, galdesc FROM {$wpdb->prefix}flag_gallery WHERE gid = %d", $gid ), ARRAY_A );
 				if ( empty( $flag_gallery ) ) {
 					continue;
 				}
@@ -415,7 +415,7 @@ flush();
 
 				echo '<h5 style="margin: 10px 0 5px">' . sprintf( __( 'Import `%s` gallery', 'gmLang' ), $flag_gallery['title'] ) . ":</h5>" . PHP_EOL;
 
-				$flag_pictures = $wpdb->get_results( $wpdb->prepare( "SELECT CONCAT('%s', filename) AS file, description, alttext AS title, link FROM `{$wpdb->prefix}flag_pictures` WHERE galleryid = %d", $path, $flag_gallery['gid'] ), ARRAY_A );
+				$flag_pictures = $wpdb->get_results( $wpdb->prepare( "SELECT CONCAT('%s', filename) AS file, description, alttext AS title, link FROM {$wpdb->prefix}flag_pictures WHERE galleryid = %d", $path, $flag_gallery['gid'] ), ARRAY_A );
 				if ( empty( $flag_pictures ) ) {
 					echo '<pre>' . __( 'gallery contains 0 images', 'gmLang' ) . '</pre>';
 					continue;
@@ -436,7 +436,7 @@ flush();
 
 			$album = ( ! isset( $terms['gmedia_album'] ) || empty( $terms['gmedia_album'] ) ) ? false : true;
 			foreach ( $gallery as $gid ) {
-				$ngg_gallery = $wpdb->get_row( $wpdb->prepare( "SELECT gid, path, title, galdesc FROM `{$wpdb->prefix}ngg_gallery` WHERE gid = %d", $gid ), ARRAY_A );
+				$ngg_gallery = $wpdb->get_row( $wpdb->prepare( "SELECT gid, path, title, galdesc FROM {$wpdb->prefix}ngg_gallery WHERE gid = %d", $gid ), ARRAY_A );
 				if ( empty( $ngg_gallery ) ) {
 					continue;
 				}
@@ -452,7 +452,7 @@ flush();
 
 				echo '<h5 style="margin: 10px 0 5px">' . sprintf( __( 'Import `%s` gallery', 'gmLang' ), $ngg_gallery['title'] ) . ":</h5>" . PHP_EOL;
 
-				$ngg_pictures = $wpdb->get_results( $wpdb->prepare( "SELECT CONCAT('%s', filename) AS file, description, alttext AS title FROM `{$wpdb->prefix}ngg_pictures` WHERE galleryid = %d", $path, $ngg_gallery['gid'] ), ARRAY_A );
+				$ngg_pictures = $wpdb->get_results( $wpdb->prepare( "SELECT CONCAT('%s', filename) AS file, description, alttext AS title FROM {$wpdb->prefix}ngg_pictures WHERE galleryid = %d", $path, $ngg_gallery['gid'] ), ARRAY_A );
 				if ( empty( $ngg_pictures ) ) {
 					echo '<pre>' . __( 'gallery contains 0 images', 'gmLang' ) . '</pre>';
 					continue;

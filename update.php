@@ -228,7 +228,6 @@ window.onload = function() {
 	wp_ob_end_flush_all();
 
 	update_option("gmediaDbVersion", GMEDIA_DBVERSION);
-	update_option("gmediaVersion", GMEDIA_VERSION);
 
 	echo '<p>' . __('GmediaGallery plugin update complete.', 'gmLang') . '</p>';
 
@@ -426,6 +425,11 @@ function gmedia_images_update($files){
 	wp_ob_end_flush_all();
 }
 
+function gmedia_flush_rewrite_rules(){
+	flush_rewrite_rules(false);
+}
+
+
 function gmedia_quite_update(){
 	global $gmCore, $gmGallery;
 	$current_version = get_option('gmediaVersion', null);
@@ -456,10 +460,19 @@ function gmedia_quite_update(){
 			gmedia_capabilities();
 		}
 
+		if(version_compare($current_version, '1.4.4', '<')){
+			if(!get_option('GmediaHashID_salt')){
+				$ustr = wp_generate_password(12, false);
+				add_option('GmediaHashID_salt', $ustr);
+			}
+		}
+
 		$gmCore->delete_folder($gmCore->upload['path'] . '/module/afflux');
 		$gmCore->delete_folder($gmCore->upload['path'] . '/module/jq-mplayer');
 		$gmCore->delete_folder($gmCore->upload['path'] . '/module/minima');
 		$gmCore->delete_folder($gmCore->upload['path'] . '/module/phantom');
 		$gmCore->delete_folder($gmCore->upload['path'] . '/module/wp-videoplayer');
+
+		update_option("gmediaVersion", GMEDIA_VERSION);
 	}
 }
