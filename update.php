@@ -426,7 +426,7 @@ function gmedia_images_update($files){
 }
 
 function gmedia_flush_rewrite_rules(){
-	flush_rewrite_rules(false);
+	flush_rewrite_rules(true);
 }
 
 

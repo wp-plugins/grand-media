@@ -124,6 +124,9 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 = Photobox module =
 * Updated Photobox module. Added option to set thumbs size, fixed problems with portrait images.
 
+= 1.5.1 =
+* Fixed css not loading for modules
+
 = 1.5.0 =
 * Changed permalinks for Gmedia pages
 * Added Templates for Full Page Galleries and Single Template Page
