@@ -674,10 +674,16 @@ function gmedia_ios_app_processor( $action, $data, $filter = true ) {
 				}
 
 				$author_id           = $item->author;
-				$authordata          = get_userdata( $author_id );
-				$display_name        = $authordata->display_name;
-				$first_name          = $authordata->first_name;
-				$last_name           = $authordata->last_name;
+				$authordata   = get_userdata( $author_id );
+				if($authordata){
+					$display_name = $authordata->display_name;
+					$first_name = $authordata->first_name;
+					$last_name = $authordata->last_name;
+				} else{
+					$display_name = __('Deleted User', 'gmLang');
+					$first_name = '';
+					$last_name = '';
+				}
 				$gmedias[ $i ]->user = array( 'id' => $author_id, 'displayname' => $display_name, 'firstname' => $first_name, 'last_name' => $last_name );
 
 				$meta               = $gmDB->get_metadata( 'gmedia', $item->ID );

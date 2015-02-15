@@ -3,7 +3,7 @@
 Plugin Name: Gmedia Gallery
 Plugin URI: http://wordpress.org/extend/plugins/grand-media/
 Description: Gmedia Gallery - powerfull media library plugin for creating beautiful galleries and managing files.
-Version: 1.5.1
+Version: 1.5.3
 Author: Rattus
 Author URI: http://codeasily.com/
 
@@ -39,7 +39,7 @@ if(!class_exists('Gmedia')){
 	 */
 	class Gmedia{
 
-		var $version = '1.5.1';
+		var $version = '1.5.3';
 		var $dbversion = '0.9.6';
 		var $minium_WP = '3.5';
 		var $options = '';
@@ -186,10 +186,10 @@ if(!class_exists('Gmedia')){
 
 			if(null === $current_version){
 				add_option("gmediaVersion", GMEDIA_VERSION);
-				add_action('init', 'gmedia_flush_rewrite_rules');
+				add_action('init', 'gmedia_flush_rewrite_rules', 1000);
 			} elseif(version_compare($current_version, GMEDIA_VERSION, '<')){
 				gmedia_quite_update();
-				add_action('init', 'gmedia_flush_rewrite_rules');
+				add_action('init', 'gmedia_flush_rewrite_rules', 1000);
 			}
 		}
 
@@ -279,13 +279,13 @@ if(!class_exists('Gmedia')){
 		function register_scripts_frontend(){
 			global $gmCore;
 
-			/*
 			wp_register_script('gmedia-global-frontend', $gmCore->gmedia_url . '/assets/gmedia.global.front.js', array('jquery'), '0.9.6');
 			wp_localize_script('gmedia-global-frontend', 'gmediaGlobalVar', array(
+				'ajaxurl' => admin_url('admin-ajax.php'),
+				'uploadPath' => $gmCore->upload['url'],
 				'gmediaKey' => strtolower($this->options['license_key']),
 				'mash' => $this->options['license_key2']
 			));
-			*/
 
 			wp_register_style('mediaelement', $gmCore->gmedia_url . '/assets/mediaelement/mediaelementplayer.min.css', array(), '2.13.0', 'screen');
 			wp_register_script('mediaelement', $gmCore->gmedia_url . '/assets/mediaelement/mediaelement-and-player.min.js', array('jquery'), '2.13.0', true);
@@ -311,13 +311,23 @@ if(!class_exists('Gmedia')){
 
 		function load_scripts(){
 			wp_enqueue_script('jquery');
-			//wp_enqueue_script('gmedia-global-frontend');
+			wp_enqueue_script('gmedia-global-frontend');
 		}
 
 		function load_module_scripts(){
 			$deps = array();
 			foreach($this->do_module as $m => $module){
 				$deps = array_merge($deps, explode(',', $module['info']['dependencies']));
+				$deps = apply_filters('gmedia_module_js_dependencies', $deps, $m);
+				foreach($deps as $handle){
+					if(wp_script_is($handle, 'registered')){
+						wp_enqueue_script($handle, $_src = false, $_deps = array('jquery'), $_ver = false, $_in_footer = true);
+					}
+					if(wp_style_is($handle, 'registered')) //wp_enqueue_style( $handle );
+					{
+						wp_print_styles($handle);
+					}
+				}
 				$files = glob($module['path'] . '/css/*.css', GLOB_NOSORT);
 				if(!empty($files)){
 					$files = array_map('basename', $files);
@@ -331,16 +341,6 @@ if(!class_exists('Gmedia')){
 					foreach($files as $file){
 						wp_enqueue_script($file, "{$module['url']}/js/{$file}", array('jquery'), false, true);
 					}
-				}
-			}
-			$deps = apply_filters('gmedia_module_js_dependencies', $deps);
-			foreach($deps as $handle){
-				if(wp_script_is($handle, 'registered')){
-					wp_enqueue_script($handle, $_src = false, $_deps = array('jquery'), $_ver = false, $_in_footer = true);
-				}
-				if(wp_style_is($handle, 'registered')) //wp_enqueue_style( $handle );
-				{
-					wp_print_styles($handle);
 				}
 			}
 			$this->do_module = array();

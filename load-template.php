@@ -10,7 +10,7 @@ if(!defined('ABSPATH')){
  * @var $wp_query
  */
 
-global $gmedia, $gmedia_id, $gmedia_type, $gmedia_module;
+global $gmedia, $gmedia_id, $gmedia_type, $gmedia_module, $gmedia_shortcode_content;
 
 $gmedia_hashid = urldecode($wp->query_vars[$endpoint]);
 if(!isset($wp->query_vars['t'])){

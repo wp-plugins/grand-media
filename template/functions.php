@@ -8,6 +8,7 @@ add_action( 'gmedia_footer', 'wp_print_footer_scripts' );
 
 function gmedia_head(){
 	global $wp_styles, $wp_scripts, $gmCore;
+	global $gmedia_id, $gmedia_type, $gmedia_shortcode_content;
 
 	do_action('wp_enqueue_scripts');
 	if($gmCore->_get('iframe')){
@@ -23,6 +24,8 @@ function gmedia_head(){
 		add_action('gmedia_head', '_wp_admin_bar_init');
 		add_action('gmedia_footer', 'wp_admin_bar_render', 1000);
 	}
+
+	$gmedia_shortcode_content = get_the_gmedia_content($gmedia_id, $gmedia_type);
 
 	do_action('gmedia_head');
 }
@@ -159,9 +162,8 @@ function get_the_gmedia_content($gmedia_id, $gmedia_type){
 }
 
 function the_gmedia_content(){
-	global $gmedia_id, $gmedia_type;
-
-	echo get_the_gmedia_content($gmedia_id, $gmedia_type);
+	global $gmedia_shortcode_content;
+	echo $gmedia_shortcode_content;
 }
 
 function gmedia_default_template_styles(){ ?>
@@ -194,6 +196,12 @@ function gmedia_default_template_styles(){ ?>
 	.gmedia-main-wrapper .gmedia_gallery {
 		width:100%;
 		height:100%;
+		text-align:center;
+	}
+	.gmedia-main-wrapper .gmedia_gallery > div {
+		margin-left:auto;
+		margin-right:auto;
+		text-align:left;
 	}
 	.gmedia-main-wrapper .gmedia_gallery.is_mobile {
 		height:auto;
