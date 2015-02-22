@@ -200,6 +200,7 @@ function gmedia_ios_app_library_data( $data = array( 'site', 'authors', 'filter'
 		}*/
 	}
 	if ( in_array( 'filter', $data ) ) {
+		$gmDB->clauses = array();
 		$out['filter'] = $gmDB->count_gmedia();
 		$out['filter'] = array_map( 'intval', $out['filter'] );
 	}

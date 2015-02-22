@@ -3,7 +3,7 @@
 Plugin Name: Gmedia Gallery
 Plugin URI: http://wordpress.org/extend/plugins/grand-media/
 Description: Gmedia Gallery - powerfull media library plugin for creating beautiful galleries and managing files.
-Version: 1.5.3
+Version: 1.5.4
 Author: Rattus
 Author URI: http://codeasily.com/
 
@@ -39,7 +39,7 @@ if(!class_exists('Gmedia')){
 	 */
 	class Gmedia{
 
-		var $version = '1.5.3';
+		var $version = '1.5.4';
 		var $dbversion = '0.9.6';
 		var $minium_WP = '3.5';
 		var $options = '';
@@ -315,6 +315,7 @@ if(!class_exists('Gmedia')){
 		}
 
 		function load_module_scripts(){
+			global $wp_styles;
 			$deps = array();
 			foreach($this->do_module as $m => $module){
 				$deps = array_merge($deps, explode(',', $module['info']['dependencies']));
@@ -325,14 +326,15 @@ if(!class_exists('Gmedia')){
 					}
 					if(wp_style_is($handle, 'registered')) //wp_enqueue_style( $handle );
 					{
-						wp_print_styles($handle);
+						//wp_print_styles($handle);
+						$this->import_styles[] = $wp_styles->registered[$handle]->src;
 					}
 				}
 				$files = glob($module['path'] . '/css/*.css', GLOB_NOSORT);
 				if(!empty($files)){
 					$files = array_map('basename', $files);
 					foreach($files as $file){
-						$this->import_styles[] = "@import url('{$module['url']}/css/{$file}') all;";
+						$this->import_styles[] = "{$module['url']}/css/{$file}";
 					}
 				}
 				$files = glob($module['path'] . '/js/*.js', GLOB_NOSORT);
@@ -352,8 +354,11 @@ if(!class_exists('Gmedia')){
 
 		function print_import_styles(){
 			if(!empty($this->import_styles)){
-				echo "\n<style type='text/css'>\n";
-				echo implode("\n", $this->import_styles);
+				echo "\n<style type='text/css'>";
+				foreach($this->import_styles as $src){
+					echo "\n@import url('{$src}') all;";
+				}
+				//echo "\n" . implode("\n", $this->inline_styles);
 				echo "\n</style>\n";
 				$this->import_styles = array();
 			}

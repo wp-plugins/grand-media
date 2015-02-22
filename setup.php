@@ -35,7 +35,7 @@ function gmedia_default_options(){
 	$gm['folder']['module'] = 'module';
 
 	$gm['thumb'] = array('width' => 300, 'height' => 300, 'quality' => 70, 'crop' => 0);
-	$gm['image'] = array('width' => 2000, 'height' => 2000, 'quality' => 85, 'crop' => 0);
+	$gm['image'] = array('width' => 2200, 'height' => 2200, 'quality' => 85, 'crop' => 0);
 
 	$gm['modules_xml'] = 'https://dl.dropboxusercontent.com/u/6295502/gmedia_modules/modules_v1.xml';
 	$gm['license_name'] = '';

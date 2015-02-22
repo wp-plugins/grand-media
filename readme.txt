@@ -124,6 +124,10 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 = Photobox module =
 * Updated Photobox module. Added option to set thumbs size, fixed problems with portrait images.
 
+= 1.5.4 =
+* Fixed RealSlider not playing selfhosted video (Update RealSlider to latest version too)
+* Small fixes and improvements
+
 = 1.5.3 =
 * Fixed PhotoBox module not working
 * Fixed VideoPlayer module not working
