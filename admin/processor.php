@@ -259,30 +259,43 @@ class GmediaProcessor{
 					}
 					if(isset($_POST['add_tags'])){
 						check_admin_referer('gmedia_modal');
-						if(($term = $gmCore->_post('tag_names')) && $gmCore->caps['gmedia_terms']){
-							if(!$gmCore->caps['gmedia_edit_others_media']){
-								$selected_items = $gmDB->get_gmedias(array('fields' => 'ids', 'author' => $user_ID, 'gmedia__in' => $this->selected_items));
-								if(count($selected_items) < count($this->selected_items)){
-									$this->error[] = __('You are not allowed to edit others media', 'gmLang');
+						if(!$gmCore->caps['gmedia_terms']){
+							$this->error[] = __('You are not allowed to assign terms', 'gmLang');
+						} else{
+							$term = $gmCore->_post('tag_names');
+							$iptc_tags = $gmCore->_post('iptc_tags');
+							if($term || $iptc_tags){
+								if(!$gmCore->caps['gmedia_edit_others_media']){
+									$selected_items = $gmDB->get_gmedias(array('fields' => 'ids', 'author' => $user_ID, 'gmedia__in' => $this->selected_items));
+									if(count($selected_items) < count($this->selected_items)){
+										$this->error[] = __('You are not allowed to edit others media', 'gmLang');
+									}
+								} else{
+									$selected_items = $this->selected_items;
+								}
+								$term = explode(',', $term);
+								if(($count = count($selected_items))){
+									foreach($selected_items as $item){
+										$_term = $term;
+										if($iptc_tags){
+											$_metadata = $gmDB->get_metadata('gmedia', $item, '_metadata', true);
+											if(isset($_metadata['image_meta']['keywords']) && is_array($_metadata['image_meta']['keywords'])){
+												$_term = array_merge($_metadata['image_meta']['keywords'], $term);
+											}
+										}
+										$result = $gmDB->set_gmedia_terms($item, $_term, 'gmedia_tag', $append = 1);
+										if(is_wp_error($result)){
+											$this->error[] = $result;
+											$count --;
+										} elseif(!$result){
+											$count --;
+										}
+									}
+									$this->msg[] = sprintf(__('Tags added to %d item(s)', 'gmLang'), count($term), $count);
 								}
 							} else{
-								$selected_items = $this->selected_items;
+								$this->error[] = __('No tags specified', 'gmLang');
 							}
-							$term = explode(',', $term);
-							if(($count = count($selected_items))){
-								foreach($selected_items as $item){
-									$result = $gmDB->set_gmedia_terms($item, $term, 'gmedia_tag', $append = 1);
-									if(is_wp_error($result)){
-										$this->error[] = $result;
-										$count--;
-									} elseif(!$result){
-										$count--;
-									}
-								}
-								$this->msg[] = sprintf(__('%d tag(s) added to %d item(s)', 'gmLang'), count($term), $count);
-							}
-						} else{
-							$this->error[] = __('You are not allowed to assign terms', 'gmLang');
 						}
 					}
 					if(isset($_POST['delete_tags'])){

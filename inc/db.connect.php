@@ -414,10 +414,10 @@ class GmediaDB{
 		if(isset($terms) && is_array($terms) && count($terms)){
 			foreach($terms as $taxonomy => $_terms){
 				$taxonomy = trim($taxonomy);
-				if('gmedia_tag' == $taxonomy){
+				if(('gmedia_tag' == $taxonomy) && !is_array($_terms)){
 					$_terms = explode(',', $_terms);
 				} else{
-					$_terms = array($_terms);
+					$_terms = (array) $_terms;
 				}
 				if(!empty($taxonomy)){
 					$this->set_gmedia_terms($media_ID, $_terms, $taxonomy, $append = 0);
@@ -605,7 +605,7 @@ class GmediaDB{
 			$metadata['file'] = $this->_gm_relative_upload_path($fileinfo['filepath']);
 
 			// fetch additional metadata from exif/iptc
-			$image_meta = wp_read_image_metadata($fileinfo['filepath_original']);
+			$image_meta = $gmCore->wp_read_image_metadata($fileinfo['filepath_original']);
 			if($image_meta){
 				$metadata['image_meta'] = $image_meta;
 			}

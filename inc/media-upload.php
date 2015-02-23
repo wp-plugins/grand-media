@@ -1231,6 +1231,7 @@ function gmedia_add_media_upload() {
 					options: items,
 					labelField: 'item',
 					valueField: 'item',
+					searchField: ['item'],
 					hideSelected: true
 				});
 				<?php } ?>

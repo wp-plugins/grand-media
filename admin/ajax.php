@@ -511,8 +511,10 @@ function gmedia_get_modal() {
 			$modal_button = false;
 			break;
 	}
+
+	$form_action = !empty($_SERVER['HTTP_REFERER'])? $gmCore->get_admin_url(array(),array(), $_SERVER['HTTP_REFERER']) : '';
 	?>
-	<form class="modal-content" id="ajax-modal-form" autocomplete="off" method="post">
+	<form class="modal-content" id="ajax-modal-form" autocomplete="off" method="post" action="<?php echo $form_action; ?>">
 	<div class="modal-header">
 		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 		<h4 class="modal-title"><?php echo $modal_title; ?></h4>
@@ -788,7 +790,11 @@ function gmedia_get_modal() {
 	if (count( $gm_terms )){
 	?>
 		<div class="form-group">
-			<input id="combobox_gmedia_tag" name="tag_names" class="form-control input-sm" value="" placeholder="<?php _e( 'Add Tags...', 'gmLang' ); ?>"/></div>
+			<input id="combobox_gmedia_tag" name="tag_names" class="form-control input-sm" value="" placeholder="<?php _e( 'Add Tags...', 'gmLang' ); ?>"/>
+		</div>
+		<div class="checkbox">
+			<label><input type="checkbox" name="iptc_tags" value="1"> <?php _e('Import IPTC Keywords from selected images to Tags'); ?></label>
+		</div>
 		<script type="text/javascript">
 			jQuery(function ($) {
 				var gm_terms = <?php echo json_encode($gm_terms); ?>;
@@ -834,19 +840,21 @@ function gmedia_get_modal() {
 	}
 	break;
 	case 'delete_tags':
-	global $gmProcessor;
-	if ( ! empty( $gmProcessor->selected_items ) ) {
-		$gm_terms = $gmDB->get_gmedia_terms( $gmProcessor->selected_items, 'gmedia_tag' );
+	// get selected items in Gmedia Library
+	$ckey = "gmuser_{$user_ID}_library";
+	$selected_items = array_filter(explode(',', $_COOKIE[$ckey]), 'is_numeric');
+	if ( ! empty( $selected_items ) ) {
+		$gm_terms = $gmDB->get_gmedia_terms( $selected_items, 'gmedia_tag' );
 	}
 	if (count( $gm_terms )){
-	foreach ($gm_terms as $term){
-	?>
-		<div class="checkbox">
-			<label><input type="checkbox" name="tag_id[]" value="<?php echo $term->term_id; ?>"> <?php echo esc_html( $term->name ); ?></label>
-			<span class="badge pull-right"><?php echo $term->count; ?></span>
-		</div>
-	<?php
-	}
+		foreach ($gm_terms as $term){
+		?>
+			<div class="checkbox">
+				<label><input type="checkbox" name="tag_id[]" value="<?php echo $term->term_id; ?>"> <?php echo esc_html( $term->name ); ?></label>
+				<span class="badge pull-right"><?php echo $term->count; ?></span>
+			</div>
+		<?php
+		}
 	} else {
 		$modal_button = false; ?>
 		<p class="notags"><?php _e( 'No tags', 'gmLang' ); ?></p>
@@ -900,7 +908,7 @@ function gmedia_get_modal() {
 			<label><?php _e( 'Description', 'gmLang' ); ?></label>
 			<select class="form-control input-sm batch_set" name="batch_description">
 				<option value=""><?php _e( 'Skip. Do not change', 'gmLang' ); ?></option>
-				<option value="metadata"><?php _e( 'Add MetaData to Description', 'gmLang' ); ?></option>
+				<option value="metadata"><?php _e( 'Add MetaInfo to Description', 'gmLang' ); ?></option>
 				<option value="empty"><?php _e( 'Empty Description', 'gmLang' ); ?></option>
 				<option value="custom"><?php _e( 'Custom', 'gmLang' ); ?></option>
 			</select>
@@ -1225,6 +1233,7 @@ function gmedia_import_modal() {
 							options: items,
 							labelField: 'item',
 							valueField: 'item',
+							searchField: ['item'],
 							hideSelected: true
 						});
 						<?php } ?>

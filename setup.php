@@ -34,7 +34,7 @@ function gmedia_default_options(){
 	$gm['folder']['application'] = 'application';
 	$gm['folder']['module'] = 'module';
 
-	$gm['thumb'] = array('width' => 300, 'height' => 300, 'quality' => 70, 'crop' => 0);
+	$gm['thumb'] = array('width' => 300, 'height' => 300, 'quality' => 80, 'crop' => 0);
 	$gm['image'] = array('width' => 2200, 'height' => 2200, 'quality' => 85, 'crop' => 0);
 
 	$gm['modules_xml'] = 'https://dl.dropboxusercontent.com/u/6295502/gmedia_modules/modules_v1.xml';

@@ -209,7 +209,8 @@ jQuery(function($){
 					$('.modal-dialog', modal_div).html(data);
 					modal_div.modal({
 						backdrop: 'static',
-						show: true
+						show: true,
+						keyboard: false
 					}).on('hidden.bs.modal', function(e){
 						$('.modal-dialog', this).empty();
 					});
@@ -232,7 +233,8 @@ jQuery(function($){
 				);
 				modal_div.modal({
 					backdrop: true,
-					show: true
+					show: true,
+					keyboard: false
 				}).on('hidden.bs.modal', function(e){
 					$('.modal-content', this).empty();
 				});
@@ -309,7 +311,8 @@ jQuery(function($){
 
 				modal_div.modal({
 					backdrop: false,
-					show: true
+					show: true,
+					keyboard: false
 				}).on('shown.bs.modal', function(){
 					$('input.sharelink', this).focus();
 				}).on('hidden.bs.modal', function(){
@@ -350,7 +353,8 @@ jQuery(function($){
 				$('#import-action').val($(this).attr('name'));
 				$('#importModal').modal({
 					backdrop: 'static',
-					show: true
+					show: true,
+					keyboard: false
 				}).on('shown.bs.modal',function(){
 					$('#import_form').submit();
 				}).on('hidden.bs.modal', function(){

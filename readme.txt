@@ -3,7 +3,7 @@ Contributors: Rattus
 Donate link: http://codeasily.com/donate/
 Tags: gallery, image, images, library, music, video, slideshow, responsive, admin, Post, posts, easy gallery, iphone gallery, best gallery, portfolio, image gallery, photo gallery, photo, slider, header slider, admin, page, relative image, gallery slider, iOS app
 Requires at least: 3.5
-Tested up to: 4.1.0
+Tested up to: 4.1.1
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -123,6 +123,13 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 
 = Photobox module =
 * Updated Photobox module. Added option to set thumbs size, fixed problems with portrait images.
+
+= 1.5.5 =
+* Added Import IPTC Keywords to image tags
+* Fixed deleting tags from selected items in Gmedia Library
+* Fixed tags search while typing in combobox
+* Modals with forms inside now not closing on keyboard Esc
+* Small fixes and improvements
 
 = 1.5.4 =
 * Fixed RealSlider not playing selfhosted video (Update RealSlider to latest version too)
@@ -440,6 +447,12 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 * First public release
 
 == Upgrade Notice ==
+
+= 1.5.5 =
+If you want to import IPTC Keywords to Tags for already uploaded images, you need:
+  1) Select images with IPTC Keywords in Gmedia Library
+  2) In Action menu choose "Update Metadata in Database"
+  3) In Action menu choose "Add Tags.." -> check "Import IPTC Keywords from selected images to Tags" -> click "Add Tags" button
 
 = 0.9.6 =
 Backup before updating.
