@@ -124,6 +124,13 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 = Photobox module =
 * Updated Photobox module. Added option to set thumbs size, fixed problems with portrait images.
 
+= 1.5.6 =
+* Added Settings option to change module for GmediaCloud Page
+* Added Settings option to add analytics code for GmediaCloud Page
+* Added Social Share buttons to GmediaCloud Page
+* Fixed: iOS application loads images without status
+* Small fixes and improvements
+
 = 1.5.5 =
 * Added Import IPTC Keywords to image tags
 * Fixed deleting tags from selected items in Gmedia Library
@@ -365,86 +372,6 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 * More intuitive interface
 * Backup before updating. After update plugin go to Manage Modules page and update modules to latest versions. Then check your galleries.
 
-= 0.9.4 =
-* Security fix for jplayer library
-* Updated css for Wordpress 3.8
-* Changed Music Player CSS classes for compatibility with some themes
-
-= 0.9.3 =
-* Fix for modern themes compatibility (Music player not worked)
-* Updated Phantom Module css compatibility with some themes
-
-= 0.9.2 =
-* Fixed js scripts for modules not loading
-
-= 0.9.1 =
-* Fixed Music Player on FireFox
-* Moved all javascript libraries in 'assets' folder
-* Fixed Add Images on Post page
-* Other small fixes and improvements
-
-= 0.9.0 =
-* Added new Minima Gallery Module
-* Added button for upload images right from the post page
-* Added quick button for creating gallery
-* Fixed wrong module name in metabox
-* Fixed unzip module error handler
-* Added loading new modules info via cURL
-* Other fixes and improvements
-
-= 0.8.6 =
-* Improved Messages fixed at top if window scroll
-* Improved Key saved on Activation
-* Fixed hitcounter for flash modules
-* Fixed Afflux Module js error
-
-= 0.8.5 =
-* New Slider Module available for install
-* Added compatibility with Slider Module
-* Fixed deprecated js properties in ui-tabs
-* Fixed module settings reset now skip query builder
-
-= 0.8.4 =
-* Added FancyBox script for future modules
-* Fixed images with extension in uppercase not working
-* Fixed slashes in title and description
-* Fixed checkbox settings not worked in module
-* Fixed delete old module before install new version
-
-= 0.8.3 =
-* Added Music Player
-* Added jplayer sources
-* Added link field to audio items
-* Fixed update module button not worked
-* Added handle errors when installing skins
-
-= 0.8.2 =
-* Added compatibility with future modules
-* Updated Afflux Module and other gallery modules
-
-= 0.8.1 =
-* Fix for 30 images limit
-
-= 0.8.0 =
-* A Lot of Fixes and improvements
-* Added Link to Images
-* Added Related Images on Post Edit page
-
-= 0.7.0 =
-* Fixes and improvements
-* Added Import feature from different sources
-* Fixed Phantom Module (update to latest version, please)
-
-= 0.6.3 =
-* Fixes and improvements
-* Added Error Handler to File Uploader
-
-= 0.6.2 =
-* Fixes and improvements
-* Added new gallery module
-
-= 0.6.0 =
-* First public release
 
 == Upgrade Notice ==
 

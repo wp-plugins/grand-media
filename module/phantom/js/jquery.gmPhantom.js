@@ -1,11 +1,11 @@
 /*
  * Title                   : gmPhantom
- * Version                 : 2.2
+ * Version                 : 2.3
  * Copyright               : 2013 CodEasily.com
  * Website                 : http://www.codeasily.com
  */
 if(typeof jQuery.fn.gmPhantom == 'undefined'){
-	(function($, window, document, undefined){
+	(function($, window, document){
 		$.fn.gmPhantom = function(method){
 			var Container = this,
 				ID = '',
@@ -489,8 +489,8 @@ if(typeof jQuery.fn.gmPhantom == 'undefined'){
 						return width;
 					},
 					initLightbox: function(){// Init Lightbox
-						startGalleryID = prototypes.$_GET('gmedia_gallery_id') === undefined? 0 : parseInt(prototypes.$_GET('gmedia_gallery_id'));
-						startWith = prototypes.$_GET('gmedia_gallery_share') !== undefined && startGalleryID == ID? prototypes.$_GET('gmedia_gallery_share') : 0;
+						startGalleryID = prototypes.$_GET('gmedia_gallery_id')? parseInt(prototypes.$_GET('gmedia_gallery_id')) : 0;
+						startWith = (prototypes.$_GET('gmedia_gallery_share') && (startGalleryID == ID))? prototypes.$_GET('gmedia_gallery_share') : 0;
 						if(startWith){
 							startWith = IDs.indexOf(startWith);
 						}
@@ -598,7 +598,7 @@ if(typeof jQuery.fn.gmPhantom == 'undefined'){
 						} else{
 							setTimeout(function(){
 								var zoomlevel = 100, dpr = 1;
-								if(window.devicePixelRatio !== undefined){
+								if(typeof(window.devicePixelRatio) !== 'undefined'){
 									dpr = window.devicePixelRatio;
 								}
 								if(window.innerWidth > window.innerHeight){
@@ -907,7 +907,7 @@ if(typeof jQuery.fn.gmPhantom == 'undefined'){
 							$('.gmPhantom_Lightbox img', touchContainer).css({'transform': transform_scale + ' ' + transform_translate, '-webkit-transform': transform_scale + ' ' + transform_translate});
 
 							var zoomlevel = 100, dpr = 1;
-							if(window.devicePixelRatio !== undefined){
+							if(typeof(window.devicePixelRatio) !== 'undefined'){
 								dpr = window.devicePixelRatio;
 							}
 							if(window.innerWidth > window.innerHeight){
@@ -1158,7 +1158,7 @@ if(typeof jQuery.fn.gmPhantom == 'undefined'){
 									twitter: '{{title}} {{url}}'
 								}
 							};
-						if(window.addthis === undefined){
+						if((typeof(window.addthis) === 'undefined') || (typeof(window.addthis.toolbox) === 'undefined')){
 
 							$.getScript('http://s7.addthis.com/js/300/addthis_widget.js')
 								.done(function(){
@@ -1325,7 +1325,7 @@ if(typeof jQuery.fn.gmPhantom == 'undefined'){
 						var url = window.location.href.split('?')[1];
 						if(url){
 							url = url.split('#')[0];
-							var variables = url === undefined? [] : url.split('&'),
+							var variables = (typeof(url) === 'undefined')? [] : url.split('&'),
 								i;
 
 							for(i = 0; i < variables.length; i++){
@@ -1335,13 +1335,13 @@ if(typeof jQuery.fn.gmPhantom == 'undefined'){
 							}
 						}
 
-						return undefined;
+						return false;
 					},
 					doHideBuster: function(item){// Make all parents & current item visible
 						var parent = item.parent(),
 							items = [];
 
-						if(item.prop('tagName') !== undefined && item.prop('tagName').toLowerCase() != 'body'){
+						if(typeof(item.prop('tagName')) !== 'undefined' && item.prop('tagName').toLowerCase() != 'body'){
 							items = prototypes.doHideBuster(parent);
 						}
 

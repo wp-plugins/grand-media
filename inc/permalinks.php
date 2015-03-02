@@ -72,6 +72,8 @@ class gmediaPermalinks {
 		$vars[] = $endpoint;
 		$vars[] = 't';
 
+		$vars[] = 'gmedia-app';
+
 		return $vars;
 	}
 
@@ -79,20 +81,15 @@ class gmediaPermalinks {
 	 * Listen for gmedia requets and show gallery template.
 	 *
 	 * @access public
-	 * @return void
+	 *
+	 * @param $wp - global variable
 	 */
-	public function handler() {
-		global $wp, $gmGallery;
+	public function handler($wp) {
+		global $gmGallery;
 		$endpoint = !empty($gmGallery->options['endpoint'])? $gmGallery->options['endpoint'] : 'gmedia';
 
-		if ( isset( $_GET[$endpoint] ) && ! empty( $_GET[$endpoint] ) ) {
-			$wp->query_vars[$endpoint] = $_GET[$endpoint];
-		}
-		if ( isset( $wp->query_vars[$endpoint] ) && ! empty( $wp->query_vars[$endpoint] ) ) {
+		if ( isset($wp->query_vars[$endpoint]) ) {
 
-			if ( isset( $_GET['t'] ) && ! empty( $_GET['t'] ) ) {
-				$wp->query_vars['t'] = $_GET['t'];
-			}
 			global $wp_query;
 			$wp_query->is_single  = false;
 			$wp_query->is_page    = false;
@@ -117,10 +114,8 @@ class gmediaPermalinks {
 		}
 
 		/* Application only template */
-		if ( isset( $_GET['gmedia-app'] ) && ! empty( $_GET['gmedia-app'] ) ) {
-			$wp->query_vars['gmedia-app'] = $_GET['gmedia-app'];
-		}
-		if ( isset( $wp->query_vars['gmedia-app'] ) && ! empty( $wp->query_vars['gmedia-app'] ) ) {
+		$is_app = (isset($wp->query_vars['gmedia-app']) && !empty($wp->query_vars['gmedia-app']));
+		if ( $is_app ) {
 
 			global $wp_query;
 			$wp_query->is_single  = false;

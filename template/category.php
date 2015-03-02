@@ -11,6 +11,7 @@ get_gmedia_header(); ?>
 	<header>
 		<!-- <div class="site-title"><?php bloginfo('name'); ?></div> -->
 		<div class="gmedia-header-title"><?php the_gmedia_title(); ?></div>
+		<?php gmediacloud_social_sharing();	?>
 	</header>
 	<div class="gmedia-main-wrapper">
 		<?php

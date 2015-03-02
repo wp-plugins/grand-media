@@ -23,6 +23,9 @@ function gmedia_default_options(){
 	$gm['shortcode_raw'] = '0';
 	$gm['endpoint'] = 'gmedia';
 
+	$gm['gmediacloud_module'] = '';
+	$gm['gmediacloud_footer_js'] = '';
+
 	$gm['gmedia_post_types_support'] = '';
 
 	$gm['folder']['image'] = 'image';

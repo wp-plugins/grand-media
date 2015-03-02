@@ -11,7 +11,9 @@
 	<?php if($gmedia->description){ ?>
 		<div class="gmedia-header-description"><?php echo $gmedia->description; ?></div>
 		<span class="gmedia-header-description-button" onclick="jQuery('.gmedia-header-description').toggle()"></span>
-	<?php } ?>
+	<?php }
+	gmediacloud_social_sharing();
+	?>
 </header>
 
 <div class="gmedia-main-wrapper">

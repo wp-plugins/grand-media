@@ -225,6 +225,8 @@ function gmedia_shortcode( $atts, $content = '' ) {
 		$is_bot = $gmCore->is_bot();
 	}
 
+	do_action('pre_gmedia_shortcode');
+
 	$out = '<div class="gmedia_gallery ' . $gallery['module'] . '_module'.($is_bot? ' is_mobile' : '').'" id="GmediaGallery_' . $id . '" data-gallery="' . $id . '" data-module="' . $gallery['module'] . '">';
 	$out .= $content;
 
@@ -238,6 +240,8 @@ function gmedia_shortcode( $atts, $content = '' ) {
 	}
 
 	$out .= '</div>';
+
+	do_action('gmedia_shortcode');
 
 	if ( isset( $_SERVER['HTTP_X_REQUESTED_WITH'] ) && strtolower( $_SERVER['HTTP_X_REQUESTED_WITH'] ) == 'xmlhttprequest' ) {
 		do_action( 'gmedia_footer_scripts' );

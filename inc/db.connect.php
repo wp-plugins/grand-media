@@ -372,6 +372,9 @@ class GmediaDB{
 		if(isset($object['link'])){
 			$object['link'] = esc_url_raw($object['link']);
 		}
+		if(!isset($object['status']) || empty($object['status'])){
+			$object['status'] = 'public';
+		}
 
 		// export array as variables
 		extract($object, EXTR_SKIP);

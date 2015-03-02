@@ -9,7 +9,7 @@ if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])){
  * @return mixed content
  */
 function gmSettings(){
-	global $gmDB, $gmCore, $gmGallery;
+	global $user_ID, $gmDB, $gmCore, $gmGallery;
 
 	?>
 
@@ -30,10 +30,12 @@ function gmSettings(){
 			<div class="tabable tabs-left">
 				<ul class="nav nav-tabs" style="padding:10px 0;">
 					<li class="active"><a href="#gmedia_premium" data-toggle="tab"><?php _e('Premium Settings', 'gmLang'); ?></a></li>
+					<li><a href="#gmedia_settings_other" data-toggle="tab"><?php _e('Other Settings', 'gmLang'); ?></a></li>
 					<?php if(current_user_can('manage_options')){ ?>
-						<li><a href="#gmedia_settings1" data-toggle="tab"><?php _e('Roles/Capabilities Manager', 'gmLang'); ?></a></li><?php } ?>
-					<li><a href="#gmedia_settings2" data-toggle="tab"><?php _e('Other Settings', 'gmLang'); ?></a></li>
-					<li><a href="#gmedia_settings3" data-toggle="tab"><?php _e('System Info', 'gmLang'); ?></a></li>
+						<li><a href="#gmedia_settings_cloud" data-toggle="tab"><?php _e('GmediaCloud Page', 'gmLang'); ?></a></li>
+						<li><a href="#gmedia_settings_roles" data-toggle="tab"><?php _e('Roles/Capabilities Manager', 'gmLang'); ?></a></li>
+					<?php } ?>
+					<li><a href="#gmedia_settings_sysinfo" data-toggle="tab"><?php _e('System Info', 'gmLang'); ?></a></li>
 				</ul>
 				<div class="tab-content" style="padding-top:21px;">
 					<fieldset id="gmedia_premium" class="tab-pane active">
@@ -56,8 +58,148 @@ function gmSettings(){
 							</div>
 						</div>
 					</fieldset>
+
+					<fieldset id="gmedia_settings_other" class="tab-pane">
+						<div class="form-group">
+							<label><?php _e('HashID salt for unique template URL', 'gmLang') ?>:</label>
+							<input type="text" name="GmediaHashID_salt" value="<?php echo get_option('GmediaHashID_salt'); ?>" class="form-control input-sm" />
+
+							<p class="help-block"><?php _e('Changing this string you\'ll change Gmedia template URLs.', 'gmLang'); ?></p>
+						</div>
+						<div class="form-group">
+							<label><?php _e('Permalink Endpoint', 'gmLang') ?>:</label>
+							<input type="text" name="set[endpoint]" value="<?php echo $gmGallery->options['endpoint']; ?>" class="form-control input-sm" />
+
+							<p class="help-block"><?php _e('Changing endpoint you\'ll change Gmedia template URLs.', 'gmLang'); ?></p>
+						</div>
+						<div class="form-group">
+							<label><?php _e('When delete (uninstall) plugin', 'gmLang') ?>:</label>
+							<select name="set[uninstall_dropdata]" class="form-control input-sm">
+								<option value="all" <?php selected($gmGallery->options['uninstall_dropdata'], 'all'); ?>><?php _e('Delete database and all uploaded files', 'gmLang'); ?></option>
+								<option value="db" <?php selected($gmGallery->options['uninstall_dropdata'], 'db'); ?>><?php _e('Delete database only and leave uploaded files', 'gmLang'); ?></option>
+								<option value="none" <?php selected($gmGallery->options['uninstall_dropdata'], 'none'); ?>><?php _e('Do not delete database and uploaded files', 'gmLang'); ?></option>
+							</select>
+						</div>
+						<div class="form-group">
+							<label><?php _e('Forbid other plugins to load their JS and CSS on Gmedia admin pages', 'gmLang') ?>:</label>
+
+							<div class="checkbox" style="margin:0;">
+								<input type="hidden" name="set[isolation_mode]" value="0"/>
+								<label><input type="checkbox" name="set[isolation_mode]" value="1" <?php checked($gmGallery->options['isolation_mode'], '1'); ?> /> <?php _e('Enable Gmedia admin panel Isolation Mode', 'gmLang'); ?></label>
+
+								<p class="help-block"><?php _e('This option could help to avoid JS and CSS conflicts with other plugins in admin panel.', 'gmLang'); ?></p>
+							</div>
+						</div>
+						<div class="form-group">
+							<label><?php _e('Forbid theme to format Gmedia shortcode\'s content', 'gmLang') ?>:</label>
+
+							<div class="checkbox" style="margin:0;">
+								<input type="hidden" name="set[shortcode_raw]" value="0"/>
+								<label><input type="checkbox" name="set[shortcode_raw]" value="1" <?php checked($gmGallery->options['shortcode_raw'], '1'); ?> /> <?php _e('Raw output for Gmedia Shortcode', 'gmLang'); ?></label>
+
+								<p class="help-block"><?php _e('Some themes reformat shortcodes and break it functionality (mostly when you add description to images). Turning this on should solve this problem.', 'gmLang'); ?></p>
+							</div>
+						</div>
+						<?php
+						$allowed_post_types = (array) $gmGallery->options['gmedia_post_types_support'];
+						$args = array(
+							'public' => true,
+							'_builtin' => false
+						);
+						$output = 'objects'; // names or objects, note names is the default
+						$operator = 'and'; // 'and' or 'or'
+						$post_types = get_post_types($args, $output, $operator);
+						if(!empty($post_types)){ ?>
+							<div class="form-group">
+								<label style="margin-bottom:-5px;"><?php _e('Enable Gmedia Library button on custom post types', 'gmLang') ?>:</label>
+								<input type="hidden" name="set[gmedia_post_types_support]" value=""/>
+								<?php
+								foreach($post_types as $post_type){ ?>
+									<div class="checkbox">
+										<label><input type="checkbox" name="set[gmedia_post_types_support][]" value="<?php echo $post_type->name; ?>" <?php if(in_array($post_type->name, $allowed_post_types)){
+												echo 'checked="checked"';
+											}; ?> /> <?php echo $post_type->label . ' (' . $post_type->name . ')'; ?></label>
+									</div>
+								<?php } ?>
+							</div>
+						<?php } ?>
+					</fieldset>
+
 					<?php if(current_user_can('manage_options')){ ?>
-						<fieldset id="gmedia_settings1" class="tab-pane">
+						<fieldset id="gmedia_settings_cloud" class="tab-pane">
+							<?php
+							$modules = array();
+							if ( ( $plugin_modules = glob( GMEDIA_ABSPATH . 'module/*', GLOB_ONLYDIR | GLOB_NOSORT ) ) ) {
+								foreach ( $plugin_modules as $path ) {
+									if ( ! file_exists( $path . '/index.php' ) ) {
+										continue;
+									}
+									$module_info = array();
+									include( $path . '/index.php' );
+									if ( empty( $module_info ) ) {
+										continue;
+									}
+									$mfold             = basename( $path );
+									$modules[ $mfold ] = array(
+										'module_name'  => $mfold,
+										'module_title' => $module_info['title'] . ' v' . $module_info['version'],
+										'module_url'   => $gmCore->gmedia_url . "/module/{$mfold}",
+										'module_path'  => $path
+									);
+								}
+							}
+							if ( ( $upload_modules = glob( $gmCore->upload['path'] . '/' . $gmGallery->options['folder']['module'] . '/*', GLOB_ONLYDIR | GLOB_NOSORT ) ) ) {
+								foreach ( $upload_modules as $path ) {
+									if ( ! file_exists( $path . '/index.php' ) ) {
+										continue;
+									}
+									$module_info = array();
+									include( $path . '/index.php' );
+									if ( empty( $module_info ) ) {
+										continue;
+									}
+									$mfold             = basename( $path );
+									$modules[ $mfold ] = array(
+										'module_name'  => $mfold,
+										'module_title' => $module_info['title'] . ' v' . $module_info['version'],
+										'module_url'   => $gmCore->upload['url'] . "/{$gmGallery->options['folder']['module']}/{$mfold}",
+										'module_path'  => $path
+									);
+								}
+							}
+							?>
+							<div class="form-group">
+								<label><?php _e('Choose module/preset for GmediaCloud Page', 'gmLang') ?>:</label>
+								<select class="form-control input-sm" name="set[gmediacloud_module]">
+									<option value=""><?php _e('Choose module/preset', 'gmLang'); ?></option>
+									<?php foreach ( $modules as $mfold => $module ) {
+										echo '<optgroup label="' . esc_attr($module['module_title']) . '">';
+										$presets = $gmDB->get_terms( 'gmedia_module', array( 'global' => $user_ID, 'status' => $mfold ) );
+										$selected = selected($gmGallery->options['gmediacloud_module'], esc_attr($mfold), false);
+										$option = array();
+										$option['default'] = '<option '.$selected.' value="' . esc_attr($mfold) . '">' . '[' . $mfold . '] ' . __( 'Default Settings' ) . '</option>';
+										foreach ( $presets as $preset ) {
+											$selected = selected($gmGallery->options['gmediacloud_module'], $preset->term_id, false);
+											if ( '[' . $mfold . ']' == $preset->name ) {
+												$option['default'] = '<option '.$selected.' value="' . $preset->term_id . '">' . '[' . $mfold . '] ' . __( 'Default Settings' ) . '</option>';
+											} else {
+												$option[] = '<option '.$selected.' value="' . $preset->term_id . '">' . $preset->name . '</option>';
+											}
+										}
+										echo implode('', $option);
+										echo '</optgroup>';
+									} ?>
+								</select>
+
+								<p class="help-block"><?php _e('by default will be used Phantom module', 'gmLang'); ?></p>
+							</div>
+							<div class="form-group">
+								<label><?php _e('Analitics JS code for GmediaCloud Page', 'gmLang') ?>:</label>
+								<textarea name="set[gmediacloud_footer_js]" rows="4" cols="20" class="form-control input-sm"><?php echo esc_html(stripslashes($gmGallery->options['gmediacloud_footer_js'])); ?></textarea>
+							</div>
+						</fieldset>
+
+						<fieldset id="gmedia_settings_roles" class="tab-pane">
 							<p><?php _e('Select the lowest role which should be able to access the follow capabilities. Gmedia Gallery supports the standard roles from WordPress.', 'gmLang'); ?></p>
 
 							<div class="form-group">
@@ -168,72 +310,8 @@ function gmSettings(){
 
 						</fieldset>
 					<?php } ?>
-					<fieldset id="gmedia_settings2" class="tab-pane">
-						<div class="form-group">
-							<label><?php _e('HashID salt for unique template URL', 'gmLang') ?>:</label>
-							<input type="text" name="GmediaHashID_salt" value="<?php echo get_option('GmediaHashID_salt'); ?>" class="form-control input-sm" />
 
-							<p class="help-block"><?php _e('Changing this string you\'ll change Gmedia template URLs.', 'gmLang'); ?></p>
-						</div>
-						<div class="form-group">
-							<label><?php _e('Permalink Endpoint', 'gmLang') ?>:</label>
-							<input type="text" name="set[endpoint]" value="<?php echo $gmGallery->options['endpoint']; ?>" class="form-control input-sm" />
-
-							<p class="help-block"><?php _e('Changing endpoint you\'ll change Gmedia template URLs.', 'gmLang'); ?></p>
-						</div>
-						<div class="form-group">
-							<label><?php _e('When delete (uninstall) plugin', 'gmLang') ?>:</label>
-							<select name="set[uninstall_dropdata]" class="form-control input-sm">
-								<option value="all" <?php selected($gmGallery->options['uninstall_dropdata'], 'all'); ?>><?php _e('Delete database and all uploaded files', 'gmLang'); ?></option>
-								<option value="db" <?php selected($gmGallery->options['uninstall_dropdata'], 'db'); ?>><?php _e('Delete database only and leave uploaded files', 'gmLang'); ?></option>
-								<option value="none" <?php selected($gmGallery->options['uninstall_dropdata'], 'none'); ?>><?php _e('Do not delete database and uploaded files', 'gmLang'); ?></option>
-							</select>
-						</div>
-						<div class="form-group">
-							<label><?php _e('Forbid other plugins to load their JS and CSS on Gmedia admin pages', 'gmLang') ?>:</label>
-
-							<div class="checkbox" style="margin:0;">
-								<input type="hidden" name="set[isolation_mode]" value="0"/>
-								<label><input type="checkbox" name="set[isolation_mode]" value="1" <?php checked($gmGallery->options['isolation_mode'], '1'); ?> /> <?php _e('Enable Gmedia admin panel Isolation Mode', 'gmLang'); ?></label>
-
-								<p class="help-block"><?php _e('This option could help to avoid JS and CSS conflicts with other plugins in admin panel.', 'gmLang'); ?></p>
-							</div>
-						</div>
-						<div class="form-group">
-							<label><?php _e('Forbid theme to format Gmedia shortcode\'s content', 'gmLang') ?>:</label>
-
-							<div class="checkbox" style="margin:0;">
-								<input type="hidden" name="set[shortcode_raw]" value="0"/>
-								<label><input type="checkbox" name="set[shortcode_raw]" value="1" <?php checked($gmGallery->options['shortcode_raw'], '1'); ?> /> <?php _e('Raw output for Gmedia Shortcode', 'gmLang'); ?></label>
-
-								<p class="help-block"><?php _e('Some themes reformat shortcodes and break it functionality (mostly when you add description to images). Turning this on should solve this problem.', 'gmLang'); ?></p>
-							</div>
-						</div>
-						<?php
-						$allowed_post_types = (array) $gmGallery->options['gmedia_post_types_support'];
-						$args = array(
-							'public' => true,
-							'_builtin' => false
-						);
-						$output = 'objects'; // names or objects, note names is the default
-						$operator = 'and'; // 'and' or 'or'
-						$post_types = get_post_types($args, $output, $operator);
-						if(!empty($post_types)){ ?>
-							<div class="form-group">
-								<label style="margin-bottom:-5px;"><?php _e('Enable Gmedia Library button on custom post types', 'gmLang') ?>:</label>
-								<input type="hidden" name="set[gmedia_post_types_support]" value=""/>
-								<?php
-								foreach($post_types as $post_type){ ?>
-									<div class="checkbox">
-										<label><input type="checkbox" name="set[gmedia_post_types_support][]" value="<?php echo $post_type->name; ?>" <?php if(in_array($post_type->name, $allowed_post_types)){
-												echo 'checked="checked"';
-											}; ?> /> <?php echo $post_type->label . ' (' . $post_type->name . ')'; ?></label>
-									</div>
-								<?php } ?>
-							</div>
-						<?php } ?>
-					</fieldset>
-					<fieldset id="gmedia_settings3" class="tab-pane">
+					<fieldset id="gmedia_settings_sysinfo" class="tab-pane">
 						<?php
 						if((function_exists('memory_get_usage')) && (ini_get('memory_limit'))){
 							$memory_limit = ini_get('memory_limit');
