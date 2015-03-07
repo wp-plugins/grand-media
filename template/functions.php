@@ -255,6 +255,11 @@ function the_gmedia_content(){
 }
 
 function gmediacloud_social_sharing(){
+
+	if(apply_filters('gmediacloud_social_sharing', wp_is_mobile())){
+		return;
+	}
+
 	global $wp, $gmedia_share_img;
 
 	$url =urlencode(home_url(add_query_arg(array(), $wp->request)));
@@ -264,18 +269,19 @@ function gmediacloud_social_sharing(){
 	?>
 	<style>
 		@import url('//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css') all;
-		.gmedia-socialsharebuttons { float:right; margin-right:30px; }
+		.gmedia-socialsharebuttons { float:right; margin-right:30px; margin-top:2px; }
 		.share-btn,
 		.share-btn:visited {
 			display: inline-block;
 			color: #ffffff;
 			border: none;
-			padding: 1px 0;
-			width: 2em;
+			padding: 2px 7px;
+			min-width:2.1em;
 			opacity: 0.9;
 			box-shadow: 0 2px 0 0 rgba(0,0,0,0.2);
 			outline: none;
 			text-align: center;
+			box-sizing: border-box;
 		}
 		.share-btn:hover {
 			color: #eeeeee;
@@ -287,6 +293,7 @@ function gmediacloud_social_sharing(){
 			color: #e2e2e2;
 			outline: none;
 		}
+		.fa span { display:none; }
 		.share-btn.facebook { background: #3B5998; }
 		.share-btn.twitter { background: #55acee; }
 		.share-btn.google-plus { background: #dd4b39; }
@@ -297,27 +304,27 @@ function gmediacloud_social_sharing(){
 	<div class="gmedia-socialsharebuttons">
 		<!-- Facebook -->
 		<a href="http://www.facebook.com/sharer/sharer.php?u=<?php echo $url; ?>&t=<?php echo $title; ?>" target="_blank" class="share-btn facebook">
-			<i class="fa fa-facebook"></i>
+			<i class="fa fa-facebook"><span>Facebook</span></i>
 		</a>
 		<!-- Twitter -->
 		<a href="http://twitter.com/share?url=<?php echo $url; ?>&text=<?php echo $text; ?>" target="_blank" class="share-btn twitter">
-			<i class="fa fa-twitter"></i>
+			<i class="fa fa-twitter"><span>Twitter</span></i>
 		</a>
 		<!-- Google Plus -->
 		<a href="https://plus.google.com/share?url=<?php echo $url; ?>" target="_blank" class="share-btn google-plus">
-			<i class="fa fa-google-plus"></i>
+			<i class="fa fa-google-plus"><span>Google+</span></i>
 		</a>
 		<!-- Pinterest -->
 		<a href="http://pinterest.com/pin/create/button/?url=<?php echo $url; ?>&description=<?php echo $text; ?>&media=<?php echo $image; ?>" target="_blank" class="share-btn pinterest-p">
-			<i class="fa fa-pinterest-p"></i>
+			<i class="fa fa-pinterest-p"><span>Pinterest</span></i>
 		</a>
 		<!-- VK -->
 		<a href="http://vk.com/share.php?url=<?php echo $url; ?>" target="_blank" class="share-btn vk">
-			<i class="fa fa-vk"></i>
+			<i class="fa fa-vk"><span>VK</span></i>
 		</a>
 		<!-- Email -->
 		<a href="mailto:?subject=<?php echo $title; ?>&body=<?php echo $url; ?>" target="_blank" class="share-btn email">
-			<i class="fa fa-envelope"></i>
+			<i class="fa fa-envelope"><span>Email</span></i>
 		</a>
 	</div>
 <?php
@@ -327,9 +334,9 @@ function gmedia_default_template_styles(){ ?>
 	<style type="text/css" media="screen">
 		* { box-sizing:border-box; }
 		body { font-family:"Arial", "Verdana", serif; font-size:13px; }
-		header { position:relative; height:30px; background-color:#0f0f0f; color:#f1f1f1; padding:7px 30px 3px; font-family:"Arial", "Verdana", serif; z-index:10; }
-		.site-title { display:inline-block; font-size:16px; margin-right:30px; vertical-align:bottom; }
-		.gmedia-header-title { display:inline-block; font-size:16px; vertical-align:bottom; }
+		header { position:relative; min-height:30px; background-color:#0f0f0f; color:#f1f1f1; padding:5px 0 3px 30px; font-family:"Arial", "Verdana", serif; z-index:10; }
+		header.has-description { padding-right:30px; }
+		.gmedia-header-title { display:inline-block; font-size:16px; vertical-align:bottom; margin-top:2px; }
 		.gmedia-header-description { position:absolute; top:100%; left:0; right:0; font-size:13px; overflow:visible; background-color:#0f0f0f; padding:10px 30px; border-bottom:1px solid #444444; }
 		.gmedia-header-description { display:none; }
 		.gmedia-header-description-button {
@@ -342,6 +349,33 @@ function gmedia_default_template_styles(){ ?>
 			background-size:contain;
 			cursor:pointer;
 		}
+		.gmedia-menu { float:right; margin:0; padding:0; }
+		.gmedia-menu .gmedia-menu-items { margin-right:30px; float:right; margin-top:2px; }
+		.gmedia-menu .gmedia-menu-items a,
+		.gmedia-menu .gmedia-menu-items a:visited {
+			display: inline-block;
+			color: #ffffff;
+			background: #444444;
+			border: none;
+			padding: 2px 7px;
+			min-width:2.1em;
+			opacity: 0.9;
+			box-shadow: 0 2px 0 0 rgba(0,0,0,0.2);
+			outline: none;
+			text-align: center;
+			box-sizing: border-box;
+			text-decoration:none;
+		}
+		.gmedia-menu .gmedia-menu-items a i span { font-style:normal; }
+		.gmedia-menu .gmedia-menu-items a:hover { color:#eeeeee; }
+		.gmedia-menu .gmedia-menu-items a:active {
+			position: relative;
+			top: 2px;
+			box-shadow: none;
+			color: #e2e2e2;
+			outline: none;
+		}
+
 		.gmedia-main-wrapper {
 			position:absolute;
 			top:30px; left:0; right:0; bottom:0;
@@ -360,6 +394,9 @@ function gmedia_default_template_styles(){ ?>
 			width:100%;
 			height:100%;
 			text-align:center;
+		}
+		body.is_mobile .gmedia-main-wrapper .gmedia_gallery {
+			height:auto;
 		}
 		.gmedia-main-wrapper .gmedia_gallery > div {
 			margin-left:auto;

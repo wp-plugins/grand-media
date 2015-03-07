@@ -6,9 +6,18 @@
 ?>
 
 <header>
-	<!-- <div class="site-title"><?php bloginfo('name'); ?></div> -->
+	<menu class="gmedia-menu">
+		<?php gmediacloud_social_sharing();
+		$home_url = home_url();
+		?>
+		<div class="gmedia-menu-items">
+			<a href="<?php echo $home_url; ?>" class="btn" title="<?php echo esc_attr(get_bloginfo('name')); ?>"><i class="fa fa-home"><span><?php _e('Home', 'gmLang') ?></span></i></a>
+			<?php if(!empty($_SERVER['HTTP_REFERER']) && ($home_url != $_SERVER['HTTP_REFERER'])){
+				echo "<a href='{$_SERVER['HTTP_REFERER']}' class='btn'><i class='fa fa-arrow-left'><span>".__('Go Back', 'gmLang')."</span></i></a>";
+			} ?>
+		</div>
+	</menu>
 	<div class="gmedia-header-title"><?php the_gmedia_title(); ?></div>
-	<?php gmediacloud_social_sharing(); ?>
 </header>
 
 <div class="gmedia-main-wrapper">

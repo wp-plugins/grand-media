@@ -160,13 +160,13 @@ function gmedia_shortcode( $atts, $content = '' ) {
 		return '<div class="gmedia_gallery gmediaShortcodeError">#' . $id . ': ' . sprintf( __( 'Module `%s` is broken. Choose another module for this gallery' ), $gallery['module'] ) . '<br />' . $content . '</div>';
 	}
 
-	$settings = $gmCore->array_diff_keyval_recursive( $module['options'], $gallery['settings'][ $gallery['module'] ], true );
+	$settings = $gmCore->array_diff_keyval_recursive($gallery['settings'][$gallery['module']], $module['options'], false);
 
-	if ( $preset ) {
+	if ( !empty($preset) ) {
 		$preset = $gmDB->get_term( $preset, 'gmedia_module' );
 		if ( ! empty( $preset ) && ! is_wp_error( $preset ) && ( $gallery['module'] == $preset->status ) ) {
 			$presettings = maybe_unserialize( $preset->description );
-			$settings    = $gmCore->array_diff_keyval_recursive( $settings, $presettings, true );
+			$settings    = $gmCore->array_diff_keyval_recursive( $presettings, $settings, false );
 		}
 	}
 

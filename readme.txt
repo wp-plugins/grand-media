@@ -36,6 +36,7 @@ Gmedia Gallery is the result of hundreds of hours of working to bring you the ul
 
 See demo of Gmedia Gallery Modules:
 
+*   [Mosaic Module](http://codeasily.com/portfolio-item/gmedia-mosaic/) is an image gallery with masonry layout built on jQuery. Responsive gallery with built in prettyPhoto lightbox for big images.
 *   [RealSlider Module](http://codeasily.com/portfolio-item/gmedia-realslider/) is an image/video gallery slider module built on jQuery. RealSlider module is responsive and touch friendly gallery with 50+ options for customization.
 *   [Phantom Module](http://codeasily.com/portfolio-item/gmedia-phantom/) is the Wall/Grid Gallery with social sharing - you can easily change thumbnail sizes, colors, navigation, borders, add stylish labels to thumbnails ... and much more. PhotoSwipe like theme on touch devices.. only better.
 *   [PhotoBox Module](http://codeasily.com/portfolio-item/gmedia-photobox/) - a lightweight image gallery which uses only CSS3 for silky-smooth animations and transitions.
@@ -123,6 +124,15 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 
 = Photobox module =
 * Updated Photobox module. Added option to set thumbs size, fixed problems with portrait images.
+
+= 1.5.7 =
+* New Mosaic Gallery Module
+* Fixed javascript error on Gmedia Edit Gallery page
+* Fixed generating json settings for some modules
+* Fixed GmediaCloud json module settings
+* Fixed: iOS application loads images without status
+* Added Home and Back menu buttons to GmediaCloud pages
+* Small fixes and improvements
 
 = 1.5.6 =
 * Added Settings option to change module for GmediaCloud Page

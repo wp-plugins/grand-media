@@ -871,12 +871,15 @@ function gmediaGalleryEdit(){
 			$('[data-watch]', main).each(function(){
 				var el = $(this);
 				gmedia_options_conditional_logic(el, 0);
-				el.on(el.data('watch'), function(){
-					if('change' == el.data('watch')){
-						$(this).blur().focus();
-					}
-					gmedia_options_conditional_logic($(this), 400);
-				});
+				var event = el.attr('data-watch');
+				if(event){
+					el.on(event, function(){
+						if('change' == el.attr('data-watch')){
+							$(this).blur().focus();
+						}
+						gmedia_options_conditional_logic($(this), 400);
+					});
+				}
 			});
 
 			function gmedia_options_conditional_logic(el, slide){
@@ -887,7 +890,7 @@ function gmediaGalleryEdit(){
 						val = '0';
 					}
 					$('[data-' + id + ']', main).each(function(){
-						var key = $(this).data(id);
+						var key = $(this).attr('data-'+id);
 						key = key.split(':');
 						//var hidden = $(this).data('hidden')? parseInt($(this).data('hidden')) : 0;
 						var hidden = $(this).data('hidden')? $(this).data('hidden') : {};
@@ -981,6 +984,7 @@ function gmediaGalleryEdit(){
 				}
 			}
 		});
+
 	</script>
 	</div>
 	<?php

@@ -34,22 +34,6 @@ if(empty($gmedia_id)){
 
 global $user_ID, $gmCore, $gmDB, $gmGallery;
 
-$gmedia_module_preset = '';
-if(empty($gmGallery->options['gmediacloud_module'])){
-	$gmedia_module = 'phantom';
-} else{
-	if($gmCore->is_digit($gmGallery->options['gmediacloud_module'])){
-		$get_preset = $gmDB->get_term( (int) $gmGallery->options['gmediacloud_module'], 'gmedia_module');
-		if(!empty($get_preset) && !is_wp_error($get_preset)){
-			$gmedia_module = $get_preset->status;
-			$gmedia_module_preset = $get_preset->term_id;
-		}
-	} else {
-		$gmedia_module = $gmGallery->options['gmediacloud_module'];
-		$gmedia_module_preset = '';
-	}
-}
-
 switch($gmedia_type){
 	case 'gallery':
 		$gmedia = $gmDB->get_term($gmedia_id, 'gmedia_gallery');
@@ -63,6 +47,20 @@ switch($gmedia_type){
 	case 'tag':
 	case 'category':
 		$gmedia = $gmDB->get_term($gmedia_id, "gmedia_{$gmedia_type}");
+
+		if(empty($gmGallery->options['gmediacloud_module'])){
+			$gmedia_module = 'phantom';
+		} else{
+			if($gmCore->is_digit($gmGallery->options['gmediacloud_module'])){
+				$get_preset = $gmDB->get_term( (int) $gmGallery->options['gmediacloud_module'], 'gmedia_module');
+				if(!empty($get_preset) && !is_wp_error($get_preset)){
+					$gmedia_module = $get_preset->status;
+					$gmedia_module_preset = $get_preset->term_id;
+				}
+			} else {
+				$gmedia_module = $gmGallery->options['gmediacloud_module'];
+			}
+		}
 		break;
 	case 'single':
 		$gmedia = $gmDB->get_gmedia($gmedia_id);

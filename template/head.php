@@ -2,7 +2,7 @@
 <html <?php language_attributes(); ?> class="no-js">
 <head>
 	<meta charset="<?php bloginfo('charset'); ?>">
-	<meta name="viewport" content="width=device-width">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
 	<title><?php gmedia_title('|', true); ?></title>
 	<link rel="profile" href="http://gmpg.org/xfn/11">
 
