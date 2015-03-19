@@ -546,7 +546,7 @@ a.edit_tag_save.btn {
     float: left;
     position: relative;
     margin-right: 5px;
-    margin-bottom: 5px;
+    margin-bottom: 25px;
     max-width: 100%;
     height: auto;
     padding: 4px;
@@ -580,6 +580,22 @@ a.edit_tag_save.btn {
     font-weight: normal;
     line-height: 120%;
     pointer-events: none;
+}
+.gm-img-thumbnail .gm-img-thumb-title {
+    position: absolute;
+    left: 0;
+    top: 100%;
+	font-size:90%;
+    line-height: 120%;
+	width:100%;
+	padding:3px;
+	text-overflow:ellipsis;
+	white-space:nowrap;
+	overflow:hidden;
+	text-align:left;
+}
+.gm-img-thumbnail.ui-sortable-helper .gm-img-thumb-title {
+	visibility:hidden;
 }
 
 .ui-highlight-placeholder {

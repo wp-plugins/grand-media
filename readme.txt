@@ -125,6 +125,16 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 = Photobox module =
 * Updated Photobox module. Added option to set thumbs size, fixed problems with portrait images.
 
+= 1.5.8 =
+* Fixed Upload and Import now works with .htaccess which deny *.php direct access in wp-content folder
+* Improved Album Sorting
+* Added settings for default gmedia sorting in tags and categories (in modules)
+* Added Screen Options for Galleries, Albums, Tags. Now you can sort terms in way you need on admin pages
+* Added option to sort gmedia by filename
+* Added "Views / Likes" (and ratings for audio) meta information to Gmedia Library
+* Added setting to add own CSS to GmediaCloud page
+* Small fixes and improvements
+
 = 1.5.7 =
 * New Mosaic Gallery Module
 * Fixed javascript error on Gmedia Edit Gallery page

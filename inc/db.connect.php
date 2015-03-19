@@ -431,7 +431,7 @@ class GmediaDB{
 		wp_cache_delete($media_ID, 'gmedias');
 		wp_cache_delete($media_ID, 'gmedia_meta');
 
-		$this->clean_gmedia_term_cache($media_ID);
+		$this->clean_object_term_cache($media_ID);
 
 		do_action('clean_gmedia_cache', $media_ID);
 
@@ -468,7 +468,7 @@ class GmediaDB{
 			return $gmedia;
 		}
 
-		//$meta  = $gmDB->get_metadata( 'gmedia', $gmedia->ID, '_metadata', true );
+		//$meta  = $this->get_metadata( 'gmedia', $gmedia->ID, '_metadata', true );
 
 		$this->delete_gmedia_term_relationships($gmedia_id, array('gmedia_album', 'gmedia_tag', 'gmedia_category'));
 
@@ -537,7 +537,7 @@ class GmediaDB{
 
 		wp_cache_delete($gmedia_id, 'gmedias');
 		wp_cache_delete($gmedia_id, 'gmedia_meta');
-		$this->clean_gmedia_term_cache($gmedia_id);
+		$this->clean_object_term_cache($gmedia_id);
 
 		do_action('clean_gmedia_cache', $gmedia_id);
 
@@ -559,7 +559,7 @@ class GmediaDB{
 	 */
 	function delete_gmedia_term_relationships($object_id, $taxonomies){
 		/** @var $wpdb wpdb */
-		global $wpdb, $gmDB;
+		global $wpdb;
 
 		$object_id = (int)$object_id;
 
@@ -568,12 +568,12 @@ class GmediaDB{
 		}
 
 		foreach((array)$taxonomies as $taxonomy){
-			$term_ids = $gmDB->get_gmedia_terms($object_id, $taxonomy, array('fields' => 'ids'));
+			$term_ids = $this->get_gmedia_terms($object_id, $taxonomy, array('fields' => 'ids'));
 			$in_term_ids = "'" . implode("', '", $term_ids) . "'";
 			do_action('delete_gmedia_term_relationships', $object_id, $term_ids);
 			$wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->prefix}gmedia_term_relationships WHERE gmedia_id = %d AND gmedia_term_id IN ($in_term_ids)", $object_id));
 			do_action('deleted_gmedia_term_relationships', $object_id, $term_ids);
-			$gmDB->update_term_count($term_ids, $taxonomy);
+			$this->update_term_count($term_ids, $taxonomy);
 		}
 	}
 
@@ -1514,7 +1514,7 @@ class GmediaDB{
 			$orderby = "{$wpdb->prefix}gmedia.ID " . $q['order'];
 		} else{
 			// Used to filter values TODO make orderby comment count
-			$allowed_keys = array('title', 'author', 'date', 'modified', 'ID', 'rand', 'mime_type', 'gmedia__in');
+			$allowed_keys = array('ID', 'author', 'date', 'title', 'filename', 'gmuid', 'modified', 'mime_type', 'gmedia__in', 'rand');
 			if($album['order'] && !empty($album['alias'])){
 				$allowed_keys[] = 'custom';
 			}
@@ -1550,6 +1550,9 @@ class GmediaDB{
 						} else{
 							$orderby = "{$wpdb->prefix}gmedia.ID";
 						}
+						break;
+					case 'filename':
+						$orderby = "{$wpdb->prefix}gmedia.gmuid";
 						break;
 					case 'custom':
 						$orderby = "{$album['alias']}.gmedia_order {$q['order']}, {$wpdb->prefix}gmedia.ID";
@@ -2316,39 +2319,33 @@ class GmediaDB{
 			return $cache;
 		}
 
-		$_orderby = strtolower($orderby);
-		if('count' == $_orderby){
-			$orderby = 't.count';
-		} else if('name' == $_orderby){
-			$orderby = 't.name';
-		} else if('description' == $_orderby){
-			$orderby = 't.description';
-		} else if('global' == $_orderby){
-			$orderby = 't.global';
-		} else if('global_desc_name' == $_orderby){
-			$orderby = 't.global DESC, t.name';
-		} else if('global_asc_name' == $_orderby){
-			$orderby = 't.global ASC, t.name';
-		} else if('none' == $_orderby){
-			$orderby = '';
-		} elseif(empty($_orderby) || 'id' == $_orderby){
-			$orderby = 't.term_id';
-		} else{
-			$orderby = 't.name';
-		}
-
-		$orderby = apply_filters('gmedia_get_terms_orderby', $orderby, $args);
-
-		if(!empty($orderby)){
-			$orderby = "ORDER BY $orderby";
-		} else{
-			$order = '';
-		}
-
 		$order = strtoupper($order);
 		if('' !== $order && !in_array($order, array('ASC', 'DESC'))){
 			$order = 'ASC';
 		}
+
+		$_orderby = strtolower($orderby);
+		if('count' == $_orderby){
+			$orderby = "ORDER BY t.count $order, t.term_id $order";
+		} else if('name' == $_orderby){
+			$orderby = "ORDER BY t.name $order";
+		} else if('description' == $_orderby){
+			$orderby = "ORDER BY t.description $order, t.term_id $order";
+		} else if('global' == $_orderby){
+			$orderby = "ORDER BY t.global ASC, t.term_id $order";
+		} else if('global_desc_name' == $_orderby){
+			$orderby = "ORDER BY t.global DESC, t.name $order";
+		} else if('global_asc_name' == $_orderby){
+			$orderby = "ORDER BY t.global ASC, t.name $order";
+		} else if('none' == $_orderby){
+			$orderby = '';
+		} elseif(empty($_orderby) || 'id' == $_orderby){
+			$orderby = "ORDER BY t.term_id $order";
+		} else{
+			$orderby = "ORDER BY t.name $order";
+		}
+
+		$orderby = apply_filters('gmedia_get_terms_orderby', $orderby, $args);
 
 		$where_ = "t.taxonomy IN ('" . implode("', '", $taxonomies) . "')";
 		$where = '';
@@ -2445,7 +2442,6 @@ class GmediaDB{
 				break;
 			case 'count':
 				$orderby = '';
-				$order = '';
 				$selects = array('COUNT(*)');
 				break;
 			case 'all':
@@ -2472,7 +2468,7 @@ class GmediaDB{
 		}
 
 		$where_where = $where_ . $where;
-		$query = "SELECT $found_rows $fields FROM {$wpdb->prefix}gmedia_term AS t $join WHERE $where_where $orderby $order $limits";
+		$query = "SELECT $found_rows $fields FROM {$wpdb->prefix}gmedia_term AS t $join WHERE $where_where $orderby $limits";
 
 		$fields = $_fields;
 
@@ -2577,7 +2573,6 @@ class GmediaDB{
 	 *
 	 * @uses apply_filters() Calls 'pre_insert_gmedia_term' hook with term and taxonomy as parameters.
 	 * @uses do_action() Calls 'create_gmedia_term' hook with the term id and taxonomy id as parameters.
-	 * @uses apply_filters() Calls 'gmedia_term_id_filter' hook with term id and taxonomy id as parameters.
 	 * @uses do_action() Calls 'created_gmedia_term' hook with the term id and taxonomy id as parameters.
 	 *
 	 * @param string       $term     The term to add or update.
@@ -2588,7 +2583,7 @@ class GmediaDB{
 	 */
 	function insert_term($term, $taxonomy, $args = array()){
 		/** @var $wpdb wpdb */
-		global $wpdb, $gmDB, $gmGallery, $user_ID;
+		global $wpdb, $gmGallery, $user_ID;
 
 		if(!isset($gmGallery->options['taxonomies'][$taxonomy])){
 			return new WP_Error('gm_invalid_taxonomy', __('Invalid taxonomy'));
@@ -2639,10 +2634,8 @@ class GmediaDB{
 
 		do_action("create_gmedia_term", $term_id, $taxonomy);
 
-		$term_id = apply_filters('gmedia_term_id_filter', $term_id);
-
 		// ? maybe move function to plugin core (refactor!)
-		$gmDB->clean_term_cache($term_id, $taxonomy, false);
+		$this->clean_term_cache($term_id, $taxonomy, false);
 
 		do_action("created_gmedia_term", $term_id, $taxonomy);
 
@@ -2656,26 +2649,9 @@ class GmediaDB{
 	 * Care must be taken to not override important information need to update or
 	 * update will fail (or perhaps create a new term, neither would be acceptable).
 	 *
-	 * Defaults will set 'alias_of', 'description', 'parent', and 'slug' if not
-	 * defined in $args already.
-	 *
-	 * 'alias_of' will create a term group, if it doesn't already exist, and update
-	 * it for the $term.
-	 *
-	 * If the 'slug' argument in $args is missing, then the 'name' in $args will be
-	 * used. It should also be noted that if you set 'slug' and it isn't unique then
-	 * a WP_Error will be passed back. If you don't pass any slug, then a unique one
-	 * will be created for you.
-	 *
-	 * For what can be overrode in $args, check the term scheme can contain and stay
-	 * away from the term keys.
-	 *
-	 *
 	 * @see  wp_update_term()
 	 * @uses $wpdb
-	 * @uses do_action() Will call both 'edit_gmedia_term' and 'edit_$taxonomy' twice.
-	 * @uses apply_filters() Will call the 'gmedia_term_id_filter' filter and pass the term
-	 *       id and taxonomy id.
+	 * @uses do_action() Will call both 'edit_gmedia_term' and 'edit_$taxonomy'.
 	 *
 	 * @param int          $term_id  The ID of the term
 	 * @param string       $taxonomy The context in which to relate the term to the object.
@@ -2685,7 +2661,7 @@ class GmediaDB{
 	 */
 	function update_term($term_id, $taxonomy, $args = array()){
 		/** @var $wpdb wpdb */
-		global $wpdb, $gmDB;
+		global $wpdb;
 
 		$gmOptions = get_option('gmediaOptions');
 		if(!isset($gmOptions['taxonomies'][$taxonomy])){
@@ -2695,7 +2671,7 @@ class GmediaDB{
 		$term_id = (int)$term_id;
 
 		// First, get all of the original args
-		$term = $gmDB->get_term($term_id, $taxonomy, ARRAY_A);
+		$term = $this->get_term($term_id, $taxonomy, ARRAY_A);
 
 		if(is_wp_error($term)){
 			return $term;
@@ -2707,7 +2683,7 @@ class GmediaDB{
 		// Merge old and new args with new args overwriting old ones.
 		$args = array_merge($term, $args);
 
-		$defaults = array('global' => $term['global'], 'name' => $term['name'], 'description' => '', 'status' => 'public', 'orderby' => 'ID', 'order' => 'DESC', 'gmedia_ids' => array());
+		$defaults = array('global' => $term['global'], 'name' => $term['name'], 'description' => '', 'status' => 'public', 'orderby' => 'ID', 'order' => 'DESC');
 		$args = wp_parse_args($args, $defaults);
 
 		/** @var $name
@@ -2716,7 +2692,6 @@ class GmediaDB{
 		 * @var  $order
 		 * @var  $status
 		 * @var  $global
-		 * @var  $gmedia_ids
 		 */
 		extract($args, EXTR_SKIP);
 
@@ -2740,39 +2715,19 @@ class GmediaDB{
         $term_id = $wpdb->get_var($wpdb->prepare("SELECT t.term_id FROM {$wpdb->prefix}gmedia_term AS t WHERE t.taxonomy = %s AND t.term_id = %d", $taxonomy, $term_id));
 		do_action("edit_gmedia_term", $term_id, $taxonomy);
 		$wpdb->update($wpdb->prefix . 'gmedia_term', compact('term_id', 'name', 'taxonomy', 'description', 'global', 'status'), array('term_id' => $term_id));
-		do_action('edited_gmedia_term', $term_id, $taxonomy);
 
-		if(('gmedia_album' == $taxonomy) && (isset($status) || ('custom' == $orderby))){
-			$db_gmedia_ids = $this->get_gmedias(array('no_found_rows' => true, 'album__in' => $term_id, 'orderby' => $orderby, 'order' => 'ASC', 'fields' => 'ids'));
+		if(('gmedia_album' == $taxonomy) && isset($status_global)){
+			$db_gmedia_ids = $this->get_gmedias(array('no_found_rows' => true, 'album__in' => $term_id, 'fields' => 'ids'));
 			if(!empty($db_gmedia_ids)){
-                if(isset($status_global)){
-                    $values = array();
-                    foreach ($db_gmedia_ids as $gmedia_id) {
-                        $values[] = $wpdb->prepare("%d", $gmedia_id);
-                    }
-                    if ($values) {
-                        $status = esc_sql($status);
-                        if (false === $wpdb->query("UPDATE {$wpdb->prefix}gmedia SET status = '{$status}' WHERE ID IN (" . join(',', $values) . ")")) {
-                            return new WP_Error('db_insert_error', __('Could not update statuses for gmedia items in the database'), $wpdb->last_error);
-                        }
-                    }
+                $values = array();
+                foreach ($db_gmedia_ids as $gmedia_id) {
+                    $values[] = $wpdb->prepare("%d", $gmedia_id);
+	                wp_cache_delete($gmedia_id, 'gmedias');
                 }
-                if(('custom' == $orderby) && !empty($gmedia_ids)) {
-                    $db_gmedia_ids = array_flip($db_gmedia_ids);
-                    if ($gmedia_ids != $db_gmedia_ids) {
-                        $final_gmedia_ids = array_intersect_key($gmedia_ids, $db_gmedia_ids) + $db_gmedia_ids;
-                        asort($final_gmedia_ids, SORT_NUMERIC);
-                        $final_gmedia_ids = array_keys($final_gmedia_ids);
-
-                        $values = array();
-                        foreach ($final_gmedia_ids as $gmedia_order => $gmedia_id) {
-                            $values[] = $wpdb->prepare("(%d, %d, %d)", $gmedia_id, $term_id, $gmedia_order);
-                        }
-                        if ($values) {
-                            if (false === $wpdb->query("INSERT INTO {$wpdb->prefix}gmedia_term_relationships (gmedia_id, gmedia_term_id, gmedia_order) VALUES " . join(',', $values) . " ON DUPLICATE KEY UPDATE gmedia_order = VALUES(gmedia_order)")) {
-                                return new WP_Error('db_insert_error', __('Could not insert gmedia term relationship into the database'), $wpdb->last_error);
-                            }
-                        }
+                if ($values) {
+                    $status = esc_sql($status);
+                    if (false === $wpdb->query("UPDATE {$wpdb->prefix}gmedia SET status = '{$status}' WHERE ID IN (" . join(',', $values) . ")")) {
+                        return new WP_Error('db_insert_error', __('Could not update statuses for gmedia items in the database'), $wpdb->last_error);
                     }
                 }
 			}
@@ -2782,10 +2737,107 @@ class GmediaDB{
 
 		$term_id = apply_filters('gmedia_term_id_filter', $term_id);
 
-		$gmDB->clean_term_cache($term_id, $taxonomy);
+		$this->clean_term_cache($term_id, $taxonomy);
 
 		do_action("edited_gmedia_term", $term_id, $taxonomy);
 		do_action("edited_$taxonomy", $term_id);
+
+		return $term_id;
+	}
+
+	/**
+	 * Update term's items sort order based on arguments provided.
+	 *
+	 * @uses $wpdb
+	 * @uses do_action() Will call both 'sort_gmedia_term' and 'sort_$taxonomy'.
+	 *
+	 * @param int          $term_id         The ID of the term
+	 * @param string       $taxonomy        The context in which to relate the term to the object.
+	 * @param array|string $args            default array(orderby => ID, order => DESC)
+	 *
+	 * @return int|WP_Error Returns Term ID
+	 */
+	function update_term_sortorder($term_id, $taxonomy, $args = array()){
+		/** @var $wpdb wpdb */
+		global $wpdb;
+
+		$gmOptions = get_option('gmediaOptions');
+		if(!isset($gmOptions['taxonomies'][$taxonomy])){
+			return new WP_Error('gm_invalid_taxonomy', __('Invalid taxonomy'));
+		}
+
+		$term_id = $this->term_exists($term_id, $taxonomy);
+		if(!$term_id){
+			return new WP_Error('gm_invalid_term_id', __('Invalid term ID'));
+		}
+
+		do_action("sort_gmedia_term", $term_id, $taxonomy);
+
+		$default_args = array('gmedia_ids' => array(), 'reset_custom_order' => false);
+		$args = array_merge($default_args, $args);
+
+		/** @var $gmedia_ids
+		 * @var  $reset_custom_order
+		 */
+		extract($args, EXTR_SKIP);
+
+		$default_meta = array(
+			'orderby' => 'ID',
+			'order' => 'DESC'
+		);
+		$sortorder_meta = array_intersect_key($args, $default_meta) + $default_meta;
+		foreach($sortorder_meta as $key => $value){
+			$this->update_metadata('gmedia_term', $term_id, $key, $value);
+		}
+
+		$save_order = false;
+
+		if(!empty($reset_custom_order)){
+			if($sortorder_meta['orderby'] == 'custom'){
+				$sortorder_meta['orderby'] = $default_meta['orderby'];
+			}
+			$gmedia_ids = $this->get_gmedias(array('no_found_rows' => true, 'album__in' => $term_id, 'orderby' => $sortorder_meta['orderby'], 'order' => 'ASC', 'fields' => 'ids'));
+			$gmedia_ids = array_merge(array(0), $gmedia_ids);
+			unset($gmedia_ids[0]);
+			$gmedia_ids = array_flip($gmedia_ids);
+			$save_order = true;
+		}
+
+		if('custom' == $sortorder_meta['orderby']){
+			$save_order = true;
+		}
+
+		if(!empty($gmedia_ids) && $save_order){
+			$_db_gmedia_ids = $this->get_gmedias(array('no_found_rows' => true, 'album__in' => $term_id, 'orderby' => 'custom', 'order' => 'ASC', 'fields' => 'ids'));
+			$db_gmedia_ids = array_merge(array(0), $_db_gmedia_ids);
+			unset($db_gmedia_ids[0]);
+			$db_gmedia_ids = array_flip($db_gmedia_ids);
+
+			if ($gmedia_ids != $db_gmedia_ids) {
+				$final_gmedia_ids = array_intersect_key($gmedia_ids, $db_gmedia_ids) + $db_gmedia_ids;
+				asort($final_gmedia_ids, SORT_NUMERIC);
+				$final_gmedia_ids = array_keys($final_gmedia_ids);
+				$final_gmedia_ids = array_diff_assoc($final_gmedia_ids, $_db_gmedia_ids);
+
+				$values = array();
+				foreach ($final_gmedia_ids as $gmedia_order => $gmedia_id) {
+					$values[] = $wpdb->prepare("(%d, %d, %d)", $gmedia_id, $term_id, ($gmedia_order + 1));
+				}
+				if ($values) {
+					if (false === $wpdb->query("INSERT INTO {$wpdb->prefix}gmedia_term_relationships (gmedia_id, gmedia_term_id, gmedia_order) VALUES " . join(',', $values) . " ON DUPLICATE KEY UPDATE gmedia_order = VALUES(gmedia_order)")) {
+						return new WP_Error('db_insert_error', __('Could not insert gmedia term relationship into the database'), $wpdb->last_error);
+					}
+				}
+				$this->clean_object_term_cache($final_gmedia_ids, array($taxonomy) );
+			}
+		}
+
+		do_action("sort_$taxonomy", $term_id);
+
+		$this->clean_term_cache($term_id, $taxonomy);
+
+		do_action("sorted_gmedia_term", $term_id, $taxonomy);
+		do_action("sorted_$taxonomy", $term_id);
 
 		return $term_id;
 	}
@@ -3172,11 +3224,11 @@ class GmediaDB{
 	 */
 	function delete_term($term_id, $taxonomy, $args = array()){
 		/** @var $wpdb wpdb */
-		global $wpdb, $gmDB;
+		global $wpdb;
 
 		$term_id = (int)$term_id;
 
-		if(!$term_id = $gmDB->term_exists($term_id, $taxonomy)){
+		if(!$term_id = $this->term_exists($term_id, $taxonomy)){
 			return false;
 		}
 		if(is_wp_error($term_id)){
@@ -3188,10 +3240,10 @@ class GmediaDB{
 		$objects = $wpdb->get_col($wpdb->prepare("SELECT gmedia_id FROM {$wpdb->prefix}gmedia_term_relationships WHERE gmedia_term_id = %d", $term_id));
 
 		foreach((array)$objects as $object){
-			$terms = $gmDB->get_gmedia_terms($object, $taxonomy, array('fields' => 'ids', 'orderby' => 'none'));
+			$terms = $this->get_gmedia_terms($object, $taxonomy, array('fields' => 'ids', 'orderby' => 'none'));
 			$terms = array_diff($terms, array($term_id));
 			$terms = array_map('intval', $terms);
-			$gmDB->set_gmedia_terms($object, $terms, $taxonomy);
+			$this->set_gmedia_terms($object, $terms, $taxonomy);
 		}
 
 		$gmedia_term_meta_ids = $wpdb->get_col($wpdb->prepare("SELECT meta_id FROM {$wpdb->prefix}gmedia_term_meta WHERE gmedia_term_id = %d ", $term_id));
@@ -3206,7 +3258,7 @@ class GmediaDB{
 		$wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->prefix}gmedia_term WHERE term_id = %d", $term_id));
 		do_action('deleted_gmedia_term', $term_id);
 
-		$gmDB->clean_term_cache($term_id, $taxonomy);
+		$this->clean_term_cache($term_id, $taxonomy);
 
 		do_action("delete_$taxonomy", $term_id);
 
@@ -3265,7 +3317,7 @@ class GmediaDB{
 				wp_cache_delete('get', $taxonomy);
 			}
 
-			do_action('clean_gmedia_term_cache', $ids, $taxonomy);
+			do_action('gmedia_clean_term_cache', $ids, $taxonomy);
 		}
 
 		wp_cache_set('last_changed', time(), 'gmedia_terms');
@@ -3435,17 +3487,20 @@ class GmediaDB{
 	 *
 	 * @see  clean_object_term_cache()
 	 * @see  get_object_taxonomies() for more on $object_type
-	 * @uses do_action() Will call action hook named, 'clean_object_term_cache' after completion.
+	 * @uses do_action() Will call action hook named, 'gmedia_clean_object_term_cache' after completion.
 	 *       Passes, function params in same order.
 	 *
 	 * @param int|array $object_ids Single or list of term object ID(s)
+	 * @param array $taxonomies
 	 */
-	function clean_gmedia_term_cache($object_ids){
+	function clean_object_term_cache($object_ids, $taxonomies = array()){
 		if(!is_array($object_ids)){
 			$object_ids = array($object_ids);
 		}
-		$gmOptions = get_option('gmediaOptions');
-		$taxonomies = array_keys($gmOptions['taxonomies']);
+		if(empty($taxonomies)){
+			$gmOptions = get_option('gmediaOptions');
+			$taxonomies = array_keys($gmOptions['taxonomies']);
+		}
 
 		foreach($object_ids as $id){
 			foreach($taxonomies as $taxonomy){
@@ -3453,7 +3508,7 @@ class GmediaDB{
 			}
 		}
 
-		do_action('clean_gmedia_term_cache', $object_ids);
+		do_action('gmedia_clean_object_term_cache', $object_ids, $taxonomies);
 	}
 
 	/**
@@ -3469,7 +3524,7 @@ class GmediaDB{
 	 */
 	function update_term_count($terms, $taxonomy){
 		/** @var $wpdb wpdb */
-		global $wpdb, $gmDB;
+		global $wpdb;
 
 		if(!is_array($terms)){
 			$terms = array($terms);
@@ -3483,7 +3538,7 @@ class GmediaDB{
 			do_action('edited_gmedia_term_taxonomy', $term_id, $taxonomy);
 		}
 
-		$gmDB->clean_term_cache($terms, $taxonomy, false);
+		$this->clean_term_cache($terms, $taxonomy, false);
 
 		return true;
 	}

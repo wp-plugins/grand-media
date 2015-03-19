@@ -72,7 +72,7 @@ class GmediaCore {
 	 * Check REQUEST data
 	 *
 	 * @param string $var
-	 * @param bool $def
+	 * @param mixed $def
 	 *
 	 * @return mixed
 	 */
@@ -1748,6 +1748,293 @@ class GmediaCore {
 	}
 
 	/**
+	 * @param     $files
+	 * @param     $terms
+	 * @param     $move
+	 * @param int|string $exists
+	 */
+	function gmedia_import_files( $files, $terms, $move, $exists = 0 ) {
+		global $gmCore, $gmGallery, $gmDB;
+
+		if ( ob_get_level() == 0 ) {
+			ob_start();
+		}
+		$eol = '</pre>' . PHP_EOL;
+
+		$_terms = $terms;
+
+		$gmedia_album = isset( $_terms['gmedia_album'] ) ? $_terms['gmedia_album'] : false;
+		if ( $gmedia_album && $gmCore->is_digit( $gmedia_album ) ) {
+			$album = $gmDB->get_term( $gmedia_album, 'gmedia_album' );
+			if ( empty( $album ) || is_wp_error( $album ) ) {
+				$status = 'public';
+			} else {
+				$status = $album->status;
+				$album_name = $album->name;
+			}
+		} else {
+			$status = 'public';
+		}
+
+		$c   = count( $files );
+		$i   = 0;
+		foreach ( $files as $file ) {
+
+			if ( is_array( $file ) ) {
+				if ( isset( $file['file'] ) ) {
+					extract( $file );
+				} else {
+					_e( 'Something went wrong...', 'gmLang' );
+					die();
+				}
+			}
+
+			wp_ob_end_flush_all();
+			flush();
+
+			$i ++;
+			$prefix    = "\n<pre>$i/$c - ";
+			$prefix_ko = "\n<pre class='ko'>$i/$c - ";
+
+			if ( ! is_file( $file ) ) {
+				echo $prefix_ko . sprintf( __( 'File not exists: %s', 'gmLang' ), $file ) . $eol;
+				continue;
+			}
+
+			if('skip' === $exists){
+				$file_suffix = false;
+			} else{
+				$file_suffix = $exists;
+			}
+			$fileinfo = $gmCore->fileinfo( $file, $file_suffix );
+
+			if(('skip' === $exists) && file_exists( $fileinfo['filepath'] )){
+				echo $prefix . $fileinfo['basename'] . ': ' . __( 'file already exists', 'gmLang' ) . $eol;
+				continue;
+			}
+
+
+			// try to make grand-media dir if not exists
+			if ( ! wp_mkdir_p( $fileinfo['dirpath'] ) ) {
+				echo $prefix_ko . sprintf( __( 'Unable to create directory `%s`. Is its parent directory writable by the server?', 'gmLang' ), $fileinfo['dirpath'] ) . $eol;
+				continue;
+			}
+			// Check if grand-media dir is writable
+			if ( ! is_writable( $fileinfo['dirpath'] ) ) {
+				@chmod( $fileinfo['dirpath'], 0755 );
+				if ( ! is_writable( $fileinfo['dirpath'] ) ) {
+					echo $prefix_ko . sprintf( __( 'Directory `%s` or its subfolders are not writable by the server.', 'gmLang' ), dirname( $fileinfo['dirpath'] ) ) . $eol;
+					continue;
+				}
+			}
+
+			if ( ! copy( $file, $fileinfo['filepath'] ) ) {
+				echo $prefix_ko . sprintf( __( "Can't copy file from `%s` to `%s`", 'gmLang' ), $file, $fileinfo['filepath'] ) . $eol;
+				continue;
+			}
+
+			$gmCore->file_chmod( $fileinfo['filepath'] );
+
+			$size        = false;
+			$is_webimage = false;
+			if ( 'image' == $fileinfo['dirname'] ) {
+				/** WordPress Image Administration API */
+				require_once( ABSPATH . 'wp-admin/includes/image.php' );
+
+				$size = @getimagesize( $fileinfo['filepath'] );
+				if ( $size && file_is_displayable_image( $fileinfo['filepath'] ) ) {
+					if ( function_exists( 'memory_get_usage' ) ) {
+						$extensions = array( '1' => 'GIF', '2' => 'JPG', '3' => 'PNG', '6' => 'BMP' );
+						switch ( $extensions[ $size[2] ] ) {
+							case 'GIF':
+								$CHANNEL = 1;
+								break;
+							case 'JPG':
+								$CHANNEL = $size['channels'];
+								break;
+							case 'PNG':
+								$CHANNEL = 3;
+								break;
+							case 'BMP':
+							default:
+								$CHANNEL = 6;
+								break;
+						}
+						$MB                = 1048576;  // number of bytes in 1M
+						$K64               = 65536;    // number of bytes in 64K
+						$TWEAKFACTOR       = 1.8;     // Or whatever works for you
+						$memoryNeeded      = round( ( $size[0] * $size[1] * $size['bits'] * $CHANNEL / 8 + $K64 ) * $TWEAKFACTOR );
+						$memoryNeeded      = memory_get_usage() + $memoryNeeded;
+						$current_limit     = @ini_get( 'memory_limit' );
+						$current_limit_int = intval( $current_limit );
+						if ( false !== strpos( $current_limit, 'M' ) ) {
+							$current_limit_int *= $MB;
+						}
+						if ( false !== strpos( $current_limit, 'G' ) ) {
+							$current_limit_int *= 1024;
+						}
+
+						if ( - 1 != $current_limit && $memoryNeeded > $current_limit_int ) {
+							$newLimit = $current_limit_int / $MB + ceil( ( $memoryNeeded - $current_limit_int ) / $MB );
+							@ini_set( 'memory_limit', $newLimit . 'M' );
+						}
+					}
+
+					if ( ! wp_mkdir_p( $fileinfo['dirpath_thumb'] ) ) {
+						echo $prefix_ko . sprintf( __( 'Unable to create directory `%s`. Is its parent directory writable by the server?', 'gmLang' ), $fileinfo['dirpath_thumb'] ) . $eol;
+						continue;
+					}
+					if ( ! is_writable( $fileinfo['dirpath_thumb'] ) ) {
+						@chmod( $fileinfo['dirpath_thumb'], 0755 );
+						if ( ! is_writable( $fileinfo['dirpath_thumb'] ) ) {
+							@unlink( $fileinfo['filepath'] );
+							echo $prefix_ko . sprintf( __( 'Directory `%s` is not writable by the server.', 'gmLang' ), $fileinfo['dirpath_thumb'] ) . $eol;
+							continue;
+						}
+					}
+					if ( ! wp_mkdir_p( $fileinfo['dirpath_original'] ) ) {
+						echo $prefix_ko . sprintf( __( 'Unable to create directory `%s`. Is its parent directory writable by the server?', 'gmLang' ), $fileinfo['dirpath_original'] ) . $eol;
+						continue;
+					}
+					if ( ! is_writable( $fileinfo['dirpath_original'] ) ) {
+						@chmod( $fileinfo['dirpath_original'], 0755 );
+						if ( ! is_writable( $fileinfo['dirpath_original'] ) ) {
+							@unlink( $fileinfo['filepath'] );
+							echo $prefix_ko . sprintf( __( 'Directory `%s` is not writable by the server.', 'gmLang' ), $fileinfo['dirpath_original'] ) . $eol;
+							continue;
+						}
+					}
+
+					// Optimized image
+					$webimg   = $gmGallery->options['image'];
+					$thumbimg = $gmGallery->options['thumb'];
+
+					$webimg['resize']   = ( ( $webimg['width'] < $size[0] ) || ( $webimg['height'] < $size[1] ) ) ? true : false;
+					$thumbimg['resize'] = ( ( $thumbimg['width'] < $size[0] ) || ( $thumbimg['height'] < $size[1] ) ) ? true : false;
+
+					if ( $webimg['resize'] ) {
+						rename( $fileinfo['filepath'], $fileinfo['filepath_original'] );
+					} else {
+						copy( $fileinfo['filepath'], $fileinfo['filepath_original'] );
+					}
+					if ( $webimg['resize'] || $thumbimg['resize'] ) {
+						$editor = wp_get_image_editor( $fileinfo['filepath_original'] );
+						if ( is_wp_error( $editor ) ) {
+							@unlink( $fileinfo['filepath_original'] );
+							echo $prefix_ko . $fileinfo['basename'] . " (wp_get_image_editor): " . $editor->get_error_message() . $eol;
+							continue;
+						}
+
+						if ( $webimg['resize'] ) {
+							$editor->set_quality( $webimg['quality'] );
+
+							$resized = $editor->resize( $webimg['width'], $webimg['height'], $webimg['crop'] );
+							if ( is_wp_error( $resized ) ) {
+								@unlink( $fileinfo['filepath_original'] );
+								echo $prefix_ko . $fileinfo['basename'] . " (" . $resized->get_error_code() . " | editor->resize->webimage({$webimg['width']}, {$webimg['height']}, {$webimg['crop']})): " . $resized->get_error_message() . $eol;
+								continue;
+							}
+
+							$saved = $editor->save( $fileinfo['filepath'] );
+							if ( is_wp_error( $saved ) ) {
+								@unlink( $fileinfo['filepath_original'] );
+								echo $prefix_ko . $fileinfo['basename'] . " (" . $saved->get_error_code() . " | editor->save->webimage): " . $saved->get_error_message() . $eol;
+								continue;
+							}
+						}
+
+						// Thumbnail
+						$editor->set_quality( $thumbimg['quality'] );
+
+						$resized = $editor->resize( $thumbimg['width'], $thumbimg['height'], $thumbimg['crop'] );
+						if ( is_wp_error( $resized ) ) {
+							@unlink( $fileinfo['filepath'] );
+							@unlink( $fileinfo['filepath_original'] );
+							echo $prefix_ko . $fileinfo['basename'] . " (" . $resized->get_error_code() . " | editor->resize->thumb({$thumbimg['width']}, {$thumbimg['height']}, {$thumbimg['crop']})): " . $resized->get_error_message() . $eol;
+							continue;
+						}
+
+						$saved = $editor->save( $fileinfo['filepath_thumb'] );
+						if ( is_wp_error( $saved ) ) {
+							@unlink( $fileinfo['filepath'] );
+							@unlink( $fileinfo['filepath_original'] );
+							echo $prefix_ko . $fileinfo['basename'] . " (" . $saved->get_error_code() . " | editor->save->thumb): " . $saved->get_error_message() . $eol;
+							continue;
+						}
+					} else {
+						copy( $fileinfo['filepath'], $fileinfo['filepath_thumb'] );
+					}
+					$is_webimage = true;
+				} else {
+					@unlink( $fileinfo['filepath'] );
+					echo $prefix_ko . $fileinfo['basename'] . ": " . __( "Could not read image size. Invalid image was deleted.", 'gmLang' ) . $eol;
+					continue;
+				}
+			}
+
+			// Write media data to DB
+			// TODO Option to set title empty string or from metadata or from filename or both
+			// use image exif/iptc data for title and caption defaults if possible
+			if ( $size && ! isset( $title ) && ! isset( $description ) ) {
+				$image_meta = @$gmCore->wp_read_image_metadata( $fileinfo['filepath_original'] );
+				if ( trim( $image_meta['title'] ) && ! is_numeric( sanitize_title( $image_meta['title'] ) ) ) {
+					$title = $image_meta['title'];
+				}
+				if ( trim( $image_meta['caption'] ) ) {
+					$description = $image_meta['caption'];
+				}
+			}
+			if ( ! isset( $title ) || empty( $title ) ) {
+				$title = $fileinfo['title'];
+			}
+			if ( ! isset( $description ) ) {
+				$description = '';
+			}
+			if ( ! isset( $link ) ) {
+				$link = '';
+			}
+
+			if ( ! $is_webimage ) {
+				unset( $_terms['gmedia_category'] );
+			}
+
+			// Construct the media_data array
+			$media_data = array(
+				'mime_type'   => $fileinfo['mime_type'],
+				'gmuid'       => $fileinfo['basename'],
+				'title'       => $title,
+				'link'        => $link,
+				'description' => $description,
+				'status'      => $status,
+				'terms'       => $_terms
+			);
+			if ( ! current_user_can( 'gmedia_delete_others_media' ) ) {
+				$media_data['author'] = get_current_user_id();
+			}
+
+			unset( $title, $description );
+
+			// Save the data
+			$id = $gmDB->insert_gmedia( $media_data );
+			$gmDB->update_metadata( $meta_type = 'gmedia', $id, $meta_key = '_metadata', $gmDB->generate_gmedia_metadata( $id, $fileinfo ) );
+
+			echo $prefix . $fileinfo['basename'] . ': <span class="ok">' . sprintf( __( 'success (ID #%s)', 'gmLang' ), $id ) . '</span>' . $eol;
+
+			if ( $move ) {
+				@unlink( $file );
+			}
+
+		}
+
+		echo '<p><b>' . __( 'Category' ) . ':</b> ' . ( ( isset( $terms['gmedia_category'] ) && ! empty( $terms['gmedia_category'] ) ) ? esc_html( $gmGallery->options['taxonomies']['gmedia_category'][ $terms['gmedia_category'] ] ) : '-' ) . PHP_EOL;
+		echo '<br /><b>' . __( 'Album' ) . ':</b> ' . ( ( isset( $terms['gmedia_album'] ) && ! empty( $terms['gmedia_album'] ) ) ? ( isset($album_name)? $album_name : esc_html( $terms['gmedia_album'] ) ) : '-' ) . PHP_EOL;
+		echo '<br /><b>' . __( 'Tags' ) . ':</b> ' . ( ( isset( $terms['gmedia_tag'] ) && ! empty( $terms['gmedia_tag'] ) ) ? esc_html( str_replace( ',', ', ', $terms['gmedia_tag'] ) ) : '-' ) . '</p>' . PHP_EOL;
+
+		wp_ob_end_flush_all();
+		flush();
+	}
+
+	/**
 	 * @param string $service
 	 * @param array $data
 	 *
@@ -1952,6 +2239,28 @@ class GmediaCore {
 		}
 
 		return $metatext;
+	}
+
+	/**
+	 * Update media meta in the database
+	 *
+	 * @param $gmID
+	 * @param $meta
+	 *
+	 * @return
+	 */
+	function gm_hitcounter($gmID, $meta) {
+		/** @var wpdb $wpdb */
+		global $gmDB;
+		if( isset($_POST['vote']) ) {
+			$meta['likes'] +=1;
+			$gmDB->update_metadata('gmedia', $gmID, 'likes', $meta['likes']);
+		}
+		else {
+			$meta['views'] +=1;
+			$gmDB->update_metadata('gmedia', $gmID, 'views', $meta['views']);
+		}
+		return $meta;
 	}
 
 }

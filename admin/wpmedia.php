@@ -143,7 +143,7 @@ function grandWPMedia(){
 						if(!$gmCore->caps['gmedia_import']){
 							echo ' disabled';
 						} ?>">
-							<a href="#importModal" data-modal="import-wpmedia" data-action="gmedia_import_modal" class="gmedia-modal"><?php _e('Import to Gmedia Library...', 'gmLang'); ?></a>
+							<a href="#importModal" data-modal="import-wpmedia" data-action="gmedia_import_wpmedia_modal" class="gmedia-modal"><?php _e('Import to Gmedia Library...', 'gmLang'); ?></a>
 						</li>
 						<!-- <li class="divider <?php echo $rel_selected_hide; ?>"></li> -->
 						<li class="dropdown-header <?php echo $rel_selected_hide; ?>"><span><?php _e("Select items to see more actions", "gmLang"); ?></span></li>

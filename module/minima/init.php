@@ -5,7 +5,7 @@
  * @var  $gallery
  * @var  $module
  * @var  $settings
- * @var  $term
+ * @var  $terms
  * @var  $gmedia
  * @var  $is_bot
  **/

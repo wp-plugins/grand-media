@@ -380,11 +380,17 @@ jQuery(function($){
 				});
 			});
 
-            $('form').on('keydown', 'input[type="text"]', function (e) {
-                if (e.keyCode == 13) {
-                    var inputs = $(this).parents("form").eq(0).find(":input");
-                    if (inputs[inputs.index(this) + 1] !== null) {
-                        inputs[inputs.index(this) + 1].focus();
+            $('form').on('keydown', ':input:visible:not(:submit,:button,:reset,textarea)', function (e) {
+				var charCode = e.charCode || e.keyCode || e.which;
+				if (13 == charCode && !$(this).parent().hasClass('selectize-input')) {
+                    var inputs = $(this).parents("form").eq(0).find(":input:visible");
+					var inp = inputs[inputs.index(this) + 1];
+                    if (inp !== null) {
+						$(inp).focus();
+						var inp_type = $(this).attr('type');
+						if(!!inp_type && (inp_type == 'text' || inp_type == 'number')){
+							inp.setSelectionRange(0, inp.value.length);
+						}
                     }
                     e.preventDefault();
                     return false;

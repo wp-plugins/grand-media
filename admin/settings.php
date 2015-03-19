@@ -9,11 +9,13 @@ if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])){
  * @return mixed content
  */
 function gmSettings(){
-	global $user_ID, $gmDB, $gmCore, $gmGallery;
+	global $user_ID, $gmDB, $gmCore, $gmGallery, $gmProcessor;
+
+	$url = add_query_arg(array('page' => $gmProcessor->page), admin_url('admin.php'));
 
 	?>
 
-	<form class="panel panel-default" method="post">
+	<form id="gmediaSettingsForm" class="panel panel-default" method="post" action="<?php echo $url; ?>">
 		<div class="panel-heading clearfix">
 			<div class="btn-toolbar pull-left">
 				<div class="btn-group">
@@ -28,7 +30,7 @@ function gmSettings(){
 		<div class="panel-body" id="gmedia-msg-panel"></div>
 		<div class="container-fluid">
 			<div class="tabable tabs-left">
-				<ul class="nav nav-tabs" style="padding:10px 0;">
+				<ul id="settingsTabs" class="nav nav-tabs" style="padding:10px 0;">
 					<li class="active"><a href="#gmedia_premium" data-toggle="tab"><?php _e('Premium Settings', 'gmLang'); ?></a></li>
 					<li><a href="#gmedia_settings_other" data-toggle="tab"><?php _e('Other Settings', 'gmLang'); ?></a></li>
 					<?php if(current_user_can('manage_options')){ ?>
@@ -61,24 +63,52 @@ function gmSettings(){
 
 					<fieldset id="gmedia_settings_other" class="tab-pane">
 						<div class="form-group">
-							<label><?php _e('HashID salt for unique template URL', 'gmLang') ?>:</label>
-							<input type="text" name="GmediaHashID_salt" value="<?php echo get_option('GmediaHashID_salt'); ?>" class="form-control input-sm" />
-
-							<p class="help-block"><?php _e('Changing this string you\'ll change Gmedia template URLs.', 'gmLang'); ?></p>
-						</div>
-						<div class="form-group">
-							<label><?php _e('Permalink Endpoint', 'gmLang') ?>:</label>
-							<input type="text" name="set[endpoint]" value="<?php echo $gmGallery->options['endpoint']; ?>" class="form-control input-sm" />
-
-							<p class="help-block"><?php _e('Changing endpoint you\'ll change Gmedia template URLs.', 'gmLang'); ?></p>
-						</div>
-						<div class="form-group">
 							<label><?php _e('When delete (uninstall) plugin', 'gmLang') ?>:</label>
 							<select name="set[uninstall_dropdata]" class="form-control input-sm">
 								<option value="all" <?php selected($gmGallery->options['uninstall_dropdata'], 'all'); ?>><?php _e('Delete database and all uploaded files', 'gmLang'); ?></option>
 								<option value="db" <?php selected($gmGallery->options['uninstall_dropdata'], 'db'); ?>><?php _e('Delete database only and leave uploaded files', 'gmLang'); ?></option>
 								<option value="none" <?php selected($gmGallery->options['uninstall_dropdata'], 'none'); ?>><?php _e('Do not delete database and uploaded files', 'gmLang'); ?></option>
 							</select>
+						</div>
+						<div class="form-group row">
+							<div class="col-xs-6">
+								<label><?php _e('In Tags order gmedia', 'gmLang'); ?></label>
+								<select name="set[in_tag_orderby]" class="form-control input-sm">
+									<option value="ID" <?php selected($gmGallery->options['in_tag_orderby'], 'ID'); ?>><?php _e('by ID', 'gmLang'); ?></option>
+									<option value="title ID" <?php selected($gmGallery->options['in_tag_orderby'], 'title ID'); ?>><?php _e('by title', 'gmLang'); ?></option>
+									<option value="gmuid" <?php selected($gmGallery->options['in_tag_orderby'], 'gmuid'); ?>><?php _e('by filename', 'gmLang'); ?></option>
+									<option value="date ID" <?php selected($gmGallery->options['in_tag_orderby'], 'date ID'); ?>><?php _e('by date', 'gmLang'); ?></option>
+									<option value="modified ID" <?php selected($gmGallery->options['in_tag_orderby'], 'modified ID'); ?>><?php _e('by last modified date', 'gmLang'); ?></option>
+									<option value="rand" <?php selected($gmGallery->options['in_tag_orderby'], 'rand'); ?>><?php _e('Random', 'gmLang'); ?></option>
+								</select>
+							</div>
+							<div class="col-xs-6">
+								<label><?php _e('Sort order', 'gmLang'); ?></label>
+								<select name="set[in_tag_order]" class="form-control input-sm">
+									<option value="DESC" <?php selected($gmGallery->options['in_tag_order'], 'DESC'); ?>><?php _e('DESC', 'gmLang'); ?></option>
+									<option value="ASC" <?php selected($gmGallery->options['in_tag_order'], 'ASC'); ?>><?php _e('ASC', 'gmLang'); ?></option>
+								</select>
+							</div>
+						</div>
+						<div class="form-group row">
+							<div class="col-xs-6">
+								<label><?php _e('In Category order gmedia', 'gmLang'); ?></label>
+								<select name="set[in_category_orderby]" class="form-control input-sm">
+									<option value="ID" <?php selected($gmGallery->options['in_category_orderby'], 'ID'); ?>><?php _e('by ID', 'gmLang'); ?></option>
+									<option value="title ID" <?php selected($gmGallery->options['in_category_orderby'], 'title ID'); ?>><?php _e('by title', 'gmLang'); ?></option>
+									<option value="gmuid" <?php selected($gmGallery->options['in_category_orderby'], 'gmuid'); ?>><?php _e('by filename', 'gmLang'); ?></option>
+									<option value="date ID" <?php selected($gmGallery->options['in_category_orderby'], 'date ID'); ?>><?php _e('by date', 'gmLang'); ?></option>
+									<option value="modified ID" <?php selected($gmGallery->options['in_category_orderby'], 'modified ID'); ?>><?php _e('by last modified date', 'gmLang'); ?></option>
+									<option value="rand" <?php selected($gmGallery->options['in_category_orderby'], 'rand'); ?>><?php _e('Random', 'gmLang'); ?></option>
+								</select>
+							</div>
+							<div class="col-xs-6">
+								<label><?php _e('Sort order', 'gmLang'); ?></label>
+								<select name="set[in_category_order]" class="form-control input-sm">
+									<option value="DESC" <?php selected($gmGallery->options['in_category_order'], 'DESC'); ?>><?php _e('DESC', 'gmLang'); ?></option>
+									<option value="ASC" <?php selected($gmGallery->options['in_category_order'], 'ASC'); ?>><?php _e('ASC', 'gmLang'); ?></option>
+								</select>
+							</div>
 						</div>
 						<div class="form-group">
 							<label><?php _e('Forbid other plugins to load their JS and CSS on Gmedia admin pages', 'gmLang') ?>:</label>
@@ -127,6 +157,21 @@ function gmSettings(){
 
 					<?php if(current_user_can('manage_options')){ ?>
 						<fieldset id="gmedia_settings_cloud" class="tab-pane">
+							<p><?php _e('GmediaCloud is full window template to show your galleries, albums and other gmedia content', 'gmLang'); ?></p>
+							<p><?php _e('Each module can have it\'s own design for GmediaCloud. Here you can set default module wich will be used for sharing Albums, Tags, Categories and single Gmedia Items.', 'gmLang'); ?></p>
+							<br/>
+							<div class="form-group">
+								<label><?php _e('HashID salt for unique template URL', 'gmLang') ?>:</label>
+								<input type="text" name="GmediaHashID_salt" value="<?php echo get_option('GmediaHashID_salt'); ?>" class="form-control input-sm" />
+
+								<p class="help-block"><?php _e('Changing this string you\'ll change Gmedia template URLs.', 'gmLang'); ?></p>
+							</div>
+							<div class="form-group">
+								<label><?php _e('Permalink Endpoint (GmediaCloud base)', 'gmLang') ?>:</label>
+								<input type="text" name="set[endpoint]" value="<?php echo $gmGallery->options['endpoint']; ?>" class="form-control input-sm" />
+
+								<p class="help-block"><?php _e('Changing endpoint you\'ll change Gmedia template URLs.', 'gmLang'); ?></p>
+							</div>
 							<?php
 							$modules = array();
 							if ( ( $plugin_modules = glob( GMEDIA_ABSPATH . 'module/*', GLOB_ONLYDIR | GLOB_NOSORT ) ) ) {
@@ -194,8 +239,12 @@ function gmSettings(){
 								<p class="help-block"><?php _e('by default will be used Phantom module', 'gmLang'); ?></p>
 							</div>
 							<div class="form-group">
-								<label><?php _e('Analitics JS code for GmediaCloud Page', 'gmLang') ?>:</label>
+								<label><?php _e('Additional JS code for GmediaCloud Page', 'gmLang') ?>:</label>
 								<textarea name="set[gmediacloud_footer_js]" rows="4" cols="20" class="form-control input-sm"><?php echo esc_html(stripslashes($gmGallery->options['gmediacloud_footer_js'])); ?></textarea>
+							</div>
+							<div class="form-group">
+								<label><?php _e('Additional CSS code for GmediaCloud Page', 'gmLang') ?>:</label>
+								<textarea name="set[gmediacloud_footer_css]" rows="4" cols="20" class="form-control input-sm"><?php echo esc_html(stripslashes($gmGallery->options['gmediacloud_footer_css'])); ?></textarea>
 							</div>
 						</fieldset>
 
@@ -341,6 +390,18 @@ function gmSettings(){
 				</div>
 				<div class="clear"></div>
 			</div>
+			<script type="text/javascript">
+				jQuery(function($){
+					var hash = window.location.hash;
+					if(hash){
+						hash = hash.replace('_tab', '');
+						$('#settingsTabs a[href="'+hash+'"]').tab('show');
+					}
+					$('#gmediaSettingsForm').on('submit', function(){
+						$(this).attr('action', $(this).attr('action') + $('#settingsTabs li.active a').attr('href') + '_tab');
+					});
+				});
+			</script>
 		</div>
 	</form>
 <?php

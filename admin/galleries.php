@@ -14,20 +14,21 @@ function gmediaGalleries(){
 	$url = add_query_arg(array('page' => $gmProcessor->page), admin_url('admin.php'));
 	$endpoint = $gmGallery->options['endpoint'];
 
-	/* todo: per_page and order options for gmedia_terms
 	$gm_screen_options = get_user_meta($user_ID, 'gm_screen_options', true);
 	if(!is_array($gm_screen_options)){
 		$gm_screen_options = array();
 	}
 	$gm_screen_options = array_merge($gmGallery->options['gm_screen_options'], $gm_screen_options);
-	*/
+	$orderby = !empty($gm_screen_options['orderby_gmedia_galleries'])? $gm_screen_options['orderby_gmedia_galleries'] : 'name';
+	$order = !empty($gm_screen_options['sortorder_gmedia_galleries'])? $gm_screen_options['sortorder_gmedia_galleries'] : 'ASC';
+	$per_page = !empty($gm_screen_options['per_page_gmedia_galleries'])? $gm_screen_options['per_page_gmedia_galleries'] : 30;
 
 	$filter = ('selected' == $gmCore->_req('filter'))? $gmProcessor->selected_items : null;
 	$args = array(
-		'orderby' => $gmCore->_get('orderby', 'name'),
-		'order' => $gmCore->_get('order', 'ASC'),
+		'orderby' => $gmCore->_get('orderby', $orderby),
+		'order' => $gmCore->_get('order', $order),
 		'search' => $gmCore->_get('s', ''),
-		'number' => $gmCore->_get('number', 30),
+		'number' => $gmCore->_get('number', $per_page),
 		'hide_empty' => 0,
 		'page' => $gmCore->_get('pager', 1),
 		'include' => $filter
@@ -799,7 +800,7 @@ function gmediaGalleryEdit(){
 				$params['iframe'] = 1;
 				?>
 				<p><b><?php _e('Gallery ID:'); ?></b> #<?php echo $gallery_id; ?></p>
-				<p><b><?php _e('Gallery URL:'); ?></b> <?php
+				<p><b><?php _e('GmediaCloud page URL for current gallery:'); ?></b> <?php
 					$endpoint = $gmGallery->options['endpoint'];
 					$gmedia_hashid = gmedia_hash_id_encode($gallery_id, 'gallery');
 					$gallery_link_default = add_query_arg(array("$endpoint" => $gmedia_hashid, 't' => 'g'), home_url('index.php'));
@@ -808,10 +809,14 @@ function gmediaGalleryEdit(){
 					} else{
 						$gallery_link = $gallery_link_default;
 					} ?>
-					<a target="_blank" href="<?php echo $gallery_link; ?>"><?php echo $gallery_link; ?></a>
-					<br/><?php _e('update <a href="options-permalink.php">Permalink Settings</a> if above link not working', 'gmLang'); ?>
+					<br/><a target="_blank" href="<?php echo $gallery_link; ?>"><?php echo $gallery_link; ?></a>
 				</p>
-
+				<div class="help-block">
+					<?php _e('update <a href="options-permalink.php">Permalink Settings</a> if above link not working', 'gmLang'); ?>
+					<?php if(current_user_can('manage_options')){
+						echo '<br>' . __('More info about GmediaCloud Pages and GmediaCloud Settings can be found <a href="admin.php?page=GrandMedia_Settings#gmedia_settings_cloud">here</a>', 'gmLang');
+					} ?>
+				</div>
 				<div><b><?php _e('Gallery Preview:'); ?></b></div>
 				<div class="gallery_preview" style="overflow:hidden;">
 					<iframe id="gallery_preview" name="gallery_preview" src="<?php echo add_query_arg($params, $gallery_link_default); ?>"></iframe>

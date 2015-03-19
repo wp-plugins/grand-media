@@ -430,6 +430,13 @@ function gmediaLib(){
 							}
 							echo $terms_tag;
 							?>
+
+							<br/><span class="label label-default"><?php _e('Views / Likes', 'gmLang'); ?>:</span>
+								<?php echo (isset($meta['views'][0])? $meta['views'][0] : '0') . ' / ' . (isset($meta['likes'][0])? $meta['likes'][0] : '0'); ?>
+							<?php if(isset($meta['rating'][0])){
+								$ratings = maybe_unserialize($meta['rating'][0]); ?>
+								<br/><span class="label label-default"><?php _e('Rating', 'gmLang'); ?>:</span> <?php  echo $ratings['value'].' / '.$ratings['votes']; ?>
+							<?php } ?>
 						</p>
 					</div>
 					<div class="col-lg-6">

@@ -1123,8 +1123,8 @@ function gmedia_module_install() {
 }
 
 
-add_action( 'wp_ajax_gmedia_import_modal', 'gmedia_import_modal' );
-function gmedia_import_modal() {
+add_action( 'wp_ajax_gmedia_import_wpmedia_modal', 'gmedia_import_wpmedia_modal' );
+function gmedia_import_wpmedia_modal() {
 	global $user_ID, $gmDB, $gmCore, $gmGallery;
 
 	check_ajax_referer( 'GmediaGallery' );
@@ -1139,9 +1139,10 @@ function gmedia_import_modal() {
 			<h4 class="modal-title"><?php _e( 'Import from WP Media Library' ); ?></h4>
 		</div>
 		<div class="modal-body" style="position:relative; min-height:270px;">
-			<form id="import_form" name="import_form" target="import_window" action="<?php echo $gmCore->gmedia_url; ?>/admin/import.php" method="POST" accept-charset="utf-8">
+			<form id="import_form" name="import_form" target="import_window" action="<?php echo admin_url('admin-ajax.php'); ?>" method="POST" accept-charset="utf-8">
 				<?php wp_nonce_field( 'GmediaImport' ); ?>
-				<input type="hidden" id="import-action" name="import" value="<?php echo esc_attr( $gmCore->_post( 'modal', '' ) ); ?>"/>
+				<input type="hidden" name="action" value="gmedia_import_handler"/>
+				<input type="hidden" id="import-action" name="import" value="import-wpmedia"/>
 				<input type="hidden" name="selected" value="<?php $ckey = "gmuser_{$user_ID}_wpmedia";
 				if ( isset( $_COOKIE[ $ckey ] ) ) {
 					echo $_COOKIE[ $ckey ];
@@ -1198,7 +1199,7 @@ function gmedia_import_modal() {
 				<?php } else { ?>
 					<p><?php _e( 'You are not allowed to assign terms', 'gmLang' ) ?></p>
 				<?php } ?>
-
+				<div class="checkbox"><label><input type="checkbox" name="skip_exists" value="skip"> <?php _e('Skip if file with the same name already exists in Gmedia Library', 'gmLang'); ?></label></div>
 				<script type="text/javascript">
 					jQuery(function ($) {
 						<?php if($gmCore->caps['gmedia_terms']){ ?>
@@ -1496,6 +1497,286 @@ function gmedia_set_post_thumbnail() {
 	die( '0' );
 }
 
+add_action( 'wp_ajax_gmedia_upload_handler', 'gmedia_upload_handler' );
+function gmedia_upload_handler() {
+	global $gmCore;
+
+	//ini_set( 'display_errors', 0 );
+	//ini_set( 'error_reporting', 0 );
+	ini_set( 'max_execution_time', 300 );
+
+	// HTTP headers for no cache etc
+	nocache_headers();
+
+	// if nonce is not correct it returns -1
+	check_ajax_referer( 'GmediaUpload' );
+	if ( ! current_user_can( 'gmedia_upload' ) ) {
+		wp_die( __( 'You do not have permission to upload files in Gmedia Library.' ) );
+	}
+
+	// 5 minutes execution time
+	@set_time_limit( 5 * 60 );
+
+	// fake upload time
+	usleep( 10 );
+
+	$filename = $gmCore->_req('name');
+
+	// Get parameters
+	if ( !$filename ) {
+		$return = json_encode( array( "error" => array( "code" => 100, "message" => __( "No file name.", 'gmLang' ) ) ) );
+		die( $return );
+	}
+
+	$fileinfo = $gmCore->fileinfo( $filename );
+	if ( false === $fileinfo ) {
+		$return = json_encode( array( "error" => array( "code" => 100, "message" => __( "File type not allowed.", 'gmLang' ) ), "id" => $filename ) );
+		die( $return );
+	}
+
+	// Look for the content type header
+	$contentType = '';
+	if ( isset( $_SERVER["HTTP_CONTENT_TYPE"] ) ) {
+		$contentType = $_SERVER["HTTP_CONTENT_TYPE"];
+	}
+
+	if ( isset( $_SERVER["CONTENT_TYPE"] ) ) {
+		$contentType = $_SERVER["CONTENT_TYPE"];
+	}
+
+	// Handle non multipart uploads older WebKit versions didn't support multipart in HTML5
+	$file_tmp = '';
+	if ( strpos( $contentType, "multipart" ) !== false ) {
+		if ( isset( $_FILES['file']['tmp_name'] ) && is_uploaded_file( $_FILES['file']['tmp_name'] ) ) {
+			$file_tmp = $_FILES['file']['tmp_name'];
+		}
+	} else {
+		$file_tmp = "php://input";
+	}
+
+	if(empty($file_tmp)){
+		$return = json_encode( array( "error" => array( "code" => 103, "message" => __( "Failed to move uploaded file.", 'gmLang' ) ), "id" => $filename ) );
+		die( $return );
+	}
+
+	$post_data = array();
+	if ( ($params = $gmCore->_req('params', '')) ) {
+		parse_str( $params, $post_data );
+	}
+
+	$return = $gmCore->gmedia_upload_handler( $file_tmp, $fileinfo, $contentType, $post_data );
+	$return = json_encode( $return );
+
+	die( $return );
+}
+
+add_action( 'wp_ajax_gmedia_import_handler', 'gmedia_import_handler' );
+function gmedia_import_handler() {
+	global $wpdb, $gmCore, $gmDB;
+
+	//ini_set( 'display_errors', 0 );
+	//ini_set( 'error_reporting', 0 );
+	ini_set( 'max_execution_time', 600 );
+
+	// HTTP headers for no cache etc
+	nocache_headers();
+
+	check_admin_referer( 'GmediaImport' );
+	if ( ! current_user_can( 'gmedia_import' ) ) {
+		wp_die( __( 'You do not have permission to upload files.' ) );
+	}
+
+	// 10 minutes execution time
+	@set_time_limit( 10 * 60 );
+
+	// fake upload time
+	usleep( 10 );
+
+	$import = $gmCore->_post( 'import' );
+	$terms  = $gmCore->_post( 'terms', array() );
+
+	if ( ob_get_level() == 0 ) {
+		ob_start();
+	}
+	echo str_pad( ' ', 4096 ) . PHP_EOL;
+	wp_ob_end_flush_all();
+	flush();
+	?>
+	<html>
+	<style type="text/css">
+		* {
+			margin: 0;
+			padding: 0;
+		}
+
+		pre {
+			display: block;
+		}
+
+		p {
+			padding: 10px 0;
+			font-size: 14px;
+		}
+
+		.ok {
+			color: darkgreen;
+		}
+
+		.ko {
+			color: darkred;
+		}
+	</style>
+	<body>
+	<?php
+	if ( ('import-folder' == $import) || isset($_POST['import-folder']) ) {
+
+		$path = $gmCore->_post( 'path' );
+		echo '<h4 style="margin: 0 0 10px">' . __( 'Import Server Folder' ) . " `$path`:</h4>" . PHP_EOL;
+
+		if ( $path ) {
+			$path = trim( urldecode( $path ), '/' );
+			if ( ! empty( $path ) ) {
+				$fullpath = ABSPATH . trailingslashit( $path );
+				$files    = glob( $fullpath . '?*.?*', GLOB_NOSORT );
+				if ( ! empty( $files ) ) {
+					$allowed_ext = get_allowed_mime_types();
+					$allowed_ext = array_keys( $allowed_ext );
+					$allowed_ext = implode( '|', $allowed_ext );
+					$allowed_ext = explode( '|', $allowed_ext );
+					if ( ( GMEDIA_UPLOAD_FOLDER == basename( dirname( dirname( $path ) ) ) ) || ( GMEDIA_UPLOAD_FOLDER == basename( dirname( $path ) ) ) ) {
+						global $wpdb;
+						$gmedias = $wpdb->get_col( "SELECT gmuid FROM {$wpdb->prefix}gmedia" );
+						foreach ( $files as $i => $filepath ) {
+							$gmuid = basename( $filepath );
+							if ( in_array( $gmuid, $gmedias ) ) {
+								$fileinfo = $gmCore->fileinfo( $gmuid, false );
+								if ( ! ( ( 'image' == $fileinfo['dirname'] ) && ! file_exists( $fileinfo['filepath'] ) ) ) {
+									unset( $files[ $i ] );
+								}
+							}
+						}
+						$move   = false;
+						$exists = false;
+					} else {
+						$move   = $gmCore->_post( 'delete_source' );
+						$exists = 0;
+					}
+					foreach ( $files as $i => $filepath ) {
+						$ext = pathinfo( $filepath, PATHINFO_EXTENSION );
+						if ( ! in_array( strtolower($ext), $allowed_ext ) ) {
+							unset( $files[ $i ] );
+						}
+					}
+					$gmCore->gmedia_import_files( $files, $terms, $move, $exists );
+				} else {
+					echo sprintf( __( 'Folder `%s` is empty', 'gmLang' ), $path ) . PHP_EOL;
+				}
+			} else {
+				echo __( 'No folder chosen', 'gmLang' ) . PHP_EOL;
+			}
+		}
+	} elseif ( ('import-flagallery' == $import) || isset($_POST['import-flagallery']) ) {
+
+		echo '<h4 style="margin: 0 0 10px">' . __( 'Import from Flagallery plugin' ) . ":</h4>" . PHP_EOL;
+
+		$gallery = $gmCore->_post( 'gallery' );
+		if ( ! empty( $gallery ) ) {
+			$album = ( ! isset( $terms['gmedia_album'] ) || empty( $terms['gmedia_album'] ) ) ? false : true;
+			foreach ( $gallery as $gid ) {
+				$flag_gallery = $wpdb->get_row( $wpdb->prepare( "SELECT gid, path, title, galdesc FROM {$wpdb->prefix}flag_gallery WHERE gid = %d", $gid ), ARRAY_A );
+				if ( empty( $flag_gallery ) ) {
+					continue;
+				}
+
+				if ( ! $album ) {
+					$terms['gmedia_album'] = $flag_gallery['title'];
+					if ( ! $gmDB->term_exists( $flag_gallery['title'], 'gmedia_album' ) ) {
+						$term_id = $gmDB->insert_term( $flag_gallery['title'], 'gmedia_album', array( 'description' => htmlspecialchars_decode( stripslashes( $flag_gallery['galdesc'] ) ) ) );
+					}
+				}
+
+				$path = ABSPATH . trailingslashit( $flag_gallery['path'] );
+
+				echo '<h5 style="margin: 10px 0 5px">' . sprintf( __( 'Import `%s` gallery', 'gmLang' ), $flag_gallery['title'] ) . ":</h5>" . PHP_EOL;
+
+				$flag_pictures = $wpdb->get_results( $wpdb->prepare( "SELECT CONCAT('%s', filename) AS file, description, alttext AS title, link FROM {$wpdb->prefix}flag_pictures WHERE galleryid = %d", $path, $flag_gallery['gid'] ), ARRAY_A );
+				if ( empty( $flag_pictures ) ) {
+					echo '<pre>' . __( 'gallery contains 0 images', 'gmLang' ) . '</pre>';
+					continue;
+				}
+				//echo '<pre>'.print_r($flag_pictures, true).'</pre>';
+				$gmCore->gmedia_import_files( $flag_pictures, $terms, false );
+			}
+		} else {
+			echo __( 'No gallery chosen', 'gmLang' ) . PHP_EOL;
+		}
+	} elseif ( ('import-nextgen' == $import) || isset($_POST['import-nextgen']) ) {
+
+		echo '<h4 style="margin: 0 0 10px">' . __( 'Import from NextGen plugin' ) . ":</h4>" . PHP_EOL;
+
+		$gallery = $gmCore->_post( 'gallery' );
+		if ( ! empty( $gallery ) ) {
+			$album = ( ! isset( $terms['gmedia_album'] ) || empty( $terms['gmedia_album'] ) ) ? false : true;
+			foreach ( $gallery as $gid ) {
+				$ngg_gallery = $wpdb->get_row( $wpdb->prepare( "SELECT gid, path, title, galdesc FROM {$wpdb->prefix}ngg_gallery WHERE gid = %d", $gid ), ARRAY_A );
+				if ( empty( $ngg_gallery ) ) {
+					continue;
+				}
+
+				if ( ! $album ) {
+					$terms['gmedia_album'] = $ngg_gallery['title'];
+					if ( ! $gmDB->term_exists( $ngg_gallery['title'], 'gmedia_album' ) ) {
+						$term_id = $gmDB->insert_term( $ngg_gallery['title'], 'gmedia_album', array( 'description' => htmlspecialchars_decode( stripslashes( $ngg_gallery['galdesc'] ) ) ) );
+					}
+				}
+
+				$path = ABSPATH . trailingslashit( $ngg_gallery['path'] );
+
+				echo '<h5 style="margin: 10px 0 5px">' . sprintf( __( 'Import `%s` gallery', 'gmLang' ), $ngg_gallery['title'] ) . ":</h5>" . PHP_EOL;
+
+				$ngg_pictures = $wpdb->get_results( $wpdb->prepare( "SELECT CONCAT('%s', filename) AS file, description, alttext AS title FROM {$wpdb->prefix}ngg_pictures WHERE galleryid = %d", $path, $ngg_gallery['gid'] ), ARRAY_A );
+				if ( empty( $ngg_pictures ) ) {
+					echo '<pre>' . __( 'gallery contains 0 images', 'gmLang' ) . '</pre>';
+					continue;
+				}
+				$gmCore->gmedia_import_files( $ngg_pictures, $terms, false );
+			}
+		} else {
+			echo __( 'No gallery chosen', 'gmLang' ) . PHP_EOL;
+		}
+	} elseif ( ('import-wpmedia' == $import) || isset($_POST['import-wpmedia']) ) {
+
+		echo '<h4 style="margin: 0 0 10px">' . __( 'Import from WP Media Library' ) . ":</h4>" . PHP_EOL;
+
+		$wpMediaLib = $gmDB->get_wp_media_lib( array( 'filter' => 'selected', 'selected' => $gmCore->_post( 'selected' ) ) );
+
+		if ( ! empty( $wpMediaLib ) ) {
+
+			$wp_media = array();
+			foreach ( $wpMediaLib as $item ) {
+				$wp_media[] = array(
+					'file'        => get_attached_file( $item->ID ),
+					'title'       => $item->post_title,
+					'description' => $item->post_content
+				);
+			}
+			$exists = $gmCore->_post('skip_exists', 0);
+			//echo '<pre>' . print_r($wp_media, true) . '</pre>';
+			$gmCore->gmedia_import_files( $wp_media, $terms, false, $exists );
+
+		} else {
+			echo __( 'No items chosen', 'gmLang' ) . PHP_EOL;
+		}
+	}
+	?>
+	</body>
+	</html>
+	<?php
+	wp_ob_end_flush_all();
+
+	die();
+}
+
 add_action( 'wp_ajax_gmedia_application', 'gmedia_application' );
 function gmedia_application() {
 	global $gmCore, $gmProcessor;
@@ -1585,6 +1866,78 @@ EOT;
 	$headers = array('Content-Type: text/html; charset=UTF-8');
 	if(wp_mail( $email, $subject, $message, $headers )){
 		echo $gmProcessor->alert( 'success', sprintf(__('Message sent to %s', 'gmLang'), $email) );
+	}
+
+	die();
+}
+
+add_action( 'wp_ajax_gmedia_module_interaction', 'gmedia_module_interaction' );
+add_action( 'wp_ajax_nopriv_gmedia_module_interaction', 'gmedia_module_interaction' );
+function gmedia_module_interaction() {
+	global $gmDB, $gmCore;
+
+	if ( empty( $_SERVER['HTTP_REFERER'] ) ) {
+		die();
+	}
+
+	$ref = $_SERVER['HTTP_REFERER'];
+	//$uip = str_replace('.', '', $_SERVER['REMOTE_ADDR'])
+	if ( (false === strpos( $ref, get_home_url() )) && (false === strpos( $ref, get_site_url()) )) {
+		echo 'referer:'.$_SERVER['HTTP_REFERER']."\n";
+		echo 'home_url:'.get_home_url()."\n";
+		echo 'site_url:'.get_site_url()."\n";
+		die('-1');
+	}
+
+	if ( isset($_POST['hit']) && ($gmID = intval($_POST['hit'])) ) {
+		if(null === $gmDB->get_gmedia($gmID)){
+			die('0');
+		}
+		$meta['views'] = $gmDB->get_metadata('gmedia', $gmID, 'views', true);
+		$meta['likes'] = $gmDB->get_metadata('gmedia', $gmID, 'likes', true);
+
+		$meta = array_map('intval', $meta);
+		$meta = $gmCore->gm_hitcounter($gmID, $meta);
+
+		header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
+		echo json_encode($meta);
+		die();
+	}
+
+	if ( isset($_POST['rate']) ) {
+		/**
+		 * @var $uip
+		 * @var $gmid
+		 * @var $rate
+		 */
+		extract($_POST['rate'], EXTR_OVERWRITE);
+		if(!intval($gmid) || (null === $gmDB->get_gmedia($gmid))){
+			die('0');
+		}
+		$rating = $gmDB->get_metadata('gmedia', $gmid, 'rating', true);
+		$old_rate = 0;
+
+		$transient_key = 'gm_rate_day'.date('w');
+		$transient_value = get_transient($transient_key);
+		if($transient_value){
+			if(isset($transient_value[$uip][$gmid])){
+				$old_rate = $transient_value[$uip][$gmid];
+			}
+			$transient_value[$uip][$gmid] = $rate;
+		} else{
+			$transient_value = array($uip => array($gmid => $rate));
+		}
+		set_transient($transient_key, $transient_value, 18 * HOUR_IN_SECONDS);
+
+		$rating_votes = $old_rate? $rating['votes'] : $rating['votes'] + 1;
+		$rating_value = ($rating['value']*$rating['votes'] + $rate - $old_rate)/$rating_votes;
+		$rating = array('value' => $rating_value, 'votes' => $rating_votes);
+
+		$gmDB->update_metadata('gmedia', $gmid, 'rating', $rating);
+
+		header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
+		echo json_encode(array($rating));
+		die();
 	}
 
 	die();

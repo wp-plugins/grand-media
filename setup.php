@@ -19,12 +19,18 @@ function gmedia_default_options(){
 
 	$gm['uninstall_dropdata'] = 'all'; // can be 'all', 'none', 'db'
 
+	$gm['in_tag_orderby'] = 'ID';
+	$gm['in_tag_order'] = 'DESC';
+	$gm['in_category_orderby'] = 'ID';
+	$gm['in_category_order'] = 'DESC';
+
 	$gm['isolation_mode'] = '0';
 	$gm['shortcode_raw'] = '0';
-	$gm['endpoint'] = 'gmedia';
 
+	$gm['endpoint'] = 'gmedia';
 	$gm['gmediacloud_module'] = '';
 	$gm['gmediacloud_footer_js'] = '';
+	$gm['gmediacloud_footer_css'] = '';
 
 	$gm['gmedia_post_types_support'] = '';
 
@@ -81,9 +87,19 @@ function gmedia_default_options(){
 	$gm['taxonomies']['gmedia_gallery'] = array(); // not linked with gmedia_term_relationships table
 	$gm['taxonomies']['gmedia_module'] = array(); // not linked with gmedia_term_relationships table
 
+	$gm['gm_screen_options']['per_page_sort_gmedia'] = 60;
+
 	$gm['gm_screen_options']['per_page_gmedia'] = 30;
 	$gm['gm_screen_options']['orderby_gmedia'] = 'ID';
 	$gm['gm_screen_options']['sortorder_gmedia'] = 'DESC';
+
+	$gm['gm_screen_options']['per_page_gmedia_terms'] = 30;
+	$gm['gm_screen_options']['orderby_gmedia_terms'] = 'name';
+	$gm['gm_screen_options']['sortorder_gmedia_terms'] = 'DESC';
+
+	$gm['gm_screen_options']['per_page_gmedia_galleries'] = 30;
+	$gm['gm_screen_options']['orderby_gmedia_galleries'] = 'name';
+	$gm['gm_screen_options']['sortorder_gmedia_galleries'] = 'DESC';
 
 	$gm['gm_screen_options']['per_page_wpmedia'] = 30;
 	$gm['gm_screen_options']['orderby_wpmedia'] = 'ID';

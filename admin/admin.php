@@ -396,12 +396,13 @@ class GmediaAdmin {
 					$settings = '
 					<div class="form-inline pull-left">
 						<div class="form-group">
-							<input type="number" max="999" min="0" step="5" size="3" name="gm_screen_options[per_page_gmedia]" class="form-control input-sm" style="width: auto;" value="' . $gm_screen_options['per_page_gmedia'] . '" /> <span>' . __( 'items per page', 'gmLang' ) . '</span>
+							<input type="number" max="999" min="0" step="5" size="3" name="gm_screen_options[per_page_gmedia]" class="form-control input-sm" style="width: 5em;" value="' . $gm_screen_options['per_page_gmedia'] . '" /> <span>' . __( 'items per page', 'gmLang' ) . '</span>
 						</div>
 						<div class="form-group">
 							<select name="gm_screen_options[orderby_gmedia]" class="form-control input-sm">
 								<option' . selected( $gm_screen_options['orderby_gmedia'], 'ID', false ) . ' value="ID">' . __( 'ID', 'gmLang' ) . '</option>
 								<option' . selected( $gm_screen_options['orderby_gmedia'], 'title', false ) . ' value="title">' . __( 'Title', 'gmLang' ) . '</option>
+								<option' . selected( $gm_screen_options['orderby_gmedia'], 'gmuid', false ) . ' value="gmuid">' . __( 'Filename', 'gmLang' ) . '</option>
 								<option' . selected( $gm_screen_options['orderby_gmedia'], 'date', false ) . ' value="date">' . __( 'Date', 'gmLang' ) . '</option>
 								<option' . selected( $gm_screen_options['orderby_gmedia'], 'modified', false ) . ' value="modified">' . __( 'Last Modified', 'gmLang' ) . '</option>
 								<option' . selected( $gm_screen_options['orderby_gmedia'], 'mime_type', false ) . ' value="mime_type">' . __( 'MIME Type', 'gmLang' ) . '</option>
@@ -426,31 +427,6 @@ class GmediaAdmin {
 						';
 					}
 					$settings .= '
-					</div>
-					';
-					break;
-				case 'GrandMedia_WordpressLibrary' :
-					$settings = '<p>' . __( 'Set query options for this page to be loaded by default.', 'gmLang' ) . '</p>
-					<div class="form-inline pull-left">
-						<div class="form-group">
-							<input type="number" max="999" min="0" step="5" size="3" name="gm_screen_options[per_page_wpmedia]" class="form-control input-sm" style="width: auto;" value="' . $gm_screen_options['per_page_wpmedia'] . '" /> <span>' . __( 'items per page', 'gmLang' ) . '</span>
-						</div>
-						<div class="form-group">
-							<select name="gm_screen_options[orderby_wpmedia]" class="form-control input-sm">
-								<option' . selected( $gm_screen_options['orderby_wpmedia'], 'ID', false ) . ' value="ID">' . __( 'ID', 'gmLang' ) . '</option>
-								<option' . selected( $gm_screen_options['orderby_wpmedia'], 'title', false ) . ' value="title">' . __( 'Title', 'gmLang' ) . '</option>
-								<option' . selected( $gm_screen_options['orderby_wpmedia'], 'date', false ) . ' value="date">' . __( 'Date', 'gmLang' ) . '</option>
-								<option' . selected( $gm_screen_options['orderby_wpmedia'], 'modified', false ) . ' value="modified">' . __( 'Last Modified', 'gmLang' ) . '</option>
-								<option' . selected( $gm_screen_options['orderby_wpmedia'], 'mime_type', false ) . ' value="mime_type">' . __( 'MIME Type', 'gmLang' ) . '</option>
-								<option' . selected( $gm_screen_options['orderby_wpmedia'], 'author', false ) . ' value="author">' . __( 'Author', 'gmLang' ) . '</option>
-							</select> <span>' . __( 'order items', 'gmLang' ) . '</span>
-						</div>
-						<div class="form-group">
-							<select name="gm_screen_options[sortorder_wpmedia]" class="form-control input-sm">
-								<option' . selected( $gm_screen_options['sortorder_wpmedia'], 'DESC', false ) . ' value="DESC">' . __( 'DESC', 'gmLang' ) . '</option>
-								<option' . selected( $gm_screen_options['sortorder_wpmedia'], 'ASC', false ) . ' value="ASC">' . __( 'ASC', 'gmLang' ) . '</option>
-							</select> <span>' . __( 'sort order', 'gmLang' ) . '</span>
-						</div>
 					</div>
 					';
 					break;
@@ -483,6 +459,89 @@ class GmediaAdmin {
 						</div>
 						';
 					}
+					break;
+				case 'GrandMedia_Terms' :
+					if ( $gmCore->_get( 'edit_album' ) ) {
+						$settings = '
+						<div class="form-inline pull-left">
+							<div class="form-group">
+								<input type="number" max="999" min="0" step="5" size="3" name="gm_screen_options[per_page_sort_gmedia]" class="form-control input-sm" style="width: 5em;" value="' . $gm_screen_options['per_page_sort_gmedia'] . '" /> <span>' . __( 'items per page', 'gmLang' ) . '</span>
+							</div>
+						</div>
+						';
+					} elseif( 'gmedia_category' !== $gmCore->_get( 'term', 'gmedia_album' ) ){
+						$settings = '
+						<div class="form-inline pull-left">
+							<div class="form-group">
+								<input type="number" max="999" min="0" step="5" size="3" name="gm_screen_options[per_page_gmedia_terms]" class="form-control input-sm" style="width: 5em;" value="' . $gm_screen_options['per_page_gmedia_terms'] . '" /> <span>' . __( 'items per page', 'gmLang' ) . '</span>
+							</div>
+							<div class="form-group">
+								<select name="gm_screen_options[orderby_gmedia_terms]" class="form-control input-sm">
+									<option' . selected( $gm_screen_options['orderby_gmedia_terms'], 'id', false ) . ' value="id">' . __( 'ID', 'gmLang' ) . '</option>
+									<option' . selected( $gm_screen_options['orderby_gmedia_terms'], 'name', false ) . ' value="name">' . __( 'Name', 'gmLang' ) . '</option>
+									<option' . selected( $gm_screen_options['orderby_gmedia_terms'], 'count', false ) . ' value="count">' . __( 'Gmedia Count', 'gmLang' ) . '</option>
+									<option' . selected( $gm_screen_options['orderby_gmedia_terms'], 'global', false ) . ' value="global">' . __( 'Author ID (for albums only)', 'gmLang' ) . '</option>
+								</select> <span>' . __( 'order items', 'gmLang' ) . '</span>
+							</div>
+							<div class="form-group">
+								<select name="gm_screen_options[sortorder_gmedia_terms]" class="form-control input-sm">
+									<option' . selected( $gm_screen_options['sortorder_gmedia_terms'], 'DESC', false ) . ' value="DESC">' . __( 'DESC', 'gmLang' ) . '</option>
+									<option' . selected( $gm_screen_options['sortorder_gmedia_terms'], 'ASC', false ) . ' value="ASC">' . __( 'ASC', 'gmLang' ) . '</option>
+								</select> <span>' . __( 'sort order', 'gmLang' ) . '</span>
+							</div>
+						</div>
+						';
+					}
+					break;
+				case 'GrandMedia_Galleries' :
+					if ( !$gmCore->_get( 'edit_gallery' ) && !$gmCore->_get( 'gallery_module' ) ) {
+						$settings = '
+						<div class="form-inline pull-left">
+							<div class="form-group">
+								<input type="number" max="999" min="0" step="5" size="3" name="gm_screen_options[per_page_gmedia_galleries]" class="form-control input-sm" style="width: 5em;" value="' . $gm_screen_options['per_page_gmedia_galleries'] . '" /> <span>' . __( 'items per page', 'gmLang' ) . '</span>
+							</div>
+							<div class="form-group">
+								<select name="gm_screen_options[orderby_gmedia_galleries]" class="form-control input-sm">
+									<option' . selected( $gm_screen_options['orderby_gmedia_galleries'], 'id', false ) . ' value="id">' . __( 'ID', 'gmLang' ) . '</option>
+									<option' . selected( $gm_screen_options['orderby_gmedia_galleries'], 'name', false ) . ' value="name">' . __( 'Name', 'gmLang' ) . '</option>
+									<option' . selected( $gm_screen_options['orderby_gmedia_galleries'], 'global', false ) . ' value="global">' . __( 'Author ID', 'gmLang' ) . '</option>
+								</select> <span>' . __( 'order items', 'gmLang' ) . '</span>
+							</div>
+							<div class="form-group">
+								<select name="gm_screen_options[sortorder_gmedia_galleries]" class="form-control input-sm">
+									<option' . selected( $gm_screen_options['sortorder_gmedia_galleries'], 'DESC', false ) . ' value="DESC">' . __( 'DESC', 'gmLang' ) . '</option>
+									<option' . selected( $gm_screen_options['sortorder_gmedia_galleries'], 'ASC', false ) . ' value="ASC">' . __( 'ASC', 'gmLang' ) . '</option>
+								</select> <span>' . __( 'sort order', 'gmLang' ) . '</span>
+							</div>
+						</div>
+						';
+					}
+					break;
+				case 'GrandMedia_WordpressLibrary' :
+					$settings = '<p>' . __( 'Set query options for this page to be loaded by default.', 'gmLang' ) . '</p>
+					<div class="form-inline pull-left">
+						<div class="form-group">
+							<input type="number" max="999" min="0" step="5" size="3" name="gm_screen_options[per_page_wpmedia]" class="form-control input-sm" style="width: 5em;" value="' . $gm_screen_options['per_page_wpmedia'] . '" /> <span>' . __( 'items per page', 'gmLang' ) . '</span>
+						</div>
+						<div class="form-group">
+							<select name="gm_screen_options[orderby_wpmedia]" class="form-control input-sm">
+								<option' . selected( $gm_screen_options['orderby_wpmedia'], 'ID', false ) . ' value="ID">' . __( 'ID', 'gmLang' ) . '</option>
+								<option' . selected( $gm_screen_options['orderby_wpmedia'], 'title', false ) . ' value="title">' . __( 'Title', 'gmLang' ) . '</option>
+								<option' . selected( $gm_screen_options['orderby_wpmedia'], 'filename', false ) . ' value="filename">' . __( 'Filename', 'gmLang' ) . '</option>
+								<option' . selected( $gm_screen_options['orderby_wpmedia'], 'date', false ) . ' value="date">' . __( 'Date', 'gmLang' ) . '</option>
+								<option' . selected( $gm_screen_options['orderby_wpmedia'], 'modified', false ) . ' value="modified">' . __( 'Last Modified', 'gmLang' ) . '</option>
+								<option' . selected( $gm_screen_options['orderby_wpmedia'], 'mime_type', false ) . ' value="mime_type">' . __( 'MIME Type', 'gmLang' ) . '</option>
+								<option' . selected( $gm_screen_options['orderby_wpmedia'], 'author', false ) . ' value="author">' . __( 'Author', 'gmLang' ) . '</option>
+							</select> <span>' . __( 'order items', 'gmLang' ) . '</span>
+						</div>
+						<div class="form-group">
+							<select name="gm_screen_options[sortorder_wpmedia]" class="form-control input-sm">
+								<option' . selected( $gm_screen_options['sortorder_wpmedia'], 'DESC', false ) . ' value="DESC">' . __( 'DESC', 'gmLang' ) . '</option>
+								<option' . selected( $gm_screen_options['sortorder_wpmedia'], 'ASC', false ) . ' value="ASC">' . __( 'ASC', 'gmLang' ) . '</option>
+							</select> <span>' . __( 'sort order', 'gmLang' ) . '</span>
+						</div>
+					</div>
+					';
 					break;
 			}
 

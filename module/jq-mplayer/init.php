@@ -5,7 +5,7 @@
  * @var  $gallery
  * @var  $module
  * @var  $settings
- * @var  $term
+ * @var  $terms
  * @var  $gmedia
  * @var  $is_bot
  **/
@@ -50,6 +50,7 @@ if(!empty($content)){
 		'moduleUrl' => $module['url'],
 		'pluginUrl' => $gmCore->gmedia_url,
 		'libraryUrl' => $gmCore->upload['url'],
+		'ajaxurl' => admin_url('admin-ajax.php'),
 		'ip' => str_replace('.', '', $_SERVER['REMOTE_ADDR'])
 	));
 	$allsettings = array_merge($module['options'], $settings);

@@ -229,14 +229,14 @@ function gmedia_upload_files() {
 					<?php if('auto' != $gm_screen_options['uploader_runtime']){ ?>
 					runtimes: '<?php echo $gm_screen_options['uploader_runtime']; ?>',
 					<?php } ?>
-					url: '<?php echo wp_nonce_url($gmCore->gmedia_url . '/admin/upload.php', 'grandMedia' ); ?>',
+					url: '<?php echo admin_url( 'admin-ajax.php' ); ?>',
 					<?php if(('true' == $gm_screen_options['uploader_urlstream_upload']) && ('html4' != $gm_screen_options['uploader_runtime'])){ ?>
 					urlstream_upload: true,
 					multipart: false,
 					<?php } else{ ?>
 					multipart: true,
 					<?php } ?>
-					multipart_params: {params: ''},
+					multipart_params: {action: 'gmedia_upload_handler', _ajax_nonce: '<?php echo wp_create_nonce('GmediaUpload'); ?>', params: ''},
 					<?php if('true' == $gm_screen_options['uploader_chunking'] && ('html4' != $gm_screen_options['uploader_runtime'])){ ?>
 					max_file_size: '2000Mb',
 					chunk_size: 200000<?php //echo min($maxupsize, $gm_screen_options['uploader_chunk_size']*1024*1024); ?>,
@@ -262,7 +262,7 @@ function gmedia_upload_files() {
 				var uploader = $("#pluploadUploader").plupload('getUploader');
 				uploader.bind('StateChanged', function (up) {
 					if (up.state == plupload.STARTED) {
-						up.settings.multipart_params = {params: jQuery('#uploader_multipart_params :input').serialize()};
+						up.settings.multipart_params.params = jQuery('#uploader_multipart_params :input').serialize();
 					}
 					//console.log('[StateChanged]', up.state, up.settings.multipart_params);
 				});
@@ -320,10 +320,11 @@ function gmedia_import() {
 
 	$gmediaURL = plugins_url( GMEDIA_FOLDER );
 	?>
-	<form class="row" id="import_form" name="import_form" target="import_window" action="<?php echo $gmCore->gmedia_url; ?>/admin/import.php" method="POST" accept-charset="utf-8" style="padding:20px 0 10px;">
+	<form class="row" id="import_form" name="import_form" target="import_window" action="<?php echo admin_url('admin-ajax.php'); ?>" method="POST" accept-charset="utf-8" style="padding:20px 0 10px;">
 	<div class="col-md-4">
 		<fieldset id="import_params" class="import-params">
 			<?php wp_nonce_field( 'GmediaImport' ); ?>
+			<input type="hidden" name="action" value="gmedia_import_handler"/>
 			<input type="hidden" id="import-action" name="import" value=""/>
 
 			<?php if ( $gmCore->caps['gmedia_terms'] ) { ?>
@@ -445,7 +446,7 @@ function gmedia_import() {
 				<div class="tab-footer">
 					<div class="checkbox pull-left"><label><input type="checkbox" name="delete_source" value="1"/> <?php _e( 'delete source files after importing', 'gmLang' ) ?>
 						</label></div>
-					<button class="pull-right btn btn-info gmedia-import" type="button" name="import-folder"><?php _e( 'Import folder', 'gmLang' ); ?></button>
+					<button class="pull-right btn btn-info gmedia-import" type="button" name="import-folder" value="true"><?php _e( 'Import folder', 'gmLang' ); ?></button>
 				</div>
 				<script type="text/javascript">
 					/* <![CDATA[ */
@@ -486,7 +487,7 @@ function gmedia_import() {
 							</div>
 						</div>
 						<div class="tab-footer">
-							<button class="pull-right btn btn-info gmedia-import" type="button" name="import-flagallery"><?php _e( 'Import', 'gmLang' ); ?></button>
+							<button class="pull-right btn btn-info gmedia-import" type="button" name="import-flagallery" value="true"><?php _e( 'Import', 'gmLang' ); ?></button>
 						</div>
 					<?php } else { ?>
 						<p class="tab-inside"><?php _e( 'There are no created galleries in this plugin.', 'gmLang' ) ?></p>
@@ -518,7 +519,7 @@ function gmedia_import() {
 							</div>
 						</div>
 						<div class="tab-footer">
-							<button class="pull-right btn btn-info gmedia-import" type="button" name="import-nextgen"><?php _e( 'Import', 'gmLang' ); ?></button>
+							<button class="pull-right btn btn-info gmedia-import" type="button" name="import-nextgen" value="true"><?php _e( 'Import', 'gmLang' ); ?></button>
 						</div>
 					<?php } else { ?>
 						<p class="tab-inside"><?php _e( 'There are no created galleries in this plugin.', 'gmLang' ) ?></p>

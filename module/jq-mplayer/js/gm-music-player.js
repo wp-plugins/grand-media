@@ -1,6 +1,6 @@
 /*
  * Title      : Music Player Module for Gmedia Gallery plugin
- * Version    : 2.1
+ * Version    : 2.2
  * Copyright  : 2013 CodEasily.com
  * Website    : http://www.codeasily.com
  */
@@ -39,7 +39,8 @@
 		opt_str = {
 			width:'auto',
 			buttonText:'Download',
-			moreText:'View More...'
+			moreText:'View More...',
+			ajaxurl:''
 		};
 		opt_int = {
 			maxwidth:0,
@@ -351,7 +352,9 @@
 
 					$this.prevAll().add($this).addClass(attr(cssSelector.ratingLevelOn)).end().end().nextAll().removeClass(attr(cssSelector.ratingLevelOn));
 
-					processRating(index, rating);
+					if(options.ajaxurl){
+						processRating(index, rating);
+					}
 				});
 			}
 
@@ -359,7 +362,7 @@
 				myPlaylist[index].rating = rating;
 				var gmid = myPlaylist[index].id,
 					uip = userOptions.ip;
-				$.post(userOptions.pluginUrl+'/rate.php', { rate: {uip:uip,gmid:gmid,rate:rating} }, function(r){
+				$.post(options.ajaxurl, { action: 'gmedia_module_interaction', rate: {uip:uip,gmid:gmid,rate:rating} }, function(r){
 					console.log(r);
 				});
 

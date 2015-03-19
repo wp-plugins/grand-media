@@ -88,9 +88,13 @@ function gmedia_footer(){
 
 	do_action('gmedia_footer');
 
+	if(!empty($gmGallery->options['gmediacloud_footer_css'])){
+		$css_code = stripslashes($gmGallery->options['gmediacloud_footer_css']);
+		echo "\n<style type=\"text/css\">\n{$css_code}\n</style>\n";
+	}
 	if(!empty($gmGallery->options['gmediacloud_footer_js'])){
 		$js_code = stripslashes($gmGallery->options['gmediacloud_footer_js']);
-		echo "<script type=\"text/javascript\">\n{$js_code}\n</script>";
+		echo "\n<script type=\"text/javascript\">\n{$js_code}\n</script>\n";
 	}
 }
 

@@ -570,25 +570,52 @@ class GmediaProcessor{
 							$term_id = $gmDB->update_term($edit_term, $term['taxonomy'], $term);
 						} else{
 							$term_id = $gmDB->insert_term($term['name'], $term['taxonomy'], $term);
+							if(is_int($term_id)){
+								$term_meta = array(
+									'orderby' => $term['orderby'],
+									'order' => $term['order']
+								);
+								foreach($term_meta as $key => $value){
+									$gmDB->add_metadata('gmedia_term', $term_id, $key, $value);
+								}
+							}
 						}
 						if(is_wp_error($term_id)){
 							$this->error[] = $term_id->get_error_message();
 							break;
 						}
 
-						$term_meta = array(
-							'orderby' => $term['orderby'],
-							'order' => $term['order']
-						);
-						foreach($term_meta as $key => $value){
-							if($edit_term){
-								$gmDB->update_metadata('gmedia_term', $term_id, $key, $value);
-							} else{
-								$gmDB->add_metadata('gmedia_term', $term_id, $key, $value);
-							}
-						}
-
 						$this->msg[] = sprintf(__('Album `%s` successfuly saved', 'gmLang'), $term['name']);
+
+					} while(0);
+				}
+				if(isset($_POST['gmedia_term_sort_save'])){
+					check_admin_referer('GmediaTerms', 'term_save_wpnonce');
+					do{
+						if(!$gmCore->caps['gmedia_album_manage']){
+							$this->error[] = __('You are not allowed to manage albums', 'gmLang');
+							break;
+						}
+						$term_data = $gmCore->_post('term');
+						$taxonomy = 'gmedia_album';
+						if(!($term_id = $gmDB->term_exists($term_data['term_id'], $taxonomy))){
+							$this->error[] = __('A term with the id provided do not exists', 'gmLang');
+							break;
+						}else {
+                            $_term = $gmDB->get_term($term_id, $taxonomy);
+                            if(((int)$_term->global != (int)$user_ID) && !current_user_can('gmedia_edit_others_media')){
+                                $this->error[] = __('You are not allowed to edit others media', 'gmLang');
+                                break;
+                            }
+							$term_id = $gmDB->update_term_sortorder($term_id, $taxonomy, $term_data);
+
+							if(is_wp_error($term_id)){
+								$this->error[] = $term_id->get_error_message();
+								break;
+							}
+
+							$this->msg[] = sprintf(__('Album `%s` successfuly saved', 'gmLang'), $_term->name);
+						}
 
 					} while(0);
 				}
