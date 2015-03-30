@@ -403,7 +403,7 @@ class GmediaProcessor{
 											$batch_data['link'] = $fileinfo['fileurl_original'];
 											break;
 										case 'custom':
-											$link_custom = $gmCore->_post('batch_title_custom');
+											$link_custom = $gmCore->_post('batch_link_custom');
 											if(false !== $link_custom){
 												$batch_data['link'] = $link_custom;
 											}

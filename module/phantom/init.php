@@ -5,7 +5,7 @@
  * @var  $gallery
  * @var  $module
  * @var  $settings
- * @var  $term
+ * @var  $terms
  * @var  $gmedia
  * @var  $is_bot
  **/
@@ -56,15 +56,24 @@ if(!empty($content)){
 	$json_settings = json_encode($settings);
 	$settings = array_merge($module['options'], $settings);
 	?>
-<?php if($shortcode_raw){ echo '<pre style="display:none">'; }
-?><script type="text/javascript">
-	jQuery(function(){
-		var settings = <?php echo $json_settings; ?>;
-		var content = <?php echo json_encode($content); ?>;
-		jQuery('#GmediaGallery_<?php echo $gallery['term_id'] ?>').gmPhantom([content, settings]);
-	});
-</script><?php if($shortcode_raw){ echo '</pre>'; } ?>
-<div class="gmPhantom_Container delay" style="opacity:0.01">
+<?php if(!$is_bot) {
+		if ( $shortcode_raw ) {
+			echo '<pre style="display:none">';
+		}
+		?>
+		<script type="text/javascript">
+			jQuery(function(){
+				var settings = <?php echo $json_settings; ?>;
+				var content = <?php echo json_encode($content); ?>;
+				jQuery('#GmediaGallery_<?php echo $gallery['term_id'] ?>').gmPhantom([content, settings]);
+			});
+		</script><?php
+		if ( $shortcode_raw ) {
+			echo '</pre>';
+		}
+	}
+?>
+<div class="gmPhantom_Container delay"<?php if(!$is_bot){ echo ' style="opacity:0.01"'; } ?>>
 	<div class="gmPhantom_Background"></div>
 	<div class="gmPhantom_thumbsWrapper">
 		<?php $i = 0; $wrapper_r = $settings['thumbWidth']/$settings['thumbHeight'];

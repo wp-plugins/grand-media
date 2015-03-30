@@ -222,14 +222,14 @@ function gmedia_shortcode($atts, $content = ''){
 	$gmGallery->do_module[$gallery['module']] = $module;
 	$gmGallery->shortcode = compact('module', 'gallery', 'terms', 'gmedia');
 
-	if(!($is_bot = wp_is_mobile())){
-		$is_mobile_class = ' is_mobile';
+	$is_bot = false;
+	if(!($is_mob = wp_is_mobile())){
 		$is_bot = $gmCore->is_bot();
 	}
 
 	do_action('pre_gmedia_shortcode');
 
-	$out = '<div class="gmedia_gallery ' . $gallery['module'] . '_module' . ($is_bot? ' is_mobile' : '') . '" id="GmediaGallery_' . $id . '" data-gallery="' . $id . '" data-module="' . $gallery['module'] . '">';
+	$out = '<div class="gmedia_gallery ' . $gallery['module'] . '_module' . ($is_mob? ' is_mobile' : '') . '" id="GmediaGallery_' . $id . '" data-gallery="' . $id . '" data-module="' . $gallery['module'] . '">';
 	$out .= $content;
 
 	ob_start();

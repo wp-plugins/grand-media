@@ -125,6 +125,11 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 = Photobox module =
 * Updated Photobox module. Added option to set thumbs size, fixed problems with portrait images.
 
+= 1.5.9 =
+* Fixed Batch Edit -> Custom Link
+* Added sitemap integration with WP SEO by Yoast plugin
+* Small fixes and improvements
+
 = 1.5.8 =
 * Fixed Upload and Import now works with .htaccess which deny *.php direct access in wp-content folder
 * Improved Album Sorting
