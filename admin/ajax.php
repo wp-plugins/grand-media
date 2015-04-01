@@ -499,6 +499,14 @@ function gmedia_get_modal() {
 				$modal_button = false;
 			}
 			break;
+		case 'select_author':
+			$modal_title = __( 'Select Author', 'gmLang' );
+			if ( $gmCore->caps['gmedia_show_others_media'] ) {
+				$modal_button = __( 'Select', 'gmLang' );
+			} else {
+				$modal_button = false;
+			}
+			break;
 		case 'batch_edit':
 			if ( ! current_user_can( 'gmedia_edit_media' ) ) {
 				die( '-1' );
@@ -862,6 +870,7 @@ function gmedia_get_modal() {
 	}
 	break;
 	case 'filter_authors':
+	case 'select_author':
 	if ($gmCore->caps['gmedia_show_others_media']){
 	?>
 		<div class="form-group">

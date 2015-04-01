@@ -77,7 +77,8 @@ Features:
 *   Import Wordpress Media Library files
 *   Uses WordPress' native Image Resizer
 *   Import files from server folder or from others gallery plugins
-*   Full Window Gallery Page permalinks (like GRAND Page in Flagallery) - you can copy gallery permalink and insert it in the website menu
+*   Gmedia Cloud Pages - Full Window Gallery Templates (like GRAND Page in Flagallery) - you can copy gallery permalink or any items's permalink and insert it in the website menu
+*   Custom Templates for GmediaCloud pages (can be selected on Gmedia Settings page)
 *   Role/Capability Manager intergrated
 *   Statuses: public, private (only for logged in users), etc. for files, albums
 *   Batch operations with selected Gmedia items
@@ -85,8 +86,9 @@ Features:
 
 TODO List:
 
+*   Create custom query filters with selected parameters (work in progress..)
 *   Cover for Album. It will be also used for music without cover (work in progress..)
-*   Templates for galleries (partially done. Work in progress..)
+*   Duplicate item in Gmedia Library (work in progress..)
 *   More Batch operations with selected Gmedia items (work in progress..)
 *   Related Post images on Edit Post. Option to automatically create gallery in Post with related images (work in progress..)
 *   Share albums to socials from admin panel (in queue)
@@ -122,8 +124,12 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 
 == Changelog ==
 
-= Photobox module =
-* Updated Photobox module. Added option to set thumbs size, fixed problems with portrait images.
+= Modules Updated =
+* Go to Gmedia Modules page and update installed premium modules to latest versions
+
+= 1.5.91 =
+* Fixed compatibility with PHP v5.2
+* Small fixes and improvements
 
 = 1.5.9 =
 * Fixed Batch Edit -> Custom Link

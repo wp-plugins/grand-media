@@ -661,7 +661,7 @@ function gmediaGalleryEdit(){
 
 					<p><b><?php _e('Gallery author:', 'gmLang'); ?></b>
 						<?php if($gmCore->caps['gmedia_delete_others_media']){ ?>
-							<a href="#gallModal" data-modal="filter_authors" data-action="gmedia_get_modal" class="gmedia-modal" title="<?php _e('Click to choose author for gallery', 'gmLang'); ?>"><?php echo $gallery['global']? get_the_author_meta('display_name', $gallery['global']) : __('(no author / shared albums)'); ?></a>
+							<a href="#gallModal" data-modal="select_author" data-action="gmedia_get_modal" class="gmedia-modal" title="<?php _e('Click to choose author for gallery', 'gmLang'); ?>"><?php echo $gallery['global']? get_the_author_meta('display_name', $gallery['global']) : __('(no author / shared albums)'); ?></a>
 							<?php if($author_new){
 								echo '<br /><span class="text-danger">' . __('Note: Author changed but not saved yet. You can see Albums list only of chosen author') . '</span>';
 							} ?>

@@ -910,7 +910,7 @@ function gmediaAlbumEdit(){
 						<div class="col-xs-3">
 							<div class="form-group">
 								<label><?php _e('Sort order', 'gmLang'); ?></label>
-								<select name="term[order]" class="form-control input-sm">
+								<select id="gmedia_term_order" name="term[order]" class="form-control input-sm">
 									<option value="DESC"<?php selected($term_meta['order'], 'DESC'); ?>><?php _e('DESC', 'gmLang'); ?></option>
 									<option value="ASC"<?php selected($term_meta['order'], 'ASC'); ?>><?php _e('ASC', 'gmLang'); ?></option>
 								</select>
@@ -957,7 +957,6 @@ function gmediaAlbumEdit(){
 
 			<script type="text/javascript">
 				jQuery(function($){
-					var img_order_asc = <?php echo ('ASC' == $term_meta['order'])? 'true' : 'false'; ?>;
 					var sortdiv = $('#termItems');
 					var items = $('.gm-img-thumbnail', sortdiv);
 
@@ -974,6 +973,7 @@ function gmediaAlbumEdit(){
 								prev_item = self.prev(),
 								next_item = self.next();
 							prev_order = prev_item.length? parseInt($('input', prev_item).val()) : 0;
+							var img_order_asc = ('ASC' == $('#gmedia_term_order').val());
 							if(img_order_asc){
 								cur_order = prev_order + 1;
 								$('input', self).val(cur_order);
@@ -1019,6 +1019,7 @@ function gmediaAlbumEdit(){
 							ipos[i] = pos;
 						});
 
+						var img_order_asc = ('ASC' == $('#gmedia_term_order').val());
 						var order = img_order_asc? 'asc' : 'desc';
 						items.tsort('input', {
 							useVal: true,

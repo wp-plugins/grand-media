@@ -1718,7 +1718,7 @@ class GmediaCore {
 				if(!empty($keywords)){
 					$media_data['terms']['gmedia_tag'] = $keywords;
 				}
-				$media_data = array_replace_recursive( $media_data, $post_data );
+				$media_data = $this->array_replace_recursive( $media_data, $post_data );
 
 				if ( ! current_user_can( 'gmedia_delete_others_media' ) ) {
 					$media_data['author'] = get_current_user_id();

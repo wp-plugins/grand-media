@@ -409,7 +409,8 @@ class GmediaProcessor{
 											}
 											break;
 									}
-									$gmedia_data = array_replace($gmedia, $batch_data);
+									//$gmedia_data = array_replace($gmedia, $batch_data);
+									$gmedia_data = array_merge($gmedia, $batch_data);
 									$gmDB->insert_gmedia($gmedia_data);
 								}
 								$this->msg[] = sprintf(__('%d item(s) updated successfuly', 'gmLang'), $count);
@@ -652,7 +653,7 @@ class GmediaProcessor{
 				if(!$gmCore->caps['gmedia_gallery_manage']){
 					wp_die(__('You are not allowed to manage gmedia galleries', 'gmLang'));
 				}
-				if(isset($_POST['filter_authors'])){
+				if(isset($_POST['select_author'])){
 					$authors = $gmCore->_post('author_ids');
 					$location = $gmCore->get_admin_url(array('author' => (int)$authors));
 					wp_redirect($location);
