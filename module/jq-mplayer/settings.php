@@ -2,7 +2,7 @@
 $default_options = array(
 	'maxwidth' => '0',
 	'rating' => '1',
-	'autoplay' => '1',
+	'autoplay' => '0',
 	'buttonText' => 'Download',
 	'tracksToShow' => '5',
 	'moreText' => 'View More...',
