@@ -206,6 +206,11 @@ jQuery(function($){
 					action: $(this).data('action'), modal: $(this).data('modal'), _wpnonce: $('#_wpnonce').val()
 				};
 				$.post(ajaxurl, post_data, function(data, textStatus, jqXHR){
+					if(!data || ('-1' == data)){
+						$('body').removeClass('gmedia-busy');
+						alert(data);
+						return false;
+					}
 					$('.modal-dialog', modal_div).html(data);
 					modal_div.modal({
 						backdrop: 'static',

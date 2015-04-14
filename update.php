@@ -456,15 +456,15 @@ function gmedia_quite_update(){
 			update_option('gmediaOptions', $gmGallery->options);
 		}
 
-		if(version_compare($current_version, '1.2.0', '<')){
-			gmedia_capabilities();
-		}
-
 		if(version_compare($current_version, '1.4.4', '<')){
 			if(!get_option('GmediaHashID_salt')){
 				$ustr = wp_generate_password(12, false);
 				add_option('GmediaHashID_salt', $ustr);
 			}
+		}
+
+		if(version_compare($current_version, '1.6.0', '<')){
+			gmedia_capabilities();
 		}
 
 		$gmCore->delete_folder($gmCore->upload['path'] . '/module/afflux');

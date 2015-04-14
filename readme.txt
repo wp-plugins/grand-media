@@ -127,6 +127,10 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 = Modules Updated =
 * Go to Gmedia Modules page and update installed premium modules to latest versions
 
+= 1.6.0 =
+* Added Custom Filters - Custom Query Builder for Gmedia Library!!!
+* Small fixes and improvements
+
 = 1.5.91 =
 * Fixed compatibility with PHP v5.2
 * Small fixes and improvements

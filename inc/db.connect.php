@@ -265,17 +265,31 @@ class GmediaDB{
 			extract($this->clauses, EXTR_OVERWRITE);
 		}
 
+		/*
 		$count = $wpdb->get_results("SELECT COUNT(*) as total,
 						SUM(CASE WHEN {$wpdb->prefix}gmedia.mime_type LIKE 'image%' THEN 1 ELSE 0 END) as image,
 						SUM(CASE WHEN {$wpdb->prefix}gmedia.mime_type LIKE 'audio%' THEN 1 ELSE 0 END) as audio,
 						SUM(CASE WHEN {$wpdb->prefix}gmedia.mime_type LIKE 'video%' THEN 1 ELSE 0 END) as video,
 						SUM(CASE WHEN {$wpdb->prefix}gmedia.mime_type LIKE 'text%' THEN 1 ELSE 0 END) as text,
 						SUM(CASE WHEN {$wpdb->prefix}gmedia.mime_type LIKE 'application%' THEN 1 ELSE 0 END) as application
-						FROM {$wpdb->prefix}gmedia $join WHERE 1 = 1 $where $whichauthor", ARRAY_A);
+						FROM {$wpdb->prefix}gmedia $join WHERE 1 = 1 $where $whichauthor $groupby", ARRAY_A);
+		*/
+		$count = $wpdb->get_results("SELECT count(DISTINCT {$wpdb->prefix}gmedia.ID) as total,
+			(SELECT count(DISTINCT {$wpdb->prefix}gmedia.ID) FROM {$wpdb->prefix}gmedia $join WHERE {$wpdb->prefix}gmedia.mime_type LIKE 'image%' $where $whichauthor) as image,
+			(SELECT count(DISTINCT {$wpdb->prefix}gmedia.ID) FROM {$wpdb->prefix}gmedia $join WHERE {$wpdb->prefix}gmedia.mime_type LIKE 'audio%' $where $whichauthor) as audio,
+			(SELECT count(DISTINCT {$wpdb->prefix}gmedia.ID) FROM {$wpdb->prefix}gmedia $join WHERE {$wpdb->prefix}gmedia.mime_type LIKE 'video%' $where $whichauthor) as video,
+			(SELECT count(DISTINCT {$wpdb->prefix}gmedia.ID) FROM {$wpdb->prefix}gmedia $join WHERE {$wpdb->prefix}gmedia.mime_type LIKE 'text%' $where $whichauthor) as text,
+			(SELECT count(DISTINCT {$wpdb->prefix}gmedia.ID) FROM {$wpdb->prefix}gmedia $join WHERE {$wpdb->prefix}gmedia.mime_type LIKE 'application%' $where $whichauthor) as application
+			 FROM {$wpdb->prefix}gmedia $join WHERE 1=1 $where $whichauthor
+			", ARRAY_A);
 
-		$count[0]['other'] = (int)$count[0]['text'] + (int)$count[0]['application'];
 
-		return $count[0];
+
+		$count = $count[0];
+		$count['other'] = (int)$count['text'] + (int)$count['application'];
+		$count['total'] = (int)$count['image'] + (int)$count['audio'] + (int)$count['video'] + (int)$count['other'];
+
+		return $count;
 	}
 
 	/**
@@ -818,6 +832,7 @@ class GmediaDB{
 			'minute',
 			'second',
 			'meta_key',
+			'meta_value',
 			's',
 			'fields',
 			'robots'
@@ -841,6 +856,8 @@ class GmediaDB{
 			'tag__and',
 			'tag_name__in',
 			'tag_name__and',
+			'author__in',
+			'author__not_in',
 			'meta_query'
 		);
 
@@ -991,8 +1008,12 @@ class GmediaDB{
 		if(!empty($q['s'])){
 			// added slashes screw with quote grouping when done early, so done later
 			$q['s'] = stripslashes($q['s']);
-			$q['search_terms'] = array_filter(array_map('trim', explode(' ', $q['s'])));
-			$n = !empty($q['exact'])? '' : '%';
+			if(empty($q['exact'])) {
+				$q['search_terms'] = array_filter( array_map( 'trim', explode( ' ', $q['s'] ) ) );
+			} else{
+				$q['search_terms'] = $q['s'];
+			}
+			$n = '%';
 			$searchand = '';
 			foreach((array)$q['search_terms'] as $term){
 				$term = esc_sql(addcslashes( $term, '_%\\' ));
@@ -1097,14 +1118,23 @@ class GmediaDB{
 			$q['alb'] = '';
 			$req_albs = array();
 			foreach((array)$alb_array as $alb){
-				$alb = intval($alb);
-				$req_albs[] = $alb;
+				if(!($alb = intval($alb))){
+					continue;
+				}
 				$in = ($alb >= 0);
 				$alb = abs($alb);
 				if($in){
+					/*if(isset($q['album__status'])){
+						$alb_obj = $this->get_term($alb, 'gmedia_album');
+						if(empty($alb_obj) || (is_wp_error($alb_obj) || !in_array($alb_obj->status, (array) $q['album__status']))){
+							continue;
+						}
+					}*/
 					$q['album__in'][] = $alb;
+					$req_albs[] = $alb;
 				} else{
 					$q['album__not_in'][] = $alb;
+					$req_albs[] = -$alb;
 				}
 			}
 			$q['alb'] = implode(',', $req_albs);
@@ -1114,7 +1144,11 @@ class GmediaDB{
 
 		if(!empty($q['album__in']) || '0' == $q['album__in']){
 			$q['album__in'] = wp_parse_id_list($q['album__in']);
-			if(in_array(0, $q['album__in'])){
+			$without_album = in_array(0, $q['album__in'])? true : false;
+			if(isset($q['album__status'])){
+				$q['album__in'] = $this->get_terms('gmedia_album', array('fields' => 'ids', 'orderby' => 'include', 'include' => $q['album__in'], 'status' => $q['album__status']));
+			}
+			if($without_album){
 				$q['album__in'] = array_filter($q['album__in']);
 				$q['album__not_in'] = array_diff($this->get_terms('gmedia_album', array('fields' => 'ids')), $q['album__in']);
 				$q['album__in'] = array();
@@ -1124,7 +1158,11 @@ class GmediaDB{
 			$q['album__not_in'] = wp_parse_id_list($q['album__not_in']);
 			if(in_array(0, $q['album__not_in'])){
 				$q['album__not_in'] = array_filter($q['album__not_in']);
-				$q['album__in'] = array_diff($this->get_terms('gmedia_album', array('fields' => 'ids')), $q['album__not_in']);
+				if(isset($q['album__status'])){
+					$q['album__in'] = array_diff( $this->get_terms('gmedia_album', array('fields' => 'ids', 'status' => $q['album__status'])), $q['album__not_in'] );
+				} else {
+					$q['album__in'] = array_diff( $this->get_terms( 'gmedia_album', array( 'fields' => 'ids' ) ), $q['album__not_in'] );
+				}
 				$q['album__not_in'] = array();
 			}
 		}
@@ -1330,8 +1368,8 @@ class GmediaDB{
 				$meta_query[0][$key] = $q["meta_$key"];
 			}
 		}
-		// WP_Query sets 'meta_value' = '' by default
-		if(isset($q['meta_value']) && '' !== $q['meta_value']){
+		// Query sets 'meta_value' = '' by default
+		if(isset($q['meta_value']) && !empty($q['meta_value'])){
 			$meta_query[0]['value'] = $q['meta_value'];
 		}
 
@@ -1349,17 +1387,16 @@ class GmediaDB{
 			} else{
 				$relation = 'AND';
 			}
-			foreach($meta_query as $query){
-				if(!is_array($query)){
-					continue;
-				}
-				$meta_query[] = $query;
-			}
+			$meta_query = array_filter($meta_query, 'is_array');
+
 			$clauses['join'] = array();
 			$clauses['where'] = array();
 
 			foreach($meta_query as $key => $query){
-				$meta_key = isset($query['key'])? trim($query['key']) : '';
+				if(!isset($query['key']) || empty($query['key'])){
+					continue;
+				}
+				$meta_key = trim($query['key']);
 				$meta_type = isset($query['type'])? strtoupper($query['type']) : 'CHAR';
 
 				if('NUMERIC' == $meta_type){
@@ -1373,8 +1410,7 @@ class GmediaDB{
 					'SIGNED',
 					'TIME',
 					'UNSIGNED'
-				))
-				){
+				))){
 					$meta_type = 'CHAR';
 				}
 
@@ -1499,7 +1535,7 @@ class GmediaDB{
 		}
 
 		// MIME-Type stuff
-		if(isset($q['mime_type']) && '' != $q['mime_type']){
+		if(isset($q['mime_type']) && !empty($q['mime_type'])){
 			$whichmimetype = $this->gmedia_mime_type_where($q['mime_type'], $wpdb->prefix . 'gmedia');
 		}
 
@@ -2331,6 +2367,9 @@ class GmediaDB{
 			$orderby = "ORDER BY t.name $order";
 		} else if('description' == $_orderby){
 			$orderby = "ORDER BY t.description $order, t.term_id $order";
+		} else if ( 'include' == $_orderby && ! empty( $args['include'] ) ) {
+			$include = implode( ',', array_map( 'absint', $args['include'] ) );
+			$orderby = "ORDER BY FIELD( t.term_id, $include )";
 		} else if('global' == $_orderby){
 			$orderby = "ORDER BY t.global ASC, t.term_id $order";
 		} else if('global_desc_name' == $_orderby){
@@ -2352,38 +2391,32 @@ class GmediaDB{
 		$inclusions = '';
 		if(!empty($include)){
 			$exclude = '';
-			$interms = wp_parse_id_list($include);
-			foreach($interms as $interm){
-				if(empty($inclusions)){
-					$inclusions = ' AND ( t.term_id = ' . intval($interm) . ' ';
-				} else{
-					$inclusions .= ' OR t.term_id = ' . intval($interm) . ' ';
-				}
-			}
+			$inclusions = implode( ',', wp_parse_id_list( $include ) );
 		}
 
 		if(!empty($inclusions)){
-			$inclusions .= ')';
+			$inclusions = ' AND t.term_id IN ( ' . $inclusions . ' )';
+			$where .= $inclusions;
 		}
-		$where .= $inclusions;
 
 		$exclusions = '';
 		if(!empty($exclude)){
-			$exterms = wp_parse_id_list($exclude);
-			foreach($exterms as $exterm){
-				if(empty($exclusions)){
-					$exclusions = ' AND ( t.term_id <> ' . intval($exterm) . ' ';
-				} else{
-					$exclusions .= ' AND t.term_id <> ' . intval($exterm) . ' ';
-				}
+			$exterms = wp_parse_id_list( $exclude );
+			if ( empty( $exclusions ) ) {
+				$exclusions = implode( ',', $exterms );
+			} else {
+				$exclusions .= ', ' . implode( ',', $exterms );
 			}
 		}
 
-		if(!empty($exclusions)){
-			$exclusions .= ')';
+		if ( ! empty( $exclusions ) ) {
+			$exclusions = ' AND t.term_id NOT IN (' . $exclusions . ')';
 		}
+
 		$exclusions = apply_filters('list_gmedia_terms_exclusions', $exclusions, $args);
-		$where .= $exclusions;
+		if ( ! empty( $exclusions ) ) {
+			$where .= $exclusions;
+		}
 
 		if(!empty($name__like)){
 			$name__like = addcslashes( $name__like, '_%\\' );
@@ -2452,7 +2485,7 @@ class GmediaDB{
 
 		$_fields = $fields;
 
-		$fields = implode(', ', apply_filters('gmedia_get_terms_fields', $selects, $args));
+		$fields = implode(', ', apply_filters('gmedia_get_terms_fields', $selects, $args, $taxonomies));
 
 		$join = "";
 

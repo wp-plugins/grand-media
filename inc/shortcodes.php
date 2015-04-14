@@ -188,24 +188,30 @@ function gmedia_shortcode($atts, $content = ''){
 				}
 				foreach($term_ids as $term_id){
 					$terms[$term_id] = $gmDB->get_term($term_id, $tax);
-					if(!empty($terms[$term_id]) && !is_wp_error($terms[$term_id]) && $terms[$term_id]->count){
-						if('gmedia_category' == $tax){
-							$terms[$term_id]->name = $gmGallery->options['taxonomies']['gmedia_category'][$terms[$term_id]->name];
-							$args = array('category__in' => $term_id, 'orderby' => $gmGallery->options['in_category_orderby'], 'order' => $gmGallery->options['in_category_order'], 'status' => $gmedia_status);
-							$gmedia[$term_id] = $gmDB->get_gmedias($args);
-						} elseif('gmedia_album' == $tax){
-							if(('draft' == $terms[$term_id]->status) || (('private' == $terms[$term_id]->status) && !is_user_logged_in())){
-								unset($terms[$term_id]);
-								continue;
+					if(!empty($terms[$term_id]) && !is_wp_error($terms[$term_id])){
+						if($terms[$term_id]->count) {
+							if ( 'gmedia_category' == $tax ) {
+								$terms[ $term_id ]->name = $gmGallery->options['taxonomies']['gmedia_category'][ $terms[ $term_id ]->name ];
+								$args                    = array( 'category__in' => $term_id, 'orderby' => $gmGallery->options['in_category_orderby'], 'order' => $gmGallery->options['in_category_order'], 'status' => $gmedia_status );
+								$gmedia[ $term_id ]      = $gmDB->get_gmedias( $args );
+							} elseif ( 'gmedia_album' == $tax ) {
+								if ( ( 'draft' == $terms[ $term_id ]->status ) || ( ( 'private' == $terms[ $term_id ]->status ) && ! is_user_logged_in() ) ) {
+									unset( $terms[ $term_id ] );
+									continue;
+								}
+								$term_meta          = $gmDB->get_metadata( 'gmedia_term', $term_id );
+								$term_meta          = array_map( 'reset', $term_meta );
+								$term_meta          = array_merge( array( 'orderby' => 'ID', 'order' => 'DESC' ), $term_meta );
+								$args               = array( 'album__in' => $term_id, 'orderby' => $term_meta['orderby'], 'order' => $term_meta['order'], 'status' => $gmedia_status );
+								$gmedia[ $term_id ] = $gmDB->get_gmedias( $args );
+							} elseif ( 'gmedia_tag' == $tax ) {
+								$args               = array( 'tag__in' => $term_id, 'orderby' => $gmGallery->options['in_tag_orderby'], 'order' => $gmGallery->options['in_tag_order'], 'status' => $gmedia_status );
+								$gmedia[ $term_id ] = $gmDB->get_gmedias( $args );
 							}
-							$term_meta = $gmDB->get_metadata('gmedia_term', $term_id);
-							$term_meta = array_map('reset', $term_meta);
-							$term_meta = array_merge(array('orderby' => 'ID', 'order' => 'DESC'), $term_meta);
-							$args = array('album__in' => $term_id, 'orderby' => $term_meta['orderby'], 'order' => $term_meta['order'], 'status' => $gmedia_status);
-							$gmedia[$term_id] = $gmDB->get_gmedias($args);
-						} elseif('gmedia_tag' == $tax){
-							$args = array('tag__in' => $term_id, 'orderby' => $gmGallery->options['in_tag_orderby'], 'order' => $gmGallery->options['in_tag_order'], 'status' => $gmedia_status);
-							$gmedia[$term_id] = $gmDB->get_gmedias($args);
+						} elseif ( 'gmedia_filter' == $tax ) {
+							$args = $gmDB->get_metadata( 'gmedia_term', $term_id, 'query', true );
+							$args = array_merge( array( 'status' => $gmedia_status, 'album__status' => $gmedia_status ), $args );
+							$gmedia[ $term_id ] = $gmDB->get_gmedias( $args );
 						}
 					} else{
 						unset($terms[$term_id]);

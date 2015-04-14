@@ -20,6 +20,7 @@ function gmedia_plugin_capabilities(){
 		,	'gmedia_import'
 		,'gmedia_terms'
 		,	'gmedia_album_manage'
+		,	'gmedia_filter_manage'
 		,	'gmedia_tag_manage'
 		,	'gmedia_terms_delete'
 		,'gmedia_gallery_manage'

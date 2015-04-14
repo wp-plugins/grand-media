@@ -76,7 +76,7 @@ class GmediaAdmin {
 		$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Gmedia Library', 'gmLang' ), __( 'Gmedia Library', 'gmLang' ), 'gmedia_library', 'GrandMedia', array( &$this, 'shell' ) );
 		if ( current_user_can( 'gmedia_library' ) ) {
 			$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Add Media Files', 'gmLang' ), __( 'Add/Import Files', 'gmLang' ), 'gmedia_upload', 'GrandMedia_AddMedia', array( &$this, 'shell' ) );
-			$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Albums, Tags...', 'gmLang' ), __( 'Albums, Tags...', 'gmLang' ), 'gmedia_library', 'GrandMedia_Terms', array( &$this, 'shell' ) );
+			$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Albums, Tags, Filters...', 'gmLang' ), __( 'Albums, Tags, Filters...', 'gmLang' ), 'gmedia_library', 'GrandMedia_Terms', array( &$this, 'shell' ) );
 			$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Gmedia Galleries', 'gmLang' ), __( 'Create/Manage Galleries...', 'gmLang' ), 'gmedia_gallery_manage', 'GrandMedia_Galleries', array( &$this, 'shell' ) );
 			$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Modules', 'gmLang' ), __( 'Modules', 'gmLang' ), 'gmedia_gallery_manage', 'GrandMedia_Modules', array( &$this, 'shell' ) );
 			$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Gmedia Settings', 'gmLang' ), __( 'Settings', 'gmLang' ), 'manage_options', 'GrandMedia_Settings', array( &$this, 'shell' ) );
@@ -173,7 +173,7 @@ class GmediaAdmin {
 
 	function controller() {
 
-		global $gmProcessor;
+		global $gmCore, $gmProcessor;
 		switch ( $gmProcessor->page ) {
 			case 'GrandMedia_AddMedia':
 				include_once( dirname( __FILE__ ) . '/addmedia.php' );
@@ -183,6 +183,8 @@ class GmediaAdmin {
 				include_once( dirname( __FILE__ ) . '/terms.php' );
 				if ( isset( $_GET['edit_album'] ) ) {
 					gmediaAlbumEdit();
+				} elseif ( isset( $_GET['edit_filter'] ) ) {
+					gmediaFilterEdit();
 				} else {
 					gmediaTerms();
 				}
@@ -251,10 +253,10 @@ class GmediaAdmin {
 		}
 
 		wp_enqueue_style( 'gmedia-bootstrap' );
-		//wp_enqueue_style( 'gmedia-bootstrap-theme' );
 		wp_enqueue_script( 'gmedia-bootstrap' );
 
-		//wp_enqueue_script( 'outside-events' );
+		wp_register_script( 'selectize', $gmCore->gmedia_url . '/assets/selectize/selectize.min.js', array( 'jquery' ), '0.12.0' );
+		wp_register_style( 'selectize', $gmCore->gmedia_url . '/assets/selectize/selectize.bootstrap3.css', array( 'gmedia-bootstrap' ), '0.12.0', 'screen' );
 
 		if ( isset( $_GET['page'] ) ) {
 			switch ( $_GET['page'] ) {
@@ -279,14 +281,14 @@ class GmediaAdmin {
 						}
 					}
 					if ( $gmCore->caps['gmedia_terms'] ) {
-						wp_enqueue_style( 'selectize', $gmCore->gmedia_url . '/assets/selectize/selectize.bootstrap3.css', array( 'gmedia-bootstrap' ), '0.8.5', 'screen' );
-						wp_enqueue_script( 'selectize', $gmCore->gmedia_url . '/assets/selectize/selectize.min.js', array( 'jquery' ), '0.8.5' );
+						wp_enqueue_style( 'selectize' );
+						wp_enqueue_script( 'selectize' );
 					}
 					break;
 				case "GrandMedia_WordpressLibrary" :
 					if ( $gmCore->caps['gmedia_import'] ) {
-						wp_enqueue_style( 'selectize', $gmCore->gmedia_url . '/assets/selectize/selectize.bootstrap3.css', array( 'gmedia-bootstrap' ), '0.8.5', 'screen' );
-						wp_enqueue_script( 'selectize', $gmCore->gmedia_url . '/assets/selectize/selectize.min.js', array( 'jquery' ), '0.8.5' );
+						wp_enqueue_style( 'selectize' );
+						wp_enqueue_script( 'selectize' );
 					}
 					break;
 				case "GrandMedia_Terms" :
@@ -295,13 +297,16 @@ class GmediaAdmin {
 						wp_enqueue_script( 'jquery-ui-full', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/jquery-ui.min.js', array(), '1.10.2' );
 
 						wp_enqueue_script( 'tinysort', $gmCore->gmedia_url . '/assets/jq-plugins/jquery.tinysort.js', array( 'jquery' ), '1.5.6' );
+					} elseif ( isset($_GET['edit_filter']) && $gmCore->caps['gmedia_filter_manage'] ) {
+						wp_enqueue_style( 'selectize' );
+						wp_enqueue_script( 'selectize' );
 					}
 
 					break;
 				case "GrandMedia_AddMedia" :
 					if ( $gmCore->caps['gmedia_terms'] ) {
-						wp_enqueue_style( 'selectize', $gmCore->gmedia_url . '/assets/selectize/selectize.bootstrap3.css', array( 'gmedia-bootstrap' ), '0.8.5', 'screen' );
-						wp_enqueue_script( 'selectize', $gmCore->gmedia_url . '/assets/selectize/selectize.min.js', array( 'jquery' ), '0.8.5' );
+						wp_enqueue_style( 'selectize' );
+						wp_enqueue_script( 'selectize' );
 					}
 					if ( $gmCore->caps['gmedia_upload'] ) {
 						$tab = $gmCore->_get( 'tab', 'upload' );
@@ -323,8 +328,9 @@ class GmediaAdmin {
 					break;
 				case "GrandMedia_Galleries" :
 					if ( $gmCore->caps['gmedia_gallery_manage'] && ( isset( $_GET['gallery_module'] ) || isset( $_GET['edit_gallery'] ) ) ) {
-						wp_enqueue_style( 'selectize', $gmCore->gmedia_url . '/assets/selectize/selectize.bootstrap3.css', array( 'gmedia-bootstrap' ), '0.8.5', 'screen' );
-						wp_enqueue_script( 'selectize', $gmCore->gmedia_url . '/assets/selectize/selectize.min.js', array( 'jquery', 'jquery-ui-sortable' ), '0.8.5' );
+						wp_enqueue_script( 'jquery-ui-sortable' );
+						wp_enqueue_style( 'selectize' );
+						wp_enqueue_script( 'selectize' );
 
 						wp_enqueue_style( 'jquery.minicolors', $gmCore->gmedia_url . '/assets/minicolors/jquery.minicolors.css', array( 'gmedia-bootstrap' ), '0.9.13' );
 						wp_enqueue_script( 'jquery.minicolors', $gmCore->gmedia_url . '/assets/minicolors/jquery.minicolors.js', array( 'jquery' ), '0.9.13' );
@@ -461,6 +467,7 @@ class GmediaAdmin {
 					}
 					break;
 				case 'GrandMedia_Terms' :
+					$taxonomy = $gmCore->_get( 'term', 'gmedia_album' );
 					if ( $gmCore->_get( 'edit_album' ) ) {
 						$settings = '
 						<div class="form-inline pull-left">
@@ -469,7 +476,7 @@ class GmediaAdmin {
 							</div>
 						</div>
 						';
-					} elseif( 'gmedia_category' !== $gmCore->_get( 'term', 'gmedia_album' ) ){
+					} elseif( !in_array($taxonomy, array('gmedia_category', 'gmedia_filter')) ){
 						$settings = '
 						<div class="form-inline pull-left">
 							<div class="form-group">

@@ -323,6 +323,12 @@ function gmSettings(){
 									<p class="help-block"><?php _e('Who can create and edit own albums. It is required "Edit Others Media" capability to edit others and shared albums', 'gmLang'); ?></p>
 								</div>
 								<div class="form-group">
+									<label><?php _e('Manage Filters', 'gmLang') ?>:</label>
+									<select name="capability[gmedia_filter_manage]" class="form-control input-sm"><?php wp_dropdown_roles($gmDB->get_role('gmedia_filter_manage')); ?></select>
+
+									<p class="help-block"><?php _e('Who can create and edit own custom filters. It is required "Edit Others Media" capability to edit filters you do not own', 'gmLang'); ?></p>
+								</div>
+								<div class="form-group">
 									<label><?php _e('Manage Tags', 'gmLang') ?>:</label>
 									<select name="capability[gmedia_tag_manage]" class="form-control input-sm"><?php wp_dropdown_roles($gmDB->get_role('gmedia_tag_manage')); ?></select>
 

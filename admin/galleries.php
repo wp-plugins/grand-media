@@ -695,9 +695,9 @@ function gmediaGalleryEdit(){
 								<option value="gmedia_album"<?php selected($gallery['term'], 'gmedia_album'); ?>><?php _e('Albums', 'gmLang'); ?></option>
 								<option value="gmedia_tag"<?php selected($gallery['term'], 'gmedia_tag'); ?>><?php _e('Tags', 'gmLang'); ?></option>
 								<option value="gmedia_category"<?php selected($gallery['term'], 'gmedia_category'); ?>><?php _e('Categories', 'gmLang'); ?></option>
+								<option value="gmedia_filter"<?php selected($gallery['term'], 'gmedia_filter'); ?>><?php _e('Filter', 'gmLang'); ?></option>
 							<?php } ?>
 							<option value="gmedia__in"<?php selected($gallery['term'], 'gmedia__in'); ?>><?php _e('Selected Gmedia', 'gmLang'); ?></option>
-							<!-- <option value="gmedia_filter"<?php selected($gallery['term'], 'gmedia_filter'); ?>><?php _e('Filter', 'gmLang'); ?></option> -->
 						</select>
 					</div>
 
@@ -749,7 +749,20 @@ function gmediaGalleryEdit(){
 							<?php
 							$term_type = 'gmedia_album';
 							$args = array();
-							$args['global'] = $gallery['global']? array(0, $gallery['global']) : 0;
+							/*if($gallery['global']){
+								if(user_can($gallery['global'], 'gmedia_edit_others_media')){
+									$args['global'] = '';
+								} else {
+									$args['global'] = array( 0, $gallery['global'] );
+								}
+							} else{
+								$args['global'] = 0;
+							}*/
+							if($gmCore->caps['gmedia_edit_others_media']){
+								$args['global'] = '';
+							} else {
+								$args['global'] = array( 0, $user_ID );
+							}
 							$gm_terms = $gmDB->get_terms($term_type, $args);
 
 							$terms_items = '';
@@ -768,6 +781,34 @@ function gmediaGalleryEdit(){
 							</select>
 
 							<p class="help-block"><?php _e('You can choose Albums from the same author as Gallery author or Albums without author', 'gmLang'); ?></p>
+						</div>
+						<div class="form-group" id="div_gmedia_filter">
+							<?php
+							$term_type = 'gmedia_filter';
+							$args = array();
+							if($gmCore->caps['gmedia_edit_others_media']){
+								$args['global'] = '';
+							} else {
+								$args['global'] = array( 0, $user_ID );
+							}
+							$gm_terms = $gmDB->get_terms($term_type, $args);
+
+							$terms_items = '';
+							if(count($gm_terms)){
+								foreach($gm_terms as $term){
+									$selected = (isset($gallery['query'][$term_type]) && in_array($term->term_id, $gallery['query'][$term_type]))? ' selected="selected"' : '';
+									$terms_items .= '<option value="' . $term->term_id . '"' . $selected . '>' . esc_html($term->name) . '</option>' . "\n";
+								}
+							}
+							$setvalue = isset($gallery['query'][$term_type])? 'data-setvalue="' . implode(',', $gallery['query'][$term_type]) . '"' : '';
+							?>
+							<label><?php _e('Choose Custom Filters', 'gmLang'); ?> </label>
+							<select data-gmedia_query="is:gmedia_filter" <?php echo $setvalue; ?> id="gmedia_filter" name="gallery[query][gmedia_filter][]" class="gmedia-combobox form-control input-sm" multiple="multiple" placeholder="<?php echo esc_attr(__('Choose Filters...', 'gmLang')); ?>">
+								<option value=""><?php echo __('Choose Filters...', 'gmLang'); ?></option>
+								<?php echo $terms_items; ?>
+							</select>
+
+							<p class="help-block"><?php _e('Filter - is custom query with multiple parameters.', 'gmLang'); ?> <a target="_blank" href="<?php echo add_query_arg( array( 'page' => 'GrandMedia_Terms', 'edit_filter' => '0'), admin_url('admin.php') ); ?>"><?php _e( 'Create Filter', 'gmLang' ); ?></a></p>
 						</div>
 					<?php } ?>
 

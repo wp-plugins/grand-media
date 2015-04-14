@@ -491,6 +491,10 @@ function gmedia_get_modal() {
 			$modal_title  = __( 'Delete Tags from Selected Items', 'gmLang' );
 			$modal_button = __( 'Delete Tags', 'gmLang' );
 			break;
+		case 'custom_filters':
+			$modal_title  = __( 'Custom Filters', 'gmLang' );
+			$modal_button = __( 'Show Selected', 'gmLang' );
+			break;
 		case 'filter_authors':
 			$modal_title = __( 'Filter by Author', 'gmLang' );
 			if ( $gmCore->caps['gmedia_show_others_media'] ) {
@@ -868,6 +872,70 @@ function gmedia_get_modal() {
 		<p class="notags"><?php _e( 'No tags', 'gmLang' ); ?></p>
 	<?php
 	}
+	break;
+	case 'custom_filters':
+	if ( $gmCore->caps['gmedia_show_others_media'] ) {
+		$args = array();
+	} else {
+		$args = array(
+			'global'  => array( 0, $user_ID ),
+			'orderby' => 'global_desc_name'
+		);
+	}
+	$gm_terms = $gmDB->get_terms( 'gmedia_filter', $args );
+
+	if ( count( $gm_terms ) ) { ?>
+		<div class="form-group">
+			<label><?php _e( 'Choose Filter', 'gmLang' ); ?> </label>
+			<select id="combobox_gmedia_filter" name="custom_filter" class="form-control" placeholder="<?php _e( 'Filter Name...', 'gmLang' ); ?>">
+				<option></option>
+				<?php foreach ( $gm_terms as $term ) {
+					$author_name = '';
+					if ( $term->global ) {
+						if ( $gmCore->caps['gmedia_show_others_media'] ) {
+							$author_name .= ' &nbsp; ' . sprintf( __( 'by %s', 'gmLang' ), get_the_author_meta( 'display_name', $term->global ) );
+						}
+					} else {
+						$author_name .= ' &nbsp; (' . __( 'shared', 'gmLang' ) . ')';
+					}
+					echo '<option value="' . $term->term_id . '" data-name="' . esc_html( $term->name ) . '" data-meta="' . esc_attr( $author_name ) . '">' . esc_html( $term->name ) . $author_name . '</option>' . "\n";
+				} ?>
+			</select>
+		</div>
+		<script type="text/javascript">
+			jQuery(function ($) {
+				var items = $('#combobox_gmedia_filter');
+				var items_data = $('option', items);
+				items.selectize({
+					create: false,
+					persist: false,
+					render: {
+						item: function (item, escape) {
+							if (0 === (parseInt(item.value, 10) || 0)) {
+								return '<div>' + escape(item.text) + '</div>';
+							}
+							if (item.$order) {
+								var data = $(items_data[item.$order]).data();
+								return '<div>' + escape(data.name) + ' <small>' + escape(data.meta) + '</small></div>';
+							}
+						},
+						option: function (item, escape) {
+							if (0 === (parseInt(item.value) || 0)) {
+								return '<div>' + escape(item.text) + '</div>';
+							}
+							if (item.$order) {
+								var data = $(items_data[item.$order]).data();
+								return '<div>' + escape(data.name) + ' <small>' + escape(data.meta) + '</small></div>';
+							}
+						}
+					}
+
+				});
+			});
+		</script>
+	<?php } else { ?>
+		<p><?php _e('There is no Filters created yet.') ?> <a href="<?php echo add_query_arg( array( 'page' => 'GrandMedia_Terms', 'edit_filter' => '0'), admin_url('admin.php') ); ?>"><?php _e( 'Create Filter', 'gmLang' ); ?></a></p>
+	<?php }
 	break;
 	case 'filter_authors':
 	case 'select_author':

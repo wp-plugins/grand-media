@@ -21,9 +21,11 @@ function gmediaLib(){
 	$gm_screen_options = array_merge($gmGallery->options['gm_screen_options'], $gm_screen_options);
 
 	if($gmCore->caps['gmedia_show_others_media']){
-		$author = $gmCore->_get('author', 0);
+		if(($author = $gmCore->_get('author'))){
+			$author = wp_parse_id_list($author);
+		}
 	} else{
-		$author = $user_ID;
+		$author = array($user_ID);
 	}
 	$gmedia__in = $gmCore->_get('gmedia__in', null);
 	$search_string = $gmCore->_get('s', null);
@@ -50,10 +52,24 @@ function gmediaLib(){
 		'category__in' => $gmCore->_get('category__in', null),
 		'alb' => $gmCore->_get('alb', null),
 		'album__in' => $gmCore->_get('album__in', null),
-		'author' => $author,
+		'author__in' => $author,
 		'gmedia__in' => $gmedia__in,
 		's' => $search_string
 	);
+
+	$custom_filter = false;
+	if(($filter_id = (int) $gmCore->_get('custom_filter', 0))){
+		if(($gmedia_filter = $gmDB->get_term($filter_id, 'gmedia_filter'))){
+			if(($gmedia_filter->global == $user_ID) || $gmCore->caps['gmedia_show_others_media']){
+				$_args = $gmDB->get_metadata('gmedia_term', $gmedia_filter->term_id, 'query', true);
+				$args = array_merge($args, $_args);
+				$custom_filter = $gmedia_filter->name;
+			} else {
+				echo $gmProcessor->alert('danger', __('You are not allowed to see others media', 'gmLang'));
+			}
+		}
+	}
+
 	$gmediaQuery = $gmDB->get_gmedias($args);
 
 	$gm_qty = array(
@@ -72,9 +88,19 @@ function gmediaLib(){
 	}
 	?>
 	<?php if(!empty($author)){ ?>
-		<div class="library-author alert alert-info" xmlns="http://www.w3.org/1999/html">
-			<strong><?php _e('Selected Author:', 'gmLang'); ?></strong>
-			<a href="#libModal" data-modal="filter_authors" data-action="gmedia_get_modal" class="gmedia-modal"><?php echo get_the_author_meta('display_name', $author); ?></a>
+		<div class="custom-message alert alert-info" xmlns="http://www.w3.org/1999/html">
+			<strong><?php _e('Selected Authors:', 'gmLang'); ?></strong>
+			<?php $sep = '';
+			foreach($author as $a){
+				echo $sep . '<a href="#libModal" data-modal="filter_authors" data-action="gmedia_get_modal" class="gmedia-modal">' . get_the_author_meta('display_name', $a) . '</a>';
+				$sep = ', ';
+			} ?>
+		</div>
+	<?php } ?>
+	<?php if($custom_filter){ ?>
+		<div class="custom-message alert alert-info" xmlns="http://www.w3.org/1999/html">
+			<strong><?php _e('Selected Filter:', 'gmLang'); ?></strong>
+			<a href="#libModal" data-modal="custom_filters" data-action="gmedia_get_modal" class="gmedia-modal"><?php echo $custom_filter; ?></a>
 		</div>
 	<?php } ?>
 	<div class="panel panel-default" id="gmedia-panel">
@@ -127,8 +153,13 @@ function gmediaLib(){
 				<ul class="dropdown-menu" role="menu">
 					<li role="presentation" class="dropdown-header"><?php _e('FILTER BY AUTHOR', 'gmLang'); ?></li>
 					<li class="gmedia_author">
-						<a href="#libModal" data-modal="filter_authors" data-action="gmedia_get_modal" class="gmedia-modal"><?php if(!empty($author)){
-								echo get_the_author_meta('display_name', $author);
+						<a href="#libModal" data-modal="filter_authors" data-action="gmedia_get_modal" class="gmedia-modal"><?php
+							if(!empty($author)){
+								$sep = '';
+								foreach($author as $a) {
+									echo $sep . get_the_author_meta( 'display_name', $a );
+									$sep = ', ';
+								}
 							} else{
 								_e('Show all authors', 'gmLang');
 							} ?></a></li>
@@ -178,6 +209,8 @@ function gmediaLib(){
 					<li class="filter_tags<?php if(isset($gmDB->filter_tax['gmedia_tag'])){
 						echo ' active';
 					} ?>"><a href="#libModal" data-modal="filter_tags" data-action="gmedia_get_modal" class="gmedia-modal"><?php _e('Tags', 'gmLang'); ?></a></li>
+					<li class="divider"></li>
+					<li class="custom_filters"><a href="#libModal" data-modal="custom_filters" data-action="gmedia_get_modal" class="gmedia-modal"><?php _e('Custom Filters', 'gmLang'); ?></a></li>
 					<?php do_action('gmedia_filter_list'); ?>
 				</ul>
 			</div>
