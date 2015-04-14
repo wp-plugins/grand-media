@@ -1130,12 +1130,15 @@ class GmediaProcessor{
                             $capabilities['gmedia_delete_others_media'] = $capabilities['gmedia_show_others_media'];
                         }
                         // terms cap.
-                        if($roles[$capabilities['gmedia_terms']] < $roles[$capabilities['gmedia_album_manage']]){
-                            $capabilities['gmedia_album_manage'] = $capabilities['gmedia_terms'];
-                        }
+						if($roles[$capabilities['gmedia_terms']] < $roles[$capabilities['gmedia_album_manage']]){
+							$capabilities['gmedia_album_manage'] = $capabilities['gmedia_terms'];
+						}
                         if($roles[$capabilities['gmedia_terms']] < $roles[$capabilities['gmedia_tag_manage']]){
                             $capabilities['gmedia_tag_manage'] = $capabilities['gmedia_terms'];
                         }
+						if($roles[$capabilities['gmedia_terms']] < $roles[$capabilities['gmedia_filter_manage']]){
+							$capabilities['gmedia_filter_manage'] = $capabilities['gmedia_terms'];
+						}
                         if($roles[$capabilities['gmedia_terms']] < $roles[$capabilities['gmedia_terms_delete']]){
                             $capabilities['gmedia_terms_delete'] = $capabilities['gmedia_terms'];
                         } else{

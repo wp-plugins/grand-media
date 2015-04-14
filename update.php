@@ -431,7 +431,7 @@ function gmedia_flush_rewrite_rules(){
 
 
 function gmedia_quite_update(){
-	global $gmCore, $gmGallery;
+	global $gmDB, $gmCore, $gmGallery;
 	$current_version = get_option('gmediaVersion', null);
 	//$current_db_version = get_option( 'gmediaDbVersion', null );
 	if((null !== $current_version)){
@@ -456,6 +456,10 @@ function gmedia_quite_update(){
 			update_option('gmediaOptions', $gmGallery->options);
 		}
 
+		if(version_compare($current_version, '1.2.0', '<')){
+			gmedia_capabilities();
+		}
+
 		if(version_compare($current_version, '1.4.4', '<')){
 			if(!get_option('GmediaHashID_salt')){
 				$ustr = wp_generate_password(12, false);
@@ -463,8 +467,8 @@ function gmedia_quite_update(){
 			}
 		}
 
-		if(version_compare($current_version, '1.6.0', '<')){
-			gmedia_capabilities();
+		if(version_compare($current_version, '1.6.01', '<')){
+			$gmDB->set_capability('administrator', 'gmedia_filter_manage');
 		}
 
 		$gmCore->delete_folder($gmCore->upload['path'] . '/module/afflux');
