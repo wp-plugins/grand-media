@@ -255,8 +255,8 @@ class GmediaAdmin {
 		wp_enqueue_style( 'gmedia-bootstrap' );
 		wp_enqueue_script( 'gmedia-bootstrap' );
 
-		wp_register_script( 'selectize', $gmCore->gmedia_url . '/assets/selectize/selectize.min.js', array( 'jquery' ), '0.12.0' );
-		wp_register_style( 'selectize', $gmCore->gmedia_url . '/assets/selectize/selectize.bootstrap3.css', array( 'gmedia-bootstrap' ), '0.12.0', 'screen' );
+		wp_register_script( 'selectize', $gmCore->gmedia_url . '/assets/selectize/selectize.min.js', array( 'jquery' ), '0.12.1' );
+		wp_register_style( 'selectize', $gmCore->gmedia_url . '/assets/selectize/selectize.bootstrap3.css', array( 'gmedia-bootstrap' ), '0.12.1', 'screen' );
 
 		if ( isset( $_GET['page'] ) ) {
 			switch ( $_GET['page'] ) {
