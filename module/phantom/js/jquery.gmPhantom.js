@@ -1,6 +1,6 @@
 /*
  * Title                   : gmPhantom
- * Version                 : 2.4
+ * Version                 : 2.5
  * Copyright               : 2013 CodEasily.com
  * Website                 : http://www.codeasily.com
  */
@@ -31,6 +31,7 @@ if(typeof jQuery.fn.gmPhantom == 'undefined'){
 					'lightboxWindowColor': '000000' // Lightbox Window Color (color hex code). Default value: 000000. Set the color for the lightbox window.
 				},
 				opt_int = {
+					'initRPdelay': 10,
 					'maxheight': 0,
 					'thumbCols': 0, // Number of Columns (auto, number). Default value: 0. Set the number of columns for the grid.
 					'thumbRows': 0, // Number of Lines (auto, number). Default value: 0. Set the number of lines for the grid.
@@ -102,7 +103,7 @@ if(typeof jQuery.fn.gmPhantom == 'undefined'){
 
 						$(window).bind('resize.gmPhantom', methods.initRP);
 
-						setTimeout(methods.initRP, 0);
+						setTimeout(methods.initRP, opt.initRPdelay);
 					},
 					parseContent: function(){// Parse Content.
 						$.each(Content, function(index){

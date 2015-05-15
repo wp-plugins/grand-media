@@ -27,6 +27,7 @@ $default_options = array(
 	'lightboxWindowColor' => '000000',
 	'lightboxWindowAlpha' => '80',
 	'socialShareEnabled' => '1',
+	'initRPdelay' => '10',
 	'customCSS' => ''
 );
 $options_tree = array(
@@ -271,6 +272,12 @@ $options_tree = array(
 	array(
 		'label' => 'Advanced Settings',
 		'fields' => array(
+			'initRPdelay' => array(
+				'label' => 'Delay for Thumbnail Positioning',
+				'tag' => 'input',
+				'attr' => 'type="number" min="0" max="5000" step="1"',
+				'text' => 'Set delay in miliseconds. Set more if gallery render wrong grid.'
+			),
 			'customCSS' => array(
 				'label' => 'Custom CSS',
 				'tag' => 'textarea',

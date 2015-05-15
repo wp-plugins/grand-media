@@ -29,7 +29,7 @@ foreach($terms as $term){
 			$default_cover = $_metadata['image']['data'];
 		}
 		$cover = $gmCore->gm_get_media_image($item, 'thumb', true, $default_cover);
-		$rating = $gmDB->get_metadata('gmedia', $item->ID, 'rating', true);
+		$rating = $gmDB->get_metadata('gmedia', $item->ID, '_rating', true);
 		$rating = array_merge(array('value' => 0, 'votes' => 0), (array) $rating);
 		$content[] = array(
 			 'id' => $item->ID

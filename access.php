@@ -754,8 +754,8 @@ function gmedia_ios_app_processor( $action, $data, $filter = true ) {
 						$gmedias[ $i ]->meta['data'] = $_metadata;
 					}
 				}
-				if ( isset( $meta['rating'][0] ) ) {
-					$gmedias[ $i ]->meta['rating'] = maybe_unserialize( $meta['rating'][0] );
+				if ( isset( $meta['_rating'][0] ) ) {
+					$gmedias[ $i ]->meta['rating'] = maybe_unserialize( $meta['_rating'][0] );
 				}
 
 				$item_name = $item->title? $item->title : pathinfo($item->gmuid, PATHINFO_FILENAME);

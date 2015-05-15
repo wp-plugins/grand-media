@@ -1749,6 +1749,26 @@ class GmediaDB{
 	}
 
 	/**
+	 * Some postmeta stuff.
+	 *
+	 * @param int $gmedia
+	 * @param string $meta_type
+	 *
+	 * @return mixed
+	 */
+	function has_meta( $gmedia, $meta_type = 'gmedia' ) {
+		global $wpdb;
+
+		if(!in_array($meta_type, array('gmedia', 'gmedia_term'))){
+			$meta_type = 'gmedia';
+		}
+
+		return $wpdb->get_results( $wpdb->prepare("SELECT *
+			FROM {$wpdb->prefix}{$meta_type}_meta WHERE {$meta_type}_id = %d
+			ORDER BY meta_key,meta_id", $gmedia), ARRAY_A );
+	}
+
+	/**
 	 * Add metadata for the specified object.
 	 *
 	 * @see  add_metadata()
@@ -1767,7 +1787,7 @@ class GmediaDB{
 	 * @return bool The meta ID on successful update, false on failure.
 	 */
 	function add_metadata($meta_type, $object_id, $meta_key, $meta_value, $unique = false){
-		if(!$meta_type || !$meta_key){
+		if(!$meta_type || !$meta_key || !in_array($meta_type, array('gmedia', 'gmedia_term')) || ! is_numeric( $object_id )){
 			return false;
 		}
 
@@ -1783,8 +1803,8 @@ class GmediaDB{
 		$column = esc_sql($meta_type . '_id');
 
 		// expected_slashed ($meta_key)
-		$meta_key = stripslashes($meta_key);
-		$meta_value = stripslashes_deep($meta_value);
+		$meta_key = wp_unslash($meta_key);
+		$meta_value = wp_unslash($meta_value);
 		$meta_value = sanitize_meta($meta_key, $meta_value, $meta_type);
 
 		$check = apply_filters("add_{$meta_type}_metadata", null, $object_id, $meta_key, $meta_value, $unique);
@@ -1842,7 +1862,7 @@ class GmediaDB{
 	 * @return bool True on successful update, false on failure.
 	 */
 	function update_metadata($meta_type, $object_id, $meta_key, $meta_value, $prev_value = ''){
-		if(!$meta_type || !$meta_key){
+		if(!$meta_type || !$meta_key || !in_array($meta_type, array('gmedia', 'gmedia_term')) || ! is_numeric( $object_id )){
 			return false;
 		}
 
@@ -1925,7 +1945,7 @@ class GmediaDB{
 	 * @return bool True on successful delete, false on failure.
 	 */
 	function delete_metadata($meta_type, $object_id, $meta_key, $meta_value = '', $delete_all = false){
-		if(!$meta_type || !$meta_key){
+		if(!$meta_type || !$meta_key || !in_array($meta_type, array('gmedia', 'gmedia_term')) || ! is_numeric( $object_id )){
 			return false;
 		}
 
@@ -2010,7 +2030,7 @@ class GmediaDB{
 	 * @return string|array Single metadata value, or array of values
 	 */
 	function get_metadata($meta_type, $object_id, $meta_key = '', $single = false){
-		if(!$meta_type){
+		if(!$meta_type || !in_array($meta_type, array('gmedia', 'gmedia_term')) || ! is_numeric( $object_id )){
 			return false;
 		}
 
@@ -2054,6 +2074,165 @@ class GmediaDB{
 	}
 
 	/**
+	 * Get meta data by meta ID
+	 *
+	 * @since 1.6.3
+	 *
+	 * @param string $meta_type Type of object metadata is for (e.g., gmedia, gmedia_term)
+	 * @param int $meta_id ID for a specific meta row
+	 * @return object Meta object or false.
+	 */
+	function get_metadata_by_mid( $meta_type, $meta_id ) {
+		global $wpdb;
+
+		if ( ! $meta_type || !in_array($meta_type, array('gmedia', 'gmedia_term')) || ! is_numeric( $meta_id ) ) {
+			return false;
+		}
+
+		$meta_id = absint( $meta_id );
+		if ( ! $meta_id ) {
+			return false;
+		}
+
+		$table = $wpdb->prefix . $meta_type . '_meta';
+
+		$meta = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table WHERE meta_id = %d", $meta_id ) );
+
+		if ( empty( $meta ) )
+			return false;
+
+		if ( isset( $meta->meta_value ) )
+			$meta->meta_value = maybe_unserialize( $meta->meta_value );
+
+		return $meta;
+	}
+
+	/**
+	 * Update meta data by meta ID
+	 *
+	 * @since 1.6.3
+	 *
+	 * @param string $meta_type Type of object metadata is for (e.g., gmedia, gmedia_term)
+	 * @param int $meta_id ID for a specific meta row
+	 * @param string $meta_value Metadata value
+	 * @param string|bool $meta_key Optional, you can provide a meta key to update it
+	 * @return bool True on successful update, false on failure.
+	 */
+	function update_metadata_by_mid( $meta_type, $meta_id, $meta_value, $meta_key = false ) {
+		global $wpdb;
+
+		// Make sure everything is valid.
+		if ( ! $meta_type || !in_array($meta_type, array('gmedia', 'gmedia_term')) || ! is_numeric( $meta_id ) ) {
+			return false;
+		}
+
+		$meta_id = absint( $meta_id );
+		if ( ! $meta_id ) {
+			return false;
+		}
+
+		$table = $wpdb->prefix . $meta_type . '_meta';
+
+		$column = sanitize_key($meta_type . '_id');
+		$id_column = 'meta_id';
+
+		// Fetch the meta and go on if it's found.
+		if ( ($meta = $this->get_metadata_by_mid( $meta_type, $meta_id )) ) {
+			$original_key = $meta->meta_key;
+			$object_id = $meta->{$column};
+
+			// If a new meta_key (last parameter) was specified, change the meta key,
+			// otherwise use the original key in the update statement.
+			if ( false === $meta_key ) {
+				$meta_key = $original_key;
+			} elseif ( ! is_string( $meta_key ) ) {
+				return false;
+			}
+
+			// Sanitize the meta
+			$_meta_value = $meta_value;
+			$meta_value = sanitize_meta( $meta_key, $meta_value, $meta_type );
+			$meta_value = maybe_serialize( $meta_value );
+
+			// Format the data query arguments.
+			$data = array(
+				'meta_key' => $meta_key,
+				'meta_value' => $meta_value
+			);
+
+			// Format the where query arguments.
+			$where = array();
+			$where[$id_column] = $meta_id;
+
+			do_action( "update_{$meta_type}_meta", $meta_id, $object_id, $meta_key, $_meta_value );
+
+			// Run the update query, all fields in $data are %s, $where is a %d.
+			$result = $wpdb->update( $table, $data, $where, '%s', '%d' );
+			if ( ! $result )
+				return false;
+
+			// Clear the caches.
+			wp_cache_delete($object_id, $meta_type . '_meta');
+
+			do_action( "updated_{$meta_type}_meta", $meta_id, $object_id, $meta_key, $_meta_value );
+
+			return true;
+		}
+
+		// And if the meta was not found.
+		return false;
+	}
+
+	/**
+	 * Delete meta data by meta ID
+	 *
+	 * @since 1.6.3
+	 *
+	 * @param string $meta_type Type of object metadata is for (e.g., gmedia, gmedia_term)
+	 * @param int $meta_id ID for a specific meta row
+	 * @return bool True on successful delete, false on failure.
+	 */
+	function delete_metadata_by_mid( $meta_type, $meta_id ) {
+		global $wpdb;
+
+		// Make sure everything is valid.
+		if ( ! $meta_type || !in_array($meta_type, array('gmedia', 'gmedia_term')) || ! is_numeric( $meta_id ) ) {
+			return false;
+		}
+
+		$meta_id = absint( $meta_id );
+		if ( ! $meta_id ) {
+			return false;
+		}
+
+		$table = $wpdb->prefix . $meta_type . '_meta';
+
+		// object and id columns
+		$column = sanitize_key($meta_type . '_id');
+		$id_column = 'meta_id';
+
+		// Fetch the meta and go on if it's found.
+		if ( ($meta = $this->get_metadata_by_mid( $meta_type, $meta_id )) ) {
+			$object_id = $meta->{$column};
+
+			do_action( "delete_{$meta_type}_meta", (array) $meta_id, $object_id, $meta->meta_key, $meta->meta_value );
+
+			// Run the query, will return true if deleted, false otherwise
+			$result = (bool) $wpdb->delete( $table, array( $id_column => $meta_id ) );
+
+			// Clear the caches.
+			wp_cache_delete($object_id, $meta_type . '_meta');
+
+			do_action( "deleted_{$meta_type}_meta", (array) $meta_id, $object_id, $meta->meta_key, $meta->meta_value );
+
+			return $result;
+		}
+
+		// Meta id was not found.
+		return false;
+	}
+
+	/**
 	 * Determine if a meta key is set for a given object
 	 *
 	 * @see metadata_exists()
@@ -2065,7 +2244,7 @@ class GmediaDB{
 	 * @return boolean true of the key is set, false if not.
 	 */
 	function metadata_exists($meta_type, $object_id, $meta_key){
-		if(!$meta_type){
+		if(!$meta_type || !in_array($meta_type, array('gmedia', 'gmedia_term')) || ! is_numeric( $object_id )){
 			return false;
 		}
 
@@ -3447,7 +3626,7 @@ class GmediaDB{
 		/** @var $wpdb wpdb */
 		global $wpdb;
 
-		if(empty($meta_type) || empty($object_ids)){
+		if(empty($meta_type) || empty($object_ids) || !in_array($meta_type, array('gmedia', 'gmedia_term'))){
 			return false;
 		}
 

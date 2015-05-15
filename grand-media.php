@@ -3,9 +3,11 @@
 Plugin Name: Gmedia Gallery
 Plugin URI: http://wordpress.org/extend/plugins/grand-media/
 Description: Gmedia Gallery - powerfull media library plugin for creating beautiful galleries and managing files.
-Version: 1.6.1
+Version: 1.6.3
 Author: Rattus
 Author URI: http://codeasily.com/
+Requires at least: 3.6
+Tested up to: 4.2
 
 -------------------
 
@@ -39,9 +41,9 @@ if(!class_exists('Gmedia')){
 	 */
 	class Gmedia{
 
-		var $version = '1.6.1';
+		var $version = '1.6.3';
 		var $dbversion = '0.9.6';
-		var $minium_WP = '3.5';
+		var $minium_WP = '3.6';
 		var $options = '';
 		var $do_module = array();
 		var $import_styles = array();
@@ -270,8 +272,8 @@ if(!class_exists('Gmedia')){
 				'pluginPath' => $gmCore->gmedia_url
 			));
 
-			wp_register_style('grand-media', $gmCore->gmedia_url . '/admin/css/grand-media.css', array(), '1.6.0', 'all');
-			wp_register_script('grand-media', $gmCore->gmedia_url . '/admin/js/grand-media.js', array('jquery', 'gmedia-global-backend'), '1.6.0');
+			wp_register_style('grand-media', $gmCore->gmedia_url . '/admin/css/grand-media.css', array(), '1.6.3', 'all');
+			wp_register_script('grand-media', $gmCore->gmedia_url . '/admin/js/grand-media.js', array('jquery', 'gmedia-global-backend'), '1.6.3');
 			wp_localize_script('grand-media', 'grandMedia', array(
 				'error3' => __('Disable your Popup Blocker and try again.', 'gmLang'),
 				'download' => __('downloading...', 'gmLang'),
@@ -279,8 +281,8 @@ if(!class_exists('Gmedia')){
 				'nonce' => wp_create_nonce('grandMedia')
 			));
 
-			wp_register_style('gmedia-bootstrap', $gmCore->gmedia_url . '/assets/bootstrap/css/bootstrap.min.css', array(), '3.3.1', 'all');
-			wp_register_script('gmedia-bootstrap', $gmCore->gmedia_url . '/assets/bootstrap/js/bootstrap.min.js', array('jquery'), '3.3.1');
+			wp_register_style('gmedia-bootstrap', $gmCore->gmedia_url . '/assets/bootstrap/css/bootstrap.min.css', array(), '3.3.4', 'all');
+			wp_register_script('gmedia-bootstrap', $gmCore->gmedia_url . '/assets/bootstrap/js/bootstrap.min.js', array('jquery'), '3.3.4');
 
 			wp_register_script('outside-events', $gmCore->gmedia_url . '/assets/jq-plugins/outside-events.js', array('jquery'), '1.1');
 

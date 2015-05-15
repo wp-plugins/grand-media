@@ -50,7 +50,7 @@ function gmediacloud_meta_generator(){
 		echo "<meta content='{$og_image}' property='og:image' />\n";
 	}
 	?>
-	<meta content="<?php echo $current_url; ?>" property="og:url"/>
+	<meta content="<?php echo esc_url($current_url); ?>" property="og:url"/>
 	<meta content="article" property="og:type"/>
 	<meta content="<?php bloginfo('name') ?>" property="og:site_name"/>
 
@@ -266,7 +266,7 @@ function gmediacloud_social_sharing(){
 
 	global $wp, $gmedia_share_img;
 
-	$url =urlencode(home_url(add_query_arg(array(), $wp->request)));
+	$url =urlencode(esc_url(home_url(add_query_arg(array(), $wp->request))));
 	$text =urlencode(__('Shared with GmediaGallery', 'gmLang'));
 	$title =urlencode(the_gmedia_title(true));
 	$image =urlencode($gmedia_share_img[0]);

@@ -293,8 +293,8 @@ class GmediaAdmin {
 					break;
 				case "GrandMedia_Terms" :
 					if ( $gmCore->_get( 'edit_album' ) && $gmCore->caps['gmedia_album_manage'] ) {
-						wp_enqueue_style( 'jquery-ui-smoothness', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/themes/smoothness/jquery-ui.min.css', array(), '1.10.2', 'screen' );
-						wp_enqueue_script( 'jquery-ui-full', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/jquery-ui.min.js', array(), '1.10.2' );
+						wp_enqueue_style( 'jquery-ui-smoothness', '//ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/themes/smoothness/jquery-ui.min.css', array(), '1.10.2', 'screen' );
+						wp_enqueue_script( 'jquery-ui-full', '//ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/jquery-ui.min.js', array(), '1.10.2' );
 
 						wp_enqueue_script( 'tinysort', $gmCore->gmedia_url . '/assets/jq-plugins/jquery.tinysort.js', array( 'jquery' ), '1.5.6' );
 					} elseif ( isset($_GET['edit_filter']) && $gmCore->caps['gmedia_filter_manage'] ) {
@@ -311,8 +311,8 @@ class GmediaAdmin {
 					if ( $gmCore->caps['gmedia_upload'] ) {
 						$tab = $gmCore->_get( 'tab', 'upload' );
 						if ( $tab == 'upload' ) {
-							wp_enqueue_style( 'jquery-ui-smoothness', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/themes/smoothness/jquery-ui.min.css', array(), '1.10.2', 'screen' );
-							wp_enqueue_script( 'jquery-ui-full', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/jquery-ui.min.js', array(), '1.10.2' );
+							wp_enqueue_style( 'jquery-ui-smoothness', '//ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/themes/smoothness/jquery-ui.min.css', array(), '1.10.2', 'screen' );
+							wp_enqueue_script( 'jquery-ui-full', '//ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/jquery-ui.min.js', array(), '1.10.2' );
 
 							wp_enqueue_script( 'gmedia-plupload', $gmCore->gmedia_url . '/assets/plupload/plupload.full.min.js', array( 'jquery', 'jquery-ui-full' ), '2.1.2' );
 

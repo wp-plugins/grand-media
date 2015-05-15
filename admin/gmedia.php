@@ -397,7 +397,7 @@ function gmediaLib(){
 					<?php } else{
 						$typethumb = false;
 						?>
-						<?php if(isset($meta['cover'][0]) && !empty($meta['cover'][0])){
+						<?php if(isset($meta['_cover'][0]) && !empty($meta['_cover'][0])){
 							$typethumb = true;
 							?>
 							<img class="gmedia-thumb" src="<?php echo $gmCore->gm_get_media_image($item, 'thumb'); ?>" alt=""/>
@@ -466,8 +466,8 @@ function gmediaLib(){
 
 							<br/><span class="label label-default"><?php _e('Views / Likes', 'gmLang'); ?>:</span>
 								<?php echo (isset($meta['views'][0])? $meta['views'][0] : '0') . ' / ' . (isset($meta['likes'][0])? $meta['likes'][0] : '0'); ?>
-							<?php if(isset($meta['rating'][0])){
-								$ratings = maybe_unserialize($meta['rating'][0]); ?>
+							<?php if(isset($meta['_rating'][0])){
+								$ratings = maybe_unserialize($meta['_rating'][0]); ?>
 								<br/><span class="label label-default"><?php _e('Rating', 'gmLang'); ?>:</span> <?php  echo $ratings['value'].' / '.$ratings['votes']; ?>
 							<?php } ?>
 						</p>
@@ -561,7 +561,7 @@ function gmediaLib(){
 					<?php } else{
 						$typethumb = false;
 						?>
-						<?php if(isset($meta['cover'][0]) && !empty($meta['cover'][0])){
+						<?php if(isset($meta['_cover'][0]) && !empty($meta['_cover'][0])){
 							$typethumb = true;
 							?>
 							<img class="gmedia-thumb" src="<?php echo $gmCore->gm_get_media_image($item, 'thumb'); ?>" alt=""/>
@@ -675,8 +675,8 @@ function gmediaLib(){
 			</div>
 		</div>
 		<?php
-		continue;
-	}
+			continue;
+		}
 		?>
 		<form class="list-group-item row d-row edit-gmedia" id="list-item-<?php echo $item->ID; ?>" data-id="<?php echo $item->ID; ?>" data-type="<?php echo $type[0]; ?>" role="form">
 			<div class="col-sm-4" style="max-width:350px;">
@@ -693,7 +693,7 @@ function gmediaLib(){
 				} else{ ?>
 					<a href="<?php echo $item_url; ?>" data-target="#previewModal" data-width="<?php echo $modal_web_width; ?>" data-height="<?php echo $modal_web_height; ?>" class="thumbnail preview-modal" title="<?php echo esc_attr($item->title); ?>">
 						<?php $typethumb = false;
-						if(isset($meta['cover'][0]) && !empty($meta['cover'][0])){
+						if(isset($meta['_cover'][0]) && !empty($meta['_cover'][0])){
 							$typethumb = true;
 							?>
 							<img class="gmedia-thumb" src="<?php echo $gmCore->gm_get_media_image($item, 'thumb'); ?>" alt=""/>
@@ -762,8 +762,8 @@ function gmediaLib(){
 						<?php if(('image' != $type[0])){ ?>
 							<div class="form-group">
 								<label><?php _e('Custom Cover', 'gmLang'); ?></label>
-								<input name="meta[cover]" type="text" class="form-control input-sm gmedia-cover" value="<?php if(isset($meta['cover'][0])){
-									echo $meta['cover'][0];
+								<input name="meta[_cover]" type="text" class="form-control input-sm gmedia-cover" value="<?php if(isset($meta['_cover'][0])){
+									echo $meta['_cover'][0];
 								} ?>" placeholder="<?php _e('Gmedia ID or Image URL', 'gmLang'); ?>"/>
 							</div>
 						<?php } ?>
@@ -915,7 +915,10 @@ function gmediaLib(){
 							<span class="gm-last-edited modified"><?php echo $item->modified; ?></span></div>
 					</div>
 				</div>
-				<?php do_action('gmedia_edit_form'); ?>
+				<?php
+				$gmCore->gmedia_custom_meta_box($item);
+				do_action('gmedia_edit_form');
+				?>
 			</div>
 		</form>
 	<?php } ?>
@@ -1049,5 +1052,29 @@ function gmediaLib(){
 			</div>
 		</div>
 	</div>
+	<?php if ('edit' === $gmProcessor->mode){ ?>
+	<div class="modal fade gmedia-modal" id="newCustomFieldModal" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title"><?php _e('Add New Custom Field'); ?></h4>
+				</div>
+				<form class="modal-body" method="post" id="newCustomFieldForm">
+					<?php
+					echo $gmCore->meta_form();
+					wp_nonce_field( 'gmedia_custom_field', '_customfield_nonce' );
+					?>
+					<input type="hidden" name="action" value="gmedia_add_custom_field" />
+					<input type="hidden" class="newcustomfield-for-id" name="ID" value="" />
+				</form>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary customfieldsubmit"><?php _e( 'Send', 'gmLang' ); ?></button>
+					<button type="button" class="btn btn-default" data-dismiss="modal"><?php _e( 'Close', 'gmLang' ); ?></button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<?php } ?>
 <?php
 }

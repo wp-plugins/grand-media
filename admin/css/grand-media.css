@@ -41,6 +41,8 @@ input::-moz-focus-inner {
 form {
     margin: 0;
 }
+textarea.vert { resize:vertical; }
+textarea.noResize { resize:none; }
 
 body.gmedia-busy {
     cursor: wait !important;
@@ -936,6 +938,10 @@ body.gmedia-blank .media-edit-sidebar .panel-footer {
 }
 
 input.sharelink[readonly] {cursor:text;}
+
+fieldset.gmediacustomstuff {margin:0 0 10px; padding:.35em .625em .4em; position: relative; border:1px solid silver}
+.delete-custom-field {margin:4px 2px 0; cursor:pointer;}
+.newcustomfield-modal { position: absolute; bottom: -0.6em; right: 8px;font-size: 95%; }
 
 @media (min-width: 782px) {
     div.modal {

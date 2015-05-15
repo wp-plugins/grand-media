@@ -45,7 +45,7 @@ if ( isset($_POST['rate']) ) {
 	if(!intval($gmid) || (null === $gmDB->get_gmedia($gmid))){
 		die('0');
 	}
-	$rating = $gmDB->get_metadata('gmedia', $gmid, 'rating', true);
+	$rating = $gmDB->get_metadata('gmedia', $gmid, '_rating', true);
 	$old_rate = 0;
 
 	$transient_key = 'gm_rate_day'.date('w');
@@ -64,7 +64,7 @@ if ( isset($_POST['rate']) ) {
 	$rating_value = ($rating['value']*$rating['votes'] + $rate - $old_rate)/$rating_votes;
 	$rating = array('value' => $rating_value, 'votes' => $rating_votes);
 
-	$gmDB->update_metadata('gmedia', $gmid, 'rating', $rating);
+	$gmDB->update_metadata('gmedia', $gmid, '_rating', $rating);
 
 	header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
 	echo json_encode(array($rating));

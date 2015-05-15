@@ -2,8 +2,8 @@
 Contributors: Rattus
 Donate link: http://codeasily.com/donate/
 Tags: gallery, image, images, library, music, video, slideshow, responsive, admin, Post, posts, easy gallery, iphone gallery, best gallery, portfolio, image gallery, photo gallery, photo, slider, header slider, admin, page, relative image, gallery slider, iOS app
-Requires at least: 3.5
-Tested up to: 4.2.1
+Requires at least: 3.6
+Tested up to: 4.2.2
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -65,6 +65,7 @@ Features:
 *   (NEW) Gmedia for iOS - [iOS manage application](https://itunes.apple.com/ua/app/gmedia/id947515626?mt=8) to manage your Library with your iPhone
 *   (NEW) Full Page Template for Galleries with permalink support
 *   (NEW) Share Images, Albums, Tags, Galleries via admin panel
+*   (NEW) Create custom query filters with selected parameters
 *   Mobile friendly, responsive galleries
 *   Add tags, assign categories and group images in albums
 *   Drag'n'drop sorting for files in Album
@@ -86,7 +87,7 @@ Features:
 
 TODO List:
 
-*   Create custom query filters with selected parameters (work in progress..)
+*   Integration with WP search (work in progress..)
 *   Cover for Album. It will be also used for music without cover (work in progress..)
 *   Duplicate item in Gmedia Library (work in progress..)
 *   More Batch operations with selected Gmedia items (work in progress..)
@@ -126,6 +127,12 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 
 = Modules Updated =
 * Go to Gmedia Modules page and update installed premium modules to latest versions
+
+= 1.6.3 =
+* Added Custom Fields for Gmedia Items
+* Added Batch File Rename
+* Fixed bug for HTTPS websites
+* Small fixes and improvements
 
 = 1.6.1 =
 * Fixed: Edit Mode loose items album

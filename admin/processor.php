@@ -350,7 +350,7 @@ class GmediaProcessor{
 							}
 							if(($count = count($selected_items))){
 								$batch_data = array();
-								$batch_data['modified'] = current_time('mysql');
+								$b_filename = $gmCore->_post('batch_filename');
 								$b_title = $gmCore->_post('batch_title');
 								$b_description = $gmCore->_post('batch_description');
 								$b_link = $gmCore->_post('batch_link');
@@ -359,12 +359,50 @@ class GmediaProcessor{
                                     $batch_data['status'] = $b_status;
                                 }
 								$b_author = $gmCore->_post('batch_author');
-								if($b_author){
+								if($b_author && ('-1' != $b_author)){
 									$batch_data['author'] = $b_author;
 								}
+								$i = 0;
 								foreach($selected_items as $item){
 									$id = (int)$item;
 									$gmedia = $gmDB->get_gmedia($id, ARRAY_A);
+
+									if('custom' == $b_filename){
+										$filename_custom = $gmCore->_post('batch_filename_custom');
+										if( !empty($filename_custom) && ('{filename}' !== $filename_custom) ){
+
+											$gmuid = pathinfo( $gmedia['gmuid'] );
+
+											$filename_vars = array('{filename}' => $gmuid['filename'], '{id}' => $gmedia['ID']);
+											if(preg_match_all('/{index[:]?(\d+)?}/', $filename_custom, $matches_all)) {
+												foreach($matches_all[0] as $key => $matches) {
+													$index = intval( $matches_all[1][$key] ) + $i;
+													$filename_vars[ $matches ] = $index;
+												}
+											}
+											$filename_custom = strtr( $filename_custom, $filename_vars );
+
+											$filename_custom = preg_replace( '/[^a-z0-9_\.-]+/i', '_', $filename_custom );
+											if ( $filename_custom && $filename_custom != $gmuid['filename'] ) {
+												$fileinfo = $gmCore->fileinfo( $filename_custom . '.' . $gmuid['extension'] );
+												if ( false !== $fileinfo ) {
+													if ( 'image' == $fileinfo['dirname'] ) {
+														/** WordPress Image Administration API */
+														require_once( ABSPATH . 'wp-admin/includes/image.php' );
+
+														if(file_is_displayable_image( $fileinfo['dirpath'] . '/' . $gmedia['gmuid'] )) {
+															@rename( $fileinfo['dirpath_original'] . '/' . $gmedia['gmuid'], $fileinfo['filepath_original'] );
+															@rename( $fileinfo['dirpath_thumb'] . '/' . $gmedia['gmuid'], $fileinfo['filepath_thumb'] );
+														}
+													}
+													if ( @rename( $fileinfo['dirpath'] . '/' . $gmedia['gmuid'], $fileinfo['filepath'] ) ) {
+														$gmedia['gmuid'] = $fileinfo['basename'];
+														$batch_data['gmuid'] = $fileinfo['basename'];
+													}
+												}
+											}
+										}
+									}
 									switch($b_title){
 										case 'empty':
 											$batch_data['title'] = '';
@@ -420,9 +458,15 @@ class GmediaProcessor{
 											}
 											break;
 									}
-									//$gmedia_data = array_replace($gmedia, $batch_data);
-									$gmedia_data = array_merge($gmedia, $batch_data);
-									$gmDB->insert_gmedia($gmedia_data);
+									if(!empty($batch_data)) {
+										$batch_data['modified'] = current_time('mysql');
+										$gmedia_data = array_merge( $gmedia, $batch_data );
+										$gmDB->insert_gmedia( $gmedia_data );
+									} else {
+										$count--;
+									}
+
+									$i++;
 								}
 								$this->msg[] = sprintf(__('%d item(s) updated successfuly', 'gmLang'), $count);
 							}

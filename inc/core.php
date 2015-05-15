@@ -125,7 +125,7 @@ class GmediaCore {
 			$new_uri = add_query_arg( $add_args, $new_uri );
 		}
 
-		return $new_uri;
+		return esc_url($new_uri);
 	}
 
 	/**
@@ -262,7 +262,7 @@ class GmediaCore {
 			$image = $this->gmedia_url . '/admin/images/' . $type . '.png';
 
 			if ( $cover ) {
-				$cover = $gmDB->get_metadata( 'gmedia', $item->ID, 'cover', true );
+				$cover = $gmDB->get_metadata( 'gmedia', $item->ID, '_cover', true );
 				if ( ! empty( $cover ) ) {
 					if ( $this->is_digit( $cover ) ) {
 						$image = $this->gm_get_media_image( (int) $cover, $size, false );
@@ -2158,6 +2158,191 @@ class GmediaCore {
 
 		return($key);
 	}
+
+	/**
+	 * Display custom fields form fields.
+	 *
+	 * @since 1.6.3
+	 *
+	 * @param object $gmedia
+	 * @param string $meta_type
+	 */
+	function gmedia_custom_meta_box($gmedia, $meta_type = 'gmedia') {
+		global $gmDB;
+
+		if(!in_array($meta_type, array('gmedia', 'gmedia_term'))){
+			$meta_type = 'gmedia';
+		}
+		?>
+		<fieldset id="gmediacustomstuff_<?php echo $gmedia->ID ?>" class="gmediacustomstuff">
+			<legend class="label label-default" style="font-size:85%;"><?php _e('Custom Fields','gmLang'); ?></legend>
+			<?php
+			$metadata = $gmDB->has_meta($gmedia->ID, $meta_type);
+			foreach ( $metadata as $key => $value ) {
+				if ( is_protected_meta( $metadata[ $key ][ 'meta_key' ], $meta_type ) )
+					unset( $metadata[ $key ] );
+			} ?>
+			<div class="row">
+			<?php if(!empty($metadata)){
+				//$count = 0;
+				foreach ( $metadata as $entry ) {
+					echo $this->_list_meta_item($entry);
+				}
+			} ?>
+			</div>
+			<a href="#newCustomFieldModal" data-gmid="<?php echo $gmedia->ID ?>" class="newcustomfield-modal label label-primary"><?php _e( 'Add New Custom Field', 'gmLang' ) ?></a>
+		</fieldset>
+		<p><?php _e('Custom fields can be used to add extra metadata to a gmedia item that developer can use in their templates.'); ?></p>
+	<?php
+	}
+
+	/**
+	 * @since 1.6.3
+	 *
+	 * @param $entry
+	 *
+	 * @return string|void
+	 */
+	function _list_meta_item( $entry ) {
+		if ( is_serialized( $entry['meta_value'] ) ) {
+			if ( is_serialized_string( $entry['meta_value'] ) ) {
+				// This is a serialized string, so we should display it.
+				$entry['meta_value'] = maybe_unserialize( $entry['meta_value'] );
+			} else {
+				// This is a serialized array/object so we should NOT display it.
+				return;
+			}
+		}
+
+		$entry['meta_key'] = esc_attr($entry['meta_key']);
+		$entry['meta_value'] = esc_textarea( $entry['meta_value'] ); // using a <textarea />
+		$entry['meta_id'] = (int) $entry['meta_id'];
+
+		//$delete_nonce = wp_create_nonce( 'gmedia_custom_field', '_customfield_nonce' );
+		$item = '
+			<div class="form-group col-sm-6 gm-custom-meta-'.$entry['meta_id'].'">
+				<span class="delete-custom-field glyphicon glyphicon-remove pull-right text-danger"></span>
+				<label>'.$entry['meta_key'].'</label>
+				<textarea name="meta['.$entry['meta_id'].']" class="gmedia-custom-field gm-custom-field-'.$entry['meta_id'].' vert form-control input-sm" style="height:30px;" placeholder="'.__('Value', 'gmLang').'" rows="1" cols="30">'.$entry['meta_value'].'</textarea>
+			</div>
+		';
+
+		return $item;
+	}
+
+	/**
+	 * Prints the form in the Custom Fields meta box.
+	 *
+	 * @since 1.6.3
+	 *
+	 * @param string $meta_type
+	 *
+	 * @return string
+	 */
+	function meta_form( $meta_type = 'gmedia' ) {
+		global $wpdb;
+
+		if(!in_array($meta_type, array('gmedia', 'gmedia_term'))){
+			$meta_type = 'gmedia';
+		}
+
+		/**
+		 * Filter the number of custom fields to retrieve for the drop-down
+		 * in the Custom Fields meta box.
+		 *
+		 * @param int $limit Number of custom fields to retrieve. Default 30.
+		 */
+		$limit = apply_filters( 'gmediameta_form_limit', 30 );
+		$sql = "SELECT meta_key
+		FROM {$wpdb->prefix}{$meta_type}_meta
+		GROUP BY meta_key
+		HAVING meta_key NOT LIKE %s
+		ORDER BY meta_key
+		LIMIT %d";
+		$keys = $wpdb->get_col( $wpdb->prepare( $sql, addcslashes( '_', '_%\\' ) . '%', $limit ) );
+
+		$meta_form = '
+		<div id="newmeta" class="newmeta">
+			<div class="row">
+				<div class="form-group col-sm-6">
+					<label>'._x( 'Name', 'meta name' ).'</label>';
+					if ( $keys ) {
+						natcasesort( $keys );
+						$meta_form .= '
+						<select class="metakeyselect form-control input-sm" name="metakeyselect">
+							<option value="">'.__( '&mdash; Select &mdash;' ).'</option>';
+							foreach ( $keys as $key ) {
+								if ( is_protected_meta( $key, 'gmedia' ) )
+									continue;
+								$meta_form .= '
+								<option value="' . esc_attr($key) . '">' . esc_html($key) . '</option>';
+							}
+						$meta_form .= '
+						</select>
+						<input type="text" class="metakeyinput hide-if-js form-control input-sm" name="metakeyinput" value="" />
+						<a href="#gmediacustomstuff" class="hide-if-no-js gmediacustomstuff" onclick="jQuery(\'.metakeyinput, .metakeyselect, .enternew, .cancelnew\', \'#newmeta\').toggle();jQuery(this).parent().toggleClass(\'newcfield\');return false;">
+							<span class="enternew">'.__('Enter new', 'gmLang').'</span>
+							<span class="cancelnew" style="display:none;">'.__('Cancel', 'gmLang').'</span></a>';
+					} else {
+						$meta_form .= '
+						<input type="text" class="metakeyinput form-control input-sm" name="metakeyinput" value="" />';
+					}
+		$meta_form .= '
+				</div>
+				<div class="form-group col-sm-6">
+					<label>'.__( 'Value', 'gmLang' ).'</label>
+					<textarea class="metavalue vert form-control input-sm" name="metavalue" rows="2" cols="25"></textarea>
+				</div>
+			</div>
+		</div>';
+
+
+		return $meta_form;
+	}
+
+	/**
+	 * @since 1.6.3
+	 *
+	 * @param int $gmedia_ID
+	 * @param string $meta_type
+	 *
+	 * @return bool|int
+	 */
+	function add_meta( $gmedia_ID, $meta_type = 'gmedia' ) {
+		global $gmDB;
+
+		if(!in_array($meta_type, array('gmedia', 'gmedia_term'))){
+			$meta_type = 'gmedia';
+		}
+
+		$gmedia_ID = (int) $gmedia_ID;
+
+		$metakeyselect = isset($_POST['metakeyselect']) ? wp_unslash( trim( $_POST['metakeyselect'] ) ) : '';
+		$metakeyinput = isset($_POST['metakeyinput']) ? wp_unslash( trim( $_POST['metakeyinput'] ) ) : '';
+		$metavalue = isset($_POST['metavalue']) ? $_POST['metavalue'] : '';
+		if ( is_string( $metavalue ) )
+			$metavalue = trim( $metavalue );
+
+		if ( ('0' === $metavalue || ! empty ( $metavalue ) ) && ( ( !empty($metakeyselect) && !empty($metakeyselect) ) || !empty ( $metakeyinput ) ) ) {
+			/*
+			 * We have a key/value pair. If both the select and the input
+			 * for the key have data, the input takes precedence.
+			 */
+			$metakey = $metakeyselect;
+
+			if ( $metakeyinput )
+				$metakey = $metakeyinput; // default
+
+			if ( is_protected_meta( $metakey, 'gmedia' ) )
+				return false;
+
+			$metakey = wp_slash( $metakey );
+
+			return $gmDB->add_metadata( $meta_type, $gmedia_ID, $metakey, $metavalue );
+		}
+
+		return false;
+	} // add_meta
 
 	/** Get item Meta
 	 *

@@ -175,7 +175,7 @@ window.onload = function() {
 	$wpdb->delete($wpdb->prefix . 'gmedia_meta', array('meta_key' => 'link'));
 	//$gmDB->delete_metadata('gmedia', 0, 'link', false, true);
 
-	$wpdb->update($wpdb->prefix . 'gmedia_meta', array('meta_key' => 'cover'), array('meta_key' => 'preview'));
+	$wpdb->update($wpdb->prefix . 'gmedia_meta', array('meta_key' => '_cover'), array('meta_key' => 'preview'));
 
 	echo '<p>' . __('Gmedia database data updated...', 'gmLang') . '</p>';
 	wp_ob_end_flush_all();
@@ -431,7 +431,7 @@ function gmedia_flush_rewrite_rules(){
 
 
 function gmedia_quite_update(){
-	global $gmDB, $gmCore, $gmGallery;
+	global $wpdb, $gmDB, $gmCore, $gmGallery;
 	$current_version = get_option('gmediaVersion', null);
 	//$current_db_version = get_option( 'gmediaDbVersion', null );
 	if((null !== $current_version)){
@@ -469,6 +469,11 @@ function gmedia_quite_update(){
 
 		if(version_compare($current_version, '1.6.01', '<')){
 			$gmDB->set_capability('administrator', 'gmedia_filter_manage');
+		}
+
+		if(version_compare($current_version, '1.6.3', '<')){
+			$wpdb->update($wpdb->prefix . 'gmedia_meta', array('meta_key' => '_cover'), array('meta_key' => 'cover'));
+			$wpdb->update($wpdb->prefix . 'gmedia_meta', array('meta_key' => '_rating'), array('meta_key' => 'rating'));
 		}
 
 		$gmCore->delete_folder($gmCore->upload['path'] . '/module/afflux');

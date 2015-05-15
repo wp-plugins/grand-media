@@ -49,11 +49,45 @@ function gmedia_update_data() {
 		if ( ! is_wp_error( $id ) ) {
 			// Meta Stuff
 			if ( isset( $gmedia['meta'] ) && is_array( $gmedia['meta'] ) ) {
+				$meta_error = array();
 				foreach ( $gmedia['meta'] as $key => $value ) {
-					if ( 'cover' == $key ) {
+					if ( '_cover' == $key ) {
 						$value = ltrim( $value, '#' );
+						$gmDB->update_metadata( 'gmedia', $id, $key, $value );
+					} elseif($gmCore->is_digit($key)){
+						$mid = (int) $key;
+						//$value = wp_unslash( $value );
+						if ( ! ($meta = $gmDB->get_metadata_by_mid( 'gmedia', $mid )) ){
+							$meta_error[] = array(
+								'error' => 'no_meta',
+								'message' => __( 'No record in DataBase.', 'gmLang' ),
+								'meta_id' => $mid,
+								'meta_key' => $meta->meta_key
+							);
+							continue;
+						}
+						if ( '' == trim($value) ) {
+							$meta_error[] = array(
+								'error' => 'empty_value',
+								'message' => __( 'Please provide a custom field value.', 'gmLang' ),
+								'meta_id' => $mid,
+								'meta_key' => $meta->meta_key,
+								'meta_value' => $meta->meta_value
+							);
+							continue;
+						}
+
+						if ( $meta->meta_value != $value ) {
+							if ( !($u = $gmDB->update_metadata_by_mid( 'gmedia', $mid, $value )) )
+								$meta_error[] = array(
+									'error' => 'meta_update',
+									'message' => __( 'Something goes wrong.', 'gmLang' ),
+									'meta_id' => $mid,
+									'meta_key' => $meta->meta_key,
+									'meta_value' => $meta->meta_value
+								);
+						}
 					}
-					$gmDB->update_metadata( 'gmedia', $id, $key, $value );
 				}
 			}
 			$result = $gmDB->get_gmedia( $id );
@@ -76,6 +110,9 @@ function gmedia_update_data() {
 			} else {
 				$result->album_status = 'none';
 			}
+		}
+		if(!empty($meta_error)){
+			$result->meta_error = $meta_error;
 		}
 
 		header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
@@ -972,6 +1009,17 @@ function gmedia_get_modal() {
 	?>
 		<p><?php _e( 'Note, data will be saved to all selected items in Gmedia Library.' ) ?></p>
 		<div class="form-group">
+			<label><?php _e( 'Filename', 'gmLang' ); ?></label>
+			<select class="form-control input-sm batch_set" name="batch_filename">
+				<option value=""><?php _e( 'Skip. Do not change', 'gmLang' ); ?></option>
+				<option value="custom"><?php _e( 'Custom', 'gmLang' ); ?></option>
+			</select>
+			<div class="batch_set_custom" style="margin-top:5px;display:none;">
+				<input class="form-control input-sm" name="batch_filename_custom" value="" placeholder="<?php echo 'newname_{id}'; ?>"/>
+				<div><?php _e('Variables: <b>{filename}</b> - original file name; <b>{id}</b> - Gmedia #ID in database; <b>{index:1}</b> - index of selected file in order you select (set start number after colon).') ?></div>
+			</div>
+		</div>
+		<div class="form-group">
 			<label><?php _e( 'Title', 'gmLang' ); ?></label>
 			<select class="form-control input-sm batch_set" name="batch_title">
 				<option value=""><?php _e( 'Skip. Do not change', 'gmLang' ); ?></option>
@@ -979,7 +1027,7 @@ function gmedia_get_modal() {
 				<option value="filename"><?php _e( 'From Filename', 'gmLang' ); ?></option>
 				<option value="custom"><?php _e( 'Custom', 'gmLang' ); ?></option>
 			</select>
-			<input class="form-control input-sm batch_set_custom" style="margin-top:5px;display:none;" name="batch_title_custom" value="" placeholder="<?php _e( 'Enter custom title here' ); ?>"/>
+			<input class="form-control input-sm batch_set_custom" style="margin-top:5px;display:none;" name="batch_title_custom" value="" placeholder="<?php _e( 'Enter custom title here', 'gmLang' ); ?>"/>
 		</div>
 		<div class="form-group">
 			<label><?php _e( 'Description', 'gmLang' ); ?></label>
@@ -996,7 +1044,7 @@ function gmedia_get_modal() {
 					<option value="append"><?php _e( 'Append', 'gmLang' ); ?></option>
 					<option value="prepend"><?php _e( 'Prepend', 'gmLang' ); ?></option>
 				</select>
-				<textarea class="form-control input-sm" cols="30" rows="3" name="batch_description_custom" placeholder="<?php _e( 'Enter description here' ); ?>"></textarea>
+				<textarea class="form-control input-sm" cols="30" rows="3" name="batch_description_custom" placeholder="<?php _e( 'Enter description here', 'gmLang' ); ?>"></textarea>
 			</div>
 		</div>
 		<div class="form-group">
@@ -1031,7 +1079,7 @@ function gmedia_get_modal() {
 				'include'          => $user_ids,
 				'include_selected' => true,
 				'name'             => 'batch_author',
-				'selected'         => - 1,
+				'selected'         => -1,
 				'class'            => 'input-sm form-control'
 			) );
 			?>
@@ -1900,7 +1948,7 @@ function gmedia_share_page() {
 	if($sharemessage){
 		$sharemessage = '<blockquote>"'.nl2br(esc_html($sharemessage)).'"</blockquote>';
 	}
-	$footer = '© '.date('Y').' Gmedia';
+	$footer = '© '.date('Y').' GmediaGallery';
 	$message = <<<EOT
 <center>
 <table cellpadding="0" cellspacing="0" style="border-radius:4px;border:1px #dceaf5 solid;" border="0" align="center">
@@ -1948,6 +1996,91 @@ EOT;
 	die();
 }
 
+add_action( 'wp_ajax_gmedia_add_custom_field', 'gmedia_add_custom_field' );
+function gmedia_add_custom_field() {
+	global $gmDB, $user_ID, $gmCore;
+	check_ajax_referer( 'gmedia_custom_field', '_customfield_nonce' );
+
+	$pid = (int) $_POST['ID'];
+	$post = $gmDB->get_gmedia( $pid );
+
+	header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
+
+	if ( !current_user_can( 'gmedia_edit_media' ) || ($user_ID != $post->author && !current_user_can( 'gmedia_edit_others_media' )) ) {
+		echo json_encode( array( 'error' => array( 'code' => 100, 'message' => __( 'You are not allowed to edit others media', 'gmLang' ) ), 'id' => $pid ) );
+		die();
+	}
+	if ( isset($_POST['metakeyselect']) && empty($_POST['metakeyselect']) && empty($_POST['metakeyinput']) ) {
+		echo json_encode( array( 'error' => array( 'code' => 101, 'message' => __( 'Choose or provide a custom field name', 'gmLang' ) ), 'id' => $pid ) );
+		die();
+	}
+
+	if ( !$mid = $gmCore->add_meta( $pid ) ) {
+		echo json_encode(array( 'error' => array( 'code' => 102, 'message' => __( 'Please provide a custom field value', 'gmLang' ) ), 'id' => $pid ));
+		die();
+	}
+
+	$meta = $gmDB->get_metadata_by_mid( 'gmedia', $mid );
+	$pid = (int) $meta->gmedia_id;
+	$meta = get_object_vars( $meta );
+	$result = array(
+		'success' => array(
+			'meta_id' => $mid,
+			'data' => $gmCore->_list_meta_item($meta)
+		),
+		'id' => $pid
+	);
+
+	if(!empty($_POST['metakeyinput'])){
+		$result['newmeta_form'] = $gmCore->meta_form();
+	}
+
+	echo json_encode($result);
+	die();
+
+}
+
+add_action( 'wp_ajax_gmedia_delete_custom_field', 'gmedia_delete_custom_field' );
+function gmedia_delete_custom_field() {
+	global $gmDB, $user_ID;
+	check_ajax_referer( 'gmedia_custom_field', '_customfield_nonce' );
+
+	$pid = (int) $_POST['ID'];
+	$post = $gmDB->get_gmedia( $pid );
+
+	if ( !current_user_can( 'gmedia_edit_media' ) || ($user_ID != $post->author && !current_user_can( 'gmedia_edit_others_media' )) ) {
+		echo json_encode( array( 'error' => array( 'code' => 100, 'message' => __( 'You are not allowed to edit others media', 'gmLang' ) ), 'id' => $pid ) );
+		die();
+	}
+
+	$result = array('id' => $pid);
+
+	$deletemeta = $_POST['meta'];
+	$meta_type = 'gmedia';
+	$column = sanitize_key($meta_type . '_id');
+	if ( isset($deletemeta) && is_array($deletemeta) ) {
+		foreach ( $deletemeta as $key => $value ) {
+			if ( ! $meta = $gmDB->get_metadata_by_mid( $meta_type, $key ) ) {
+				continue;
+			}
+			if ( $meta->{$column} != $pid ) {
+				continue;
+			}
+			if ( is_protected_meta( $meta->meta_key, $meta_type ) ) {
+				continue;
+			}
+			if( ($del_meta = $gmDB->delete_metadata_by_mid( $meta_type, $key )) ) {
+				$result['deleted'][] = $key;
+			}
+		}
+	}
+
+	header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
+	echo json_encode($result);
+	die();
+
+}
+
 add_action( 'wp_ajax_gmedia_module_interaction', 'gmedia_module_interaction' );
 add_action( 'wp_ajax_nopriv_gmedia_module_interaction', 'gmedia_module_interaction' );
 function gmedia_module_interaction() {
@@ -1991,7 +2124,7 @@ function gmedia_module_interaction() {
 		if(!intval($gmid) || (null === $gmDB->get_gmedia($gmid))){
 			die('0');
 		}
-		$rating = $gmDB->get_metadata('gmedia', $gmid, 'rating', true);
+		$rating = $gmDB->get_metadata('gmedia', $gmid, '_rating', true);
 		$old_rate = 0;
 
 		$transient_key = 'gm_rate_day'.date('w');
@@ -2010,7 +2143,7 @@ function gmedia_module_interaction() {
 		$rating_value = ($rating['value']*$rating['votes'] + $rate - $old_rate)/$rating_votes;
 		$rating = array('value' => $rating_value, 'votes' => $rating_votes);
 
-		$gmDB->update_metadata('gmedia', $gmid, 'rating', $rating);
+		$gmDB->update_metadata('gmedia', $gmid, '_rating', $rating);
 
 		header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
 		echo json_encode(array($rating));
