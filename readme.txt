@@ -128,6 +128,9 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 = Modules Updated =
 * Go to Gmedia Modules page and update installed premium modules to latest versions
 
+= 1.6.4 =
+* Fixed links for delete, upload and others
+
 = 1.6.3 =
 * Added Custom Fields for Gmedia Items
 * Added Batch File Rename

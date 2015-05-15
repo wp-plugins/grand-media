@@ -125,7 +125,7 @@ class GmediaCore {
 			$new_uri = add_query_arg( $add_args, $new_uri );
 		}
 
-		return esc_url($new_uri);
+		return esc_url_raw($new_uri);
 	}
 
 	/**
