@@ -2895,7 +2895,7 @@ class GmediaDB{
 		// Merge old and new args with new args overwriting old ones.
 		$args = array_merge($term, $args);
 
-		$defaults = array('global' => $term['global'], 'name' => $term['name'], 'description' => '', 'status' => 'public', 'orderby' => 'ID', 'order' => 'DESC');
+		$defaults = array('global' => $term['global'], 'name' => $term['name'], 'description' => '', 'status' => 'public', '_orderby' => 'ID', '_order' => 'DESC');
 		$args = wp_parse_args($args, $defaults);
 
 		/** @var $name
@@ -2994,8 +2994,8 @@ class GmediaDB{
 		extract($args, EXTR_SKIP);
 
 		$default_meta = array(
-			'orderby' => 'ID',
-			'order' => 'DESC'
+			'_orderby' => 'ID',
+			'_order' => 'DESC'
 		);
 		$sortorder_meta = array_intersect_key($args, $default_meta) + $default_meta;
 		foreach($sortorder_meta as $key => $value){
@@ -3005,17 +3005,17 @@ class GmediaDB{
 		$save_order = false;
 
 		if(!empty($reset_custom_order)){
-			if($sortorder_meta['orderby'] == 'custom'){
-				$sortorder_meta['orderby'] = $default_meta['orderby'];
+			if($sortorder_meta['_orderby'] == 'custom'){
+				$sortorder_meta['_orderby'] = $default_meta['_orderby'];
 			}
-			$gmedia_ids = $this->get_gmedias(array('no_found_rows' => true, 'album__in' => $term_id, 'orderby' => $sortorder_meta['orderby'], 'order' => 'ASC', 'fields' => 'ids'));
+			$gmedia_ids = $this->get_gmedias(array('no_found_rows' => true, 'album__in' => $term_id, 'orderby' => $sortorder_meta['_orderby'], 'order' => 'ASC', 'fields' => 'ids'));
 			$gmedia_ids = array_merge(array(0), $gmedia_ids);
 			unset($gmedia_ids[0]);
 			$gmedia_ids = array_flip($gmedia_ids);
 			$save_order = true;
 		}
 
-		if('custom' == $sortorder_meta['orderby']){
+		if('custom' == $sortorder_meta['_orderby']){
 			$save_order = true;
 		}
 

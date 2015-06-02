@@ -241,7 +241,7 @@ function gmediaTerms() {
 						<div class="form-group row">
 							<div class="col-xs-6">
 								<label><?php _e( 'Order gmedia', 'gmLang' ); ?></label>
-								<select name="term[orderby]" class="form-control input-sm">
+								<select name="term[_orderby]" class="form-control input-sm">
 									<option value="custom"><?php _e( 'user defined', 'gmLang' ); ?></option>
 									<option selected="selected" value="ID"><?php _e( 'by ID', 'gmLang' ); ?></option>
 									<option value="title ID"><?php _e( 'by title', 'gmLang' ); ?></option>
@@ -253,7 +253,7 @@ function gmediaTerms() {
 							</div>
 							<div class="col-xs-6">
 								<label><?php _e( 'Sort order', 'gmLang' ); ?></label>
-								<select name="term[order]" class="form-control input-sm">
+								<select name="term[_order]" class="form-control input-sm">
 									<option selected="selected" value="DESC"><?php _e( 'DESC', 'gmLang' ); ?></option>
 									<option value="ASC"><?php _e( 'ASC', 'gmLang' ); ?></option>
 								</select>
@@ -322,12 +322,8 @@ function gmediaTerms() {
 					if ( $item->count ) {
 						$term_meta = $gmDB->get_metadata( 'gmedia_term', $item->term_id );
 						$term_meta = array_map( 'reset', $term_meta );
-						$term_meta = array_merge( array( 'orderby' => 'ID', 'order' => 'DESC' ), $term_meta );
-						/*
-						$term_meta_default = array('orderby' => 'ID', 'order' => 'DESC');
-						$term_meta = array_intersect_key($term_meta, $term_meta_default) + $term_meta_default;
-						*/
-						$args      = array( 'no_found_rows' => true, 'per_page' => $per_page, 'album__in' => array( $item->term_id ), 'author' => $author, 'orderby' => $term_meta['orderby'], 'order' => $term_meta['order'] );
+						$term_meta = array_merge( array( '_orderby' => 'ID', '_order' => 'DESC' ), $term_meta );
+						$args      = array( 'no_found_rows' => true, 'per_page' => $per_page, 'album__in' => array( $item->term_id ), 'author' => $author, 'orderby' => $term_meta['_orderby'], 'order' => $term_meta['_order'] );
 						$termItems = $gmDB->get_gmedias( $args );
 					}
 					$is_selected        = in_array( $item->term_id, $gmProcessor->selected_items ) ? true : false;
@@ -472,7 +468,7 @@ function gmediaTerms() {
 			<?php
 			if ( count( $gmediaTerms ) ) {
 				foreach ( $gmediaTerms as $item ) {
-					$term_query = $gmDB->get_metadata( 'gmedia_term', $item->term_id, 'query', true );
+					$term_query = $gmDB->get_metadata( 'gmedia_term', $item->term_id, '_query', true );
 
 					$is_selected        = in_array( $item->term_id, $gmProcessor->selected_items ) ? true : false;
 					$author_name        = '';
@@ -939,7 +935,7 @@ function gmediaAlbumEdit() {
 
 		$term_meta  = $gmDB->get_metadata( 'gmedia_term', $term->term_id );
 		$term_meta  = array_map( 'reset', $term_meta );
-		$term_meta  = array_merge( array( 'orderby' => 'ID', 'order' => 'DESC' ), $term_meta );
+		$term_meta  = array_merge( array( '_orderby' => 'ID', '_order' => 'DESC' ), $term_meta );
 		$per_page   = ! empty( $gm_screen_options['per_page_sort_gmedia'] ) ? $gm_screen_options['per_page_sort_gmedia'] : 60;
 		$cur_page   = $gmCore->_get( 'pager', 1 );
 		$pager_html = '';
@@ -948,8 +944,8 @@ function gmediaAlbumEdit() {
 		if ( $term->count ) {
 			$args      = array(
 				'album__in' => $term->term_id,
-				'orderby'   => $term_meta['orderby'],
-				'order'     => $term_meta['order'],
+				'orderby'   => $term_meta['_orderby'],
+				'order'     => $term_meta['_order'],
 				'per_page'  => $per_page,
 				'page'      => $cur_page
 			);
@@ -993,7 +989,7 @@ function gmediaAlbumEdit() {
 
 			</div>
 
-			<form method="post" id="gmedia-edit-term" name="gmEditTerm" class="panel-body">
+			<form method="post" id="gmedia-edit-term" name="gmEditTerm" class="panel-body" data-id="<?php echo $term->term_id; ?>">
 				<h4 style="margin-top:0;">
 					<span class="pull-right"><?php echo __( 'ID', 'gmLang' ) . ": {$term->term_id}"; ?></span>
 					<?php _e( 'Edit Album' ); ?>: <em><?php echo esc_html( $term->name ); ?></em>
@@ -1066,6 +1062,11 @@ function gmediaAlbumEdit() {
 						</div>
 					</div>
 				</div>
+				<hr />
+				<?php
+					$gmCore->gmedia_custom_meta_box($term->term_id, $meta_type = 'gmedia_term');
+					do_action('gmedia_term_edit_form');
+				?>
 			</form>
 		</div>
 		<div class="panel panel-default">
@@ -1081,23 +1082,23 @@ function gmediaAlbumEdit() {
 						<div class="col-xs-3">
 							<div class="form-group">
 								<label><?php _e( 'Order gmedia', 'gmLang' ); ?></label>
-								<select name="term[orderby]" id="gmedia_term_orderby" class="form-control input-sm">
-									<option value="custom"<?php selected( $term_meta['orderby'], 'custom' ); ?>><?php _e( 'Custom Order', 'gmLang' ); ?></option>
-									<option value="ID"<?php selected( $term_meta['orderby'], 'ID' ); ?>><?php _e( 'by ID', 'gmLang' ); ?></option>
-									<option value="title ID"<?php selected( $term_meta['orderby'], 'title ID' ); ?>><?php _e( 'by title', 'gmLang' ); ?></option>
-									<option value="gmuid"<?php selected( $term_meta['orderby'], 'gmuid' ); ?>><?php _e( 'by filename', 'gmLang' ); ?></option>
-									<option value="date ID"<?php selected( $term_meta['orderby'], 'date ID' ); ?>><?php _e( 'by date', 'gmLang' ); ?></option>
-									<option value="modified ID"<?php selected( $term_meta['orderby'], 'modified ID' ); ?>><?php _e( 'by last modified date', 'gmLang' ); ?></option>
-									<option value="rand"<?php selected( $term_meta['orderby'], 'rand' ); ?>><?php _e( 'Random', 'gmLang' ); ?></option>
+								<select name="term[_orderby]" id="gmedia_term_orderby" class="form-control input-sm">
+									<option value="custom"<?php selected( $term_meta['_orderby'], 'custom' ); ?>><?php _e( 'Custom Order', 'gmLang' ); ?></option>
+									<option value="ID"<?php selected( $term_meta['_orderby'], 'ID' ); ?>><?php _e( 'by ID', 'gmLang' ); ?></option>
+									<option value="title ID"<?php selected( $term_meta['_orderby'], 'title ID' ); ?>><?php _e( 'by title', 'gmLang' ); ?></option>
+									<option value="gmuid"<?php selected( $term_meta['_orderby'], 'gmuid' ); ?>><?php _e( 'by filename', 'gmLang' ); ?></option>
+									<option value="date ID"<?php selected( $term_meta['_orderby'], 'date ID' ); ?>><?php _e( 'by date', 'gmLang' ); ?></option>
+									<option value="modified ID"<?php selected( $term_meta['_orderby'], 'modified ID' ); ?>><?php _e( 'by last modified date', 'gmLang' ); ?></option>
+									<option value="rand"<?php selected( $term_meta['_orderby'], 'rand' ); ?>><?php _e( 'Random', 'gmLang' ); ?></option>
 								</select>
 							</div>
 						</div>
 						<div class="col-xs-3">
 							<div class="form-group">
 								<label><?php _e( 'Sort order', 'gmLang' ); ?></label>
-								<select id="gmedia_term_order" name="term[order]" class="form-control input-sm">
-									<option value="DESC"<?php selected( $term_meta['order'], 'DESC' ); ?>><?php _e( 'DESC', 'gmLang' ); ?></option>
-									<option value="ASC"<?php selected( $term_meta['order'], 'ASC' ); ?>><?php _e( 'ASC', 'gmLang' ); ?></option>
+								<select id="gmedia_term_order" name="term[_order]" class="form-control input-sm">
+									<option value="DESC"<?php selected( $term_meta['_order'], 'DESC' ); ?>><?php _e( 'DESC', 'gmLang' ); ?></option>
+									<option value="ASC"<?php selected( $term_meta['_order'], 'ASC' ); ?>><?php _e( 'ASC', 'gmLang' ); ?></option>
 								</select>
 							</div>
 						</div>
@@ -1228,6 +1229,30 @@ function gmediaAlbumEdit() {
 			</script>
 
 		</div>
+
+
+		<div class="modal fade gmedia-modal" id="newCustomFieldModal" tabindex="-1" role="dialog" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						<h4 class="modal-title"><?php _e('Add New Custom Field'); ?></h4>
+					</div>
+					<form class="modal-body" method="post" id="newCustomFieldForm">
+						<?php
+						echo $gmCore->meta_form($meta_type = 'gmedia_term');
+						wp_nonce_field( 'gmedia_custom_field', '_customfield_nonce' );
+						?>
+						<input type="hidden" name="action" value="gmedia_term_add_custom_field" />
+						<input type="hidden" class="newcustomfield-for-id" name="ID" value="" />
+					</form>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-primary customfieldsubmit"><?php _e( 'Add', 'gmLang' ); ?></button>
+						<button type="button" class="btn btn-default" data-dismiss="modal"><?php _e( 'Close', 'gmLang' ); ?></button>
+					</div>
+				</div>
+			</div>
+		</div>
 	<?php
 	} else {
 
@@ -1345,12 +1370,12 @@ function gmediaFilterEdit() {
 		$term = $gmDB->get_term( $term_id, $taxonomy, ARRAY_A );
 		if ( ! empty( $term ) && ! is_wp_error( $term ) ) {
 
-			$term_query = $gmDB->get_metadata( 'gmedia_term', $term['term_id'], 'query', true );
+			$term_query = $gmDB->get_metadata( 'gmedia_term', $term['term_id'], '_query', true );
 			$filter_data = array_merge( $filter_data, $term_query );
 			$term_query = array_merge( $term_query, $filter_variable_data );
 
 			if ( isset( $_GET['author'] ) && ( $term['global'] != $author ) ) {
-				$filter_data['query']['gmedia_album'] = array();
+				$filter_data['_query']['gmedia_album'] = array();
 				$term['global']                      = $author;
 				$author_new                          = true;
 			}
@@ -1866,7 +1891,6 @@ function gmediaFilterEdit() {
 		</div>
 	</div>
 
-	<!-- Modal -->
 	<?php if ( $gmCore->caps['gmedia_edit_others_media'] ) { ?>
 		<div class="modal fade gmedia-modal" id="gallModal" tabindex="-1" role="dialog" aria-hidden="true">
 			<div class="modal-dialog"></div>

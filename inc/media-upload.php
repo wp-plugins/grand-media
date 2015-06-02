@@ -289,7 +289,7 @@ function gmedia_add_media_galleries(){
 								$term_meta = array_map('reset', $term_meta);
 								$term_meta = array_map('maybe_unserialize', $term_meta);
 
-								$module = $gmCore->get_module_path($term_meta['module']);
+								$module = $gmCore->get_module_path($term_meta['_module']);
 								$module_info = array('type' => '&#8212;');
 								if(file_exists($module['path'] . '/index.php')){
 									$broken = false;
@@ -303,7 +303,7 @@ function gmedia_add_media_galleries(){
 									$list_row_class = ' list-group-item-info';
 								}
 								?>
-								<div class="gmedia-insert-item list-group-item clearfix d-row<?php echo $list_row_class; ?>" id="list-item-<?php echo $term->term_id; ?>" data-id="<?php echo $term->term_id; ?>" data-type="<?php echo $term_meta['module']; ?>">
+								<div class="gmedia-insert-item list-group-item clearfix d-row<?php echo $list_row_class; ?>" id="list-item-<?php echo $term->term_id; ?>" data-id="<?php echo $term->term_id; ?>" data-type="<?php echo $term_meta['_module']; ?>">
 									<div class="media-object pull-left" style="width:130px;margin-right:15px;">
 										<?php if(!$broken){ ?>
 											<span class="thumbnail"><img src="<?php echo $module['url'] . '/screenshot.png'; ?>" alt="<?php echo esc_attr($term->name); ?>"/></span>
@@ -330,14 +330,14 @@ function gmedia_add_media_galleries(){
 									</p>
 
 									<p class="media-meta clear hidden">
-										<span class="label label-default"><?php _e('Module', 'gmLang'); ?>:</span> <?php echo $term_meta['module']; ?>
+										<span class="label label-default"><?php _e('Module', 'gmLang'); ?>:</span> <?php echo $term_meta['_module']; ?>
 										<br><span class="label label-default"><?php _e('Type', 'gmLang'); ?>:</span> <?php echo $module_info['type']; ?>
-										<br><span class="label label-default"><?php _e('Last Edited', 'gmLang'); ?>:</span> <?php echo $term_meta['edited']; ?>
+										<br><span class="label label-default"><?php _e('Last Edited', 'gmLang'); ?>:</span> <?php echo $term_meta['_edited']; ?>
 										<br><span class="label label-default"><?php _e('Status', 'gmLang'); ?>:</span> <?php echo $term->status; ?>
 										<br><span class="label label-default"><?php _e('Source', 'gmLang'); ?>:</span>
 										<?php
-										$gallery_tabs = reset($term_meta['query']);
-										$tax_tabs = key($term_meta['query']);
+										$gallery_tabs = reset($term_meta['_query']);
+										$tax_tabs = key($term_meta['_query']);
 										if('gmedia__in' == $tax_tabs){
 											_e('Selected Gmedia', 'gmLang');
 											if(!(((int) $term->global != $user_ID) && !current_user_can('gmedia_show_others_media'))){
@@ -628,8 +628,8 @@ function gmedia_add_media_terms(){
 									if('gmedia_album' == $taxonomy){
 										$term_meta = $gmDB->get_metadata('gmedia_term', $item->term_id);
 										$term_meta = array_map('reset', $term_meta);
-										$term_meta = array_merge(array('orderby' => 'ID', 'order' => 'DESC'), $term_meta);
-										$args = array('no_found_rows' => true, 'per_page' => $per_page, 'album__in' => array($item->term_id), 'author' => $author, 'orderby' => $term_meta['orderby'], 'order' => $term_meta['order']);
+										$term_meta = array_merge(array('_orderby' => 'ID', '_order' => 'DESC'), $term_meta);
+										$args = array('no_found_rows' => true, 'per_page' => $per_page, 'album__in' => array($item->term_id), 'author' => $author, 'orderby' => $term_meta['_orderby'], 'order' => $term_meta['_order']);
 									} elseif('gmedia_tag' == $taxonomy){
 										$args = array(
 											'no_found_rows' => true,
@@ -685,7 +685,7 @@ function gmedia_add_media_terms(){
 										<?php
 										$term_meta = $gmDB->get_metadata('gmedia_term', $item->term_id);
 										$term_meta = array_map('reset', $term_meta);
-										$term_meta = array_merge(array('orderby' => 'ID', 'order' => 'DESC'), $term_meta);
+										$term_meta = array_merge(array('_orderby' => 'ID', '_order' => 'DESC'), $term_meta);
 										$tax_name = array(
 											'gmedia_album' => __('Album', 'gmLang'),
 											'gmedia_tag' => __('Tag', 'gmLang'),
@@ -710,8 +710,8 @@ function gmedia_add_media_terms(){
 													'modified' => __('by last modified date', 'gmLang'),
 													'rand' => __('Random', 'gmLang')
 												); ?>
-												<br/><strong><?php _e('Order', 'gmLang'); ?>:</strong> <?php echo $orderby[$term_meta['orderby']]; ?>
-												<br/><strong><?php _e('Sort order', 'gmLang'); ?>:</strong> <?php echo $term_meta['order']; ?>
+												<br/><strong><?php _e('Order', 'gmLang'); ?>:</strong> <?php echo $orderby[$term_meta['_orderby']]; ?>
+												<br/><strong><?php _e('Sort order', 'gmLang'); ?>:</strong> <?php echo $term_meta['_order']; ?>
 												<br/><strong><?php _e('Status', 'gmLang'); ?>:</strong> <?php echo $item->status; ?>
 												<br/><strong><?php _e('Author', 'gmLang'); ?>:</strong> <?php echo $owner; ?>
 											<?php } ?>

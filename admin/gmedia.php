@@ -61,7 +61,7 @@ function gmediaLib(){
 	if(($filter_id = (int) $gmCore->_get('custom_filter', 0))){
 		if(($gmedia_filter = $gmDB->get_term($filter_id, 'gmedia_filter'))){
 			if(($gmedia_filter->global == $user_ID) || $gmCore->caps['gmedia_show_others_media']){
-				$_args = $gmDB->get_metadata('gmedia_term', $gmedia_filter->term_id, 'query', true);
+				$_args = $gmDB->get_metadata('gmedia_term', $gmedia_filter->term_id, '_query', true);
 				$args = array_merge($args, $_args);
 				$custom_filter = $gmedia_filter->name;
 			} else {
@@ -916,7 +916,7 @@ function gmediaLib(){
 					</div>
 				</div>
 				<?php
-				$gmCore->gmedia_custom_meta_box($item);
+				$gmCore->gmedia_custom_meta_box($item->ID);
 				do_action('gmedia_edit_form');
 				?>
 			</div>
@@ -1069,7 +1069,7 @@ function gmediaLib(){
 					<input type="hidden" class="newcustomfield-for-id" name="ID" value="" />
 				</form>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-primary customfieldsubmit"><?php _e( 'Send', 'gmLang' ); ?></button>
+					<button type="button" class="btn btn-primary customfieldsubmit"><?php _e( 'Add', 'gmLang' ); ?></button>
 					<button type="button" class="btn btn-default" data-dismiss="modal"><?php _e( 'Close', 'gmLang' ); ?></button>
 				</div>
 			</div>

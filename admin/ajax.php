@@ -1509,7 +1509,7 @@ function gmedia_ftp_browser() {
 	// get the current directory
 	$dir = trailingslashit( urldecode( $_POST['dir'] ) );
 
-	if ( file_exists( $root . $dir ) ) {
+	if (  (false === strpos( $dir, '..' )) && file_exists( $root . $dir ) ) {
 		$files = scandir( $root . $dir );
 		natcasesort( $files );
 
@@ -2001,6 +2001,8 @@ function gmedia_add_custom_field() {
 	global $gmDB, $user_ID, $gmCore;
 	check_ajax_referer( 'gmedia_custom_field', '_customfield_nonce' );
 
+	$meta_type = 'gmedia';
+
 	$pid = (int) $_POST['ID'];
 	$post = $gmDB->get_gmedia( $pid );
 
@@ -2015,13 +2017,14 @@ function gmedia_add_custom_field() {
 		die();
 	}
 
-	if ( !$mid = $gmCore->add_meta( $pid ) ) {
+	if ( !$mid = $gmCore->add_meta( $pid, $meta_type ) ) {
 		echo json_encode(array( 'error' => array( 'code' => 102, 'message' => __( 'Please provide a custom field value', 'gmLang' ) ), 'id' => $pid ));
 		die();
 	}
 
-	$meta = $gmDB->get_metadata_by_mid( 'gmedia', $mid );
-	$pid = (int) $meta->gmedia_id;
+	$column = sanitize_key($meta_type . '_id');
+	$meta = $gmDB->get_metadata_by_mid( $meta_type, $mid );
+	$pid = (int) $meta->{$column};
 	$meta = get_object_vars( $meta );
 	$result = array(
 		'success' => array(
@@ -2032,7 +2035,7 @@ function gmedia_add_custom_field() {
 	);
 
 	if(!empty($_POST['metakeyinput'])){
-		$result['newmeta_form'] = $gmCore->meta_form();
+		$result['newmeta_form'] = $gmCore->meta_form($meta_type);
 	}
 
 	echo json_encode($result);
@@ -2045,6 +2048,8 @@ function gmedia_delete_custom_field() {
 	global $gmDB, $user_ID;
 	check_ajax_referer( 'gmedia_custom_field', '_customfield_nonce' );
 
+	$meta_type = 'gmedia';
+
 	$pid = (int) $_POST['ID'];
 	$post = $gmDB->get_gmedia( $pid );
 
@@ -2056,7 +2061,97 @@ function gmedia_delete_custom_field() {
 	$result = array('id' => $pid);
 
 	$deletemeta = $_POST['meta'];
-	$meta_type = 'gmedia';
+	$column = sanitize_key($meta_type . '_id');
+	if ( isset($deletemeta) && is_array($deletemeta) ) {
+		foreach ( $deletemeta as $key => $value ) {
+			if ( ! $meta = $gmDB->get_metadata_by_mid( $meta_type, $key ) ) {
+				continue;
+			}
+			if ( $meta->{$column} != $pid ) {
+				continue;
+			}
+			if ( is_protected_meta( $meta->meta_key, $meta_type ) ) {
+				continue;
+			}
+			if( ($del_meta = $gmDB->delete_metadata_by_mid( $meta_type, $key )) ) {
+				$result['deleted'][] = $key;
+			}
+		}
+	}
+
+	header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
+	echo json_encode($result);
+	die();
+
+}
+
+add_action( 'wp_ajax_gmedia_term_add_custom_field', 'gmedia_term_add_custom_field' );
+function gmedia_term_add_custom_field() {
+	global $gmDB, $user_ID, $gmCore;
+	check_ajax_referer( 'gmedia_custom_field', '_customfield_nonce' );
+
+	$meta_type = 'gmedia_term';
+
+	$pid = (int) $_POST['ID'];
+	$taxonomy = 'gmedia_album';
+	$post = $gmDB->get_term( $pid, $taxonomy );
+
+	header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
+
+	if ( !current_user_can( 'gmedia_album_manage' ) || ($user_ID != $post->global && !current_user_can( 'gmedia_edit_others_media' )) ) {
+		echo json_encode( array( 'error' => array( 'code' => 100, 'message' => __( 'You are not allowed to edit others media', 'gmLang' ) ), 'id' => $pid ) );
+		die();
+	}
+	if ( isset($_POST['metakeyselect']) && empty($_POST['metakeyselect']) && empty($_POST['metakeyinput']) ) {
+		echo json_encode( array( 'error' => array( 'code' => 101, 'message' => __( 'Choose or provide a custom field name', 'gmLang' ) ), 'id' => $pid ) );
+		die();
+	}
+
+	if ( !$mid = $gmCore->add_meta( $pid, $meta_type ) ) {
+		echo json_encode(array( 'error' => array( 'code' => 102, 'message' => __( 'Please provide a custom field value', 'gmLang' ) ), 'id' => $pid ));
+		die();
+	}
+
+	$column = sanitize_key($meta_type . '_id');
+	$meta = $gmDB->get_metadata_by_mid( $meta_type, $mid );
+	$pid = (int) $meta->{$column};
+	$meta = get_object_vars( $meta );
+	$result = array(
+		'success' => array(
+			'meta_id' => $mid,
+			'data' => $gmCore->_list_meta_item($meta)
+		),
+		'id' => $pid
+	);
+
+	if(!empty($_POST['metakeyinput'])){
+		$result['newmeta_form'] = $gmCore->meta_form($meta_type);
+	}
+
+	echo json_encode($result);
+	die();
+
+}
+
+add_action( 'wp_ajax_gmedia_term_delete_custom_field', 'gmedia_term_delete_custom_field' );
+function gmedia_term_delete_custom_field() {
+	global $gmDB, $user_ID;
+	check_ajax_referer( 'gmedia_custom_field', '_customfield_nonce' );
+
+	$meta_type = 'gmedia_term';
+
+	$pid = (int) $_POST['ID'];
+	$taxonomy = 'gmedia_album';
+	$post = $gmDB->get_term( $pid, $taxonomy );
+
+	if ( !current_user_can( 'gmedia_album_manage' ) || ($user_ID != $post->global && !current_user_can( 'gmedia_edit_others_media' )) ) {
+		echo json_encode( array( 'error' => array( 'code' => 100, 'message' => __( 'You are not allowed to edit others media', 'gmLang' ) ), 'id' => $pid ) );
+		die();
+	}
+
+	$result = array('id' => $pid);
+
+	$deletemeta = $_POST['meta'];
 	$column = sanitize_key($meta_type . '_id');
 	if ( isset($deletemeta) && is_array($deletemeta) ) {
 		foreach ( $deletemeta as $key => $value ) {
@@ -2087,16 +2182,19 @@ function gmedia_module_interaction() {
 	global $gmDB, $gmCore;
 
 	if ( empty( $_SERVER['HTTP_REFERER'] ) ) {
+		header($_SERVER['SERVER_PROTOCOL'].' 400 Bad Request');
 		die();
 	}
 
 	$ref = $_SERVER['HTTP_REFERER'];
 	//$uip = str_replace('.', '', $_SERVER['REMOTE_ADDR'])
 	if ( (false === strpos( $ref, get_home_url() )) && (false === strpos( $ref, get_site_url()) )) {
-		echo 'referer:'.$_SERVER['HTTP_REFERER']."\n";
-		echo 'home_url:'.get_home_url()."\n";
-		echo 'site_url:'.get_site_url()."\n";
-		die('-1');
+		header($_SERVER['SERVER_PROTOCOL'].' 400 Bad Request');
+		die();
+	}
+	if(('POST' !== $_SERVER['REQUEST_METHOD']) || !isset($_SERVER['HTTP_HOST']) || !(strpos( get_home_url(), $_SERVER['HTTP_HOST'] )) || !empty($_SERVER['QUERY_STRING'])){
+		header($_SERVER['SERVER_PROTOCOL'].' 400 Bad Request');
+		die();
 	}
 
 	if ( isset($_POST['hit']) && ($gmID = intval($_POST['hit'])) ) {

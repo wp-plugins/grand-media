@@ -29,6 +29,7 @@ function gmedia_default_options(){
 
 	$gm['endpoint'] = 'gmedia';
 	$gm['gmediacloud_module'] = '';
+	$gm['gmediacloud_socialbuttons'] = '1';
 	$gm['gmediacloud_footer_js'] = '';
 	$gm['gmediacloud_footer_css'] = '';
 

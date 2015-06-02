@@ -13,9 +13,9 @@ get_gmedia_header(); ?>
 			$home_url = home_url();
 			?>
 			<div class="gmedia-menu-items">
-				<a href="<?php echo $home_url; ?>" class="btn" title="<?php echo esc_attr(get_bloginfo('name')); ?>"><i class="fa fa-home"><span><?php _e('Home', 'gmLang') ?></span></i></a>
+				<a href="<?php echo $home_url; ?>" class="btn btn-homepage" title="<?php echo esc_attr(get_bloginfo('name')); ?>"><i class="fa fa-home"><span><?php _e('Home', 'gmLang') ?></span></i></a>
 				<?php if(!empty($_SERVER['HTTP_REFERER']) && ($home_url != $_SERVER['HTTP_REFERER'])){
-					echo "<a href='{$_SERVER['HTTP_REFERER']}' class='btn'><i class='fa fa-arrow-left'><span>".__('Go Back', 'gmLang')."</span></i></a>";
+					echo "<a href='{$_SERVER['HTTP_REFERER']}' class='btn btn-goback'><i class='fa fa-arrow-left'><span>".__('Go Back', 'gmLang')."</span></i></a>";
 				} ?>
 			</div>
 		</menu>

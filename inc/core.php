@@ -2164,20 +2164,20 @@ class GmediaCore {
 	 *
 	 * @since 1.6.3
 	 *
-	 * @param object $gmedia
+	 * @param int $gmedia_id
 	 * @param string $meta_type
 	 */
-	function gmedia_custom_meta_box($gmedia, $meta_type = 'gmedia') {
+	function gmedia_custom_meta_box($gmedia_id, $meta_type = 'gmedia') {
 		global $gmDB;
 
 		if(!in_array($meta_type, array('gmedia', 'gmedia_term'))){
 			$meta_type = 'gmedia';
 		}
 		?>
-		<fieldset id="gmediacustomstuff_<?php echo $gmedia->ID ?>" class="gmediacustomstuff">
+		<fieldset id="gmediacustomstuff_<?php echo $gmedia_id; ?>" class="gmediacustomstuff" data-metatype="<?php echo $meta_type; ?>">
 			<legend class="label label-default" style="font-size:85%;"><?php _e('Custom Fields','gmLang'); ?></legend>
 			<?php
-			$metadata = $gmDB->has_meta($gmedia->ID, $meta_type);
+			$metadata = $gmDB->has_meta($gmedia_id, $meta_type);
 			foreach ( $metadata as $key => $value ) {
 				if ( is_protected_meta( $metadata[ $key ][ 'meta_key' ], $meta_type ) )
 					unset( $metadata[ $key ] );
@@ -2190,7 +2190,7 @@ class GmediaCore {
 				}
 			} ?>
 			</div>
-			<a href="#newCustomFieldModal" data-gmid="<?php echo $gmedia->ID ?>" class="newcustomfield-modal label label-primary"><?php _e( 'Add New Custom Field', 'gmLang' ) ?></a>
+			<a href="#newCustomFieldModal" data-gmid="<?php echo $gmedia_id; ?>" class="newcustomfield-modal label label-primary"><?php _e( 'Add New Custom Field', 'gmLang' ) ?></a>
 		</fieldset>
 		<p><?php _e('Custom fields can be used to add extra metadata to a gmedia item that developer can use in their templates.'); ?></p>
 	<?php

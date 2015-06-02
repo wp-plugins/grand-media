@@ -151,7 +151,7 @@ function gmediaGalleries(){
 					$term_meta = array_map('reset', $term_meta);
 					$term_meta = array_map('maybe_unserialize', $term_meta);
 
-					$module = $gmCore->get_module_path($term_meta['module']);
+					$module = $gmCore->get_module_path($term_meta['_module']);
 					$module_info = array('type' => '&#8212;');
 					if(file_exists($module['path'] . '/index.php')){
 						$broken = false;
@@ -177,11 +177,11 @@ function gmediaGalleries(){
                         }
                     }
 					?>
-					<div class="list-group-item row d-row<?php echo $list_row_class . ($is_selected? ' active-row' : ''); ?>" id="list-item-<?php echo $term->term_id; ?>" data-id="<?php echo $term->term_id; ?>" data-type="<?php echo $term_meta['module']; ?>">
+					<div class="list-group-item row d-row<?php echo $list_row_class . ($is_selected? ' active-row' : ''); ?>" id="list-item-<?php echo $term->term_id; ?>" data-id="<?php echo $term->term_id; ?>" data-type="<?php echo $term_meta['_module']; ?>">
 						<div class="term_id">#<?php echo $term->term_id; ?></div>
 						<div class="col-xs-7">
 							<label class="cb_media-object cb_media-object-gallery">
-								<input name="doaction[]" type="checkbox"<?php echo $is_selected? ' checked="checked"' : ''; ?> data-type="<?php echo $term_meta['module']; ?>" class="hidden" value="<?php echo $term->term_id; ?>"/>
+								<input name="doaction[]" type="checkbox"<?php echo $is_selected? ' checked="checked"' : ''; ?> data-type="<?php echo $term_meta['_module']; ?>" class="hidden" value="<?php echo $term->term_id; ?>"/>
 								<?php if(!$broken){ ?>
 									<span class="thumbnail"><img src="<?php echo $module['url'] . '/screenshot.png'; ?>" alt="<?php echo esc_attr($term->name); ?>"/></span>
 								<?php } else{ ?>
@@ -250,14 +250,14 @@ function gmediaGalleries(){
 								?>
 							</div>
 							<p class="media-meta">
-								<span class="label label-default"><?php _e('Module', 'gmLang'); ?>:</span> <?php echo $term_meta['module']; ?>
+								<span class="label label-default"><?php _e('Module', 'gmLang'); ?>:</span> <?php echo $term_meta['_module']; ?>
 								<br><span class="label label-default"><?php _e('Type', 'gmLang'); ?>:</span> <?php echo $module_info['type']; ?>
-								<br><span class="label label-default"><?php _e('Last Edited', 'gmLang'); ?>:</span> <?php echo $term_meta['edited']; ?>
+								<br><span class="label label-default"><?php _e('Last Edited', 'gmLang'); ?>:</span> <?php echo $term_meta['_edited']; ?>
 								<br><span class="label label-default"><?php _e('Status', 'gmLang'); ?>:</span> <?php echo $term->status; ?>
 								<br><span class="label label-default"><?php _e('Source', 'gmLang'); ?>:</span>
 								<?php
-								$gallery_tabs = reset($term_meta['query']);
-								$tax_tabs = key($term_meta['query']);
+								$gallery_tabs = reset($term_meta['_query']);
+								$tax_tabs = key($term_meta['_query']);
 								if('gmedia__in' == $tax_tabs){
 									_e('Selected Gmedia', 'gmLang');
 									$gmedia_ids = wp_parse_id_list($gallery_tabs[0]);
@@ -423,10 +423,10 @@ function gmediaGalleryEdit(){
 		'description' => '',
 		'global' => $author,
 		'status' => 'public',
-		'edited' => '&#8212;',
-		'module' => '',
-		'query' => array(),
-		'settings' => array()
+		'_edited' => '&#8212;',
+		'_module' => '',
+		'_query' => array(),
+		'_settings' => array()
 	);
 	$taxonomy = 'gmedia_gallery';
 	if($gallery_id){
@@ -443,12 +443,12 @@ function gmediaGalleryEdit(){
 				$gallery_meta = array_map('maybe_unserialize', $gallery_meta);
 				$gallery = array_merge($gallery, $gallery_meta);
 				if(isset($_GET['author']) && ($gallery['global'] != $author)){
-					unset($gallery['query']['gmedia_album']);
+					unset($gallery['_query']['gmedia_album']);
 					$gallery['global'] = $author;
 					$author_new = true;
 				}
 				if(!$module_name){
-					$module_name = $gallery['module'];
+					$module_name = $gallery['_module'];
 				}
 			} else{
 				$alert[] = __('You are not allowed to edit others media');
@@ -456,7 +456,7 @@ function gmediaGalleryEdit(){
 		}
 	} elseif($module_name){
 		$url = add_query_arg(array('page' => $gmProcessor->page, 'gallery_module' => $module_name), admin_url('admin.php'));
-		$gallery['module'] = $module_name;
+		$gallery['_module'] = $module_name;
 	}
 
 	$gallery_post = $gmCore->_post('gallery');
@@ -553,11 +553,11 @@ function gmediaGalleryEdit(){
 	}
 
 	if(!empty($load_preset)){
-		$gallery['settings'][$module_name] = $gmCore->array_replace_recursive($gallery['settings'][$module_name], $load_preset);
+		$gallery['_settings'][$module_name] = $gmCore->array_replace_recursive($gallery['_settings'][$module_name], $load_preset);
 		echo $gmProcessor->alert('info', sprintf(__('Preset `%s` loaded. To apply it for current gallery click Save button'), $load_preset['name']));
 	}
-	if(isset($gallery['settings'][$module_name])){
-		$gallery_settings = $gmCore->array_replace_recursive($default_options, $gallery['settings'][$module_name]);
+	if(isset($gallery['_settings'][$module_name])){
+		$gallery_settings = $gmCore->array_replace_recursive($default_options, $gallery['_settings'][$module_name]);
 	} else{
 		$gallery_settings = $default_options;
 	}
@@ -574,7 +574,7 @@ function gmediaGalleryEdit(){
 				</a>
 			</div>
 			<div class="btn-group" id="save_buttons">
-				<?php if($gallery['module'] != $module_name){ ?>
+				<?php if($gallery['_module'] != $module_name){ ?>
 					<a href="<?php echo $url; ?>" class="btn btn-default"><?php _e('Cancel preview module', 'gmLang'); ?></a>
 					<button type="submit" name="gmedia_gallery_save" class="btn btn-primary"><?php _e('Save with new module', 'gmLang'); ?></button>
 				<?php } else{ ?>
@@ -636,10 +636,10 @@ function gmediaGalleryEdit(){
 						<strong><?php echo $module_info['title']; ?></strong><a href="#chooseModuleModal" data-toggle="modal" style="padding:5px 0;"><img src="<?php echo $module_url . '/screenshot.png'; ?>" alt="<?php echo esc_attr($module_info['title']); ?>" width="100" style="height:auto;"/></a>
 					</li>
 				<?php } else{ ?>
-					<li class="text-center"><strong><?php echo $gallery['module']; ?></strong>
+					<li class="text-center"><strong><?php echo $gallery['_module']; ?></strong>
 
 						<p><?php _e('This module is broken or outdated. Please, go to Modules page and update/install module.', 'gmLang'); ?></p>
-						<a href="#chooseModuleModal" data-toggle="modal" style="padding:5px 0;"><img src="<?php echo $module_url . '/screenshot.png'; ?>" alt="<?php echo esc_attr($gallery['module']); ?>" width="100" style="height:auto;"/></a>
+						<a href="#chooseModuleModal" data-toggle="modal" style="padding:5px 0;"><img src="<?php echo $module_url . '/screenshot.png'; ?>" alt="<?php echo esc_attr($gallery['_module']); ?>" width="100" style="height:auto;"/></a>
 					</li>
 				<?php } ?>
 				<li class="active"><a href="#general_settings" data-toggle="tab"><?php _e('General Settings', 'gmLang'); ?></a></li>
@@ -653,8 +653,8 @@ function gmediaGalleryEdit(){
 			<div id="gallery_options_block" class="tab-content" style="padding-top:20px;">
 
 				<fieldset id="general_settings" class="tab-pane active">
-					<p><?php echo '<b>' . __('Gallery module:') . '</b> ' . $gallery['module'];
-						if($gallery['module'] != $module_name){
+					<p><?php echo '<b>' . __('Gallery module:') . '</b> ' . $gallery['_module'];
+						if($gallery['_module'] != $module_name){
 							echo '<br /><b>' . __('Preview module:') . '</b> ' . $module_name;
 							echo '<br /><span class="text-muted">' . sprintf(__('Note: Module changed to %s, but not saved yet'), $module_name) . '</span>';
 						}  ?></p>
@@ -689,8 +689,8 @@ function gmediaGalleryEdit(){
 					<div class="form-group">
 						<label><?php _e('Show supported files from', 'gmLang'); ?></label>
 						<select data-watch="change" id="gmedia_query" class="form-control input-sm" name="gallery[term]">
-							<?php reset($gallery['query']);
-							$gallery['term'] = key($gallery['query']); ?>
+							<?php reset($gallery['_query']);
+							$gallery['term'] = key($gallery['_query']); ?>
 							<?php if($gmCore->caps['gmedia_terms']){ ?>
 								<option value="gmedia_album"<?php selected($gallery['term'], 'gmedia_album'); ?>><?php _e('Albums', 'gmLang'); ?></option>
 								<option value="gmedia_tag"<?php selected($gallery['term'], 'gmedia_tag'); ?>><?php _e('Tags', 'gmLang'); ?></option>
@@ -711,11 +711,11 @@ function gmediaGalleryEdit(){
 							$terms_items = '';
 							if(count($gm_terms)){
 								foreach($gm_terms as $id => $term){
-									$selected = (isset($gallery['query'][$term_type]) && in_array($id, $gallery['query'][$term_type]))? ' selected="selected"' : '';
+									$selected = (isset($gallery['_query'][$term_type]) && in_array($id, $gallery['_query'][$term_type]))? ' selected="selected"' : '';
 									$terms_items .= '<option value="' . $id . '"' . $selected . '>' . esc_html($gm_terms_all[$term['name']]) . ' (' . $term['count'] . ')</option>' . "\n";
 								}
 							}
-							$setvalue = isset($gallery['query'][$term_type])? 'data-setvalue="' . implode(',', $gallery['query'][$term_type]) . '"' : '';
+							$setvalue = isset($gallery['_query'][$term_type])? 'data-setvalue="' . implode(',', $gallery['_query'][$term_type]) . '"' : '';
 							?>
 							<label><?php _e('Choose Categories', 'gmLang'); ?></label>
 							<select data-gmedia_query="is:gmedia_category" <?php echo $setvalue; ?> id="gmedia_category" name="gallery[query][gmedia_category][]" class="gmedia-combobox form-control input-sm" multiple="multiple" placeholder="<?php echo esc_attr(__('Choose Categories...', 'gmLang')); ?>">
@@ -732,11 +732,11 @@ function gmediaGalleryEdit(){
 							$terms_items = '';
 							if(count($gm_terms)){
 								foreach($gm_terms as $id => $term){
-									$selected = (isset($gallery['query'][$term_type]) && in_array($id, $gallery['query'][$term_type]))? ' selected="selected"' : '';
+									$selected = (isset($gallery['_query'][$term_type]) && in_array($id, $gallery['_query'][$term_type]))? ' selected="selected"' : '';
 									$terms_items .= '<option value="' . $id . '"' . $selected . '>' . esc_html($term['name']) . ' (' . $term['count'] . ')</option>' . "\n";
 								}
 							}
-							$setvalue = isset($gallery['query'][$term_type])? 'data-setvalue="' . implode(',', $gallery['query'][$term_type]) . '"' : '';
+							$setvalue = isset($gallery['_query'][$term_type])? 'data-setvalue="' . implode(',', $gallery['_query'][$term_type]) . '"' : '';
 							?>
 							<label><?php _e('Choose Tags', 'gmLang'); ?> </label>
 							<select data-gmedia_query="is:gmedia_tag" <?php echo $setvalue; ?> id="gmedia_tag" name="gallery[query][gmedia_tag][]" class="gmedia-combobox form-control input-sm" multiple="multiple" placeholder="<?php echo esc_attr(__('Choose Tags...', 'gmLang')); ?>">
@@ -768,11 +768,11 @@ function gmediaGalleryEdit(){
 							$terms_items = '';
 							if(count($gm_terms)){
 								foreach($gm_terms as $term){
-									$selected = (isset($gallery['query'][$term_type]) && in_array($term->term_id, $gallery['query'][$term_type]))? ' selected="selected"' : '';
+									$selected = (isset($gallery['_query'][$term_type]) && in_array($term->term_id, $gallery['_query'][$term_type]))? ' selected="selected"' : '';
 									$terms_items .= '<option value="' . $term->term_id . '"' . $selected . '>' . esc_html($term->name) . ('public' == $term->status? '' : " [{$term->status}]") . ' &nbsp; (' . $term->count . ')</option>' . "\n";
 								}
 							}
-							$setvalue = isset($gallery['query'][$term_type])? 'data-setvalue="' . implode(',', $gallery['query'][$term_type]) . '"' : '';
+							$setvalue = isset($gallery['_query'][$term_type])? 'data-setvalue="' . implode(',', $gallery['_query'][$term_type]) . '"' : '';
 							?>
 							<label><?php _e('Choose Albums', 'gmLang'); ?> </label>
 							<select data-gmedia_query="is:gmedia_album" <?php echo $setvalue; ?> id="gmedia_album" name="gallery[query][gmedia_album][]" class="gmedia-combobox form-control input-sm" multiple="multiple" placeholder="<?php echo esc_attr(__('Choose Albums...', 'gmLang')); ?>">
@@ -796,11 +796,11 @@ function gmediaGalleryEdit(){
 							$terms_items = '';
 							if(count($gm_terms)){
 								foreach($gm_terms as $term){
-									$selected = (isset($gallery['query'][$term_type]) && in_array($term->term_id, $gallery['query'][$term_type]))? ' selected="selected"' : '';
+									$selected = (isset($gallery['_query'][$term_type]) && in_array($term->term_id, $gallery['_query'][$term_type]))? ' selected="selected"' : '';
 									$terms_items .= '<option value="' . $term->term_id . '"' . $selected . '>' . esc_html($term->name) . '</option>' . "\n";
 								}
 							}
-							$setvalue = isset($gallery['query'][$term_type])? 'data-setvalue="' . implode(',', $gallery['query'][$term_type]) . '"' : '';
+							$setvalue = isset($gallery['_query'][$term_type])? 'data-setvalue="' . implode(',', $gallery['_query'][$term_type]) . '"' : '';
 							?>
 							<label><?php _e('Choose Custom Filters', 'gmLang'); ?> </label>
 							<select data-gmedia_query="is:gmedia_filter" <?php echo $setvalue; ?> id="gmedia_filter" name="gallery[query][gmedia_filter][]" class="gmedia-combobox form-control input-sm" multiple="multiple" placeholder="<?php echo esc_attr(__('Choose Filters...', 'gmLang')); ?>">
@@ -814,7 +814,7 @@ function gmediaGalleryEdit(){
 
 					<div class="form-group" id="div_gmedia__in">
 						<label><?php _e('Selected Gmedia IDs <small class="text-muted">separated by comma</small>', 'gmLang'); ?> </label>
-						<?php $value = isset($gallery['query']['gmedia__in'][0])? implode(',', wp_parse_id_list($gallery['query']['gmedia__in'][0])) : ''; ?>
+						<?php $value = isset($gallery['_query']['gmedia__in'][0])? implode(',', wp_parse_id_list($gallery['_query']['gmedia__in'][0])) : ''; ?>
 						<textarea data-gmedia_query="is:gmedia__in" id="gmedia__in" name="gallery[query][gmedia__in][]" rows="1" class="form-control input-sm" style="resize:vertical;" placeholder="<?php echo esc_attr(__('Gmedia IDs...', 'gmLang')); ?>"><?php echo $value; ?></textarea>
 					</div>
 
@@ -834,10 +834,10 @@ function gmediaGalleryEdit(){
 
 		</div>
 		<div class="col-lg-6" style="padding-top:20px;">
-			<p><b><?php _e('Last edited:'); ?></b> <?php echo $gallery['edited']; ?></p>
+			<p><b><?php _e('Last edited:'); ?></b> <?php echo $gallery['_edited']; ?></p>
 			<?php if($gallery_id){
 				$params = array();
-				$params['set_module'] = ($gallery['module'] != $module_name)? $module_name : false;
+				$params['set_module'] = ($gallery['_module'] != $module_name)? $module_name : false;
 				$params['iframe'] = 1;
 				?>
 				<p><b><?php _e('Gallery ID:'); ?></b> #<?php echo $gallery_id; ?></p>

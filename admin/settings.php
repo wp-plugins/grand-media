@@ -239,6 +239,13 @@ function gmSettings(){
 								<p class="help-block"><?php _e('by default will be used Phantom module', 'gmLang'); ?></p>
 							</div>
 							<div class="form-group">
+								<label><?php _e('Top Bar Social Buttons', 'gmLang'); ?></label>
+								<select name="set[gmediacloud_socialbuttons]" class="form-control input-sm">
+									<option value="1" <?php selected($gmGallery->options['gmediacloud_socialbuttons'], '1'); ?>><?php _e('Show Social Buttons', 'gmLang'); ?></option>
+									<option value="0" <?php selected($gmGallery->options['gmediacloud_socialbuttons'], '0'); ?>><?php _e('Hide Social Buttons', 'gmLang'); ?></option>
+								</select>
+							</div>
+							<div class="form-group">
 								<label><?php _e('Additional JS code for GmediaCloud Page', 'gmLang') ?>:</label>
 								<textarea name="set[gmediacloud_footer_js]" rows="4" cols="20" class="form-control input-sm"><?php echo esc_html(stripslashes($gmGallery->options['gmediacloud_footer_js'])); ?></textarea>
 							</div>

@@ -40,7 +40,7 @@ switch($gmedia_type){
 		if($gmCore->_get('set_module') && $user_ID){
 			$gmedia_module = $_GET['set_module'];
 		} else{
-			$gmedia_module = $gmDB->get_metadata( 'gmedia_term', $gmedia_id, 'module', true);
+			$gmedia_module = $gmDB->get_metadata( 'gmedia_term', $gmedia_id, '_module', true);
 		}
 		break;
 	case 'album':

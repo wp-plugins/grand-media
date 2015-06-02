@@ -1,4 +1,6 @@
 <?php
+/* Original file of CamanJS proxy PHP
+
 // Set this to true if you want to be able to load images from a url that doesn't
 // end in an image file extension. E.g. through another proxy of kinds.
 define('ALLOW_NO_EXT', false);
@@ -33,3 +35,4 @@ default:
 // Route the image through this script
 header("Content-Type: $ctype");
 readfile($url);
+*/

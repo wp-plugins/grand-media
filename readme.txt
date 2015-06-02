@@ -128,6 +128,11 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 = Modules Updated =
 * Go to Gmedia Modules page and update installed premium modules to latest versions
 
+= 1.6.5 =
+* Fixed vulnerabilities
+* Added Custom fields to Albums
+* Added option to hide social buttons for GmediaCloud page
+
 = 1.6.4 =
 * Fixed links for delete, upload and others
 

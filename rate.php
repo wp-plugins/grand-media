@@ -5,16 +5,20 @@ define('WP_USE_THEMES', false);
 @require_once (dirname(__FILE__).'/config.php');
 
 if ( empty( $_SERVER['HTTP_REFERER'] ) ) {
+	header($_SERVER['SERVER_PROTOCOL'].' 400 Bad Request');
 	die();
 }
 
 $ref = $_SERVER['HTTP_REFERER'];
 if ( (false === strpos( $ref, get_home_url() )) && (false === strpos( $ref, get_site_url()) )) {
-	echo 'referer:'.$_SERVER['HTTP_REFERER']."\n";
-	echo 'home_url:'.get_home_url()."\n";
-	echo 'site_url:'.get_site_url()."\n";
-	die('-1');
+	header($_SERVER['SERVER_PROTOCOL'].' 400 Bad Request');
+	die();
 }
+if(('POST' !== $_SERVER['REQUEST_METHOD']) || !isset($_SERVER['HTTP_HOST']) || !(strpos( get_home_url(), $_SERVER['HTTP_HOST'] )) || !empty($_SERVER['QUERY_STRING'])){
+	header($_SERVER['SERVER_PROTOCOL'].' 400 Bad Request');
+	die();
+}
+
 
 if ( isset($_POST['hit']) && ($gmID = intval($_POST['hit'])) ) {
 	/** @var $wpdb wpdb */
@@ -30,44 +34,6 @@ if ( isset($_POST['hit']) && ($gmID = intval($_POST['hit'])) ) {
 
 	header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
 	echo json_encode($meta);
-	die();
-}
-
-if ( isset($_POST['rate']) ) {
-	/** @var $wpdb wpdb */
-	global $wpdb, $gmDB;
-	/**
-	 * @var $uip
-	 * @var $gmid
-	 * @var $rate
-	 */
-	extract($_POST['rate'], EXTR_OVERWRITE);
-	if(!intval($gmid) || (null === $gmDB->get_gmedia($gmid))){
-		die('0');
-	}
-	$rating = $gmDB->get_metadata('gmedia', $gmid, '_rating', true);
-	$old_rate = 0;
-
-	$transient_key = 'gm_rate_day'.date('w');
-	$transient_value = get_transient($transient_key);
-	if($transient_value){
-		if(isset($transient_value[$uip][$gmid])){
-			$old_rate = $transient_value[$uip][$gmid];
-		}
-		$transient_value[$uip][$gmid] = $rate;
-	} else{
-		$transient_value = array($uip => array($gmid => $rate));
-	}
-	set_transient($transient_key, $transient_value, 18 * HOUR_IN_SECONDS);
-
-	$rating_votes = $old_rate? $rating['votes'] : $rating['votes'] + 1;
-	$rating_value = ($rating['value']*$rating['votes'] + $rate - $old_rate)/$rating_votes;
-	$rating = array('value' => $rating_value, 'votes' => $rating_votes);
-
-	$gmDB->update_metadata('gmedia', $gmid, '_rating', $rating);
-
-	header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
-	echo json_encode(array($rating));
 	die();
 }
 

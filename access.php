@@ -141,7 +141,7 @@ function gmedia_ios_app_login( $json ) {
 			break;
 		}
 		if ( ! ( $uid = username_exists( $json->login ) ) ) {
-			$out['error'] = array( 'code' => 'nouser', 'title' => 'No User', 'message' => 'No User' );
+			$out['error'] = array( 'code' => 'nouser', 'title' => 'Sorry, we can\'t log you in.', 'message' => 'No User' );
 			break;
 		}
 
@@ -281,7 +281,9 @@ function gmedia_ios_app_library_data( $data = array( 'site', 'authors', 'filter'
 			}
 			$term_meta                    = $gmDB->get_metadata( 'gmedia_term', $term->term_id );
 			$term_meta                    = array_map( 'reset', $term_meta );
-			$term_meta                    = array_merge( array( 'orderby' => 'ID', 'order' => 'DESC' ), $term_meta );
+			$term_meta                    = array_merge( array( '_orderby' => 'ID', '_order' => 'DESC' ), $term_meta );
+			$term_meta['orderby'] = $term_meta['_orderby'];
+			$term_meta['order'] = $term_meta['_order'];
 			$gmediaTerms[ $i ]->meta      = $term_meta;
 
 			$gmedia_hashid = gmedia_hash_id_encode($term->term_id, 'album');
@@ -856,8 +858,8 @@ function gmedia_ios_app_processor( $action, $data, $filter = true ) {
 					}
 
 					$term_meta = array(
-						'orderby' => $term['orderby'],
-						'order'   => $term['order']
+						'_orderby' => $term['orderby'],
+						'_order'   => $term['order']
 					);
 					foreach ( $term_meta as $key => $value ) {
 						if ( $edit_term ) {

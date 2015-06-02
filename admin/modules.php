@@ -124,6 +124,11 @@ function gmediaModules(){
 										'gallery_module' => $module_name
 									), array(), true); ?>"><?php _e('Create Gallery', 'gmLang'); ?></a>
 									<?php echo $update_button; ?>
+									<?php if(('upload' == $place) && $gmCore->caps['gmedia_module_manage']){ ?>
+										<a class="btn btn-danger" href="<?php echo wp_nonce_url($gmCore->get_admin_url(array(
+											'delete_module' => $module_name
+										), array(), $url), 'gmedia_module_delete'); ?>"><?php _e('Delete Module', 'gmLang'); ?></a>
+									<?php } ?>
 								</p>
 							</div>
 						</div>

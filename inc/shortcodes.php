@@ -100,10 +100,10 @@ function gmedia_shortcode($atts, $content = ''){
 		'name' => '',
 		'description' => '',
 		'status' => 'public',
-		'edited' => '&#8212;',
-		'module' => 'phantom',
-		'query' => array(),
-		'settings' => array()
+		'_edited' => '&#8212;',
+		'_module' => 'phantom',
+		'_query' => array(),
+		'_settings' => array()
 	);
 
 	$taxonomy = 'gmedia_' . $_tax;
@@ -129,18 +129,18 @@ function gmedia_shortcode($atts, $content = ''){
 		$gallery = array_merge($gallery, $gallery_meta);
 	}
 
-	if(!empty($set_module) && $gallery['module'] != $set_module){
-		$gallery['module'] = sanitize_key($set_module);
-		$gallery['settings'][$gallery['module']] = array();
-	} elseif(!isset($gallery['settings'][$gallery['module']])){
-		$gallery['settings'][$gallery['module']] = array();
+	if(!empty($set_module) && $gallery['_module'] != $set_module){
+		$gallery['_module'] = sanitize_key($set_module);
+		$gallery['_settings'][$gallery['_module']] = array();
+	} elseif(!isset($gallery['_settings'][$gallery['_module']])){
+		$gallery['_settings'][$gallery['_module']] = array();
 	}
 
-	if(empty($gallery['query']) && ('gallery' !== $_tax)){
-		$gallery['query']['gmedia_' . $_tax] = array($id);
+	if(empty($gallery['_query']) && ('gallery' !== $_tax)){
+		$gallery['_query']['gmedia_' . $_tax] = array($id);
 	}
 
-	$module = $gmCore->get_module_path($gallery['module']);
+	$module = $gmCore->get_module_path($gallery['_module']);
 	if(!$module){
 		return '<div class="gmedia_gallery gmediaShortcodeError">#' . $id . ': ' . __('Gmedia Module folder missed.', 'gmLang') . '<br />' . $content . '</div>';
 	}
@@ -154,17 +154,17 @@ function gmedia_shortcode($atts, $content = ''){
 		if(isset($default_options)){
 			$module['options'] = $default_options;
 		} else{
-			return '<div class="gmedia_gallery gmediaShortcodeError">#' . $id . ': ' . sprintf(__('Module `%s` is outdated. Update module to latest version'), $gallery['module']) . '<br />' . $content . '</div>';
+			return '<div class="gmedia_gallery gmediaShortcodeError">#' . $id . ': ' . sprintf(__('Module `%s` is outdated. Update module to latest version'), $gallery['_module']) . '<br />' . $content . '</div>';
 		}
 	} else{
-		return '<div class="gmedia_gallery gmediaShortcodeError">#' . $id . ': ' . sprintf(__('Module `%s` is broken. Choose another module for this gallery'), $gallery['module']) . '<br />' . $content . '</div>';
+		return '<div class="gmedia_gallery gmediaShortcodeError">#' . $id . ': ' . sprintf(__('Module `%s` is broken. Choose another module for this gallery'), $gallery['_module']) . '<br />' . $content . '</div>';
 	}
 
-	$settings = $gmCore->array_diff_keyval_recursive($gallery['settings'][$gallery['module']], $module['options'], false);
+	$settings = $gmCore->array_diff_keyval_recursive($gallery['_settings'][$gallery['_module']], $module['options'], false);
 
 	if(!empty($preset)){
 		$preset = $gmDB->get_term($preset, 'gmedia_module');
-		if(!empty($preset) && !is_wp_error($preset) && ($gallery['module'] == $preset->status)){
+		if(!empty($preset) && !is_wp_error($preset) && ($gallery['_module'] == $preset->status)){
 			$presettings = maybe_unserialize($preset->description);
 			$settings = $gmCore->array_diff_keyval_recursive($presettings, $settings, false);
 		}
@@ -172,12 +172,12 @@ function gmedia_shortcode($atts, $content = ''){
 
 	$terms = array();
 	$gmedia = array();
-	if(!empty($gallery['query'])){
+	if(!empty($gallery['_query'])){
 		$gmedia_status = array('public');
 		if(is_user_logged_in()){
 			$gmedia_status[] = 'private';
 		}
-		foreach($gallery['query'] as $tax => $term_ids){
+		foreach($gallery['_query'] as $tax => $term_ids){
 			if(!empty($term_ids)){
 				if('gmedia__in' == $tax){
 					$term_id = (int) $gallery['term_id'];
@@ -201,15 +201,15 @@ function gmedia_shortcode($atts, $content = ''){
 								}
 								$term_meta          = $gmDB->get_metadata( 'gmedia_term', $term_id );
 								$term_meta          = array_map( 'reset', $term_meta );
-								$term_meta          = array_merge( array( 'orderby' => 'ID', 'order' => 'DESC' ), $term_meta );
-								$args               = array( 'album__in' => $term_id, 'orderby' => $term_meta['orderby'], 'order' => $term_meta['order'], 'status' => $gmedia_status );
+								$term_meta          = array_merge( array( '_orderby' => 'ID', '_order' => 'DESC' ), $term_meta );
+								$args               = array( 'album__in' => $term_id, 'orderby' => $term_meta['_orderby'], 'order' => $term_meta['_order'], 'status' => $gmedia_status );
 								$gmedia[ $term_id ] = $gmDB->get_gmedias( $args );
 							} elseif ( 'gmedia_tag' == $tax ) {
 								$args               = array( 'tag__in' => $term_id, 'orderby' => $gmGallery->options['in_tag_orderby'], 'order' => $gmGallery->options['in_tag_order'], 'status' => $gmedia_status );
 								$gmedia[ $term_id ] = $gmDB->get_gmedias( $args );
 							}
 						} elseif ( 'gmedia_filter' == $tax ) {
-							$args = $gmDB->get_metadata( 'gmedia_term', $term_id, 'query', true );
+							$args = $gmDB->get_metadata( 'gmedia_term', $term_id, '_query', true );
 							$args = array_merge( array( 'status' => $gmedia_status, 'album__status' => $gmedia_status ), $args );
 							$gmedia[ $term_id ] = $gmDB->get_gmedias( $args );
 						}
@@ -218,14 +218,14 @@ function gmedia_shortcode($atts, $content = ''){
 					}
 				}
 			} else{
-				return '<div class="gmedia_gallery gmediaShortcodeError">#' . $id . ': ' . sprintf(__('Choose gallery source, please.'), $gallery['module']) . '<br />' . $content . '</div>';
+				return '<div class="gmedia_gallery gmediaShortcodeError">#' . $id . ': ' . sprintf(__('Choose gallery source, please.'), $gallery['_module']) . '<br />' . $content . '</div>';
 			}
 		}
 	} else{
-		return '<div class="gmedia_gallery gmediaShortcodeError">#' . $id . ': ' . sprintf(__('Choose gallery source, please.'), $gallery['module']) . '<br />' . $content . '</div>';
+		return '<div class="gmedia_gallery gmediaShortcodeError">#' . $id . ': ' . sprintf(__('Choose gallery source, please.'), $gallery['_module']) . '<br />' . $content . '</div>';
 	}
 
-	$gmGallery->do_module[$gallery['module']] = $module;
+	$gmGallery->do_module[$gallery['_module']] = $module;
 	$gmGallery->shortcode = compact('module', 'gallery', 'terms', 'gmedia');
 
 	$is_bot = false;
@@ -235,7 +235,7 @@ function gmedia_shortcode($atts, $content = ''){
 
 	do_action('pre_gmedia_shortcode');
 
-	$out = '<div class="gmedia_gallery ' . $gallery['module'] . '_module' . ($is_mob? ' is_mobile' : '') . '" id="GmediaGallery_' . $id . '" data-gallery="' . $id . '" data-module="' . $gallery['module'] . '">';
+	$out = '<div class="gmedia_gallery ' . $gallery['_module'] . '_module' . ($is_mob? ' is_mobile' : '') . '" id="GmediaGallery_' . $id . '" data-gallery="' . $id . '" data-module="' . $gallery['_module'] . '">';
 	$out .= $content;
 
 	ob_start();
@@ -244,7 +244,7 @@ function gmedia_shortcode($atts, $content = ''){
 	ob_end_clean();
 
 	if(isset($settings['customCSS']) && ('' != trim($settings['customCSS']))){
-		$out .= "<style type='text/css' scoped='scoped'>/**** Custom CSS {$gallery['module']} #{$id} ****/" . $settings['customCSS'] . "</style>";
+		$out .= "<style type='text/css' scoped='scoped'>/**** Custom CSS {$gallery['_module']} #{$id} ****/" . $settings['customCSS'] . "</style>";
 	}
 
 	$out .= '</div>';

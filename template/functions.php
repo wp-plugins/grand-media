@@ -259,7 +259,11 @@ function the_gmedia_content(){
 }
 
 function gmediacloud_social_sharing(){
+	global $gmGallery;
 
+	if(0 == intval($gmGallery->options['gmediacloud_socialbuttons'])){
+		return;
+	}
 	if(apply_filters('gmediacloud_social_sharing', wp_is_mobile())){
 		return;
 	}
@@ -337,7 +341,7 @@ function gmediacloud_social_sharing(){
 function gmedia_default_template_styles(){ ?>
 	<style type="text/css" media="screen">
 		* { box-sizing:border-box; }
-		body { font-family:"Arial", "Verdana", serif; font-size:13px; }
+		body.gmedia-template { font-family:"Arial", "Verdana", serif; font-size:13px; }
 		header { position:relative; min-height:30px; background-color:#0f0f0f; color:#f1f1f1; padding:5px 0 3px 30px; font-family:"Arial", "Verdana", serif; z-index:10; }
 		header.has-description { padding-right:30px; }
 		.gmedia-header-title { display:inline-block; font-size:16px; vertical-align:bottom; margin-top:2px; }

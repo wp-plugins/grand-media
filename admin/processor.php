@@ -125,10 +125,10 @@ class GmediaProcessor{
 						}
 
 						$gallery_meta = array(
-							'edited' => gmdate('Y-m-d H:i:s'),
-							'module' => $gallery['module'],
-							'query' => array('gmedia__in' => $gallery['query']['gmedia__in']),
-							'settings' => array($gallery['module'] => array())
+							'_edited' => gmdate('Y-m-d H:i:s'),
+							'_module' => $gallery['module'],
+							'_query' => array('gmedia__in' => $gallery['query']['gmedia__in']),
+							'_settings' => array($gallery['module'] => array())
 						);
 						foreach($gallery_meta as $key => $value){
 							$gmDB->add_metadata('gmedia_term', $term_id, $key, $value);
@@ -675,11 +675,11 @@ class GmediaProcessor{
 							$filter_settings = array_filter($filter_settings);
 
 							if($edit_term){
-								$gmDB->update_metadata('gmedia_term', $term_id, 'query', $filter_settings);
+								$gmDB->update_metadata('gmedia_term', $term_id, '_query', $filter_settings);
 
 								$this->msg[] = sprintf(__('Filter #%d successfuly saved', 'gmLang'), $term_id);
 							} else{
-								$gmDB->add_metadata('gmedia_term', $term_id, 'query', $filter_settings);
+								$gmDB->add_metadata('gmedia_term', $term_id, '_query', $filter_settings);
 
 								$location = add_query_arg(array('page' => $this->page, 'edit_filter' => $term_id, 'message' => 'save'), admin_url('admin.php'));
 								set_transient('gmedia_new_filter_id', $term_id, 60);
@@ -736,8 +736,8 @@ class GmediaProcessor{
 							$term_id = $gmDB->insert_term($term['name'], $term['taxonomy'], $term);
 							if(is_int($term_id)){
 								$term_meta = array(
-									'orderby' => $term['orderby'],
-									'order' => $term['order']
+									'_orderby' => $term['_orderby'],
+									'_order' => $term['_order']
 								);
 								foreach($term_meta as $key => $value){
 									$gmDB->add_metadata('gmedia_term', $term_id, $key, $value);
@@ -881,10 +881,10 @@ class GmediaProcessor{
 						}
 						$module_settings = $gmCore->array_replace_recursive($default_options, $module_settings);
 						$gallery_meta = array(
-							'edited' => gmdate('Y-m-d H:i:s'),
-							'module' => $gallery['module'],
-							'query' => array($term => $gallery['query'][$term]),
-							'settings' => array($gallery['module'] => $module_settings)
+							'_edited' => gmdate('Y-m-d H:i:s'),
+							'_module' => $gallery['module'],
+							'_query' => array($term => $gallery['query'][$term]),
+							'_settings' => array($gallery['module'] => $module_settings)
 						);
 						foreach($gallery_meta as $key => $value){
 							if($edit_gallery){
@@ -933,7 +933,7 @@ class GmediaProcessor{
 								break;
 							}
 						}
-						$gallery_settings = $gmDB->get_metadata('gmedia_term', $edit_gallery, 'settings', true);
+						$gallery_settings = $gmDB->get_metadata('gmedia_term', $edit_gallery, '_settings', true);
 						reset($gallery_settings);
 						$gallery_module = key($gallery_settings);
 						$module_path = $gmCore->get_module_path($gallery_module);
@@ -953,8 +953,8 @@ class GmediaProcessor{
 						}
 
 						$gallery_meta = array(
-							'edited' => gmdate('Y-m-d H:i:s'),
-							'settings' => array($gallery_module => $default_options)
+							'_edited' => gmdate('Y-m-d H:i:s'),
+							'_settings' => array($gallery_module => $default_options)
 						);
 						foreach($gallery_meta as $key => $value){
 							$gmDB->update_metadata('gmedia_term', $edit_gallery, $key, $value);
@@ -1108,6 +1108,16 @@ class GmediaProcessor{
 						}
 					} else{
 						$this->error[] = __('No file specified', 'gmLang');
+					}
+				}
+
+				if(isset($_GET['delete_module'])){
+					$mfold = preg_replace( '/[^a-z0-9_-]+/i', '_', $_GET['delete_module'] );
+					$mpath = "{$gmCore->upload['path']}/{$gmGallery->options['folder']['module']}/{$mfold}";
+					if($mfold && file_exists($mpath)){
+						check_admin_referer('gmedia_module_delete');
+						$gmCore->delete_folder($mpath);
+						$this->msg[] = sprintf(__("The `%s` module folder was deleted", 'flag'), $mpath);
 					}
 				}
 				break;

@@ -309,6 +309,9 @@ label.cb_media-object-gallery {
     word-break: normal;
     word-wrap: break-word;
 }
+.media-body .media-caption {
+    margin:0;
+}
 
 .media-meta {
     width: 100%;

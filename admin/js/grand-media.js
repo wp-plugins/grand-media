@@ -377,7 +377,8 @@ jQuery(function($){
 				if(!post_data){
 					return false;
 				}
-				post_data.action = 'gmedia_delete_custom_field';
+				var meta_type = $(this).closest('fieldset').attr('data-metatype');
+				post_data.action = meta_type + '_delete_custom_field';
 				post_data.ID = $(this).closest('form').attr('data-id');
 				post_data._customfield_nonce = $('#_customfield_nonce').val();
 				$.post(ajaxurl, post_data, function(data, textStatus, jqXHR){

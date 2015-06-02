@@ -213,9 +213,9 @@ window.onload = function() {
 					$query = array('gmedia_tag' => $gmedia_tag);
 				}
 				$gallery_meta = array(
-					'edited' => $old_meta['last_edited'],
-					'module' => $old_meta['module_name'],
-					'query' => $query
+					'_edited' => $old_meta['last_edited'],
+					'_module' => $old_meta['module_name'],
+					'_query' => $query
 				);
 				foreach($gallery_meta as $key => $value){
 					$gmDB->update_metadata('gmedia_term', $gallery->term_id, $key, $value);
@@ -474,6 +474,14 @@ function gmedia_quite_update(){
 		if(version_compare($current_version, '1.6.3', '<')){
 			$wpdb->update($wpdb->prefix . 'gmedia_meta', array('meta_key' => '_cover'), array('meta_key' => 'cover'));
 			$wpdb->update($wpdb->prefix . 'gmedia_meta', array('meta_key' => '_rating'), array('meta_key' => 'rating'));
+		}
+		if(version_compare($current_version, '1.6.5', '<')){
+			$wpdb->update($wpdb->prefix . 'gmedia_term_meta', array('meta_key' => '_edited'), array('meta_key' => 'edited'));
+			$wpdb->update($wpdb->prefix . 'gmedia_term_meta', array('meta_key' => '_settings'), array('meta_key' => 'settings'));
+			$wpdb->update($wpdb->prefix . 'gmedia_term_meta', array('meta_key' => '_query'), array('meta_key' => 'query'));
+			$wpdb->update($wpdb->prefix . 'gmedia_term_meta', array('meta_key' => '_module'), array('meta_key' => 'module'));
+			$wpdb->update($wpdb->prefix . 'gmedia_term_meta', array('meta_key' => '_order'), array('meta_key' => 'order'));
+			$wpdb->update($wpdb->prefix . 'gmedia_term_meta', array('meta_key' => '_orderby'), array('meta_key' => 'orderby'));
 		}
 
 		$gmCore->delete_folder($gmCore->upload['path'] . '/module/afflux');

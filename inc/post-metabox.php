@@ -110,7 +110,7 @@ function gmedia_post_metabox() {
 
 						if ( count( $gmediaTerms ) ) {
 							foreach ( $gmediaTerms as $item ) {
-								$module_folder = $gmDB->get_metadata( 'gmedia_term', $item->term_id, 'module', true );
+								$module_folder = $gmDB->get_metadata( 'gmedia_term', $item->term_id, '_module', true );
 								$module_dir    = $gmCore->get_module_path( $module_folder );
 								if ( ! $module_dir ) {
 									continue;
