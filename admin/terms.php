@@ -244,10 +244,10 @@ function gmediaTerms() {
 								<select name="term[_orderby]" class="form-control input-sm">
 									<option value="custom"><?php _e( 'user defined', 'gmLang' ); ?></option>
 									<option selected="selected" value="ID"><?php _e( 'by ID', 'gmLang' ); ?></option>
-									<option value="title ID"><?php _e( 'by title', 'gmLang' ); ?></option>
+									<option value="title"><?php _e( 'by title', 'gmLang' ); ?></option>
 									<option value="gmuid"><?php _e( 'by filename', 'gmLang' ); ?></option>
-									<option value="date ID"><?php _e( 'by date', 'gmLang' ); ?></option>
-									<option value="modified ID"><?php _e( 'by last modified date', 'gmLang' ); ?></option>
+									<option value="date"><?php _e( 'by date', 'gmLang' ); ?></option>
+									<option value="modified"><?php _e( 'by last modified date', 'gmLang' ); ?></option>
 									<option value="rand"><?php _e( 'Random', 'gmLang' ); ?></option>
 								</select>
 							</div>
@@ -1085,10 +1085,10 @@ function gmediaAlbumEdit() {
 								<select name="term[_orderby]" id="gmedia_term_orderby" class="form-control input-sm">
 									<option value="custom"<?php selected( $term_meta['_orderby'], 'custom' ); ?>><?php _e( 'Custom Order', 'gmLang' ); ?></option>
 									<option value="ID"<?php selected( $term_meta['_orderby'], 'ID' ); ?>><?php _e( 'by ID', 'gmLang' ); ?></option>
-									<option value="title ID"<?php selected( $term_meta['_orderby'], 'title ID' ); ?>><?php _e( 'by title', 'gmLang' ); ?></option>
+									<option value="title"<?php selected( $term_meta['_orderby'], 'title' ); ?>><?php _e( 'by title', 'gmLang' ); ?></option>
 									<option value="gmuid"<?php selected( $term_meta['_orderby'], 'gmuid' ); ?>><?php _e( 'by filename', 'gmLang' ); ?></option>
-									<option value="date ID"<?php selected( $term_meta['_orderby'], 'date ID' ); ?>><?php _e( 'by date', 'gmLang' ); ?></option>
-									<option value="modified ID"<?php selected( $term_meta['_orderby'], 'modified ID' ); ?>><?php _e( 'by last modified date', 'gmLang' ); ?></option>
+									<option value="date"<?php selected( $term_meta['_orderby'], 'date' ); ?>><?php _e( 'by date', 'gmLang' ); ?></option>
+									<option value="modified"<?php selected( $term_meta['_orderby'], 'modified' ); ?>><?php _e( 'by last modified date', 'gmLang' ); ?></option>
 									<option value="rand"<?php selected( $term_meta['_orderby'], 'rand' ); ?>><?php _e( 'Random', 'gmLang' ); ?></option>
 								</select>
 							</div>

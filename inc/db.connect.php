@@ -1561,6 +1561,9 @@ class GmediaDB{
 			}
 			$q['orderby'] = urldecode($q['orderby']);
 			$q['orderby'] = addslashes_gpc($q['orderby']);
+			if(in_array($q['orderby'], array('title', 'date', 'modified'))){
+				$q['orderby'] .= ' ID';
+			}
 
 			$orderby_array = array();
 			foreach(explode(' ', $q['orderby']) as $orderby){

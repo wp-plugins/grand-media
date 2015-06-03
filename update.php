@@ -483,6 +483,13 @@ function gmedia_quite_update(){
 			$wpdb->update($wpdb->prefix . 'gmedia_term_meta', array('meta_key' => '_order'), array('meta_key' => 'order'));
 			$wpdb->update($wpdb->prefix . 'gmedia_term_meta', array('meta_key' => '_orderby'), array('meta_key' => 'orderby'));
 		}
+		if(version_compare($current_version, '1.6.6', '<')){
+			$wpdb->update($wpdb->prefix . 'gmedia_term_meta', array('meta_value' => 'ID'), array('meta_key' => '_orderby', 'meta_value' => ''));
+			$wpdb->update($wpdb->prefix . 'gmedia_term_meta', array('meta_value' => 'DESC'), array('meta_key' => '_order', 'meta_value' => ''));
+			$wpdb->update($wpdb->prefix . 'gmedia_term_meta', array('meta_value' => 'title'), array('meta_key' => '_orderby', 'meta_value' => 'title ID'));
+			$wpdb->update($wpdb->prefix . 'gmedia_term_meta', array('meta_value' => 'date'), array('meta_key' => '_orderby', 'meta_value' => 'date ID'));
+			$wpdb->update($wpdb->prefix . 'gmedia_term_meta', array('meta_value' => 'modified'), array('meta_key' => '_orderby', 'meta_value' => 'modified ID'));
+		}
 
 		$gmCore->delete_folder($gmCore->upload['path'] . '/module/afflux');
 		$gmCore->delete_folder($gmCore->upload['path'] . '/module/jq-mplayer');

@@ -629,6 +629,7 @@ function gmedia_ios_app_processor( $action, $data, $filter = true ) {
 				'tag__in'      => null,
 				'category__in' => null,
 				'album__in'    => null,
+				'gmedia__in'   => null,
 				'author'       => 0,
 				'status'       => null
 			);
@@ -856,11 +857,17 @@ function gmedia_ios_app_processor( $action, $data, $filter = true ) {
 						$error[] = $term_id->get_error_message();
 						break;
 					}
-
-					$term_meta = array(
-						'_orderby' => $term['orderby'],
-						'_order'   => $term['order']
-					);
+					$term_meta = array();
+					if(isset($term['_orderby'])){
+						$term_meta['_orderby'] = $term['_orderby'];
+					} elseif(isset($term['orderby'])){
+						$term_meta['_orderby'] = $term['orderby'];
+					}
+					if(isset($term['_order'])){
+						$term_meta['_order'] = $term['_order'];
+					} elseif(isset($term['order'])){
+						$term_meta['_order'] = $term['order'];
+					}
 					foreach ( $term_meta as $key => $value ) {
 						if ( $edit_term ) {
 							$gmDB->update_metadata( 'gmedia_term', $term_id, $key, $value );

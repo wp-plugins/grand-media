@@ -75,10 +75,10 @@ function gmSettings(){
 								<label><?php _e('In Tags order gmedia', 'gmLang'); ?></label>
 								<select name="set[in_tag_orderby]" class="form-control input-sm">
 									<option value="ID" <?php selected($gmGallery->options['in_tag_orderby'], 'ID'); ?>><?php _e('by ID', 'gmLang'); ?></option>
-									<option value="title ID" <?php selected($gmGallery->options['in_tag_orderby'], 'title ID'); ?>><?php _e('by title', 'gmLang'); ?></option>
+									<option value="title" <?php selected($gmGallery->options['in_tag_orderby'], 'title'); ?>><?php _e('by title', 'gmLang'); ?></option>
 									<option value="gmuid" <?php selected($gmGallery->options['in_tag_orderby'], 'gmuid'); ?>><?php _e('by filename', 'gmLang'); ?></option>
-									<option value="date ID" <?php selected($gmGallery->options['in_tag_orderby'], 'date ID'); ?>><?php _e('by date', 'gmLang'); ?></option>
-									<option value="modified ID" <?php selected($gmGallery->options['in_tag_orderby'], 'modified ID'); ?>><?php _e('by last modified date', 'gmLang'); ?></option>
+									<option value="date" <?php selected($gmGallery->options['in_tag_orderby'], 'date'); ?>><?php _e('by date', 'gmLang'); ?></option>
+									<option value="modified" <?php selected($gmGallery->options['in_tag_orderby'], 'modified'); ?>><?php _e('by last modified date', 'gmLang'); ?></option>
 									<option value="rand" <?php selected($gmGallery->options['in_tag_orderby'], 'rand'); ?>><?php _e('Random', 'gmLang'); ?></option>
 								</select>
 							</div>
@@ -95,10 +95,10 @@ function gmSettings(){
 								<label><?php _e('In Category order gmedia', 'gmLang'); ?></label>
 								<select name="set[in_category_orderby]" class="form-control input-sm">
 									<option value="ID" <?php selected($gmGallery->options['in_category_orderby'], 'ID'); ?>><?php _e('by ID', 'gmLang'); ?></option>
-									<option value="title ID" <?php selected($gmGallery->options['in_category_orderby'], 'title ID'); ?>><?php _e('by title', 'gmLang'); ?></option>
+									<option value="title" <?php selected($gmGallery->options['in_category_orderby'], 'title'); ?>><?php _e('by title', 'gmLang'); ?></option>
 									<option value="gmuid" <?php selected($gmGallery->options['in_category_orderby'], 'gmuid'); ?>><?php _e('by filename', 'gmLang'); ?></option>
-									<option value="date ID" <?php selected($gmGallery->options['in_category_orderby'], 'date ID'); ?>><?php _e('by date', 'gmLang'); ?></option>
-									<option value="modified ID" <?php selected($gmGallery->options['in_category_orderby'], 'modified ID'); ?>><?php _e('by last modified date', 'gmLang'); ?></option>
+									<option value="date" <?php selected($gmGallery->options['in_category_orderby'], 'date'); ?>><?php _e('by date', 'gmLang'); ?></option>
+									<option value="modified" <?php selected($gmGallery->options['in_category_orderby'], 'modified'); ?>><?php _e('by last modified date', 'gmLang'); ?></option>
 									<option value="rand" <?php selected($gmGallery->options['in_category_orderby'], 'rand'); ?>><?php _e('Random', 'gmLang'); ?></option>
 								</select>
 							</div>
