@@ -1654,6 +1654,7 @@ class GmediaCore {
 				$title       = '';
 				$description = '';
 				$link        = '';
+				$date        = null;
 				if ( ! isset( $post_data['set_title'] ) ) {
 					$post_data['set_title'] = 'filename';
 				}
@@ -1674,6 +1675,9 @@ class GmediaCore {
 						}
 					}
 					$keywords = $image_meta['keywords'];
+					/*if(!empty($image_meta['created_timestamp']) && ($created_timestamp = date('Y-m-d H:i:s', strtotime($image_meta['created_timestamp'])))){
+						$date = $created_timestamp;
+					}*/
 				}
 				if ( ( 'empty' != $post_data['set_title'] ) && empty( $title ) ) {
 					$title = $fileinfo['title'];
@@ -1712,7 +1716,8 @@ class GmediaCore {
 					'title'       => $title,
 					'link'        => $link,
 					'description' => $description,
-					'status'      => $status
+					'status'      => $status,
+					'date'        => $date
 				);
 
 				if(!empty($keywords)){
@@ -1724,10 +1729,10 @@ class GmediaCore {
 					$media_data['author'] = get_current_user_id();
 				}
 
-
 				// Save the data
 				$id = $gmDB->insert_gmedia( $media_data );
-				$gmDB->update_metadata( $meta_type = 'gmedia', $id, $meta_key = '_metadata', $gmDB->generate_gmedia_metadata( $id, $fileinfo ) );
+				$media_metadata = $gmDB->generate_gmedia_metadata( $id, $fileinfo );
+				$gmDB->update_metadata( $meta_type = 'gmedia', $id, $meta_key = '_metadata', $media_metadata );
 
 				$return = array(
 					"success" => array( "code" => 200, "message" => sprintf( __( 'File uploaded successful. Assigned ID: %s', 'gmLang' ), $id ) ),
@@ -2333,7 +2338,7 @@ class GmediaCore {
 			if ( $metakeyinput )
 				$metakey = $metakeyinput; // default
 
-			if ( is_protected_meta( $metakey, 'gmedia' ) )
+			if ( is_protected_meta( $metakey, $meta_type ) )
 				return false;
 
 			$metakey = wp_slash( $metakey );

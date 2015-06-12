@@ -261,7 +261,8 @@ function the_gmedia_content(){
 function gmediacloud_social_sharing(){
 	global $gmGallery;
 
-	if(0 == intval($gmGallery->options['gmediacloud_socialbuttons'])){
+	$gmediacloud_socialbuttons = isset($gmGallery->options['gmediacloud_socialbuttons'])? intval($gmGallery->options['gmediacloud_socialbuttons']) : 1;
+	if(0 == $gmediacloud_socialbuttons){
 		return;
 	}
 	if(apply_filters('gmediacloud_social_sharing', wp_is_mobile())){

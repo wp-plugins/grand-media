@@ -66,6 +66,8 @@ Features:
 *   (NEW) Full Page Template for Galleries with permalink support
 *   (NEW) Share Images, Albums, Tags, Galleries via admin panel
 *   (NEW) Create custom query filters with selected parameters
+*   (NEW) Custom fields for Files and Albums, so developers can create their own unique modules
+*   (NEW) Cover for Album
 *   Mobile friendly, responsive galleries
 *   Add tags, assign categories and group images in albums
 *   Drag'n'drop sorting for files in Album
@@ -88,7 +90,6 @@ Features:
 TODO List:
 
 *   Integration with WP search (work in progress..)
-*   Cover for Album. It will be also used for music without cover (work in progress..)
 *   Duplicate item in Gmedia Library (work in progress..)
 *   More Batch operations with selected Gmedia items (work in progress..)
 *   Related Post images on Edit Post. Option to automatically create gallery in Post with related images (work in progress..)
@@ -127,6 +128,11 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 
 = Modules Updated =
 * Go to Gmedia Modules page and update installed premium modules to latest versions
+
+= 1.6.7 =
+* Added Cover for Albums
+* Updated Music Player and Video Player modules to support Album Covers
+* Fixed small bugs
 
 = 1.6.6 =
 * Fixed compatibility with iOS application

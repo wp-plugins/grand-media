@@ -52,6 +52,7 @@ function gmediaLib(){
 		'category__in' => $gmCore->_get('category__in', null),
 		'alb' => $gmCore->_get('alb', null),
 		'album__in' => $gmCore->_get('album__in', null),
+		'album__not_in' => $gmCore->_get('album__not_in', null),
 		'author__in' => $author,
 		'gmedia__in' => $gmedia__in,
 		's' => $search_string
@@ -61,6 +62,7 @@ function gmediaLib(){
 	if(($filter_id = (int) $gmCore->_get('custom_filter', 0))){
 		if(($gmedia_filter = $gmDB->get_term($filter_id, 'gmedia_filter'))){
 			if(($gmedia_filter->global == $user_ID) || $gmCore->caps['gmedia_show_others_media']){
+				$args['status'] = $gmCore->_get('status', null);
 				$_args = $gmDB->get_metadata('gmedia_term', $gmedia_filter->term_id, '_query', true);
 				$args = array_merge($args, $_args);
 				$custom_filter = $gmedia_filter->name;

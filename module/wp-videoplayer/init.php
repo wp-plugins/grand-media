@@ -23,15 +23,24 @@ foreach($terms as $term){
 			continue;
 		}
 
-		$default = wp_mime_type_icon($item->mime_type);
-		$cover = $gmCore->gm_get_media_image($item, 'web', true, $default);
+		$get_cover_from = $item;
+		$default_cover = wp_mime_type_icon($item->mime_type);
+		$album = reset($gmDB->get_the_gmedia_terms($item->ID, 'gmedia_album'));
+		if(!empty($album)) {
+			$cover_id = $gmDB->get_metadata( 'gmedia_term', $album->term_id, '_cover', true );
+			if((int) $cover_id){
+				$get_cover_from = $cover_id;
+			}
+		}
+
+		$cover = $gmCore->gm_get_media_image($get_cover_from, 'web', true, $default_cover);
 		$img_w = $img_h = '';
-		if($cover == $default){
+		if($cover == $default_cover){
 			$img_w = 48;
 			$img_h = 64;
 			$cover_thumb = $cover;
 		} else{
-			$cover_thumb = $gmCore->gm_get_media_image($item, 'thumb', true, $default);
+			$cover_thumb = $gmCore->gm_get_media_image($get_cover_from, 'thumb', true, $default_cover);
 		}
 		$meta = $gmDB->get_metadata('gmedia', $item->ID, '_metadata', true);
 		if(empty($meta)){

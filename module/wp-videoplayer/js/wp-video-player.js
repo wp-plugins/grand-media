@@ -1,7 +1,7 @@
 /*
  * Title      : WP Video Player Module for Gmedia Gallery plugin
- * Version    : 1.1
- * Copyright  : 2013 CodEasily.com
+ * Version    : 1.2
+ * Copyright  : 2015 CodEasily.com
  * Website    : http://www.codeasily.com
  */
 /*globals window, document, jQuery, _, Backbone, _wpmejsSettings */

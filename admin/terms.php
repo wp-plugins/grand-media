@@ -241,7 +241,7 @@ function gmediaTerms() {
 						<div class="form-group row">
 							<div class="col-xs-6">
 								<label><?php _e( 'Order gmedia', 'gmLang' ); ?></label>
-								<select name="term[_orderby]" class="form-control input-sm">
+								<select name="term[meta][_orderby]" class="form-control input-sm">
 									<option value="custom"><?php _e( 'user defined', 'gmLang' ); ?></option>
 									<option selected="selected" value="ID"><?php _e( 'by ID', 'gmLang' ); ?></option>
 									<option value="title"><?php _e( 'by title', 'gmLang' ); ?></option>
@@ -253,7 +253,7 @@ function gmediaTerms() {
 							</div>
 							<div class="col-xs-6">
 								<label><?php _e( 'Sort order', 'gmLang' ); ?></label>
-								<select name="term[_order]" class="form-control input-sm">
+								<select name="term[meta][_order]" class="form-control input-sm">
 									<option selected="selected" value="DESC"><?php _e( 'DESC', 'gmLang' ); ?></option>
 									<option value="ASC"><?php _e( 'ASC', 'gmLang' ); ?></option>
 								</select>
@@ -935,7 +935,7 @@ function gmediaAlbumEdit() {
 
 		$term_meta  = $gmDB->get_metadata( 'gmedia_term', $term->term_id );
 		$term_meta  = array_map( 'reset', $term_meta );
-		$term_meta  = array_merge( array( '_orderby' => 'ID', '_order' => 'DESC' ), $term_meta );
+		$term_meta  = array_merge( array( '_cover' => '', '_orderby' => 'ID', '_order' => 'DESC' ), $term_meta );
 		$per_page   = ! empty( $gm_screen_options['per_page_sort_gmedia'] ) ? $gm_screen_options['per_page_sort_gmedia'] : 60;
 		$cur_page   = $gmCore->_get( 'pager', 1 );
 		$pager_html = '';
@@ -997,16 +997,48 @@ function gmediaAlbumEdit() {
 
 				<div class="row">
 					<div class="col-xs-6">
-						<div class="form-group">
-							<label><?php _e( 'Name', 'gmLang' ); ?></label>
-							<input type="text" class="form-control input-sm" name="term[name]"
-							       value="<?php echo esc_attr( $term->name ); ?>"
-							       placeholder="<?php _e( 'Album Name', 'gmLang' ); ?>" required/>
+						<div class="form-group row">
+							<div class="col-xs-6">
+								<label><?php _e( 'Name', 'gmLang' ); ?></label>
+								<input type="text" class="form-control input-sm" name="term[name]"
+								       value="<?php echo esc_attr( $term->name ); ?>"
+								       placeholder="<?php _e( 'Album Name', 'gmLang' ); ?>" required/>
+							</div>
+							<div class="col-xs-6">
+								<label><?php _e( 'Author', 'gmLang' ); ?></label>
+								<?php $user_ids = $gmCore->caps['gmedia_delete_others_media'] ? $gmCore->get_editable_user_ids() : array( $user_ID );
+								if ( $user_ids && $gmCore->caps['gmedia_edit_others_media'] ) {
+									if ( ! in_array( $user_ID, $user_ids ) ) {
+										array_push( $user_ids, $user_ID );
+									}
+									$selected_user = get_the_author_meta( 'display_name', $term->global ) ? $term->global : 0;
+									wp_dropdown_users( array(
+										'include'          => $user_ids,
+										'include_selected' => true,
+										'name'             => 'term[global]',
+										'selected'         => $selected_user,
+										'class'            => 'form-control input-sm',
+										'multi'            => true,
+										'show_option_all'  => __( 'Shared', 'gmLang' )
+									) );
+								} else {
+									echo '<input type="hidden" name="term[global]" value="' . $user_ID . '"/>';
+									echo '<div>' . get_the_author_meta( 'display_name', $user_ID ) . '</div>';
+								}
+								?>
+							</div>
 						</div>
 						<div class="form-group">
 							<label><?php _e( 'Description', 'gmLang' ); ?></label>
                             <textarea class="form-control input-sm" style="height:53px;" rows="2"
                                       name="term[description]"><?php echo $term->description; ?></textarea>
+						</div>
+						<div class="text-right">
+							<?php wp_nonce_field( 'GmediaTerms', 'term_save_wpnonce' ); ?>
+							<input type="hidden" name="term[term_id]" value="<?php echo $term->term_id; ?>"/>
+							<input type="hidden" name="term[taxonomy]" value="gmedia_album"/>
+							<button type="submit" class="btn btn-primary btn-sm"
+							        name="gmedia_album_save"><?php _e( 'Update', 'gmLang' ); ?></button>
 						</div>
 					</div>
 					<div class="col-xs-6">
@@ -1029,35 +1061,22 @@ function gmediaAlbumEdit() {
 							</div>
 							<div class="col-xs-6">
 								<div class="form-group">
-									<label><?php _e( 'Author', 'gmLang' ); ?></label>
-									<?php $user_ids = $gmCore->caps['gmedia_delete_others_media'] ? $gmCore->get_editable_user_ids() : array( $user_ID );
-									if ( $user_ids && $gmCore->caps['gmedia_edit_others_media'] ) {
-										if ( ! in_array( $user_ID, $user_ids ) ) {
-											array_push( $user_ids, $user_ID );
-										}
-										$selected_user = get_the_author_meta( 'display_name', $term->global ) ? $term->global : 0;
-										wp_dropdown_users( array(
-											'include'          => $user_ids,
-											'include_selected' => true,
-											'name'             => 'term[global]',
-											'selected'         => $selected_user,
-											'class'            => 'form-control input-sm',
-											'multi'            => true,
-											'show_option_all'  => __( 'Shared', 'gmLang' )
-										) );
-									} else {
-										echo '<input type="hidden" name="term[global]" value="' . $user_ID . '"/>';
-										echo '<div>' . get_the_author_meta( 'display_name', $user_ID ) . '</div>';
+									<label><?php _e( 'Album Cover', 'gmLang' ); ?></label>
+									<input type="text" class="form-control input-sm" name="term[meta][_cover]"
+									       value="<?php echo esc_attr( $term_meta['_cover'] ); ?>"
+									       placeholder="<?php _e( 'Gmedia Image ID', 'gmLang' ); ?>" required/>
+								</div>
+								<?php if($term_meta['_cover']){
+									$cover_id = intval($term_meta['_cover']);
+									if(($cover = $gmDB->get_gmedia($cover_id))){ ?>
+										<div class="gm-img-thumbnail" data-gmid="<?php echo $cover->ID; ?>"><?php
+											?><img src="<?php echo $gmCore->gm_get_media_image( $cover, 'thumb', true ); ?>" alt="<?php echo $cover->ID; ?>" title="<?php echo esc_attr( $cover->title ); ?>"/><?php
+											?><span class="label label-default">ID: <?php echo $cover->ID; ?></span><?php
+										?></div>
+									<?php } else {
+										echo '<strong class="text-danger">'.__('No image with such ID', 'gmLang').'</strong>';
 									}
-									?>
-								</div>
-								<div class="form-group">
-									<?php wp_nonce_field( 'GmediaTerms', 'term_save_wpnonce' ); ?>
-									<input type="hidden" name="term[term_id]" value="<?php echo $term->term_id; ?>"/>
-									<input type="hidden" name="term[taxonomy]" value="gmedia_album"/>
-									<button style="display:block" type="submit" class="btn btn-primary btn-sm"
-									        name="gmedia_album_save"><?php _e( 'Update', 'gmLang' ); ?></button>
-								</div>
+								} ?>
 							</div>
 						</div>
 					</div>
@@ -1082,7 +1101,7 @@ function gmediaAlbumEdit() {
 						<div class="col-xs-3">
 							<div class="form-group">
 								<label><?php _e( 'Order gmedia', 'gmLang' ); ?></label>
-								<select name="term[_orderby]" id="gmedia_term_orderby" class="form-control input-sm">
+								<select name="term[meta][_orderby]" id="gmedia_term_orderby" class="form-control input-sm">
 									<option value="custom"<?php selected( $term_meta['_orderby'], 'custom' ); ?>><?php _e( 'Custom Order', 'gmLang' ); ?></option>
 									<option value="ID"<?php selected( $term_meta['_orderby'], 'ID' ); ?>><?php _e( 'by ID', 'gmLang' ); ?></option>
 									<option value="title"<?php selected( $term_meta['_orderby'], 'title' ); ?>><?php _e( 'by title', 'gmLang' ); ?></option>
@@ -1096,7 +1115,7 @@ function gmediaAlbumEdit() {
 						<div class="col-xs-3">
 							<div class="form-group">
 								<label><?php _e( 'Sort order', 'gmLang' ); ?></label>
-								<select id="gmedia_term_order" name="term[_order]" class="form-control input-sm">
+								<select id="gmedia_term_order" name="term[meta][_order]" class="form-control input-sm">
 									<option value="DESC"<?php selected( $term_meta['_order'], 'DESC' ); ?>><?php _e( 'DESC', 'gmLang' ); ?></option>
 									<option value="ASC"<?php selected( $term_meta['_order'], 'ASC' ); ?>><?php _e( 'ASC', 'gmLang' ); ?></option>
 								</select>

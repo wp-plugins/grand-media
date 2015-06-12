@@ -627,7 +627,14 @@ a.edit_tag_save.btn {
     line-height: 107px;
 }
 
-.termItems .gm-img-thumbnail img {
+#gmedia-edit-term .gm-img-thumbnail {
+    height: 121px;
+    text-align: center;
+	margin:0;
+	line-height: 107px;
+}
+
+.gm-img-thumbnail img {
     height: auto;
     width: auto;
     max-width: 100%;

@@ -2798,7 +2798,7 @@ class GmediaDB{
 	 */
 	function insert_term($term, $taxonomy, $args = array()){
 		/** @var $wpdb wpdb */
-		global $wpdb, $gmGallery, $user_ID;
+		global $wpdb, $gmGallery, $gmCore, $user_ID;
 
 		if(!isset($gmGallery->options['taxonomies'][$taxonomy])){
 			return new WP_Error('gm_invalid_taxonomy', __('Invalid taxonomy'));
@@ -2825,6 +2825,7 @@ class GmediaDB{
 		/** @var $name
 		 * @var  $description
 		 * @var  $global
+		 * @var  $meta
 		 */
 		extract($args, EXTR_SKIP);
 
@@ -2846,6 +2847,22 @@ class GmediaDB{
 			}
 			$term_id = (int)$wpdb->insert_id;
 		}
+
+		if ( isset( $meta ) && is_array( $meta ) && !empty( $meta ) ) {
+			$meta_type = 'gmedia_term';
+			foreach ( $meta as $key => $value ) {
+				if ( in_array($key, array('_cover', '_orderby', '_order')) ) {
+					$value = ltrim( $value, '#' );
+					$this->add_metadata( $meta_type, $term_id, $key, $value );
+					continue;
+				}
+				$key = trim($key);
+				if( !empty($key) && !$gmCore->is_digit($key) && !empty($value) && !is_protected_meta( $key, $meta_type )){
+					$this->add_metadata( $meta_type, $term_id, $key, $value );
+				}
+			}
+		}
+
 
 		do_action("create_gmedia_term", $term_id, $taxonomy);
 
@@ -2876,7 +2893,7 @@ class GmediaDB{
 	 */
 	function update_term($term_id, $taxonomy, $args = array()){
 		/** @var $wpdb wpdb */
-		global $wpdb;
+		global $wpdb, $gmCore;
 
 		$gmOptions = get_option('gmediaOptions');
 		if(!isset($gmOptions['taxonomies'][$taxonomy])){
@@ -2898,7 +2915,7 @@ class GmediaDB{
 		// Merge old and new args with new args overwriting old ones.
 		$args = array_merge($term, $args);
 
-		$defaults = array('global' => $term['global'], 'name' => $term['name'], 'description' => '', 'status' => 'public', '_orderby' => 'ID', '_order' => 'DESC');
+		$defaults = array('global' => $term['global'], 'name' => $term['name'], 'description' => '', 'status' => 'public');
 		$args = wp_parse_args($args, $defaults);
 
 		/** @var $name
@@ -2907,6 +2924,7 @@ class GmediaDB{
 		 * @var  $order
 		 * @var  $status
 		 * @var  $global
+		 * @var  $meta
 		 */
 		extract($args, EXTR_SKIP);
 
@@ -2945,6 +2963,29 @@ class GmediaDB{
                         return new WP_Error('db_insert_error', __('Could not update statuses for gmedia items in the database'), $wpdb->last_error);
                     }
                 }
+			}
+		}
+
+		if ( isset( $meta ) && is_array( $meta ) && !empty( $meta ) ) {
+			$meta_type = 'gmedia_term';
+			foreach ( $meta as $key => $value ) {
+				if ( in_array($key, array('_cover', '_orderby', '_order')) ) {
+					$value = ltrim( $value, '#' );
+					$this->update_metadata( $meta_type, $term_id, $key, $value );
+				} elseif($gmCore->is_digit($key)){
+					$mid = (int) $key;
+					//$value = wp_unslash( $value );
+					if ( ! ($meta = $this->get_metadata_by_mid( 'gmedia_term', $mid )) ){
+						continue;
+					}
+					if ( '' == trim($value) ) {
+						$this->delete_metadata_by_mid( $meta_type, $key );
+						continue;
+					}
+					if ( $meta->meta_value != $value ) {
+						$this->update_metadata_by_mid( $meta_type, $mid, $value );
+					}
+				}
 			}
 		}
 
