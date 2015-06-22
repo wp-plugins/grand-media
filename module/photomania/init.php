@@ -18,8 +18,12 @@ $settings = array_merge($settings, array(
 	'libraryUrl' => $gmCore->upload['url'],
 	'ajaxurl' => admin_url('admin-ajax.php')
 ));
-$iSlide = (int) $gmCore->_get('slide', $settings['initial_slide']);
-$settings['initial_slide'] = $iSlide;
+if($gmCore->_get('slide', false)){
+	$iSlide = (int) $_GET['slide'];
+	$settings['initial_slide'] = $iSlide;
+} else {
+	$iSlide = 0;
+}
 $allsettings = array_merge($module['options'], $settings);
 
 $content = array(
