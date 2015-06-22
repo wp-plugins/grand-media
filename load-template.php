@@ -19,7 +19,9 @@ $template = array(
 	'a' => 'album',
 	't' => 'tag',
 	's' => 'single',
-	'k' => 'category'
+	'k' => 'category',
+	'f' => 'filter',
+	'u' => 'author'
 );
 if(!isset($template[$type])){
 	locate_template(array('404'), true);
@@ -46,6 +48,7 @@ switch($gmedia_type){
 	case 'album':
 	case 'tag':
 	case 'category':
+	case 'filter':
 		$gmedia = $gmDB->get_term($gmedia_id, "gmedia_{$gmedia_type}");
 
 		if(empty($gmGallery->options['gmediacloud_module'])){
@@ -79,10 +82,14 @@ if(file_exists($module['path'] . "/template/functions.php")){
 
 if(file_exists($module['path'] . "/template/{$gmedia_type}.php")){
 	require_once($module['path'] . "/template/{$gmedia_type}.php");
-} elseif(in_array($gmedia_type, array('album', 'tag', 'category')) && file_exists($module['path'] . "/template/gallery.php")){
+} elseif(in_array($gmedia_type, array('album', 'tag', 'category', 'filter')) && file_exists($module['path'] . "/template/gallery.php")){
 	require_once($module['path'] . "/template/gallery.php");
 } else{
 	/* only for default template */
 	add_action('gmedia_head', 'gmedia_default_template_styles');
-	require_once( GMEDIA_ABSPATH . "template/{$gmedia_type}.php" );
+	if(file_exists($module['path'] . "/template/{$gmedia_type}.php")) {
+		require_once( GMEDIA_ABSPATH . "template/{$gmedia_type}.php" );
+	} else {
+		require_once( GMEDIA_ABSPATH . "template/gallery.php" );
+	}
 }

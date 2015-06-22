@@ -36,6 +36,7 @@ Gmedia Gallery is the result of hundreds of hours of working to bring you the ul
 
 See demo of Gmedia Gallery Modules:
 
+*   [PhotoMania Module (GmediaCloud demo)](http://codeasily.com/portfolio-item/gmedia-photomania/) is a new free amazing responsive gallery with thumbs panel and other details for each image like author, caption, download button, link button, like button. Can be in full window and full screen mode.
 *   [Mosaic Module](http://codeasily.com/portfolio-item/gmedia-mosaic/) is an image gallery with masonry layout built on jQuery. Responsive gallery with built in prettyPhoto lightbox for big images.
 *   [RealSlider Module](http://codeasily.com/portfolio-item/gmedia-realslider/) is an image/video gallery slider module built on jQuery. RealSlider module is responsive and touch friendly gallery with 50+ options for customization.
 *   [Phantom Module](http://codeasily.com/portfolio-item/gmedia-phantom/) is the Wall/Grid Gallery with social sharing - you can easily change thumbnail sizes, colors, navigation, borders, add stylish labels to thumbnails ... and much more. PhotoSwipe like theme on touch devices.. only better.
@@ -128,6 +129,12 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 
 = Modules Updated =
 * Go to Gmedia Modules page and update installed premium modules to latest versions
+
+= 1.6.8 =
+* New: PhotoMania Module - free cool gallery module
+* Changed: All Albums on Add Files page
+* Fixed GmediaCloud page for Filters (if 404 page go to WP Settings -> Permalinks -> re-Save settings)
+* Other improvements
 
 = 1.6.7 =
 * Added Cover for Albums

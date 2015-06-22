@@ -186,7 +186,7 @@ window.onload = function() {
 			$old_meta = $gmDB->get_metadata('gmedia_term', $gallery->term_id);
 			if(!empty($old_meta)){
 				$old_meta = array_map('reset', $old_meta);
-				$old_meta = array_map('maybe_unserialize', $old_meta);
+				//$old_meta = array_map('maybe_unserialize', $old_meta);
 				if(!isset($old_meta['gMediaQuery'])){
 					continue;
 				}

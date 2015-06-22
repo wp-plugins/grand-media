@@ -712,7 +712,8 @@ function gmedia_ios_app_processor( $action, $data, $filter = true ) {
 				$gmedias[ $i ]->user = array( 'id' => $author_id, 'displayname' => $display_name, 'firstname' => $first_name, 'last_name' => $last_name );
 
 				$meta               = $gmDB->get_metadata( 'gmedia', $item->ID );
-				$_metadata          = maybe_unserialize( $meta['_metadata'][0] );
+				//$_metadata          = maybe_unserialize( $meta['_metadata'][0] );
+				$_metadata          = $meta['_metadata'][0];
 				$type               = explode( '/', $item->mime_type );
 				$item_url           = $gmCore->upload['url'] . '/' . $gmGallery->options['folder'][ $type[0] ] . '/' . $item->gmuid;
 				$gmedias[ $i ]->url = $item_url;

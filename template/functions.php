@@ -109,7 +109,7 @@ function gmedia_title($sep = '|', $display = true){
 
 	$_title = __('GmediaGallery', 'gmLang');
 	if(is_object($gmedia) && !is_wp_error($gmedia)){
-		if(in_array($gmedia_type, array('gallery', 'album', 'tag'))){
+		if(in_array($gmedia_type, array('gallery', 'album', 'tag', 'filter'))){
 			$_title = $gmedia->name;
 		} elseif('category' == $gmedia_type){
 			$gm_terms_all = $gmGallery->options['taxonomies']['gmedia_category'];
@@ -153,7 +153,7 @@ function the_gmedia_title($return = false){
 
 	$title = __('GmediaGallery', 'gmLang');
 	if(is_object($gmedia) && !is_wp_error($gmedia)){
-		if(in_array($gmedia_type, array('gallery', 'album', 'tag'))){
+		if(in_array($gmedia_type, array('gallery', 'album', 'tag', 'filter'))){
 			$title = $gmedia->name;
 		} elseif('category' == $gmedia_type){
 			$gm_terms_all = $gmGallery->options['taxonomies']['gmedia_category'];
@@ -239,7 +239,7 @@ function get_the_gmedia_content($gmedia_id, $gmedia_type, $gmedia_module = null,
 	}
 
 	$content = '';
-	if(in_array($gmedia_type, array('gallery', 'album', 'tag', 'category'))){
+	if(in_array($gmedia_type, array('gallery', 'album', 'tag', 'category', 'filter'))){
 		$atts = array(
 			'id' => $gmedia_id,
 			'set_module' => ($user_ID? $gmCore->_get('set_module', $gmedia_module) : $gmedia_module),

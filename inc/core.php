@@ -454,6 +454,36 @@ class GmediaCore {
 	}
 
 	/**
+	 * Generate GmediaCloud page url
+	 *
+	 * @param $id
+	 * @param $type
+	 *
+	 * @return string
+	 */
+	function gmcloudlink($id, $type) {
+		$options = get_option( 'gmediaOptions' );
+		$endpoint = $options['endpoint'];
+		$hashid = gmedia_hash_id_encode( $id, $type );
+		$t = array(
+			'gallery' => 'g',
+			'album' => 'a',
+			'tag' => 't',
+			'single' => 's',
+			'category' => 'k',
+			'filter' => 'f',
+			'author' => 'u'
+		);
+		if ( get_option( 'permalink_structure' ) ) {
+			$cloud_link = home_url( urlencode( $endpoint ) . "/{$t[$type]}/{$hashid}" );
+		} else {
+			$cloud_link = add_query_arg( array( "$endpoint" => $hashid, 't' => $t[$type] ), home_url( 'index.php' ) );
+		}
+
+		return $cloud_link;
+	}
+
+	/**
 	 * Extremely simple function to get human filesize
 	 *
 	 * @param     $file
@@ -556,6 +586,26 @@ class GmediaCore {
 
 		return $base;
 	}
+
+	/**
+	 * @param $callback
+	 * @param $array
+	 *
+	 * @return mixed
+	 *
+	 */
+	function array_map_recursive($callback, $array) {
+		foreach ($array as $key => $value) {
+			if (is_array($array[$key])) {
+				$array[$key] = $this->array_map_recursive($callback, $array[$key]);
+			}
+			else {
+				$array[$key] = call_user_func($callback, $array[$key]);
+			}
+		}
+		return $array;
+	}
+
 
 	/**
 	 * @param $photo

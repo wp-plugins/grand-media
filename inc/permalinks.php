@@ -36,7 +36,7 @@ class gmediaPermalinks {
 		$this->add_endpoint();
 
 		$new_rules = array(
-			$this->endpoint . '/(g|s|a|t|k)/(.+?)/?$' => 'index.php?' . $this->endpoint . '=' . $wp_rewrite->preg_index( 2 ) . '&t=' . $wp_rewrite->preg_index( 1 ),
+			$this->endpoint . '/(g|s|a|t|k|f|u)/(.+?)/?$' => 'index.php?' . $this->endpoint . '=' . $wp_rewrite->preg_index( 2 ) . '&t=' . $wp_rewrite->preg_index( 1 ),
 			'gmedia-app/?$' => 'index.php?gmedia-app=1'
 		);
 

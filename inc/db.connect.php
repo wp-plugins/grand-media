@@ -2058,6 +2058,8 @@ class GmediaDB{
 		}
 
 		if(!$meta_key){
+			global $gmCore;
+			$meta_cache = $gmCore->array_map_recursive('maybe_unserialize', $meta_cache);
 			return $meta_cache;
 		}
 

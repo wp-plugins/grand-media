@@ -128,12 +128,24 @@ function gmedia_upload_files() {
 			<div class="form-group">
 				<?php
 				$term_type = 'gmedia_album';
-				$gm_terms  = $gmDB->get_terms( $term_type, array( 'global' => array( 0, $user_ID ), 'orderby' => 'global_desc_name' ) );
+				$global = $gmCore->caps['gmedia_edit_others_media'] ? '' : array( 0, $user_ID );
+				$gm_terms  = $gmDB->get_terms( $term_type, array( 'global' => $global, 'orderby' => 'global_desc_name' ) );
 
 				$terms_album = '';
 				if ( count( $gm_terms ) ) {
 					foreach ( $gm_terms as $term ) {
-						$terms_album .= '<option value="' . esc_attr( $term->term_id ) . '">' . esc_html( $term->name ) . ( $term->global ? '' : __( ' (shared)', 'gmLang' ) ) . ( 'public' == $term->status ? '' : " [{$term->status}]" ) . '</option>' . "\n";
+						$author_name = '';
+						if ( $term->global ) {
+							if ( $gmCore->caps['gmedia_edit_others_media'] ) {
+								$author_name .= ' &nbsp; ' . sprintf( __( 'by %s', 'gmLang' ), get_the_author_meta( 'display_name', $term->global ) );
+							}
+						} else {
+							$author_name .= ' &nbsp; (' . __( 'shared', 'gmLang' ) . ')';
+						}
+						if ( 'public' != $term->status ) {
+							$author_name .= ' [' . $term->status . ']';
+						}
+						$terms_album .= '<option value="' . $term->term_id . '" data-name="' . esc_html( $term->name ) . '" data-meta="' . $author_name . '">' . esc_html( $term->name ) . $author_name . '</option>' . "\n";
 					}
 				}
 				?>
@@ -158,14 +170,41 @@ function gmedia_upload_files() {
 		<script type="text/javascript">
 			jQuery(function ($) {
 				<?php if($gmCore->caps['gmedia_terms']){ ?>
-				$('#combobox_gmedia_album').selectize({
+				var albums = $('#combobox_gmedia_album');
+				var albums_data = $('option', albums);
+				albums.selectize({
 					<?php if($gmCore->caps['gmedia_album_manage']){ ?>
-					create: true,
+					create: function (input) {
+						return {
+							value: input,
+							text: input
+						}
+					},
 					createOnBlur: true,
 					<?php } else{ ?>
 					create: false,
 					<?php } ?>
-					persist: false
+					persist: false,
+					render: {
+						item: function (item, escape) {
+							if (0 === (parseInt(item.value, 10) || 0)) {
+								return '<div>' + escape(item.text) + '</div>';
+							}
+							if (item.$order) {
+								var data = $(albums_data[item.$order]).data();
+								return '<div>' + escape(data.name) + ' <small>' + escape(data.meta) + '</small></div>';
+							}
+						},
+						option: function (item, escape) {
+							if (0 === (parseInt(item.value) || 0)) {
+								return '<div>' + escape(item.text) + '</div>';
+							}
+							if (item.$order) {
+								var data = $(albums_data[item.$order]).data();
+								return '<div>' + escape(data.name) + ' <small>' + escape(data.meta) + '</small></div>';
+							}
+						}
+					}
 				});
 				var gm_terms = <?php echo json_encode($gm_terms); ?>;
 				var items = gm_terms.map(function (x) {

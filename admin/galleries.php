@@ -149,7 +149,7 @@ function gmediaGalleries(){
 
 					$term_meta = $gmDB->get_metadata('gmedia_term', $term->term_id);
 					$term_meta = array_map('reset', $term_meta);
-					$term_meta = array_map('maybe_unserialize', $term_meta);
+					//$term_meta = array_map('maybe_unserialize', $term_meta);
 
 					$module = $gmCore->get_module_path($term_meta['_module']);
 					$module_info = array('type' => '&#8212;');
@@ -440,7 +440,7 @@ function gmediaGalleryEdit(){
 			if(($gallery['global'] == $author) || $gmCore->caps['gmedia_edit_others_media']){
 				$gallery_meta = $gmDB->get_metadata('gmedia_term', $gallery_id);
 				$gallery_meta = array_map('reset', $gallery_meta);
-				$gallery_meta = array_map('maybe_unserialize', $gallery_meta);
+				//$gallery_meta = array_map('maybe_unserialize', $gallery_meta);
 				$gallery = array_merge($gallery, $gallery_meta);
 				if(isset($_GET['author']) && ($gallery['global'] != $author)){
 					unset($gallery['_query']['gmedia_album']);

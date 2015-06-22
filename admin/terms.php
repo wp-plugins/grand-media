@@ -12,7 +12,6 @@ function gmediaTerms() {
 	global $user_ID, $gmDB, $gmCore, $gmGallery, $gmProcessor;
 
 	$url      = add_query_arg( array( 'page' => $gmProcessor->page ), admin_url( 'admin.php' ) );
-	$endpoint = $gmGallery->options['endpoint'];
 
 	$gm_screen_options = get_user_meta( $user_ID, 'gm_screen_options', true );
 	if ( ! is_array( $gm_screen_options ) ) {
@@ -388,12 +387,7 @@ function gmediaTerms() {
 											echo $filter_icon;
 										}
 
-										$gmedia_hashid = gmedia_hash_id_encode( $item->term_id, 'album' );
-										if ( get_option( 'permalink_structure' ) ) {
-											$cloud_link = home_url( urlencode( $endpoint ) . '/a/' . $gmedia_hashid );
-										} else {
-											$cloud_link = add_query_arg( array( "$endpoint" => $gmedia_hashid, 't' => 'a' ), home_url( 'index.php' ) );
-										}
+										$cloud_link = $gmCore->gmcloudlink($item->term_id, 'album');
 										$share_icon = '<span class="glyphicon glyphicon-share"></span>';
 										if ( 'draft' !== $item->status ) {
 											echo '<a target="_blank" data-target="#shareModal" data-share="' . $item->term_id . '" class="share-modal" title="' . __( 'Share', 'gmLang' ) . '" href="' . $cloud_link . '">' . $share_icon . '</a>';
@@ -519,12 +513,7 @@ function gmediaTerms() {
 												'custom_filter'  => $item->term_id
 											), array(), true ) . '">' . $filter_icon . '</a>';
 
-										$gmedia_hashid = gmedia_hash_id_encode( $item->term_id, 'filter' );
-										if ( get_option( 'permalink_structure' ) ) {
-											$cloud_link = home_url( urlencode( $endpoint ) . '/f/' . $gmedia_hashid );
-										} else {
-											$cloud_link = add_query_arg( array( "$endpoint" => $gmedia_hashid, 't' => 'f' ), home_url( 'index.php' ) );
-										}
+										$cloud_link = $gmCore->gmcloudlink($item->term_id, 'filter');
 										$share_icon = '<span class="glyphicon glyphicon-share"></span>';
 										echo '<a target="_blank" data-target="#shareModal" data-share="' . $item->term_id . '" class="share-modal" title="' . __( 'Share', 'gmLang' ) . '" href="' . $cloud_link . '">' . $share_icon . '</a>';
 
@@ -664,12 +653,7 @@ function gmediaTerms() {
 										echo $filter_icon;
 									}
 
-									$gmedia_hashid = gmedia_hash_id_encode( $item->term_id, 'tag' );
-									if ( get_option( 'permalink_structure' ) ) {
-										$cloud_link = home_url( urlencode( $endpoint ) . '/t/' . $gmedia_hashid );
-									} else {
-										$cloud_link = add_query_arg( array( "$endpoint" => $gmedia_hashid, 't' => 't' ), home_url( 'index.php' ) );
-									}
+									$cloud_link = $gmCore->gmcloudlink( $item->term_id, 'tag' );
 									$share_icon = '<span class="glyphicon glyphicon-share"></span>';
 									echo '<a target="_blank" data-target="#shareModal" data-share="' . $item->term_id . '" class="share-modal" title="' . __( 'Share', 'gmLang' ) . '" href="' . $cloud_link . '">' . $share_icon . '</a>';
 
@@ -833,12 +817,7 @@ function gmediaTerms() {
 
 								$share_icon = '<span class="glyphicon glyphicon-share"></span>';
 								if ( isset( $cat[ $name ]->term_id ) ) {
-									$gmedia_hashid = gmedia_hash_id_encode( $term_id, 'tag' );
-									if ( get_option( 'permalink_structure' ) ) {
-										$cloud_link = home_url( urlencode( $endpoint ) . '/k/' . $gmedia_hashid );
-									} else {
-										$cloud_link = add_query_arg( array( "$endpoint" => $gmedia_hashid, 't' => 'k' ), home_url( 'index.php' ) );
-									}
+									$cloud_link = $gmCore->gmcloudlink( $term_id, 'category' );
 									echo '<a target="_blank" data-target="#shareModal" data-share="' . $term_id . '" class="share-modal" title="' . __( 'Share', 'gmLang' ) . '" href="' . $cloud_link . '">' . $share_icon . '</a>';
 								} else {
 									echo "<span class='action-inactive'>$share_icon</span>";

@@ -125,7 +125,7 @@ function gmedia_shortcode($atts, $content = ''){
 		$gallery = array_merge($_gallery, $gallery);
 		$gallery_meta = $gmDB->get_metadata('gmedia_term', $id);
 		$gallery_meta = array_map('reset', $gallery_meta);
-		$gallery_meta = array_map('maybe_unserialize', $gallery_meta);
+		//$gallery_meta = array_map('maybe_unserialize', $gallery_meta);
 		$gallery = array_merge($gallery, $gallery_meta);
 	}
 
@@ -136,6 +136,10 @@ function gmedia_shortcode($atts, $content = ''){
 		$gallery['_settings'][$gallery['_module']] = array();
 	}
 
+	if('filter' === $_tax){
+		$gallery['custom_query'] = $gallery['_query'];
+		$gallery['_query'] = array();
+	}
 	if(empty($gallery['_query']) && ('gallery' !== $_tax)){
 		$gallery['_query']['gmedia_' . $_tax] = array($id);
 	}
@@ -209,7 +213,11 @@ function gmedia_shortcode($atts, $content = ''){
 								$gmedia[ $term_id ] = $gmDB->get_gmedias( $args );
 							}
 						} elseif ( 'gmedia_filter' == $tax ) {
-							$args = $gmDB->get_metadata( 'gmedia_term', $term_id, '_query', true );
+							if(isset($gallery['custom_query'])) {
+								$args = $gallery['custom_query'];
+							} else {
+								$args = $gmDB->get_metadata( 'gmedia_term', $term_id, '_query', true );
+							}
 							$args = array_merge( array( 'status' => $gmedia_status, 'album__status' => $gmedia_status ), $args );
 							$gmedia[ $term_id ] = $gmDB->get_gmedias( $args );
 						}

@@ -287,7 +287,7 @@ function gmedia_add_media_galleries(){
 
 								$term_meta = $gmDB->get_metadata('gmedia_term', $term->term_id);
 								$term_meta = array_map('reset', $term_meta);
-								$term_meta = array_map('maybe_unserialize', $term_meta);
+								//$term_meta = array_map('maybe_unserialize', $term_meta);
 
 								$module = $gmCore->get_module_path($term_meta['_module']);
 								$module_info = array('type' => '&#8212;');
@@ -912,7 +912,9 @@ function gmedia_add_media_library(){
 									</div>
 									<?php //if($is_webimage){ ?>
 									<?php if('image' == $type[0]){
-										$_metadata = unserialize($meta['_metadata'][0]); ?>
+										//$_metadata = maybe_unserialize($meta['_metadata'][0]);
+										$_metadata = $meta['_metadata'][0];
+										?>
 										<div class="form-group">
 											<label><?php _e('Size', 'gmLang'); ?></label>
 											<select name="size" class="form-control input-sm">

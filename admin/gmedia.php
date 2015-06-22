@@ -506,12 +506,7 @@ function gmediaLib(){
 						<p class="media-meta" style="margin:5px 4px;">
 							<?php $media_action_links = array();
 							if(($gmCore->caps['gmedia_edit_media'] && ((int) $item->author == get_current_user_id())) || $gmCore->caps['gmedia_edit_others_media']){
-								$gmedia_hashid = gmedia_hash_id_encode($item->ID, 'single');
-								if(get_option('permalink_structure')){
-									$cloud_link = home_url(urlencode($endpoint) . '/s/' . $gmedia_hashid);
-								} else{
-									$cloud_link = add_query_arg(array("$endpoint" => $gmedia_hashid, 't' => 's'), home_url('index.php'));
-								}
+								$cloud_link = $gmCore->gmcloudlink( $item->ID, 'single' );
 								$media_action_links[] = '<a target="_blank" data-target="#shareModal" data-share="' . $item->ID . '" class="share-modal" title="'.__('GmediaCloud Page', 'gmLang').'" href="' . $cloud_link . '">' . __('Share', 'gmLang') . '</a>';
 
 								$media_action_links[] = '<a href="' . admin_url("admin.php?page=GrandMedia&mode=edit&gmedia__in={$item->ID}") . '">' . __('Edit Data', 'gmLang') . '</a>';
@@ -906,7 +901,7 @@ function gmediaLib(){
 						<div class="media-meta"><span class="label label-default"><?php _e('File Size', 'gmLang') ?> :</span> <?php echo $gmCore->filesize($item_path); ?>
 						</div>
 						<?php if('image' == $type[0]){
-							$_metadata = unserialize($meta['_metadata'][0]); ?>
+							//$_metadata = maybe_unserialize($meta['_metadata'][0]); ?>
 							<div class="media-meta"><span class="label label-default"><?php _e('Dimensions', 'gmLang') ?>
 									:</span>
 								<span title="<?php echo $_metadata['web']['width'] . ' × ' . $_metadata['web']['height'] . ', ' . $_metadata['thumb']['width'] . ' × ' . $_metadata['thumb']['height']; ?>"><?php echo $_metadata['original']['width'] . ' × ' . $_metadata['original']['height']; ?></span>
