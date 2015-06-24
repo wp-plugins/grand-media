@@ -3043,7 +3043,7 @@ class GmediaDB{
 			'_orderby' => 'ID',
 			'_order' => 'DESC'
 		);
-		$sortorder_meta = array_intersect_key($args, $default_meta) + $default_meta;
+		$sortorder_meta = array_intersect_key($args['meta'], $default_meta) + $default_meta;
 		foreach($sortorder_meta as $key => $value){
 			$this->update_metadata('gmedia_term', $term_id, $key, $value);
 		}

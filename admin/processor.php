@@ -765,8 +765,8 @@ class GmediaProcessor{
 								$this->error[] = __('You are not allowed to edit others media', 'gmLang');
 								break;
 							}
-							$term_meta = $term_data['meta'];
-							$term_id = $gmDB->update_term_sortorder($term_id, $taxonomy, $term_meta);
+							//$term_meta = $term_data['meta'];
+							$term_id = $gmDB->update_term_sortorder($term_id, $taxonomy, $term_data);
 
 							if(is_wp_error($term_id)){
 								$this->error[] = $term_id->get_error_message();

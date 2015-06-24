@@ -130,6 +130,9 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 = Modules Updated =
 * Go to Gmedia Modules page and update installed premium modules to latest versions
 
+= 1.6.9 =
+* Fixed: Album custom sorting
+
 = 1.6.8 =
 * New: PhotoMania Module - free cool gallery module
 * Changed: All Albums on Add Files page
