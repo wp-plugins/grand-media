@@ -402,8 +402,8 @@ class GmediaAdmin {
 <p>Note: License Key will remove backlinks from all current and future premium modules, so you can use all available modules on one website.</p>
 <p>Do not purchase license key before testing module you like. Only if everything works fine and you satisfied with functionality you are good to purchase license. Otherwise use <a href="http://codeasily.com/community/forum/gmedia-gallery-wordpress-plugin/" target="_blank">' . __( 'Gmedia Support Forum', 'gmLang' ) . '</a>.</p>
 <h4>I have license key but I can\'t activate it</h4>
-<p>Contact developer <a href="mailto:gmediafolder@gmail.com">gmediafolder@gmail.com</a> with your problem and wait for additional instructions and code for manual activating</p>
-<div><a class="btn btn-default" href="' . admin_url( 'admin.php?page=' . $screen_id . '&license_activate=manual' ) . '">Manual Activating</a></div>',
+<p>Contact developer <a href="mailto:gmediafolder@gmail.com">gmediafolder@gmail.com</a> with your problem and wait for additional instructions and code for manual activation</p>
+<div><a class="btn btn-default" href="' . admin_url( 'admin.php?page=' . $screen_id . '&license_activate=manual' ) . '">Manual Activation</a></div>',
 					) );
 				}
 				break;
