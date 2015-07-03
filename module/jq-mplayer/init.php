@@ -28,11 +28,14 @@ foreach($terms as $term){
 		if(isset($_metadata['image']['data']) && !empty($_metadata['image']['data'])){
 			$default_cover = $_metadata['image']['data'];
 		} else {
-			$album = reset($gmDB->get_the_gmedia_terms($item->ID, 'gmedia_album'));
-			if(!empty($album)) {
-				$cover_id = $gmDB->get_metadata( 'gmedia_term', $album->term_id, '_cover', true );
-				if((int) $cover_id){
-					$default_cover = $gmCore->gm_get_media_image($cover_id, 'thumb', true, $default_cover);
+			$albums = $gmDB->get_the_gmedia_terms($item->ID, 'gmedia_album');
+			if(!empty($albums)){
+				$album = reset($albums);
+				if(!empty($album)) {
+					$cover_id = $gmDB->get_metadata( 'gmedia_term', $album->term_id, '_cover', true );
+					if((int) $cover_id){
+						$default_cover = $gmCore->gm_get_media_image($cover_id, 'thumb', true, $default_cover);
+					}
 				}
 			}
 		}

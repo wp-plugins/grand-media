@@ -1006,12 +1006,12 @@ fieldset.gmediacustomstuff {margin:0 0 10px; padding:.35em .625em .4em; position
     border-bottom: 0;
 }
 
-.tab-content > .tab-pane,
+.gm-tab-content > .tab-pane,
 .pill-content > .pill-pane {
     display: none;
 }
 
-.tab-content > .active,
+.gm-tab-content > .active,
 .pill-content > .active {
     display: block;
 }

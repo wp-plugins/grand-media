@@ -51,13 +51,19 @@ function gmSettings(){
 								<input type="text" name="set[license_key]" id="license_key" class="form-control input-sm" value="<?php if(isset($gmGallery->options['license_key'])){
 									echo $gmGallery->options['license_key'];
 								} ?>"/>
-								<input type="hidden" name="set[license_name]" id="license_name" value="<?php echo $gmGallery->options['license_name']; ?>"/>
-								<input type="hidden" name="set[license_key2]" id="license_key2" value="<?php echo $gmGallery->options['license_key2']; ?>"/>
+								<div class="manual_license_activate"<?php echo (('manual' == $gmCore->_get('license_activate'))? '' : ' style="display:none;"'); ?>>
+									<label style="margin-top:7px;"><?php _e('License Name', 'gmLang') ?>:</label>
+									<input type="text" name="set[license_name]" id="license_name" class="form-control input-sm" value="<?php echo $gmGallery->options['license_name']; ?>"/>
+									<label style="margin-top:7px;"><?php _e('Additional Key', 'gmLang') ?>:</label>
+									<input type="text" name="set[license_key2]" id="license_key2" class="form-control input-sm" value="<?php echo $gmGallery->options['license_key2']; ?>"/>
+								</div>
 							</div>
+							<?php if('manual' != $gmCore->_get('license_activate')){ ?>
 							<div class="form-group col-xs-7">
 								<label>&nbsp;</label>
 								<button style="display:block;" class="btn btn-success btn-sm" type="submit" name="license-key-activate"><?php _e('Activate Key', 'gmLang'); ?></button>
 							</div>
+							<?php } ?>
 						</div>
 					</fieldset>
 

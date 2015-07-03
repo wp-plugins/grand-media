@@ -130,6 +130,13 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 = Modules Updated =
 * Go to Gmedia Modules page and update installed premium modules to latest versions
 
+= 1.7.0 =
+* Fixed: compatibility with WPMobile App plugin
+* Fixed: Music Player
+* Fixed: Video Player
+* Added: Help tab for Settings page
+* Added: Support us block
+
 = 1.6.9 =
 * Fixed: Album custom sorting
 

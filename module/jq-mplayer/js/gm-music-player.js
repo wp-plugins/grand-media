@@ -1,6 +1,6 @@
 /*
  * Title      : Music Player Module for Gmedia Gallery plugin
- * Version    : 2.4
+ * Version    : 2.5
  * Copyright  : 2013 CodEasily.com
  * Website    : http://www.codeasily.com
  */

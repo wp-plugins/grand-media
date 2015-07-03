@@ -25,11 +25,14 @@ foreach($terms as $term){
 
 		$get_cover_from = $item;
 		$default_cover = wp_mime_type_icon($item->mime_type);
-		$album = reset($gmDB->get_the_gmedia_terms($item->ID, 'gmedia_album'));
-		if(!empty($album)) {
-			$cover_id = $gmDB->get_metadata( 'gmedia_term', $album->term_id, '_cover', true );
-			if((int) $cover_id){
-				$get_cover_from = $cover_id;
+		$albums = $gmDB->get_the_gmedia_terms($item->ID, 'gmedia_album');
+		if(!empty($albums)) {
+			$album = reset( $albums );
+			if ( ! empty( $album ) ) {
+				$cover_id = $gmDB->get_metadata( 'gmedia_term', $album->term_id, '_cover', true );
+				if ( (int) $cover_id ) {
+					$get_cover_from = $cover_id;
+				}
 			}
 		}
 

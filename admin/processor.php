@@ -1234,6 +1234,7 @@ class GmediaProcessor{
 
 						if(is_wp_error($response)){
 							$this->error[] = $response->get_error_message();
+							$this->error[] = __('Use Help Screen (top right button) for more info', 'gmLang');
 						} else{
 							$result = json_decode($response['body']);
 							if($result->error->code == 200){

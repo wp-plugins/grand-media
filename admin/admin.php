@@ -123,6 +123,28 @@ class GmediaAdmin {
 				<div class="row row-fx180-fl">
 					<div class="col-sm-2 hidden-xs" id="sidebar" role="navigation">
 						<?php echo $sideLinks['sideLinks']; ?>
+
+						<div class="row panel panel-default visible-lg-block">
+							<div class="panel-heading">
+								<a class="badge pull-right" role="button" data-toggle="collapse" href="#support_div_collapse" aria-expanded="false" aria-controls="support_div_collapse">?</a>
+								<b><?php _e('I need your support') ?></b>
+							</div>
+							<div class="collapse" id="support_div_collapse">
+								<div class="panel-body">
+									<p>If You like Gmedia Gallery plugin, You can help me spread the word about it among the users striving to get awesome galleries on their WordPress sites.</p>
+									<p>Just leave your feedback and rate plugin on WordPress.org site.</p>
+									<p><a class="btn btn-primary" href="https://wordpress.org/support/view/plugin-reviews/grand-media?filter=5" target="_blank">Rate Gmedia Gallery</a></p>
+									<p>Your feedback helps me to create new awesome modules.</p>
+								</div>
+							</div>
+						</div>
+						<div class="row panel panel-default visible-lg-block">
+							<div class="panel-body">
+								<p>Follow me on twitter for latest news and updates:</p>
+								<a href="https://twitter.com/CodEasily" class="twitter-follow-button" data-show-count="false" data-size="large">Follow @CodEasily</a>
+								<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+							</div>
+						</div>
 					</div>
 					<div class="col-sm-10 col-xs-12">
 						<div id="gm-message"><?php
@@ -349,15 +371,6 @@ class GmediaAdmin {
 		$screen_id = explode( 'page_', $screen->id, 2 );
 		$screen_id = $screen_id[1];
 
-		/*
-		switch ( $screen_id ) {
-			case 'GrandMedia' :
-				break;
-			case 'GrandMedia_Settings' :
-				break;
-		}
-		*/
-
 		$screen->add_help_tab( array(
 			'id'      => 'help_' . $screen_id . '_support',
 			'title'   => __( 'Support' ),
@@ -375,6 +388,26 @@ class GmediaAdmin {
 </p>',
 		) );
 
+		switch ( $screen_id ) {
+			case 'GrandMedia' :
+				break;
+			case 'GrandMedia_Settings' :
+				if(current_user_can('manage_options')) {
+					$screen->add_help_tab( array(
+						'id'      => 'help_' . $screen_id . '_license',
+						'title'   => __( 'License Key' ),
+						'content' => '<h4>Should I buy it, to use plugin?</h4>
+<p>No, plugin is absolutely free and all modules for it are free to install.</p>
+<p>Even premium modules are fully functional and free to test, but have backlink labels. To remove baclink labels from premium modules you need license key.</p>
+<p>Note: License Key will remove backlinks from all current and future premium modules, so you can use all available modules on one website.</p>
+<p>Do not purchase license key before testing module you like. Only if everything works fine and you satisfied with functionality you are good to purchase license. Otherwise use <a href="http://codeasily.com/community/forum/gmedia-gallery-wordpress-plugin/" target="_blank">' . __( 'Gmedia Support Forum', 'gmLang' ) . '</a>.</p>
+<h4>I have license key but I can\'t activate it</h4>
+<p>Contact developer <a href="mailto:gmediafolder@gmail.com">gmediafolder@gmail.com</a> with your problem and wait for additional instructions and code for manual activating</p>
+<div><a class="btn btn-default" href="' . admin_url( 'admin.php?page=' . $screen_id . '&license_activate=manual' ) . '">Manual Activating</a></div>',
+					) );
+				}
+				break;
+		}
 	}
 
 	/**

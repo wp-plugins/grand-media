@@ -3,7 +3,7 @@
 Plugin Name: Gmedia Gallery
 Plugin URI: http://wordpress.org/extend/plugins/grand-media/
 Description: Gmedia Gallery - powerfull media library plugin for creating beautiful galleries and managing files.
-Version: 1.6.9
+Version: 1.7.0
 Author: Rattus
 Author URI: http://codeasily.com/
 Requires at least: 3.6
@@ -41,7 +41,7 @@ if(!class_exists('Gmedia')){
 	 */
 	class Gmedia{
 
-		var $version = '1.6.9';
+		var $version = '1.7.0';
 		var $dbversion = '0.9.6';
 		var $minium_WP = '3.6';
 		var $options = '';
@@ -263,7 +263,7 @@ if(!class_exists('Gmedia')){
 		function register_scripts_backend(){
 			global $gmCore;
 
-			wp_register_script('gmedia-global-backend', $gmCore->gmedia_url . '/admin/js/gmedia.global.back.js', array('jquery'), '0.9.6');
+			wp_register_script('gmedia-global-backend', $gmCore->gmedia_url . '/admin/js/gmedia.global.back.js', array('jquery'), '1.7.0');
 			wp_localize_script('gmedia-global-backend', 'gmediaGlobalVar', array(
 				'ajaxurl' => admin_url('admin-ajax.php'),
 				'nonce' => wp_create_nonce('grandMedia'),
@@ -272,8 +272,8 @@ if(!class_exists('Gmedia')){
 				'pluginPath' => $gmCore->gmedia_url
 			));
 
-			wp_register_style('grand-media', $gmCore->gmedia_url . '/admin/css/grand-media.css', array(), '1.6.7', 'all');
-			wp_register_script('grand-media', $gmCore->gmedia_url . '/admin/js/grand-media.js', array('jquery', 'gmedia-global-backend'), '1.6.7');
+			wp_register_style('grand-media', $gmCore->gmedia_url . '/admin/css/grand-media.css', array(), '1.7.0', 'all');
+			wp_register_script('grand-media', $gmCore->gmedia_url . '/admin/js/grand-media.js', array('jquery', 'gmedia-global-backend'), '1.7.0');
 			wp_localize_script('grand-media', 'grandMedia', array(
 				'error3' => __('Disable your Popup Blocker and try again.', 'gmLang'),
 				'download' => __('downloading...', 'gmLang'),
