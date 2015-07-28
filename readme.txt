@@ -58,6 +58,7 @@ Translations:
 *   English (default)
 *   Serbian by Ogi Djuraskovic (http://firstsiteguide.com/)
 *   French by Serge Couture (http://www.choeurlabruyante.org/)
+*   Українська Іванкою Скакун з Everycloud (http://www.everycloudtech.com/)
 
 Help me make it best gallery plugin: test it and [write suggestions](http://codeasily.com/community/forum/gmedia-gallery-wordpress-plugin/) how it could be improved in feature versions.
 
