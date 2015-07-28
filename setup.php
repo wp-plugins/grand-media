@@ -26,6 +26,7 @@ function gmedia_default_options(){
 
 	$gm['isolation_mode'] = '0';
 	$gm['shortcode_raw'] = '0';
+	$gm['debug_mode'] = WP_DEBUG? '1' : '';
 
 	$gm['endpoint'] = 'gmedia';
 	$gm['gmediacloud_module'] = '';

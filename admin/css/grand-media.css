@@ -408,7 +408,11 @@ div#pluploadUploader_container {
 
 div#pluploadUploader_container .plupload_filelist_footer {
     border-bottom-right-radius: 4px;
+	font-size:11px;
+	white-space:nowrap;
 }
+div#pluploadUploader_buttons { margin-bottom:5px; }
+div.plupload_started { float:left; }
 
 div.panel-body, div#gmedia-msg-panel {
     -webkit-transition: all .2s ease-in-out;

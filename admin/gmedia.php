@@ -403,10 +403,11 @@ function gmediaLib(){
 							$typethumb = true;
 							?>
 							<img class="gmedia-thumb" src="<?php echo $gmCore->gm_get_media_image($item, 'thumb'); ?>" alt=""/>
-						<?php } elseif(isset($_metadata['image']['data']) && !empty($_metadata['image']['data'])){
+						<?php /* } elseif(isset($_metadata['image']['data']) && !empty($_metadata['image']['data'])){
 							$typethumb = true;
 							?>
 							<img class="gmedia-thumb" src="<?php echo $_metadata['image']['data']; ?>" alt=""/>
+						<?php */ ?>
 						<?php } else{ ?>
 							<img class="gmedia-thumb" src="<?php echo $gmCore->gm_get_media_image($item, 'thumb', false); ?>" alt=""/>
 						<?php } ?>
@@ -562,10 +563,11 @@ function gmediaLib(){
 							$typethumb = true;
 							?>
 							<img class="gmedia-thumb" src="<?php echo $gmCore->gm_get_media_image($item, 'thumb'); ?>" alt=""/>
-						<?php } elseif(isset($_metadata['image']['data']) && !empty($_metadata['image']['data'])){
+						<?php /* } elseif(isset($_metadata['image']['data']) && !empty($_metadata['image']['data'])){
 							$typethumb = true;
 							?>
 							<img class="gmedia-thumb" src="<?php echo $_metadata['image']['data']; ?>" alt=""/>
+						<?php */ ?>
 						<?php } else{ ?>
 							<img class="gmedia-thumb" src="<?php echo $gmCore->gm_get_media_image($item, 'thumb', false); ?>" alt=""/>
 						<?php } ?>
@@ -694,10 +696,11 @@ function gmediaLib(){
 							$typethumb = true;
 							?>
 							<img class="gmedia-thumb" src="<?php echo $gmCore->gm_get_media_image($item, 'thumb'); ?>" alt=""/>
-						<?php } elseif(isset($_metadata['image']['data']) && !empty($_metadata['image']['data'])){
+						<?php /* } elseif(isset($_metadata['image']['data']) && !empty($_metadata['image']['data'])){
 							$typethumb = true;
 							?>
 							<img class="gmedia-thumb" src="<?php echo $_metadata['image']['data']; ?>" alt=""/>
+						<?php */ ?>
 						<?php } else{ ?>
 							<img class="gmedia-thumb" src="<?php echo $gmCore->gm_get_media_image($item, 'thumb', false); ?>" alt=""/>
 						<?php } ?>
@@ -851,7 +854,7 @@ function gmediaLib(){
 					<div class="col-lg-6">
 						<div class="form-group">
 							<label><?php _e('Filename', 'gmLang'); ?></label>
-							<input name="filename" type="text" class="form-control input-sm gmedia-filename" <?php if((int) $item->author !== $user_ID){
+							<input name="filename" type="text" class="form-control input-sm gmedia-filename" <?php if(!$gmCore->caps['gmedia_delete_others_media'] && ((int) $item->author !== $user_ID)){
 								echo 'readonly';
 							} ?> value="<?php echo pathinfo($item->gmuid, PATHINFO_FILENAME); ?>"/>
 						</div>

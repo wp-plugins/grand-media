@@ -269,22 +269,22 @@ function gmediaGalleries(){
 									if('gmedia_category' == $tax_tabs){
 										_e('Categories', 'gmLang');
 										foreach($tabs as $t){
-											$terms_source[] = sprintf('<a class="category" href="%s">%s</a>', esc_url(add_query_arg(array('cat' => $t->term_id), $lib_url)), esc_html($gmGallery->options['taxonomies']['gmedia_category'][$t->name]));
+											$terms_source[] = sprintf('<a class="gm_category" href="%s">%s</a>', esc_url(add_query_arg(array('cat' => $t->term_id), $lib_url)), esc_html($gmGallery->options['taxonomies']['gmedia_category'][$t->name]));
 										}
 									} elseif('gmedia_album' == $tax_tabs){
 										_e('Albums', 'gmLang');
 										foreach($tabs as $t){
-											$terms_source[] = sprintf('<a class="album" href="%s">%s</a>', esc_url(add_query_arg(array('alb' => $t->term_id), $lib_url)), esc_html($t->name));
+											$terms_source[] = sprintf('<a class="gm_album" href="%s">%s</a>', esc_url(add_query_arg(array('alb' => $t->term_id), $lib_url)), esc_html($t->name));
 										}
 									} elseif('gmedia_tag' == $tax_tabs){
 										_e('Tags', 'gmLang');
 										foreach($tabs as $t){
-											$terms_source[] = sprintf('<a class="tag" href="%s">%s</a>', esc_url(add_query_arg(array('tag_id' => $t->term_id), $lib_url)), esc_html($t->name));
+											$terms_source[] = sprintf('<a class="gm_tag" href="%s">%s</a>', esc_url(add_query_arg(array('tag_id' => $t->term_id), $lib_url)), esc_html($t->name));
 										}
 									} elseif('gmedia_filter' == $tax_tabs){
 										_e('Filters', 'gmLang');
 										foreach($tabs as $t){
-											$terms_source[] = sprintf('<a class="filter" href="%s">%s</a>', esc_url(add_query_arg(array('stack_id' => $t->term_id), $lib_url)), esc_html($t->name));
+											$terms_source[] = sprintf('<a class="gm_filter" href="%s">%s</a>', esc_url(add_query_arg(array('stack_id' => $t->term_id), $lib_url)), esc_html($t->name));
 										}
 									}
 									if(!empty($terms_source)){

@@ -419,6 +419,7 @@ function gmedia_default_template_styles(){ ?>
 		.gmedia-main-wrapper object {
 			width:100% !important;
 			height:100% !important;
+			display: block;
 		}
 		a { color:#2e6286; text-decoration:underline; }
 		a:hover, a:active, a:visited { color:#2e6286; text-decoration:none; }

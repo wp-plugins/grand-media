@@ -1068,6 +1068,7 @@ class GmediaCore {
 			}
 		}
 
+		/*
 		if ( ! empty( $data['id3v2']['APIC'] ) ) {
 			$image = reset( $data['id3v2']['APIC'] );
 			if ( ! empty( $image['data'] ) ) {
@@ -1087,6 +1088,7 @@ class GmediaCore {
 				);
 			}
 		}
+		*/
 	}
 
 	/**

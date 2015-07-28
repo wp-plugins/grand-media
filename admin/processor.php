@@ -366,8 +366,9 @@ class GmediaProcessor{
 								foreach($selected_items as $item){
 									$id = (int)$item;
 									$gmedia = $gmDB->get_gmedia($id, ARRAY_A);
+									$item_author = (int) $gmedia['author'];
 
-									if('custom' == $b_filename){
+									if('custom' == $b_filename && ( $gmCore->caps['gmedia_delete_others_media'] || ($item_author == $user_ID) )){
 										$filename_custom = $gmCore->_post('batch_filename_custom');
 										if( !empty($filename_custom) && ('{filename}' !== $filename_custom) ){
 

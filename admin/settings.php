@@ -136,6 +136,14 @@ function gmSettings(){
 								<p class="help-block"><?php _e('Some themes reformat shortcodes and break it functionality (mostly when you add description to images). Turning this on should solve this problem.', 'gmLang'); ?></p>
 							</div>
 						</div>
+						<div class="form-group">
+							<label><?php _e('Debug Mode', 'gmLang') ?>:</label>
+
+							<div class="checkbox" style="margin:0;">
+								<input type="hidden" name="set[debug_mode]" value=""/>
+								<label><input type="checkbox" name="set[debug_mode]" value="1" <?php checked($gmGallery->options['debug_mode'], '1'); ?> /> <?php _e('Enable Debug Mode on Gmedia admin pages', 'gmLang'); ?></label>
+							</div>
+						</div>
 						<?php
 						$allowed_post_types = (array) $gmGallery->options['gmedia_post_types_support'];
 						$args = array(

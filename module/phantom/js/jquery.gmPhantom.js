@@ -1,6 +1,6 @@
 /*
  * Title                   : gmPhantom
- * Version                 : 2.5
+ * Version                 : 2.6
  * Copyright               : 2013 CodEasily.com
  * Website                 : http://www.codeasily.com
  */
@@ -11,6 +11,7 @@ if(typeof jQuery.fn.gmPhantom == 'undefined'){
 				ID = '',
 				Content,
 				opt,
+				timeout,
 
 				opt_str = {
 					'thumbsNavigation': 'scroll', // Thumbnails Navigation (mouse, scroll). Default value: mouse. Set how you navigate through the thumbnails.
@@ -79,6 +80,7 @@ if(typeof jQuery.fn.gmPhantom == 'undefined'){
 				scale = 1, translateX = 0, translate_X = 0, translateY = 0, translate_Y = 0,
 				transform_scale = 'scale(1)',
 				transform_translate = 'translate(0, 0)',
+				cc = 0,
 
 				methods = {
 					init: function(arguments){// Init Plugin.
@@ -103,7 +105,8 @@ if(typeof jQuery.fn.gmPhantom == 'undefined'){
 
 						$(window).bind('resize.gmPhantom', methods.initRP);
 
-						setTimeout(methods.initRP, opt.initRPdelay);
+						//setTimeout(methods.initRP, opt.initRPdelay);
+						setTimeout(methods.initRP, 0);
 					},
 					parseContent: function(){// Parse Content.
 						$.each(Content, function(index){
@@ -220,25 +223,30 @@ if(typeof jQuery.fn.gmPhantom == 'undefined'){
 
 					},
 					initRP: function(){// Init Resize & Positioning
-						methods.rpResponsive();
-						methods.rpContainer();
-						methods.rpThumbs();
+						var rrr = methods.rpResponsive();
+						if(!rrr && 50 > cc) {
+							cc++;
+							clearTimeout(timeout);
+							timeout = setTimeout(function(){ methods.initRP(); }, 100);
+						} else {
+							cc = 0;
+							methods.rpContainer();
+							methods.rpThumbs();
 
-						if(itemLoaded){
-							if(Media[currentItem - 1] === ''){
-								resize = true;
-								methods.rpLightboxImage();
+							if(itemLoaded){
+								if(Media[currentItem - 1] === ''){
+									resize = true;
+									methods.rpLightboxImage();
+								}
+								else{
+									methods.rpLightboxMedia();
+								}
+								methods.rpCaption();
 							}
-							else{
-								methods.rpLightboxMedia();
-							}
-							methods.rpCaption();
 						}
 					},
 					rpResponsive: function(){
 						var hiddenBustedItems = prototypes.doHideBuster($(Container));
-
-						opt.width = $(Container).width();
 
 						if($(window).width() <= 640){
 							opt.thumbWidth = opt.thumbWidthDesktop / 2;
@@ -249,7 +257,11 @@ if(typeof jQuery.fn.gmPhantom == 'undefined'){
 							opt.thumbHeight = opt.thumbHeightDesktop;
 						}
 
+						opt.width = $(Container).width();
+
 						prototypes.undoHideBuster(hiddenBustedItems);
+
+						return opt.width;
 					},
 
 					initContainer: function(){// Init Container
@@ -275,7 +287,6 @@ if(typeof jQuery.fn.gmPhantom == 'undefined'){
 					},
 					rpContainer: function(){// Resize & Position Container
 						$('.gmPhantom_Container', Container).width(opt.width);
-
 						if(opt.maxheight === 0){
 							$('.gmPhantom_Container', Container).css('height', 'auto');
 							$('.gmPhantom_thumbsWrapper', Container).css('height', 'auto');

@@ -25,9 +25,9 @@ foreach($terms as $term){
 		$default_cover = '';
 
 		$_metadata = $gmDB->get_metadata('gmedia', $item->ID, '_metadata', true);
-		if(isset($_metadata['image']['data']) && !empty($_metadata['image']['data'])){
-			$default_cover = $_metadata['image']['data'];
-		} else {
+//		if(isset($_metadata['image']['data']) && !empty($_metadata['image']['data'])){
+//			$default_cover = $_metadata['image']['data'];
+//		} else {
 			$albums = $gmDB->get_the_gmedia_terms($item->ID, 'gmedia_album');
 			if(!empty($albums)){
 				$album = reset($albums);
@@ -38,7 +38,7 @@ foreach($terms as $term){
 					}
 				}
 			}
-		}
+//		}
 		$cover = $gmCore->gm_get_media_image($item, 'thumb', true, $default_cover);
 		$rating = $gmDB->get_metadata('gmedia', $item->ID, '_rating', true);
 		$rating = array_merge(array('value' => 0, 'votes' => 0), (array) $rating);

@@ -490,6 +490,12 @@ function gmedia_quite_update(){
 			$wpdb->update($wpdb->prefix . 'gmedia_term_meta', array('meta_value' => 'date'), array('meta_key' => '_orderby', 'meta_value' => 'date ID'));
 			$wpdb->update($wpdb->prefix . 'gmedia_term_meta', array('meta_value' => 'modified'), array('meta_key' => '_orderby', 'meta_value' => 'modified ID'));
 		}
+		if(version_compare($current_version, '1.7.1', '<')){
+			$gmedia_ids = $gmDB->get_gmedias(array('mime_type' => 'audio','fields' => 'ids'));
+			foreach($gmedia_ids as $id) {
+				$gmDB->update_metadata( $meta_type = 'gmedia', $id, $meta_key = '_metadata', $gmDB->generate_gmedia_metadata( $id ) );
+			}
+		}
 
 		$gmCore->delete_folder($gmCore->upload['path'] . '/module/afflux');
 		$gmCore->delete_folder($gmCore->upload['path'] . '/module/jq-mplayer');

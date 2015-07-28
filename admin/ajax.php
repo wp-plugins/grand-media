@@ -29,7 +29,7 @@ function gmedia_update_data() {
 		$gmuid = pathinfo( $item->gmuid );
 
 		$gmedia['filename'] = preg_replace( '/[^a-z0-9_\.-]+/i', '_', $gmedia['filename'] );
-		if ( ( $gmedia['filename'] != $gmuid['filename'] ) && ( (int) $item->author == get_current_user_id() ) ) {
+		if ( ( $gmedia['filename'] != $gmuid['filename'] ) && ( current_user_can( 'gmedia_delete_others_media' ) || ((int) $item->author == get_current_user_id()) ) ) {
 			$fileinfo = $gmCore->fileinfo( $gmedia['filename'] . '.' . $gmuid['extension'] );
 			if ( false !== $fileinfo ) {
 				if ( 'image' == $fileinfo['dirname'] && file_is_displayable_image( $fileinfo['dirpath'] . '/' . $item->gmuid ) ) {
@@ -1626,8 +1626,6 @@ add_action( 'wp_ajax_gmedia_upload_handler', 'gmedia_upload_handler' );
 function gmedia_upload_handler() {
 	global $gmCore;
 
-	//ini_set( 'display_errors', 0 );
-	//ini_set( 'error_reporting', 0 );
 	ini_set( 'max_execution_time', 300 );
 
 	// HTTP headers for no cache etc
@@ -1699,8 +1697,6 @@ add_action( 'wp_ajax_gmedia_import_handler', 'gmedia_import_handler' );
 function gmedia_import_handler() {
 	global $wpdb, $gmCore, $gmDB;
 
-	//ini_set( 'display_errors', 0 );
-	//ini_set( 'error_reporting', 0 );
 	ini_set( 'max_execution_time', 600 );
 
 	// HTTP headers for no cache etc
@@ -1904,7 +1900,7 @@ function gmedia_import_handler() {
 
 add_action( 'wp_ajax_gmedia_application', 'gmedia_application' );
 function gmedia_application() {
-	global $gmCore, $gmProcessor;
+	global $gmCore;
 
 	// if nonce is not correct it returns -1
 	check_ajax_referer( 'GmediaService' );
