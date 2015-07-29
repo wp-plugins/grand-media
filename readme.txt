@@ -131,6 +131,9 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 = Modules Updated =
 * Go to Gmedia Modules page and update installed premium modules to latest versions
 
+= 1.7.2 =
+* Fixed: Image Editor not worked on websites with hyphens
+
 = 1.7.1 =
 * Added: settings to enable/disable debug mode
 * Added: Ukrainian translation

@@ -285,7 +285,7 @@ class GmediaAdmin {
 				case "GrandMedia" :
 					if ( $gmCore->caps['gmedia_edit_media'] ) {
 						if ( $gmCore->_get( 'gmediablank' ) == 'image_editor' ) {
-							wp_enqueue_script( 'camanjs', $gmCore->gmedia_url . '/assets/image-editor/camanjs/caman.full.min.js', array(), '4.1.1' );
+							wp_enqueue_script( 'camanjs', $gmCore->gmedia_url . '/assets/image-editor/camanjs/caman.full.min.js', array(), '4.1.2' );
 
 							wp_enqueue_style( 'nouislider', $gmCore->gmedia_url . '/assets/image-editor/js/jquery.nouislider.css', array( 'gmedia-bootstrap' ), '6.1.0' );
 							wp_enqueue_script( 'nouislider', $gmCore->gmedia_url . '/assets/image-editor/js/jquery.nouislider.min.js', array( 'jquery' ), '6.1.0' );
