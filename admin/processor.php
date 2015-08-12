@@ -691,7 +691,7 @@ class GmediaProcessor{
 						} while(0);
 					}
 					if(('save' == $gmCore->_get('message')) && ($term_id = $gmCore->_get('edit_filter'))){
-						if(get_transient('gmedia_new_filter_id')){
+						if(false !== get_transient('gmedia_new_filter_id')){
 							delete_transient('gmedia_new_filter_id');
 							$this->msg[] = sprintf(__('Filter #%d successfuly saved', 'gmLang'), $term_id);
 						}
@@ -901,7 +901,7 @@ class GmediaProcessor{
 				}
 				if(('save' == $gmCore->_get('message')) && ($term_id = $gmCore->_get('edit_gallery'))){
 					$gmedia_new_gallery_id = get_transient('gmedia_new_gallery_id');
-					if($gmedia_new_gallery_id){
+					if(false !== $gmedia_new_gallery_id){
 						delete_transient('gmedia_new_gallery_id');
 						$this->msg[] = sprintf(__('Gallery #%d successfuly saved', 'gmLang'), $term_id);
 					}

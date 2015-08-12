@@ -3,7 +3,7 @@ Contributors: Rattus
 Donate link: http://codeasily.com/donate/
 Tags: gallery, image, images, library, music, video, slideshow, responsive, admin, Post, posts, easy gallery, iphone gallery, best gallery, portfolio, image gallery, photo gallery, photo, slider, header slider, admin, page, relative image, gallery slider, iOS app
 Requires at least: 3.6
-Tested up to: 4.2.2
+Tested up to: 4.3.0
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -130,6 +130,12 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 
 = Modules Updated =
 * Go to Gmedia Modules page and update installed premium modules to latest versions
+
+= 1.7.3 =
+* Fixed: Update error on some websites
+* Fixed: Check if imported gallery title only numbers
+* Updated: Phantom module
+* Small fixes and improvements
 
 = 1.7.2 =
 * Fixed: Image Editor not worked on websites with hyphens

@@ -18,7 +18,7 @@ $out = array();
 
 if(isset($_GET['service-link'])){
 	$transient_key = preg_replace('/[^A-Za-z0-9]/', '', $_GET['service-link']);
-	if(($result = get_transient($transient_key))){
+	if(false !== ($result = get_transient($transient_key))){
 		//$result['mypgc_REMOTE_ADDR'] = $_SERVER['REMOTE_ADDR']; //216.70.94.77
 		header('Content-Type: application/json; charset=' . get_option('blog_charset'), true);
 		echo json_encode($result);

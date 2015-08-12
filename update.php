@@ -436,6 +436,9 @@ function gmedia_quite_update(){
 	//$current_db_version = get_option( 'gmediaDbVersion', null );
 	if((null !== $current_version)){
 		$options = get_option('gmediaOptions');
+		if(!is_array($options)){
+			$options = array();
+		}
 		require_once(dirname(__FILE__) . '/setup.php');
 		$default_options = gmedia_default_options();
 

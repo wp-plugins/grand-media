@@ -1811,8 +1811,11 @@ function gmedia_import_handler() {
 
 				if ( ! $album ) {
 					$terms['gmedia_album'] = $flag_gallery['title'];
-					if ( ! $gmDB->term_exists( $flag_gallery['title'], 'gmedia_album' ) ) {
-						$term_id = $gmDB->insert_term( $flag_gallery['title'], 'gmedia_album', array( 'description' => htmlspecialchars_decode( stripslashes( $flag_gallery['galdesc'] ) ) ) );
+					if($gmCore->is_digit($terms['gmedia_album'])){
+						$terms['gmedia_album'] = 'a' . $terms['gmedia_album'];
+					}
+					if ( ! $gmDB->term_exists( $terms['gmedia_album'], 'gmedia_album' ) ) {
+						$term_id = $gmDB->insert_term( $terms['gmedia_album'], 'gmedia_album', array( 'description' => htmlspecialchars_decode( stripslashes( $flag_gallery['galdesc'] ) ) ) );
 					}
 				}
 
@@ -1846,8 +1849,11 @@ function gmedia_import_handler() {
 
 				if ( ! $album ) {
 					$terms['gmedia_album'] = $ngg_gallery['title'];
-					if ( ! $gmDB->term_exists( $ngg_gallery['title'], 'gmedia_album' ) ) {
-						$term_id = $gmDB->insert_term( $ngg_gallery['title'], 'gmedia_album', array( 'description' => htmlspecialchars_decode( stripslashes( $ngg_gallery['galdesc'] ) ) ) );
+					if($gmCore->is_digit($terms['gmedia_album'])){
+						$terms['gmedia_album'] = 'a' . $ngg_gallery['title'];
+					}
+					if ( ! $gmDB->term_exists( $terms['gmedia_album'], 'gmedia_album' ) ) {
+						$term_id = $gmDB->insert_term( $terms['gmedia_album'], 'gmedia_album', array( 'description' => htmlspecialchars_decode( stripslashes( $ngg_gallery['galdesc'] ) ) ) );
 					}
 				}
 
@@ -2223,7 +2229,7 @@ function gmedia_module_interaction() {
 
 		$transient_key = 'gm_rate_day'.date('w');
 		$transient_value = get_transient($transient_key);
-		if($transient_value){
+		if(false !== $transient_value){
 			if(isset($transient_value[$uip][$gmid])){
 				$old_rate = $transient_value[$uip][$gmid];
 			}

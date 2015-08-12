@@ -502,6 +502,11 @@ class GmediaCore {
 	/**
 	 * @author  Gajus Kuizinas <g.kuizinas@anuary.com>
 	 * @version 1.0.0 (2013 03 19)
+	 *
+	 * @param array $arr1
+	 * @param array $arr2
+	 *
+	 * @return array
 	 */
 	function array_diff_key_recursive( array $arr1, array $arr2 ) {
 		$diff      = array_diff_key( $arr1, $arr2 );

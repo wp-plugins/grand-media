@@ -107,6 +107,8 @@ class gmediaPermalinks {
 			load_template( $template, false );
 			*/
 
+			define( 'GMEDIACLOUD_PAGE', true );
+
 			require_once(GMEDIA_ABSPATH . "/load-template.php");
 
 			exit();

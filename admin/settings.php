@@ -12,7 +12,7 @@ function gmSettings(){
 	global $user_ID, $gmDB, $gmCore, $gmGallery, $gmProcessor;
 
 	$url = add_query_arg(array('page' => $gmProcessor->page), admin_url('admin.php'));
-
+	$lk = isset($gmGallery->options['license_key'])? $gmGallery->options['license_key'] : '';
 	?>
 
 	<form id="gmediaSettingsForm" class="panel panel-default" method="post" action="<?php echo $url; ?>">
@@ -48,9 +48,7 @@ function gmSettings(){
 								<label><?php _e('License Key', 'gmLang') ?>: <?php if(isset($gmGallery->options['license_name'])){
 										echo '<em>' . $gmGallery->options['license_name'] . '</em>';
 									} ?></label>
-								<input type="text" name="set[license_key]" id="license_key" class="form-control input-sm" value="<?php if(isset($gmGallery->options['license_key'])){
-									echo $gmGallery->options['license_key'];
-								} ?>"/>
+								<input type="text" name="set[license_key]" id="license_key" class="form-control input-sm" value="<?php echo $lk; ?>"/>
 								<div class="manual_license_activate"<?php echo (('manual' == $gmCore->_get('license_activate'))? '' : ' style="display:none;"'); ?>>
 									<label style="margin-top:7px;"><?php _e('License Name', 'gmLang') ?>:</label>
 									<input type="text" name="set[license_name]" id="license_name" class="form-control input-sm" value="<?php echo $gmGallery->options['license_name']; ?>"/>
@@ -58,7 +56,7 @@ function gmSettings(){
 									<input type="text" name="set[license_key2]" id="license_key2" class="form-control input-sm" value="<?php echo $gmGallery->options['license_key2']; ?>"/>
 								</div>
 							</div>
-							<?php if('manual' != $gmCore->_get('license_activate')){ ?>
+							<?php if(!('manual' == $gmCore->_get('license_activate') || !empty($lk))){ ?>
 							<div class="form-group col-xs-7">
 								<label>&nbsp;</label>
 								<button style="display:block;" class="btn btn-success btn-sm" type="submit" name="license-key-activate"><?php _e('Activate Key', 'gmLang'); ?></button>
