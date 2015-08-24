@@ -1,6 +1,6 @@
 /*
  * Title                   : gmPhantom
- * Version                 : 2.7
+ * Version                 : 2.8
  * Copyright               : 2013 CodEasily.com
  * Website                 : http://www.codeasily.com
  */
@@ -338,6 +338,10 @@ if(typeof jQuery.fn.gmPhantom == 'undefined'){
 							} else{
 								prototypes.openLink(Links[no], LinksTarget[no]);
 							}
+						});
+						$('.gmPhantom_ThumbLabel a', thumb_container).click(function(){
+							$(this).closest('.gmPhantom_ThumbContainer').trigger('click');
+							return false;
 						});
 
 						$('.gmPhantom_Thumb img', Container).each(function(){
