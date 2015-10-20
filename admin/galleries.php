@@ -82,7 +82,7 @@ function gmediaGalleries(){
                         <?php
                         }
                     } ?>
-					<input id="gmedia-search" class="form-control input-sm" type="text" name="s" placeholder="<?php _e('Search...', 'gmLang'); ?>" value="<?php echo $gmCore->_get('s', ''); ?>"/>
+					<input id="gmedia-search" class="form-control input-sm" type="text" name="s" placeholder="<?php _e('Search...', 'grand-media'); ?>" value="<?php echo $gmCore->_get('s', ''); ?>"/>
 				</div>
 				<button type="submit" class="btn btn-default input-sm"><span class="glyphicon glyphicon-search"></span></button>
 			</form>
@@ -93,47 +93,47 @@ function gmediaGalleries(){
 					<span class="btn btn-default active"><input class="doaction" id="cb_global" data-group="cb_media-object" type="checkbox"/></span>
 					<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
 						<span class="caret"></span>
-						<span class="sr-only"><?php _e('Toggle Dropdown', 'gmLang'); ?></span>
+						<span class="sr-only"><?php _e('Toggle Dropdown', 'grand-media'); ?></span>
 					</button>
 					<ul class="dropdown-menu" role="menu">
-						<li><a data-select="total" href="#"><?php _e('All', 'gmLang'); ?></a></li>
-						<li><a data-select="none" href="#"><?php _e('None', 'gmLang'); ?></a></li>
+						<li><a data-select="total" href="#"><?php _e('All', 'grand-media'); ?></a></li>
+						<li><a data-select="none" href="#"><?php _e('None', 'grand-media'); ?></a></li>
 						<li class="divider"></li>
-						<li><a data-select="reverse" href="#" title="<?php _e('Reverse only visible items', 'gmLang'); ?>"><?php _e('Reverse', 'gmLang'); ?></a></li>
+						<li><a data-select="reverse" href="#" title="<?php _e('Reverse only visible items', 'grand-media'); ?>"><?php _e('Reverse', 'grand-media'); ?></a></li>
 					</ul>
 				</div>
 
 				<div class="btn-group" style="margin-right:20px;">
-					<a class="btn btn-primary" href="#chooseModuleModal" data-toggle="modal"><?php _e('Create Gallery', 'gmLang'); ?></a>
+					<a class="btn btn-primary" href="#chooseModuleModal" data-toggle="modal"><?php _e('Create Gallery', 'grand-media'); ?></a>
 				</div>
 
 				<div class="btn-group">
-					<a class="btn btn-default" href="#"><?php _e('Action', 'gmLang'); ?></a>
+					<a class="btn btn-default" href="#"><?php _e('Action', 'grand-media'); ?></a>
 					<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
 						<span class="caret"></span>
-						<span class="sr-only"><?php _e('Toggle Dropdown', 'gmLang'); ?></span>
+						<span class="sr-only"><?php _e('Toggle Dropdown', 'grand-media'); ?></span>
 					</button>
 					<?php
 					$rel_selected_show = 'rel-selected-show';
 					$rel_selected_hide = 'rel-selected-hide';
 					?>
 					<ul class="dropdown-menu" role="menu">
-						<li class="dropdown-header <?php echo $rel_selected_hide; ?>"><span><?php _e("Select items to see more actions", "gmLang"); ?></span></li>
+						<li class="dropdown-header <?php echo $rel_selected_hide; ?>"><span><?php _e("Select items to see more actions", "grand-media"); ?></span></li>
 						<li class="<?php echo $rel_selected_show; ?>">
-							<a href="<?php echo wp_nonce_url($gmCore->get_admin_url(array('delete' => 'selected'), array('filter')), 'gmedia_delete') ?>" class="gmedia-delete" data-confirm="<?php _e("You are about to permanently delete the selected items.\n\r'Cancel' to stop, 'OK' to delete.", "gmLang"); ?>"><?php _e('Delete Selected Items', 'gmLang'); ?></a>
+							<a href="<?php echo wp_nonce_url($gmCore->get_admin_url(array('delete' => 'selected'), array('filter')), 'gmedia_delete') ?>" class="gmedia-delete" data-confirm="<?php _e("You are about to permanently delete the selected items.\n\r'Cancel' to stop, 'OK' to delete.", "grand-media"); ?>"><?php _e('Delete Selected Items', 'grand-media'); ?></a>
 						</li>
 						<?php do_action('gmedia_term_action_list'); ?>
 					</ul>
 				</div>
 
 				<form class="btn-group" id="gm-selected-btn" name="gm-selected-form" action="<?php echo add_query_arg(array('filter' => 'selected'), $url); ?>" method="post">
-					<button type="submit" class="btn btn<?php echo ('selected' == $gmCore->_req('filter'))? '-success' : '-info' ?>"><?php printf(__('%s selected', 'gmLang'), '<span id="gm-selected-qty">' . count($gmProcessor->selected_items) . '</span>'); ?></button>
+					<button type="submit" class="btn btn<?php echo ('selected' == $gmCore->_req('filter'))? '-success' : '-info' ?>"><?php printf(__('%s selected', 'grand-media'), '<span id="gm-selected-qty">' . count($gmProcessor->selected_items) . '</span>'); ?></button>
 					<button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown"><span class="caret"></span>
-						<span class="sr-only"><?php _e('Toggle Dropdown', 'gmLang'); ?></span></button>
+						<span class="sr-only"><?php _e('Toggle Dropdown', 'grand-media'); ?></span></button>
 					<input type="hidden" id="gm-selected" data-userid="<?php echo $user_ID; ?>" data-key="<?php echo $taxonomy; ?>" name="selected_items" value="<?php echo implode(',', $gmProcessor->selected_items); ?>"/>
 					<ul class="dropdown-menu" role="menu">
-						<li><a id="gm-selected-show" href="#show"><?php _e('Show only selected items', 'gmLang'); ?></a></li>
-						<li><a id="gm-selected-clear" href="#clear"><?php _e('Clear selected items', 'gmLang'); ?></a></li>
+						<li><a id="gm-selected-show" href="#show"><?php _e('Show only selected items', 'grand-media'); ?></a></li>
+						<li><a id="gm-selected-clear" href="#clear"><?php _e('Clear selected items', 'grand-media'); ?></a></li>
 					</ul>
 				</form>
 
@@ -181,15 +181,10 @@ function gmediaGalleries(){
 						<div class="term_id">#<?php echo $term->term_id; ?></div>
 						<div class="col-xs-7">
 							<label class="cb_media-object cb_media-object-gallery">
-								<input name="doaction[]" type="checkbox"<?php echo $is_selected? ' checked="checked"' : ''; ?> data-type="<?php echo $term_meta['_module']; ?>" class="hidden" value="<?php echo $term->term_id; ?>"/>
-								<?php if(!$broken){ ?>
-									<span class="thumbnail"><img src="<?php echo $module['url'] . '/screenshot.png'; ?>" alt="<?php echo esc_attr($term->name); ?>"/></span>
-								<?php } else{ ?>
-									<div class="bg-danger text-center"><?php _e('Module broken <br>Reinstall module', 'gmLang') ?></div>
-								<?php } ?>
+								<input name="doaction[]" type="checkbox"<?php echo $is_selected? ' checked="checked"' : ''; ?> data-type="<?php echo $term_meta['_module']; ?>" value="<?php echo $term->term_id; ?>"/>
 							</label>
 
-							<div class="media-info-body" style="margin-left:150px;">
+							<div class="media-info-body" style="margin-left:35px;">
 								<p class="media-title">
 									<?php if($allow_edit){ ?>
 										<a href="<?php echo add_query_arg(array('edit_gallery' => $term->term_id), $url); ?>"><?php echo esc_html($term->name); ?></a>
@@ -199,14 +194,14 @@ function gmediaGalleries(){
 								</p>
 
 								<p class="media-meta">
-									<span class="label label-default"><?php _e('Author', 'gmLang'); ?>
+									<span class="label label-default"><?php _e('Author', 'grand-media'); ?>
 										:</span> <?php echo $term->global? get_the_author_meta('display_name', $term->global) : '&#8212;'; ?>
 								</p>
 
 								<p class="media-caption"><?php echo nl2br(esc_html($term->description)); ?></p>
 
-								<p class="media-meta" title="<?php _e('Shortcode', 'gmLang'); ?>" style="font-weight:bold">
-									<span class="label label-default"><?php _e('Shortcode', 'gmLang'); ?>:</span> [gmedia id=<?php echo $term->term_id; ?>]
+								<p class="media-meta" title="<?php _e('Shortcode', 'grand-media'); ?>" style="font-weight:bold">
+									<span class="label label-default"><?php _e('Shortcode', 'grand-media'); ?>:</span> [gmedia id=<?php echo $term->term_id; ?>]
 								</p>
 							</div>
 						</div>
@@ -215,7 +210,7 @@ function gmediaGalleries(){
 								<?php
 								/*
 								$filter_icon = '<span class="glyphicon glyphicon-filter"></span>';
-								echo '<a title="' . __('Filter in Gmedia Library', 'gmLang') . '" href="#">'.$filter_icon.'</a>';
+								echo '<a title="' . __('Filter in Gmedia Library', 'grand-media') . '" href="#">'.$filter_icon.'</a>';
 								*/
 
 								$gmedia_hashid = gmedia_hash_id_encode($term->term_id, 'gallery');
@@ -226,65 +221,68 @@ function gmediaGalleries(){
 								}
 								$share_icon = '<span class="glyphicon glyphicon-share"></span>';
 								if ( 'draft' !== $term->status ){
-									echo '<a target="_blank" data-target="#shareModal" data-share="' . $term->term_id . '" class="share-modal" title="' . __('Share', 'gmLang') . '" href="' . $cloud_link . '">'.$share_icon.'</a>';
+									echo '<a target="_blank" data-target="#shareModal" data-share="' . $term->term_id . '" class="share-modal" title="' . __('Share', 'grand-media') . '" href="' . $cloud_link . '">'.$share_icon.'</a>';
 								} else{
 									echo "<span class='action-inactive'>$share_icon</span>";
 								}
 
 								$edit_icon = '<span class="glyphicon glyphicon-edit"></span>';
 								if ( $allow_edit ){
-									echo '<a title="' . __('Edit', 'gmLang') . '" href="' . add_query_arg( array( 'edit_gallery' => $term->term_id ), $url ) . '">'.$edit_icon.'</a>';
+									echo '<a title="' . __('Edit', 'grand-media') . '" href="' . add_query_arg( array( 'edit_gallery' => $term->term_id ), $url ) . '">'.$edit_icon.'</a>';
 								} else{
 									echo "<span class='action-inactive'>$edit_icon</span>";
 								}
 
 								$trash_icon = '<span class="glyphicon glyphicon-trash"></span>';
 								if($allow_delete){
-									echo '<a class="trash-icon" title="' . __('Delete', 'gmLang') . '" href="' . wp_nonce_url(add_query_arg(array(
+									echo '<a class="trash-icon" title="' . __('Delete', 'grand-media') . '" href="' . wp_nonce_url(add_query_arg(array(
 											'term' => $taxonomy,
 											'delete' => $term->term_id
-										), $url), 'gmedia_delete') . '" data-confirm="' . __("You are about to permanently delete the selected items.\n\r'Cancel' to stop, 'OK' to delete.", "gmLang") . '">' . $trash_icon . '</a>';
+										), $url), 'gmedia_delete') . '" data-confirm="' . __("You are about to permanently delete the selected items.\n\r'Cancel' to stop, 'OK' to delete.", "grand-media") . '">' . $trash_icon . '</a>';
 								} else{
 									echo "<span class='action-inactive'>$trash_icon</span>";
 								}
 								?>
 							</div>
 							<p class="media-meta">
-								<span class="label label-default"><?php _e('Module', 'gmLang'); ?>:</span> <?php echo $term_meta['_module']; ?>
-								<br><span class="label label-default"><?php _e('Type', 'gmLang'); ?>:</span> <?php echo $module_info['type']; ?>
-								<br><span class="label label-default"><?php _e('Last Edited', 'gmLang'); ?>:</span> <?php echo $term_meta['_edited']; ?>
-								<br><span class="label label-default"><?php _e('Status', 'gmLang'); ?>:</span> <?php echo $term->status; ?>
-								<br><span class="label label-default"><?php _e('Source', 'gmLang'); ?>:</span>
+								<span class="label label-default"><?php _e('Module', 'grand-media'); ?>:</span> <?php echo $term_meta['_module']; ?>
+								<?php if($broken){ ?>
+									<span class="bg-danger text-center"><?php _e('Module broken. Reinstall module', 'grand-media') ?></span>
+								<?php } ?>
+								<br><span class="label label-default"><?php _e('Type', 'grand-media'); ?>:</span> <?php echo $module_info['type']; ?>
+								<br><span class="label label-default"><?php _e('Last Edited', 'grand-media'); ?>:</span> <?php echo $term_meta['_edited']; ?>
+								<br><span class="label label-default"><?php _e('Status', 'grand-media'); ?>:</span> <?php echo $term->status; ?>
+								<br><span class="label label-default"><?php _e('Source', 'grand-media'); ?>:</span>
 								<?php
 								$gallery_tabs = reset($term_meta['_query']);
 								$tax_tabs = key($term_meta['_query']);
 								if('gmedia__in' == $tax_tabs){
-									_e('Selected Gmedia', 'gmLang');
+									_e('Selected Gmedia', 'grand-media');
 									$gmedia_ids = wp_parse_id_list($gallery_tabs[0]);
-									$gal_source = sprintf('<a class="selected__in" href="%s">' . __('Show %d items in Gmedia Library', 'gmLang') . '</a>', esc_url(add_query_arg(array('gmedia__in' => implode(',', $gmedia_ids)), $lib_url)), count($gmedia_ids));
+									$gal_source = sprintf('<a class="gm_gallery_source selected__in" href="%s">' . __('Show %d items in Gmedia Library', 'grand-media') . '</a>', esc_url(add_query_arg(array('gmedia__in' => implode(',', $gmedia_ids)), $lib_url)), count($gmedia_ids));
 									echo " ($gal_source)";
 								} else{
 									$tabs = $gmDB->get_terms($tax_tabs, array('include' => $gallery_tabs));
 									$terms_source = array();
 									if('gmedia_category' == $tax_tabs){
-										_e('Categories', 'gmLang');
+										_e('Categories', 'grand-media');
 										foreach($tabs as $t){
-											$terms_source[] = sprintf('<a class="gm_category" href="%s">%s</a>', esc_url(add_query_arg(array('cat' => $t->term_id), $lib_url)), esc_html($gmGallery->options['taxonomies']['gmedia_category'][$t->name]));
+											$terms_source[] = sprintf('<a class="gm_gallery_source gm_category" href="%s">%s</a>', esc_url(add_query_arg(array('cat' => $t->term_id), $lib_url)), esc_html($gmGallery->options['taxonomies']['gmedia_category'][$t->name]));
 										}
 									} elseif('gmedia_album' == $tax_tabs){
-										_e('Albums', 'gmLang');
+										_e('Albums', 'grand-media');
 										foreach($tabs as $t){
-											$terms_source[] = sprintf('<a class="gm_album" href="%s">%s</a>', esc_url(add_query_arg(array('alb' => $t->term_id), $lib_url)), esc_html($t->name));
+											$terms_source[] = sprintf('<a class="gm_gallery_source gm_album" href="%s">%s</a>', esc_url(add_query_arg(array('alb' => $t->term_id), $lib_url)), esc_html($t->name));
 										}
 									} elseif('gmedia_tag' == $tax_tabs){
-										_e('Tags', 'gmLang');
+										_e('Tags', 'grand-media');
 										foreach($tabs as $t){
-											$terms_source[] = sprintf('<a class="gm_tag" href="%s">%s</a>', esc_url(add_query_arg(array('tag_id' => $t->term_id), $lib_url)), esc_html($t->name));
+											$terms_source[] = sprintf('<a class="gm_gallery_source gm_tag" href="%s">%s</a>', esc_url(add_query_arg(array('tag_id' => $t->term_id), $lib_url)), esc_html($t->name));
 										}
 									} elseif('gmedia_filter' == $tax_tabs){
-										_e('Filters', 'gmLang');
+										_e('Filters', 'grand-media');
 										foreach($tabs as $t){
-											$terms_source[] = sprintf('<a class="gm_filter" href="%s">%s</a>', esc_url(add_query_arg(array('stack_id' => $t->term_id), $lib_url)), esc_html($t->name));
+											$terms_source[] = sprintf('<a class="gm_gallery_source gm_filter" href="%s">%s</a>', esc_url(add_query_arg(array('stack_id' => $t->term_id), $lib_url)), esc_html($t->name));
 										}
 									}
 									if(!empty($terms_source)){
@@ -301,7 +299,7 @@ function gmediaGalleries(){
 				?>
 				<div class="list-group-item">
 					<div class="well well-lg text-center">
-						<h4><?php _e('No items to show.', 'gmLang'); ?></h4>
+						<h4><?php _e('No items to show.', 'grand-media'); ?></h4>
 					</div>
 				</div>
 			<?php } ?>
@@ -348,7 +346,7 @@ function gmediaGalleries(){
 								<div class="media-body" style="margin-left:180px;">
 									<h4 class="media-heading"><?php echo $module_info['title']; ?></h4>
 
-									<p class="version"><?php echo __('Version', 'gmLang') . ': ' . $module_info['version']; ?></p>
+									<p class="version"><?php echo __('Version', 'grand-media') . ': ' . $module_info['version']; ?></p>
 
 									<div class="description"><?php echo nl2br($module_info['description']); ?></div>
 								</div>
@@ -356,12 +354,12 @@ function gmediaGalleries(){
 						<?php
 						}
 					} else{
-						_e('No installed modules', 'gmLang');
+						_e('No installed modules', 'grand-media');
 					}
 					?>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal"><?php _e('Cancel', 'gmLang'); ?></button>
+					<button type="button" class="btn btn-default" data-dismiss="modal"><?php _e('Cancel', 'grand-media'); ?></button>
 				</div>
 			</div>
 		</div>
@@ -376,20 +374,20 @@ function gmediaGalleries(){
 				</div>
 				<form class="modal-body" method="post" id="shareForm">
 					<div class="form-group">
-						<label><?php _e('Link to page', 'gmLang'); ?></label>
+						<label><?php _e('Link to page', 'grand-media'); ?></label>
 						<input name="sharelink" type="text" class="form-control sharelink" readonly="readonly" value="" />
 					</div>
 					<div class="form-group">
-						<label><?php _e('Send this link to', 'gmLang'); ?></label>
-						<input name="email" type="email" class="form-control sharetoemail" value="" placeholder="<?php _e('Email', 'gmLang'); ?>" />
-						<textarea name="message" cols="20" rows="3" class="form-control" placeholder="<?php _e('Message (optional)', 'gmLang'); ?>"></textarea>
+						<label><?php _e('Send this link to', 'grand-media'); ?></label>
+						<input name="email" type="email" class="form-control sharetoemail" value="" placeholder="<?php _e('Email', 'grand-media'); ?>" />
+						<textarea name="message" cols="20" rows="3" class="form-control" placeholder="<?php _e('Message (optional)', 'grand-media'); ?>"></textarea>
 					</div>
 					<input type="hidden" name="action" value="gmedia_share_page" />
 					<?php wp_nonce_field( 'share_modal', '_sharenonce' );	?>
 				</form>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-primary sharebutton" disabled="disabled"><?php _e( 'Send', 'gmLang' ); ?></button>
-					<button type="button" class="btn btn-default" data-dismiss="modal"><?php _e( 'Close', 'gmLang' ); ?></button>
+					<button type="button" class="btn btn-primary sharebutton" disabled="disabled"><?php _e( 'Send', 'grand-media' ); ?></button>
+					<button type="button" class="btn btn-default" data-dismiss="modal"><?php _e( 'Close', 'grand-media' ); ?></button>
 				</div>
 			</div>
 		</div>
@@ -570,42 +568,42 @@ function gmediaGalleryEdit(){
 	<div class="panel-heading clearfix">
 		<div class="btn-toolbar pull-left">
 			<div class="btn-group">
-				<a href="<?php echo add_query_arg(array('page' => 'GrandMedia_Galleries'), admin_url('admin.php')); ?>" class="btn btn-default"><span class="glyphicon glyphicon-arrow-left"></span> <?php _e('Manage Galleries', 'gmLang'); ?>
+				<a href="<?php echo add_query_arg(array('page' => 'GrandMedia_Galleries'), admin_url('admin.php')); ?>" class="btn btn-default"><span class="glyphicon glyphicon-arrow-left"></span> <?php _e('Manage Galleries', 'grand-media'); ?>
 				</a>
 			</div>
 			<div class="btn-group" id="save_buttons">
 				<?php if($gallery['_module'] != $module_name){ ?>
-					<a href="<?php echo $url; ?>" class="btn btn-default"><?php _e('Cancel preview module', 'gmLang'); ?></a>
-					<button type="submit" name="gmedia_gallery_save" class="btn btn-primary"><?php _e('Save with new module', 'gmLang'); ?></button>
+					<a href="<?php echo $url; ?>" class="btn btn-default"><?php _e('Cancel preview module', 'grand-media'); ?></a>
+					<button type="submit" name="gmedia_gallery_save" class="btn btn-primary"><?php _e('Save with new module', 'grand-media'); ?></button>
 				<?php } else{ ?>
 					<?php $reset_settings = $gmCore->array_diff_keyval_recursive($default_options, $gallery_settings, true);
 					if(!empty($reset_settings)){
 						?>
-						<button type="submit" name="gmedia_gallery_reset" class="btn btn-default" data-confirm="<?php _e('Confirm reset gallery options') ?>"><?php _e('Reset to default', 'gmLang'); ?></button>
+						<button type="submit" name="gmedia_gallery_reset" class="btn btn-default" data-confirm="<?php _e('Confirm reset gallery options') ?>"><?php _e('Reset to default', 'grand-media'); ?></button>
 					<?php } ?>
-					<button type="submit" name="gmedia_gallery_save" class="btn btn-primary"><?php _e('Save', 'gmLang'); ?></button>
+					<button type="submit" name="gmedia_gallery_save" class="btn btn-primary"><?php _e('Save', 'grand-media'); ?></button>
 				<?php } ?>
 			</div>
 		</div>
 		<div class="btn-toolbar pull-right" id="module_preset">
 			<div class="btn-group">
-				<button type="button" class="btn btn-default" id="save_preset" data-toggle="popover"><?php _e('Module Presets', 'gmLang'); ?></button>
+				<button type="button" class="btn btn-default" id="save_preset" data-toggle="popover"><?php _e('Module Presets', 'grand-media'); ?></button>
 			</div>
 			<script type="text/html" id="_save_preset">
 				<div style="padding-top: 5px;">
 					<p style="white-space: nowrap">
-						<button type="submit" name="module_preset_save_default" class="ajax-submit btn btn-default btn-sm"><?php _e('Save as Default', 'gmLang'); ?></button>
-						&nbsp; <em><?php _e('or', 'gmLang'); ?></em> &nbsp;
+						<button type="submit" name="module_preset_save_default" class="ajax-submit btn btn-default btn-sm"><?php _e('Save as Default', 'grand-media'); ?></button>
+						&nbsp; <em><?php _e('or', 'grand-media'); ?></em> &nbsp;
 						<?php if(!empty($default_preset)){ ?>
-							<button type="submit" name="module_preset_restore_original" class="ajax-submit btn btn-default btn-sm"><?php _e('Restore Original', 'gmLang'); ?></button>
+							<button type="submit" name="module_preset_restore_original" class="ajax-submit btn btn-default btn-sm"><?php _e('Restore Original', 'grand-media'); ?></button>
 							<input type="hidden" name="preset_default" value="<?php echo $default_preset['term_id']; ?>" />
 						<?php } ?>
 					</p>
 					<div class="form-group clearfix" style="border-top: 1px solid #444444; padding-top: 5px;">
-						<label><?php _e('Save Preset as:', 'gmLang'); ?></label>
+						<label><?php _e('Save Preset as:', 'grand-media'); ?></label>
 						<div class="input-group input-group-sm">
-							<input type="text" class="form-control input-sm" name="module_preset_name" placeholder="<?php _e('Preset Name', 'gmLang'); ?>" value="" />
-							<span class="input-group-btn"><button type="submit" name="module_preset_save_as" class="ajax-submit btn btn-primary"><?php _e('Save', 'gmLang'); ?></button></span>
+							<input type="text" class="form-control input-sm" name="module_preset_name" placeholder="<?php _e('Preset Name', 'grand-media'); ?>" value="" />
+							<span class="input-group-btn"><button type="submit" name="module_preset_save_as" class="ajax-submit btn btn-primary"><?php _e('Save', 'grand-media'); ?></button></span>
 						</div>
 					</div>
 
@@ -638,11 +636,11 @@ function gmediaGalleryEdit(){
 				<?php } else{ ?>
 					<li class="text-center"><strong><?php echo $gallery['_module']; ?></strong>
 
-						<p><?php _e('This module is broken or outdated. Please, go to Modules page and update/install module.', 'gmLang'); ?></p>
+						<p><?php _e('This module is broken or outdated. Please, go to Modules page and update/install module or choose another one for this gallery', 'grand-media'); ?></p>
 						<a href="#chooseModuleModal" data-toggle="modal" style="padding:5px 0;"><img src="<?php echo $module_url . '/screenshot.png'; ?>" alt="<?php echo esc_attr($gallery['_module']); ?>" width="100" style="height:auto;"/></a>
 					</li>
 				<?php } ?>
-				<li class="active"><a href="#general_settings" data-toggle="tab"><?php _e('General Settings', 'gmLang'); ?></a></li>
+				<li class="active"><a href="#general_settings" data-toggle="tab"><?php _e('General Settings', 'grand-media'); ?></a></li>
 				<?php
 				if(isset($options_tree)){
 					gmedia_gallery_options_nav($options_tree);
@@ -653,15 +651,15 @@ function gmediaGalleryEdit(){
 			<div id="gallery_options_block" class="tab-content" style="padding-top:20px;">
 
 				<fieldset id="general_settings" class="tab-pane active">
-					<p><?php echo '<b>' . __('Gallery module:') . '</b> ' . $gallery['_module'];
+					<p><?php echo '<b>' . __('Gallery module:') . '</b> <a href="#chooseModuleModal" data-toggle="modal">' . $gallery['_module'] . '</a>';
 						if($gallery['_module'] != $module_name){
 							echo '<br /><b>' . __('Preview module:') . '</b> ' . $module_name;
 							echo '<br /><span class="text-muted">' . sprintf(__('Note: Module changed to %s, but not saved yet'), $module_name) . '</span>';
 						}  ?></p>
 
-					<p><b><?php _e('Gallery author:', 'gmLang'); ?></b>
+					<p><b><?php _e('Gallery author:', 'grand-media'); ?></b>
 						<?php if($gmCore->caps['gmedia_delete_others_media']){ ?>
-							<a href="#gallModal" data-modal="select_author" data-action="gmedia_get_modal" class="gmedia-modal" title="<?php _e('Click to choose author for gallery', 'gmLang'); ?>"><?php echo $gallery['global']? get_the_author_meta('display_name', $gallery['global']) : __('(no author / shared albums)'); ?></a>
+							<a href="#gallModal" data-modal="select_author" data-action="gmedia_get_modal" class="gmedia-modal" title="<?php _e('Click to choose author for gallery', 'grand-media'); ?>"><?php echo $gallery['global']? get_the_author_meta('display_name', $gallery['global']) : __('(no author / shared albums)'); ?></a>
 							<?php if($author_new){
 								echo '<br /><span class="text-danger">' . __('Note: Author changed but not saved yet. You can see Albums list only of chosen author') . '</span>';
 							} ?>
@@ -675,29 +673,29 @@ function gmediaGalleryEdit(){
 					<input type="hidden" name="gallery[module]" value="<?php echo esc_attr($module_name); ?>">
 
 					<div class="form-group">
-						<label><?php _e('Gallery Name', 'gmLang'); ?></label>
-						<input type="text" class="form-control input-sm" name="gallery[name]" placeholder="<?php echo empty($gallery['name'])? esc_attr(__('Gallery Name', 'gmLang')) : esc_attr($gallery['name']); ?>" value="<?php echo esc_attr($gallery['name']); ?>" required="required"/>
+						<label><?php _e('Gallery Name', 'grand-media'); ?></label>
+						<input type="text" class="form-control input-sm" name="gallery[name]" placeholder="<?php echo empty($gallery['name'])? esc_attr(__('Gallery Name', 'grand-media')) : esc_attr($gallery['name']); ?>" value="<?php echo esc_attr($gallery['name']); ?>" required="required"/>
 					</div>
 					<div class="form-group">
-						<label><?php _e('Status', 'gmLang'); ?></label>
+						<label><?php _e('Status', 'grand-media'); ?></label>
 						<select name="gallery[status]" class="form-control input-sm">
-							<option value="public"<?php selected($gallery['status'], 'public'); ?>><?php _e('Public', 'gmLang'); ?></option>
-							<option value="private"<?php selected($gallery['status'], 'private'); ?>><?php _e('Private', 'gmLang'); ?></option>
-							<option value="draft"<?php selected($gallery['status'], 'draft'); ?>><?php _e('Draft', 'gmLang'); ?></option>
+							<option value="public"<?php selected($gallery['status'], 'public'); ?>><?php _e('Public', 'grand-media'); ?></option>
+							<option value="private"<?php selected($gallery['status'], 'private'); ?>><?php _e('Private', 'grand-media'); ?></option>
+							<option value="draft"<?php selected($gallery['status'], 'draft'); ?>><?php _e('Draft', 'grand-media'); ?></option>
 						</select>
 					</div>
 					<div class="form-group">
-						<label><?php _e('Show supported files from', 'gmLang'); ?></label>
+						<label><?php _e('Show supported files from', 'grand-media'); ?></label>
 						<select data-watch="change" id="gmedia_query" class="form-control input-sm" name="gallery[term]">
 							<?php reset($gallery['_query']);
 							$gallery['term'] = key($gallery['_query']); ?>
 							<?php if($gmCore->caps['gmedia_terms']){ ?>
-								<option value="gmedia_album"<?php selected($gallery['term'], 'gmedia_album'); ?>><?php _e('Albums', 'gmLang'); ?></option>
-								<option value="gmedia_tag"<?php selected($gallery['term'], 'gmedia_tag'); ?>><?php _e('Tags', 'gmLang'); ?></option>
-								<option value="gmedia_category"<?php selected($gallery['term'], 'gmedia_category'); ?>><?php _e('Categories', 'gmLang'); ?></option>
-								<option value="gmedia_filter"<?php selected($gallery['term'], 'gmedia_filter'); ?>><?php _e('Filter', 'gmLang'); ?></option>
+								<option value="gmedia_album"<?php selected($gallery['term'], 'gmedia_album'); ?>><?php _e('Albums', 'grand-media'); ?></option>
+								<option value="gmedia_tag"<?php selected($gallery['term'], 'gmedia_tag'); ?>><?php _e('Tags', 'grand-media'); ?></option>
+								<option value="gmedia_category"<?php selected($gallery['term'], 'gmedia_category'); ?>><?php _e('Categories', 'grand-media'); ?></option>
+								<option value="gmedia_filter"<?php selected($gallery['term'], 'gmedia_filter'); ?>><?php _e('Filter', 'grand-media'); ?></option>
 							<?php } ?>
-							<option value="gmedia__in"<?php selected($gallery['term'], 'gmedia__in'); ?>><?php _e('Selected Gmedia', 'gmLang'); ?></option>
+							<option value="gmedia__in"<?php selected($gallery['term'], 'gmedia__in'); ?>><?php _e('Selected Gmedia', 'grand-media'); ?></option>
 						</select>
 					</div>
 
@@ -717,9 +715,9 @@ function gmediaGalleryEdit(){
 							}
 							$setvalue = isset($gallery['_query'][$term_type])? 'data-setvalue="' . implode(',', $gallery['_query'][$term_type]) . '"' : '';
 							?>
-							<label><?php _e('Choose Categories', 'gmLang'); ?></label>
-							<select data-gmedia_query="is:gmedia_category" <?php echo $setvalue; ?> id="gmedia_category" name="gallery[query][gmedia_category][]" class="gmedia-combobox form-control input-sm" multiple="multiple" placeholder="<?php echo esc_attr(__('Choose Categories...', 'gmLang')); ?>">
-								<option value=""><?php _e('Choose Categories...', 'gmLang'); ?></option>
+							<label><?php _e('Choose Categories', 'grand-media'); ?></label>
+							<select data-gmedia_query="is:gmedia_category" <?php echo $setvalue; ?> id="gmedia_category" name="gallery[query][gmedia_category][]" class="gmedia-combobox form-control input-sm" multiple="multiple" placeholder="<?php echo esc_attr(__('Choose Categories...', 'grand-media')); ?>">
+								<option value=""><?php _e('Choose Categories...', 'grand-media'); ?></option>
 								<?php echo $terms_items; ?>
 							</select>
 						</div>
@@ -738,9 +736,9 @@ function gmediaGalleryEdit(){
 							}
 							$setvalue = isset($gallery['_query'][$term_type])? 'data-setvalue="' . implode(',', $gallery['_query'][$term_type]) . '"' : '';
 							?>
-							<label><?php _e('Choose Tags', 'gmLang'); ?> </label>
-							<select data-gmedia_query="is:gmedia_tag" <?php echo $setvalue; ?> id="gmedia_tag" name="gallery[query][gmedia_tag][]" class="gmedia-combobox form-control input-sm" multiple="multiple" placeholder="<?php echo esc_attr(__('Choose Tags...', 'gmLang')); ?>">
-								<option value=""><?php echo __('Choose Tags...', 'gmLang'); ?></option>
+							<label><?php _e('Choose Tags', 'grand-media'); ?> </label>
+							<select data-gmedia_query="is:gmedia_tag" <?php echo $setvalue; ?> id="gmedia_tag" name="gallery[query][gmedia_tag][]" class="gmedia-combobox form-control input-sm" multiple="multiple" placeholder="<?php echo esc_attr(__('Choose Tags...', 'grand-media')); ?>">
+								<option value=""><?php echo __('Choose Tags...', 'grand-media'); ?></option>
 								<?php echo $terms_items; ?>
 							</select>
 						</div>
@@ -774,13 +772,13 @@ function gmediaGalleryEdit(){
 							}
 							$setvalue = isset($gallery['_query'][$term_type])? 'data-setvalue="' . implode(',', $gallery['_query'][$term_type]) . '"' : '';
 							?>
-							<label><?php _e('Choose Albums', 'gmLang'); ?> </label>
-							<select data-gmedia_query="is:gmedia_album" <?php echo $setvalue; ?> id="gmedia_album" name="gallery[query][gmedia_album][]" class="gmedia-combobox form-control input-sm" multiple="multiple" placeholder="<?php echo esc_attr(__('Choose Albums...', 'gmLang')); ?>">
-								<option value=""><?php echo __('Choose Albums...', 'gmLang'); ?></option>
+							<label><?php _e('Choose Albums', 'grand-media'); ?> </label>
+							<select data-gmedia_query="is:gmedia_album" <?php echo $setvalue; ?> id="gmedia_album" name="gallery[query][gmedia_album][]" class="gmedia-combobox form-control input-sm" multiple="multiple" placeholder="<?php echo esc_attr(__('Choose Albums...', 'grand-media')); ?>">
+								<option value=""><?php echo __('Choose Albums...', 'grand-media'); ?></option>
 								<?php echo $terms_items; ?>
 							</select>
 
-							<p class="help-block"><?php _e('You can choose Albums from the same author as Gallery author or Albums without author', 'gmLang'); ?></p>
+							<p class="help-block"><?php _e('You can choose Albums from the same author as Gallery author or Albums without author', 'grand-media'); ?></p>
 						</div>
 						<div class="form-group" id="div_gmedia_filter">
 							<?php
@@ -802,24 +800,24 @@ function gmediaGalleryEdit(){
 							}
 							$setvalue = isset($gallery['_query'][$term_type])? 'data-setvalue="' . implode(',', $gallery['_query'][$term_type]) . '"' : '';
 							?>
-							<label><?php _e('Choose Custom Filters', 'gmLang'); ?> </label>
-							<select data-gmedia_query="is:gmedia_filter" <?php echo $setvalue; ?> id="gmedia_filter" name="gallery[query][gmedia_filter][]" class="gmedia-combobox form-control input-sm" multiple="multiple" placeholder="<?php echo esc_attr(__('Choose Filters...', 'gmLang')); ?>">
-								<option value=""><?php echo __('Choose Filters...', 'gmLang'); ?></option>
+							<label><?php _e('Choose Custom Filters', 'grand-media'); ?> </label>
+							<select data-gmedia_query="is:gmedia_filter" <?php echo $setvalue; ?> id="gmedia_filter" name="gallery[query][gmedia_filter][]" class="gmedia-combobox form-control input-sm" multiple="multiple" placeholder="<?php echo esc_attr(__('Choose Filters...', 'grand-media')); ?>">
+								<option value=""><?php echo __('Choose Filters...', 'grand-media'); ?></option>
 								<?php echo $terms_items; ?>
 							</select>
 
-							<p class="help-block"><?php _e('Filter - is custom query with multiple parameters.', 'gmLang'); ?> <a target="_blank" href="<?php echo add_query_arg( array( 'page' => 'GrandMedia_Terms', 'edit_filter' => '0'), admin_url('admin.php') ); ?>"><?php _e( 'Create Filter', 'gmLang' ); ?></a></p>
+							<p class="help-block"><?php _e('Filter - is custom query with multiple parameters.', 'grand-media'); ?> <a target="_blank" href="<?php echo add_query_arg( array( 'page' => 'GrandMedia_Terms', 'edit_filter' => '0'), admin_url('admin.php') ); ?>"><?php _e( 'Create Filter', 'grand-media' ); ?></a></p>
 						</div>
 					<?php } ?>
 
 					<div class="form-group" id="div_gmedia__in">
-						<label><?php _e('Selected Gmedia IDs <small class="text-muted">separated by comma</small>', 'gmLang'); ?> </label>
+						<label><?php _e('Selected Gmedia IDs <small class="text-muted">separated by comma</small>', 'grand-media'); ?> </label>
 						<?php $value = isset($gallery['_query']['gmedia__in'][0])? implode(',', wp_parse_id_list($gallery['_query']['gmedia__in'][0])) : ''; ?>
-						<textarea data-gmedia_query="is:gmedia__in" id="gmedia__in" name="gallery[query][gmedia__in][]" rows="1" class="form-control input-sm" style="resize:vertical;" placeholder="<?php echo esc_attr(__('Gmedia IDs...', 'gmLang')); ?>"><?php echo $value; ?></textarea>
+						<textarea data-gmedia_query="is:gmedia__in" id="gmedia__in" name="gallery[query][gmedia__in][]" rows="1" class="form-control input-sm" style="resize:vertical;" placeholder="<?php echo esc_attr(__('Gmedia IDs...', 'grand-media')); ?>"><?php echo $value; ?></textarea>
 					</div>
 
 					<div class="form-group">
-						<label><?php _e('Description', 'gmLang'); ?></label>
+						<label><?php _e('Description', 'grand-media'); ?></label>
 						<textarea class="form-control input-sm" rows="5" name="gallery[description]"><?php echo esc_html($gallery['description']) ?></textarea>
 					</div>
 
@@ -853,14 +851,14 @@ function gmediaGalleryEdit(){
 					<br/><a target="_blank" href="<?php echo $gallery_link; ?>"><?php echo $gallery_link; ?></a>
 				</p>
 				<div class="help-block">
-					<?php _e('update <a href="options-permalink.php">Permalink Settings</a> if above link not working', 'gmLang'); ?>
+					<?php _e('update <a href="options-permalink.php">Permalink Settings</a> if above link not working', 'grand-media'); ?>
 					<?php if(current_user_can('manage_options')){
-						echo '<br>' . __('More info about GmediaCloud Pages and GmediaCloud Settings can be found <a href="admin.php?page=GrandMedia_Settings#gmedia_settings_cloud">here</a>', 'gmLang');
+						echo '<br>' . __('More info about GmediaCloud Pages and GmediaCloud Settings can be found <a href="admin.php?page=GrandMedia_Settings#gmedia_settings_cloud">here</a>', 'grand-media');
 					} ?>
 				</div>
 				<div><b><?php _e('Gallery Preview:'); ?></b></div>
 				<div class="gallery_preview" style="overflow:hidden;">
-					<iframe id="gallery_preview" name="gallery_preview" src="<?php echo add_query_arg($params, $gallery_link_default); ?>"></iframe>
+					<iframe id="gallery_preview" name="gallery_preview" src="<?php echo add_query_arg($params, set_url_scheme( $gallery_link_default, 'admin' )); ?>"></iframe>
 				</div>
 			<?php } ?>
 		</div>
@@ -1091,7 +1089,7 @@ function gmediaGalleryEdit(){
 								<div class="media-body" style="margin-left:180px;">
 									<h4 class="media-heading"><?php echo $module_info['title']; ?></h4>
 
-									<p class="version"><?php echo __('Version', 'gmLang') . ': ' . $module_info['version']; ?></p>
+									<p class="version"><?php echo __('Version', 'grand-media') . ': ' . $module_info['version']; ?></p>
 
 									<div class="description"><?php echo nl2br($module_info['description']); ?></div>
 								</div>
@@ -1099,12 +1097,12 @@ function gmediaGalleryEdit(){
 						<?php
 						}
 					} else{
-						_e('No installed modules', 'gmLang');
+						_e('No installed modules', 'grand-media');
 					}
 					?>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal"><?php _e('Cancel', 'gmLang'); ?></button>
+					<button type="button" class="btn btn-default" data-dismiss="modal"><?php _e('Cancel', 'grand-media'); ?></button>
 				</div>
 			</div>
 		</div>

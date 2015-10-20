@@ -54,33 +54,33 @@ function gmedia_default_options(){
 	$gm['license_key2'] = '';
 
 	$gm['taxonomies']['gmedia_category'] = array(
-		'abstract' => __('Abstract', 'gmLang'),
-		'animals' => __('Animals', 'gmLang'),
-		'black-and-white' => __('Black and White', 'gmLang'),
-		'celebrities' => __('Celebrities', 'gmLang'),
-		'city-and-architecture' => __('City & Architecture', 'gmLang'),
-		'commercial' => __('Commercial', 'gmLang'),
-		'concert' => __('Concert', 'gmLang'),
-		'family' => __('Family', 'gmLang'),
-		'fashion' => __('Fashion', 'gmLang'),
-		'film' => __('Film', 'gmLang'),
-		'fine-art' => __('Fine Art', 'gmLang'),
-		'food' => __('Food', 'gmLang'),
-		'journalism' => __('Journalism', 'gmLang'),
-		'landscapes' => __('Landscapes', 'gmLang'),
-		'macro' => __('Macro', 'gmLang'),
-		'nature' => __('Nature', 'gmLang'),
-		'nude' => __('Nude', 'gmLang'),
-		'people' => __('People', 'gmLang'),
-		'performing-arts' => __('Performing Arts', 'gmLang'),
-		'sport' => __('Sport', 'gmLang'),
-		'still-life' => __('Still Life', 'gmLang'),
-		'street' => __('Street', 'gmLang'),
-		'transportation' => __('Transportation', 'gmLang'),
-		'travel' => __('Travel', 'gmLang'),
-		'underwater' => __('Underwater', 'gmLang'),
-		'urban-exploration' => __('Urban Exploration', 'gmLang'),
-		'wedding' => __('Wedding', 'gmLang')
+		'abstract' => __('Abstract', 'grand-media'),
+		'animals' => __('Animals', 'grand-media'),
+		'black-and-white' => __('Black and White', 'grand-media'),
+		'celebrities' => __('Celebrities', 'grand-media'),
+		'city-and-architecture' => __('City & Architecture', 'grand-media'),
+		'commercial' => __('Commercial', 'grand-media'),
+		'concert' => __('Concert', 'grand-media'),
+		'family' => __('Family', 'grand-media'),
+		'fashion' => __('Fashion', 'grand-media'),
+		'film' => __('Film', 'grand-media'),
+		'fine-art' => __('Fine Art', 'grand-media'),
+		'food' => __('Food', 'grand-media'),
+		'journalism' => __('Journalism', 'grand-media'),
+		'landscapes' => __('Landscapes', 'grand-media'),
+		'macro' => __('Macro', 'grand-media'),
+		'nature' => __('Nature', 'grand-media'),
+		'nude' => __('Nude', 'grand-media'),
+		'people' => __('People', 'grand-media'),
+		'performing-arts' => __('Performing Arts', 'grand-media'),
+		'sport' => __('Sport', 'grand-media'),
+		'still-life' => __('Still Life', 'grand-media'),
+		'street' => __('Street', 'grand-media'),
+		'transportation' => __('Transportation', 'grand-media'),
+		'travel' => __('Travel', 'grand-media'),
+		'underwater' => __('Underwater', 'grand-media'),
+		'urban-exploration' => __('Urban Exploration', 'grand-media'),
+		'wedding' => __('Wedding', 'grand-media')
 	);
 	$gm['taxonomies']['gmedia_tag'] = array();
 	$gm['taxonomies']['gmedia_album'] = array();
@@ -126,7 +126,7 @@ function gmedia_capabilities(){
 	$role = get_role('administrator');
 	// We need this role, no other chance
 	if(empty($role)){
-		update_option("gmediaInitCheck", __('Sorry, Gmedia Gallery works only with a role called administrator', 'gmLang'));
+		update_option("gmediaInitCheck", __('Sorry, Gmedia Gallery works only with a role called administrator', 'grand-media'));
 
 		return;
 	}
@@ -252,15 +252,11 @@ function gmedia_install(){
 
 	// check one table again, to be sure
 	if($wpdb->get_var("show tables like '$gmedia'") != $gmedia){
-		update_option("gmediaInitCheck", __('GmediaGallery: Tables could not created, please check your database settings', 'gmLang'));
+		update_option("gmediaInitCheck", __('GmediaGallery: Tables could not created, please check your database settings', 'grand-media'));
 
 		return;
 	}
 
-	// Set installation date
-	if(empty($gmGallery->options['installDate'])){
-		$gmGallery->options['installDate'] = time();
-	}
 	if(!get_option('GmediaHashID_salt')){
 		$ustr = wp_generate_password(12, false);
 		add_option('GmediaHashID_salt', $ustr);
@@ -269,6 +265,8 @@ function gmedia_install(){
 	// set the default settings, if we didn't upgrade
 	if(empty($gmGallery->options)){
 		$gmGallery->options = gmedia_default_options();
+		// Set installation date
+		$gmGallery->options['installDate'] = time();
 		update_option('gmediaOptions', $gmGallery->options);
 	} else{
 		$default_options = gmedia_default_options();

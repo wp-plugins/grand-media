@@ -1,5 +1,6 @@
 /* gmMinima CSS */
 .minima_module { overflow:hidden; }
+.gmedia-template-wrapper .minima_module { overflow:visible; }
 .minima_module object { display:block; }
 .flashmodule_alternative { margin: 0; }
 .flashmodule_alternative .gmcatlinks { padding: 3px; margin:0 0 3px; background-color: #292929; text-align: left; }

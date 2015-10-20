@@ -375,6 +375,7 @@ body div.gm-music-player .gmmp-button.gmmp-not-active{
 	display:block;
 }
 
+.gm-music-player .jPlayer-container {overflow:hidden;}
 
 /** Transitions **/
 .gm-music-player .gmmp-more.gmmp-anim,
@@ -398,6 +399,3 @@ body div.gm-music-player .gmmp-button.gmmp-not-active{
 	width: 0;
 	height: 0;
 }
-
-
-

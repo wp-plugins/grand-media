@@ -3,7 +3,7 @@ Contributors: Rattus
 Donate link: http://codeasily.com/donate/
 Tags: gallery, image, images, library, music, video, slideshow, responsive, admin, Post, posts, easy gallery, iphone gallery, best gallery, portfolio, image gallery, photo gallery, photo, slider, header slider, admin, page, relative image, gallery slider, iOS app
 Requires at least: 3.6
-Tested up to: 4.3.0
+Tested up to: 4.3.1
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -66,17 +66,18 @@ Help me make it best gallery plugin: test it and [write suggestions](http://code
 
 Features:
 
-*   (NEW) Gmedia for iOS - [iOS manage application](https://itunes.apple.com/ua/app/gmedia/id947515626?mt=8) to manage your Library with your iPhone
-*   (NEW) Full Page Template for Galleries with permalink support
-*   (NEW) Share Images, Albums, Tags, Galleries via admin panel
-*   (NEW) Create custom query filters with selected parameters
-*   (NEW) Custom fields for Files and Albums, so developers can create their own unique modules
-*   (NEW) Cover for Album
+*   iOS application "Gmedia" - [iOS manage application](https://itunes.apple.com/ua/app/gmedia/id947515626?mt=8) to manage your Library with your iPhone
+*   Full Page Template for Galleries with permalink support
+*   Share Images, Albums, Tags, Galleries via admin panel
+*   Create custom query filters with selected parameters
+*   Custom fields for Files and Albums, so developers can create their own unique modules
+*   Cover for Album
 *   Mobile friendly, responsive galleries
 *   Add tags, assign categories and group images in albums
 *   Drag'n'drop sorting for files in Album
 *   Easy editing media files data in Edit Mode
 *   Image Editor with Filters
+*   Geolocation for photos
 *   Create many galleries with different options
 *   Easily adding shortcode to post in one click
 *   Easily adding images from Gmedia Library to post
@@ -100,7 +101,7 @@ TODO List:
 *   Share albums to socials from admin panel (in queue)
 *   More modules for creating photo gallery, audio playlist, video playlist
 *   Easily add to Post audio and video files with tags related to post tags
-*   Watermark feature
+*   Watermark/Crop image feature
 
 
 == Installation ==
@@ -132,6 +133,42 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 
 = Modules Updated =
 * Go to Gmedia Modules page and update installed premium modules to latest versions
+
+= dev =
+* Improved: Functions for iOS app
+* Changed: GPS location field now editable
+* Added: Search geocode by address on map
+
+= 1.7.9 =
+* Fixed: GmediaCloud page not worked
+* Fixed: Compatibility with Jetpack plugin
+
+= 1.7.8 =
+* Fixed: Update error on some servers
+
+= 1.7.7 =
+* Added: Geolocation for photos and videos
+* Added: url query params for shortcode in page
+* Fixed: Image edit on multisite
+* Updated: Photomania module
+* Improved: Exif information
+* Small fixes and improvements
+
+= 1.7.6 =
+* Added: New option called Limit in Custom Filter
+* Added: Custom Filter collections in Add Media window
+* Added: Feature to load any term to page gallery with url parameters
+* Added: Twitter widget with latest news in admin
+* Updated: Afflux module, Music Player module, Minima module, PhotoMania module, Video Player module
+* Fixed: Gallery preview in admin not worked with https
+* Fixed: GmediaCloud page for single item
+* Changed: Plugin text domain to 'grand-media'
+* Small fixes and improvements
+
+= 1.7.4 =
+* Added: German translate
+* Added: Dutch translate
+* Updated: Phantom module
 
 = 1.7.3 =
 * Fixed: Update error on some websites

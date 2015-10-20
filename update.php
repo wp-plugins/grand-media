@@ -9,14 +9,14 @@ if(!defined('ABSPATH')){
 function gmedia_update_admin_notice(){
 	?>
 	<div id="message" class="updated gmedia-message">
-		<p><?php _e('<strong>GmediaGallery Data Update Required</strong> &#8211; We need to update your install to the latest version.', 'gmLang'); ?></p>
+		<p><?php _e('<strong>GmediaGallery Data Update Required</strong> &#8211; We need to update your install to the latest version.', 'grand-media'); ?></p>
 
-		<p><?php _e('<strong>Important:</strong> &#8211; GmediaGallery plugin was fully rewritten, so after update you need to check all your created galleries and update modules.', 'gmLang'); ?></p>
+		<p><?php _e('<strong>Important:</strong> &#8211; GmediaGallery plugin was fully rewritten, so after update you need to check all your created galleries and update modules.', 'grand-media'); ?></p>
 
-		<p><?php _e('The update process may take a little while, so please be patient.', 'gmLang'); ?></p>
+		<p><?php _e('The update process may take a little while, so please be patient.', 'grand-media'); ?></p>
 
 		<p class="submit">
-			<a href="<?php echo add_query_arg('do_update', 'gmedia', admin_url('admin.php?page=GrandMedia')); ?>" class="gm-update-now button-primary"><?php _e('Run the updater', 'gmLang'); ?></a>
+			<a href="<?php echo add_query_arg('do_update', 'gmedia', admin_url('admin.php?page=GrandMedia')); ?>" class="gm-update-now button-primary"><?php _e('Run the updater', 'grand-media'); ?></a>
 		</p>
 	</div>
 	<script type="text/javascript">
@@ -30,9 +30,9 @@ function gmedia_update_admin_notice(){
 function gmedia_wait_admin_notice(){
 	?>
 	<div id="message" class="updated gmedia-message">
-		<p><?php _e('<strong>GmediaGallery Updating:</strong> &#8211; GmediaGallery plugin was fully rewritten, so after update you need to check all your created galleries and update modules.', 'gmLang'); ?></p>
+		<p><?php _e('<strong>GmediaGallery Updating:</strong> &#8211; GmediaGallery plugin was fully rewritten, so after update you need to check all your created galleries and update modules.', 'grand-media'); ?></p>
 
-		<p><?php _e('The update process may take a little while, so please be patient.', 'gmLang'); ?></p>
+		<p><?php _e('The update process may take a little while, so please be patient.', 'grand-media'); ?></p>
 	</div>
 <?php
 }
@@ -106,7 +106,7 @@ function gmedia_do_update(){
 	";
 	dbDelta($sql);
 
-	echo '<p>' . __('Gmedia database tables updated...', 'gmLang') . '</p><br>';
+	echo '<p>' . __('Gmedia database tables updated...', 'grand-media') . '</p><br>';
 	echo '<script type="text/javascript">
 var scroll_down = true;
 function ScrollDown() {
@@ -122,7 +122,7 @@ window.onload = function() {
 }
 </script>';
 
-	echo '<p>' . __('Start update images...', 'gmLang') . '</p>';
+	echo '<p>' . __('Start update images...', 'grand-media') . '</p>';
 	wp_ob_end_flush_all();
 
 
@@ -177,7 +177,7 @@ window.onload = function() {
 
 	$wpdb->update($wpdb->prefix . 'gmedia_meta', array('meta_key' => '_cover'), array('meta_key' => 'preview'));
 
-	echo '<p>' . __('Gmedia database data updated...', 'gmLang') . '</p>';
+	echo '<p>' . __('Gmedia database data updated...', 'grand-media') . '</p>';
 	wp_ob_end_flush_all();
 
 	$galleries = $gmDB->get_terms('gmedia_gallery');
@@ -224,12 +224,12 @@ window.onload = function() {
 		}
 	}
 
-	echo '<p>' . __('Gmedia Galleries updated...', 'gmLang') . '</p><br><br>';
+	echo '<p>' . __('Gmedia Galleries updated...', 'grand-media') . '</p><br><br>';
 	wp_ob_end_flush_all();
 
 	update_option("gmediaDbVersion", GMEDIA_DBVERSION);
 
-	echo '<p>' . __('GmediaGallery plugin update complete.', 'gmLang') . '</p>';
+	echo '<p>' . __('GmediaGallery plugin update complete.', 'grand-media') . '</p>';
 
 }
 
@@ -256,7 +256,7 @@ function gmedia_images_update($files){
 			if(isset($file['file'])){
 				extract($file);
 			} else{
-				_e('Something went wrong...', 'gmLang');
+				_e('Something went wrong...', 'grand-media');
 				die();
 			}
 		}
@@ -272,7 +272,7 @@ function gmedia_images_update($files){
             if(is_file($fileinfo['filepath_original'])){
                 @rename($fileinfo['filepath_original'], $fileinfo['filepath']);
             } else {
-                echo $prefix_ko . sprintf(__('File not exists: %s', 'gmLang'), $file) . $eol;
+                echo $prefix_ko . sprintf(__('File not exists: %s', 'grand-media'), $file) . $eol;
                 continue;
             }
 		}
@@ -327,24 +327,24 @@ function gmedia_images_update($files){
 				}
 
                 if(!wp_mkdir_p($fileinfo['dirpath_thumb'])){
-					echo $prefix_ko . sprintf(__('Unable to create directory `%s`. Is its parent directory writable by the server?', 'gmLang'), $fileinfo['dirpath_thumb']) . $eol;
+					echo $prefix_ko . sprintf(__('Unable to create directory `%s`. Is its parent directory writable by the server?', 'grand-media'), $fileinfo['dirpath_thumb']) . $eol;
 					continue;
 				}
 				if(!is_writable($fileinfo['dirpath_thumb'])){
 					@chmod($fileinfo['dirpath_thumb'], 0755);
 					if(!is_writable($fileinfo['dirpath_thumb'])){
-						echo $prefix_ko . sprintf(__('Directory `%s` is not writable by the server.', 'gmLang'), $fileinfo['dirpath_thumb']) . $eol;
+						echo $prefix_ko . sprintf(__('Directory `%s` is not writable by the server.', 'grand-media'), $fileinfo['dirpath_thumb']) . $eol;
 						continue;
 					}
 				}
 				if(!wp_mkdir_p($fileinfo['dirpath_original'])){
-					echo $prefix_ko . sprintf(__('Unable to create directory `%s`. Is its parent directory writable by the server?', 'gmLang'), $fileinfo['dirpath_original']) . $eol;
+					echo $prefix_ko . sprintf(__('Unable to create directory `%s`. Is its parent directory writable by the server?', 'grand-media'), $fileinfo['dirpath_original']) . $eol;
 					continue;
 				}
 				if(!is_writable($fileinfo['dirpath_original'])){
 					@chmod($fileinfo['dirpath_original'], 0755);
 					if(!is_writable($fileinfo['dirpath_original'])){
-						echo $prefix_ko . sprintf(__('Directory `%s` is not writable by the server.', 'gmLang'), $fileinfo['dirpath_original']) . $eol;
+						echo $prefix_ko . sprintf(__('Directory `%s` is not writable by the server.', 'grand-media'), $fileinfo['dirpath_original']) . $eol;
 						continue;
 					}
 				}
@@ -402,12 +402,12 @@ function gmedia_images_update($files){
 					copy($fileinfo['filepath'], $fileinfo['filepath_thumb']);
 				}
 			} else{
-				//echo $prefix_ko . $fileinfo['basename']. ": " . __("Could not read image size.", 'gmLang') . $eol;
-				echo $prefix . $fileinfo['basename'] . ": " . __("Ignored", 'gmLang') . $eol;
+				//echo $prefix_ko . $fileinfo['basename']. ": " . __("Could not read image size.", 'grand-media') . $eol;
+				echo $prefix . $fileinfo['basename'] . ": " . __("Ignored", 'grand-media') . $eol;
 				continue;
 			}
 		} else{
-			echo $prefix_ko . $fileinfo['basename'] . ": " . __("Invalid image.", 'gmLang') . $eol;
+			echo $prefix_ko . $fileinfo['basename'] . ": " . __("Invalid image.", 'grand-media') . $eol;
 			continue;
 		}
 
@@ -415,12 +415,12 @@ function gmedia_images_update($files){
 		// Save the data
 		$gmDB->update_metadata($meta_type = 'gmedia', $id, $meta_key = '_metadata', $gmDB->generate_gmedia_metadata($id, $fileinfo));
 
-		echo $prefix . $fileinfo['basename'] . ': <span  style="color:darkgreen;">' . sprintf(__('success (ID #%s)', 'gmLang'), $id) . '</span>' . $eol;
+		echo $prefix . $fileinfo['basename'] . ': <span  style="color:darkgreen;">' . sprintf(__('success (ID #%s)', 'grand-media'), $id) . '</span>' . $eol;
 
 
 	}
 
-	echo '<p>' . __('Image update process complete...', 'gmLang') . '</p>';
+	echo '<p>' . __('Image update process complete...', 'grand-media') . '</p>';
 
 	wp_ob_end_flush_all();
 }
@@ -441,6 +441,7 @@ function gmedia_quite_update(){
 		}
 		require_once(dirname(__FILE__) . '/setup.php');
 		$default_options = gmedia_default_options();
+		$default_options['installDate'] = strtotime('1 month ago');
 
 		if(version_compare($current_version, '0.9.23', '<')){
 			if(isset($options['license_name'])){

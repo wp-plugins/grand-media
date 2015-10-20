@@ -22,6 +22,7 @@ class gmediaPermalinks {
 		add_action( 'parse_request', array( $this, 'handler' ) );
 
 		add_filter( 'post_thumbnail_html', array( $this, 'gmedia_post_thumbnail' ), 10, 5 );
+		add_filter( 'gmedia_shortcode_gallery_data', array( $this, 'gmedia_shortcode_gallery_data' ) );
 	}
 
 	/**
@@ -154,6 +155,25 @@ class gmediaPermalinks {
 		}
 
 		return $html;
+	}
+
+	/**
+	 * Filter for the shortcode gallery data
+	 *
+	 * @param array $gallery
+	 *
+	 * @return array $gallery
+	 */
+	function gmedia_shortcode_gallery_data( $gallery ) {
+		global $gmCore;
+
+		if(($new_query = $gmCore->_get("gm{$gallery['term_id']}"))){
+			unset($gallery['custom_query']);
+			$gmCore->replace_array_keys($new_query, array('gmedia_album' => 'album__in', 'gmedia_tag' => 'tag__in', 'gmedia_category' => 'category__in'));
+			$gallery['_query'] = $new_query;
+		}
+
+		return $gallery;
 	}
 
 }

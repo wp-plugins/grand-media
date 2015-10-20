@@ -13,3 +13,5 @@
 	<?php gmedia_head(); ?>
 </head>
 <body <?php body_class(); ?>>
+
+<div class="gmedia-template-wrapper">

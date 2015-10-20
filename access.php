@@ -213,7 +213,7 @@ function gmedia_ios_app_library_data( $data = array( 'site', 'authors', 'filter'
 		}
 		*/
 		$gmediaTerms       = $gmDB->get_terms( 'gmedia_category', array( 'fields' => 'name=>all' ) );
-		$terms             = array_merge( array( '0' => __( 'Uncategorized', 'gmLang' ) ), $gmGallery->options['taxonomies']['gmedia_category'] );
+		$terms             = array_merge( array( '0' => __( 'Uncategorized', 'grand-media' ) ), $gmGallery->options['taxonomies']['gmedia_category'] );
 		$out['categories'] = array(
 			'list' => $terms,
 			'cap'  => 0,
@@ -243,9 +243,10 @@ function gmedia_ios_app_library_data( $data = array( 'site', 'authors', 'filter'
 			} else{
 				$cap = 0;
 			}
-			if( !current_user_can('gmedia_edit_others_media')){
-				$args['global'] = array( $user_ID, 0 );
-			}
+			/*if( !current_user_can('gmedia_edit_others_media')){
+				//$args = array( 'status' => array('public', 'private') );
+				//$args['global'] = array( $user_ID, 0 );
+			}*/
 		} else {
 			$cap  = 0;
 			$args = array( 'status' => 'public' );
@@ -264,12 +265,12 @@ function gmedia_ios_app_library_data( $data = array( 'site', 'authors', 'filter'
 					$first_name = $authordata->first_name;
 					$last_name = $authordata->last_name;
 				} else{
-					$display_name = __('Deleted User', 'gmLang');
+					$display_name = __('Deleted User', 'grand-media');
 					$first_name = '';
 					$last_name = '';
 				}
 			} else {
-				$display_name = __( 'Shared', 'gmLang' );
+				$display_name = __( 'Shared', 'grand-media' );
 				$first_name   = $last_name = '';
 			}
 			$gmediaTerms[ $i ]->user = array( 'id' => $author_id, 'displayname' => $display_name, 'firstname' => $first_name, 'lastname' => $last_name );
@@ -294,8 +295,17 @@ function gmedia_ios_app_library_data( $data = array( 'site', 'authors', 'filter'
 				}
 			}
 			if (!$term_meta['_cover'] && $term->count ) {
-				$args                         = array( 'no_found_rows' => true, 'mime_type' => 'image/*', 'per_page' => 1, 'album__in' => array( $term->term_id ), 'status' => 'public' );
-				$termItems                    = $gmDB->get_gmedias( $args );
+				$args = array( 'no_found_rows' => true, 'mime_type' => 'image/*', 'per_page' => 1, 'album__in' => array( $term->term_id ), 'status' => 'public' );
+				if($user_ID) {
+					$args['status'] = array('public', 'private');
+					if ( $author_id === $user_ID ) {
+						$args['status'] = '';
+					}
+				} else {
+					$args['status'] = 'public';
+				}
+
+				$termItems = $gmDB->get_gmedias( $args );
 				if(!empty($termItems)) {
 					$cover = gmedia_ios_app_processor( 'library', array( 'gmedia__in' => array( $termItems[0]->ID ) ), false );
 					if ( isset( $cover['data'][0] ) ) {
@@ -367,7 +377,7 @@ function gmedia_ios_app_processor( $action, $data, $filter = true ) {
 
 				case 'add_media':
 					if ( ! current_user_can( 'gmedia_upload' ) ) {
-						$out['error'] = array( 'code' => 'nocapability', 'title' => __( "You can't do this", 'gmLang' ), 'message' => __( 'You have no permission to do this operation', 'gmLang' ) );
+						$out['error'] = array( 'code' => 'nocapability', 'title' => __( "You can't do this", 'grand-media' ), 'message' => __( 'You have no permission to do this operation', 'grand-media' ) );
 
 						return $out;
 					}
@@ -378,7 +388,7 @@ function gmedia_ios_app_processor( $action, $data, $filter = true ) {
 						$file_name = $_FILES['userfile']['name'];
 						$file_tmp  = $_FILES['userfile']['tmp_name'];
 					} else {
-						$error[] = __( "Failed to move uploaded file.", 'gmLang' );
+						$error[] = __( "Failed to move uploaded file.", 'grand-media' );
 						break;
 					}
 
@@ -473,11 +483,11 @@ function gmedia_ios_app_processor( $action, $data, $filter = true ) {
 
 						if ( (int) $item->author == get_current_user_id() ) {
 							if ( ! current_user_can( 'gmedia_edit_media' ) ) {
-								$alert[] = __( 'You are not allowed to edit media', 'gmLang' );
+								$alert[] = __( 'You are not allowed to edit media', 'grand-media' );
 							}
 						} else {
 							if ( ! current_user_can( 'gmedia_edit_others_media' ) ) {
-								$alert[] = __( 'You are not allowed to edit others media', 'gmLang' );
+								$alert[] = __( 'You are not allowed to edit others media', 'grand-media' );
 							}
 						}
 						if ( empty( $alert ) ) {
@@ -497,7 +507,7 @@ function gmedia_ios_app_processor( $action, $data, $filter = true ) {
 
 				case 'assign_category':
 					if ( ! current_user_can( 'gmedia_terms' ) ) {
-						$error[] = __( 'You are not allowed to manage categories', 'gmLang' );
+						$error[] = __( 'You are not allowed to manage categories', 'grand-media' );
 						break;
 					}
 					$term = $data['assign_category'][0];
@@ -509,7 +519,7 @@ function gmedia_ios_app_processor( $action, $data, $filter = true ) {
 						foreach ( $data['selected'] as $item ) {
 							$gmDB->delete_gmedia_term_relationships( $item, 'gmedia_category' );
 						}
-						$alert[] = sprintf( __( '%d items updated with "Uncategorized"', 'gmLang' ), $count );
+						$alert[] = sprintf( __( '%d items updated with "Uncategorized"', 'grand-media' ), $count );
 					} else {
 						foreach ( $data['selected'] as $item ) {
 							$result = $gmDB->set_gmedia_terms( $item, $term, 'gmedia_category', $append = 0 );
@@ -522,16 +532,16 @@ function gmedia_ios_app_processor( $action, $data, $filter = true ) {
 						}
 						if ( isset( $gmGallery->options['taxonomies']['gmedia_category'][ $term ] ) ) {
 							$cat_name = $gmGallery->options['taxonomies']['gmedia_category'][ $term ];
-							$alert[]  = sprintf( __( "Category `%s` assigned to %d images.", 'gmLang' ), esc_html( $cat_name ), $count );
+							$alert[]  = sprintf( __( "Category `%s` assigned to %d images.", 'grand-media' ), esc_html( $cat_name ), $count );
 						} else {
-							$error[] = sprintf( __( "Category `%s` can't be assigned.", 'gmLang' ), $term );
+							$error[] = sprintf( __( "Category `%s` can't be assigned.", 'grand-media' ), $term );
 						}
 					}
 					break;
 
 				case 'assign_album':
 					if ( ! current_user_can( 'gmedia_terms' ) ) {
-						$error[] = __( 'You are not allowed to manage albums', 'gmLang' );
+						$error[] = __( 'You are not allowed to manage albums', 'grand-media' );
 					}
 					$term  = $data['assign_album'][0];
 					$count = count( $data['selected'] );
@@ -539,7 +549,7 @@ function gmedia_ios_app_processor( $action, $data, $filter = true ) {
 						foreach ( $data['selected'] as $item ) {
 							$gmDB->delete_gmedia_term_relationships( $item, 'gmedia_album' );
 						}
-						$alert[] = sprintf( __( '%d items updated with "No Album"', 'gmLang' ), $count );
+						$alert[] = sprintf( __( '%d items updated with "No Album"', 'grand-media' ), $count );
 					} else {
 						foreach ( $data['selected'] as $item ) {
 							$result = $gmDB->set_gmedia_terms( $item, $term, 'gmedia_album', $append = 0 );
@@ -555,17 +565,17 @@ function gmedia_ios_app_processor( $action, $data, $filter = true ) {
 						} else {
 							$alb_name = $term;
 						}
-						$alert[] = sprintf( __( 'Album `%s` assigned to %d items', 'gmLang' ), esc_html( $alb_name ), $count );
+						$alert[] = sprintf( __( 'Album `%s` assigned to %d items', 'grand-media' ), esc_html( $alb_name ), $count );
 					}
 					break;
 
 				case 'add_tags':
 					if ( ! current_user_can( 'gmedia_terms' ) ) {
-						$error[] = __( 'You are not allowed manage tags', 'gmLang' );
+						$error[] = __( 'You are not allowed manage tags', 'grand-media' );
 						break;
 					}
 					if ( empty( $data['add_tags'] ) ) {
-						$error[] = __( 'No tags provided', 'gmLang' );
+						$error[] = __( 'No tags provided', 'grand-media' );
 						break;
 					}
 					$term  = $data['add_tags'];
@@ -579,16 +589,16 @@ function gmedia_ios_app_processor( $action, $data, $filter = true ) {
 							$count --;
 						}
 					}
-					$alert[] = sprintf( __( '%d tags added to %d items', 'gmLang' ), count( $term ), $count );
+					$alert[] = sprintf( __( '%d tags added to %d items', 'grand-media' ), count( $term ), $count );
 					break;
 
 				case 'delete_tags':
 					if ( ! current_user_can( 'gmedia_delete_others_media' ) ) {
-						$error[] = __( 'You are not allowed to delete others media', 'gmLang' );
+						$error[] = __( 'You are not allowed to delete others media', 'grand-media' );
 						break;
 					}
 					if ( empty( $data['delete_tags'] ) ) {
-						$error[] = __( 'No tags provided', 'gmLang' );
+						$error[] = __( 'No tags provided', 'grand-media' );
 						break;
 					}
 					$term  = array_map( 'intval', $data['delete_tags'] );
@@ -602,7 +612,7 @@ function gmedia_ios_app_processor( $action, $data, $filter = true ) {
 							$count --;
 						}
 					}
-					$alert[] = sprintf( __( '%d tags deleted from %d items', 'gmLang' ), count( $term ), $count );
+					$alert[] = sprintf( __( '%d tags deleted from %d items', 'grand-media' ), count( $term ), $count );
 					break;
 
 				case 'delete':
@@ -614,16 +624,16 @@ function gmedia_ios_app_processor( $action, $data, $filter = true ) {
 					foreach ( $data['selected'] as $item ) {
 						$gm_item = $gmDB->get_gmedia( $item );
 						if ( ( (int) $gm_item->author != $user_ID ) && ! current_user_can( 'gmedia_delete_others_media' ) ) {
-							$error[] = "#{$item}: " . __( 'You are not allowed to delete media others media', 'gmLang' );
+							$error[] = "#{$item}: " . __( 'You are not allowed to delete media others media', 'grand-media' );
 							continue;
 						}
 						if ( ! $gmDB->delete_gmedia( (int) $item ) ) {
-							$error[] = "#{$item}: " . __( 'Error in deleting...', 'gmLang' );
+							$error[] = "#{$item}: " . __( 'Error in deleting...', 'grand-media' );
 							$count --;
 						}
 					}
 					if ( $count ) {
-						$alert[] = sprintf( __( '%d items deleted successfuly', 'gmLang' ), $count );
+						$alert[] = sprintf( __( '%d items deleted successfuly', 'grand-media' ), $count );
 					}
 					break;
 			}
@@ -705,11 +715,12 @@ function gmedia_ios_app_processor( $action, $data, $filter = true ) {
 					$first_name = $authordata->first_name;
 					$last_name = $authordata->last_name;
 				} else{
-					$display_name = __('Deleted User', 'gmLang');
+					$display_name = __('Deleted User', 'grand-media');
 					$first_name = '';
 					$last_name = '';
 				}
 				$gmedias[ $i ]->user = array( 'id' => $author_id, 'displayname' => $display_name, 'firstname' => $first_name, 'last_name' => $last_name );
+				$gmedias[ $i ]->date = strtotime($item->date);
 
 				$meta               = $gmDB->get_metadata( 'gmedia', $item->ID );
 				//$_metadata          = maybe_unserialize( $meta['_metadata'][0] );
@@ -764,8 +775,8 @@ function gmedia_ios_app_processor( $action, $data, $filter = true ) {
 					if ( isset( $meta['likes'][0] ) ) {
 						$gmedias[ $i ]->meta['likes'] = $meta['likes'][0];
 					}
-					if ( isset( $_metadata['image_info'] ) ) {
-						$gmedias[ $i ]->meta['data'] = $_metadata['image_info'];
+					if ( isset( $_metadata['image_meta'] ) ) {
+						$gmedias[ $i ]->meta['data'] = $_metadata['image_meta'];
 					}
 				} else {
 					$gmedias[ $i ]->meta = array(
@@ -778,6 +789,9 @@ function gmedia_ios_app_processor( $action, $data, $filter = true ) {
 					if ( ! empty( $_metadata ) ) {
 						$gmedias[ $i ]->meta['data'] = $_metadata;
 					}
+				}
+				if(!empty($meta['_gps'][0])){
+					$gmedias[ $i ]->meta['data']['GPS'] = $meta['_gps'][0];
 				}
 				if ( isset( $meta['_rating'][0] ) ) {
 					$gmedias[ $i ]->meta['rating'] = maybe_unserialize( $meta['_rating'][0] );
@@ -792,7 +806,8 @@ function gmedia_ios_app_processor( $action, $data, $filter = true ) {
 					'request'      => isset( $data['request'] ) ? $data['request'] : null,
 					'total_pages'  => $gmDB->pages,
 					'current_page' => $gmDB->openPage,
-					'items_count'  => $gmDB->gmediaCount
+					'items_count'  => $gmDB->gmediaCount,
+					'total_count'  => $gmDB->totalResult
 				),
 				'data'       => array_values( $gmedias )
 			) );
@@ -801,7 +816,7 @@ function gmedia_ios_app_processor( $action, $data, $filter = true ) {
 			$taxonomy = $data['taxonomy'];
 			if ( ! empty( $data['items'] ) ) {
 				if ( ! current_user_can( 'gmedia_terms_delete' ) ) {
-					$error[] = __( 'You have no permission to do this operation', 'gmLang' );
+					$error[] = __( 'You have no permission to do this operation', 'grand-media' );
 					break;
 				}
 				$count = count( $data['items'] );
@@ -810,12 +825,12 @@ function gmedia_ios_app_processor( $action, $data, $filter = true ) {
 						if ( 'gmedia_album' == $taxonomy ) {
 							$term = $gmDB->get_term( $item, $taxonomy );
 							if ( (int) $term->global != (int) $user_ID ) {
-								$error['delete_album'] = __( 'You are not allowed to edit others media', 'gmLang' );
+								$error['delete_album'] = __( 'You are not allowed to edit others media', 'grand-media' );
 								$count --;
 								continue;
 							}
 						} else {
-							$error[] = __( 'You are not allowed to edit others media', 'gmLang' );
+							$error[] = __( 'You are not allowed to edit others media', 'grand-media' );
 							$count --;
 							continue;
 						}
@@ -827,7 +842,7 @@ function gmedia_ios_app_processor( $action, $data, $filter = true ) {
 					}
 				}
 				if ( $count ) {
-					$alert[] = sprintf( __( '%d items deleted successfuly', 'gmLang' ), $count );
+					$alert[] = sprintf( __( '%d items deleted successfuly', 'grand-media' ), $count );
 				}
 			}
 			$out = gmedia_ios_app_library_data( array( 'filter', $taxonomy ) );
@@ -838,34 +853,34 @@ function gmedia_ios_app_processor( $action, $data, $filter = true ) {
 			$term      = $data;
 			if ( 'gmedia_album' == $taxonomy ) {
 				if ( ! current_user_can( 'gmedia_album_manage' ) ) {
-					$out['error'] = array( 'code' => 'nocapability', 'title' => __( "You can't do this", 'gmLang' ), 'message' => __( 'You have no permission to do this operation', 'gmLang' ) );
+					$out['error'] = array( 'code' => 'nocapability', 'title' => __( "You can't do this", 'grand-media' ), 'message' => __( 'You have no permission to do this operation', 'grand-media' ) );
 
 					return $out;
 				}
 				do {
 					$term['name'] = trim( $term['name'] );
 					if ( empty( $term['name'] ) ) {
-						$error[] = __( 'Term Name is not specified', 'gmLang' );
+						$error[] = __( 'Term Name is not specified', 'grand-media' );
 						break;
 					}
 					if ( $gmCore->is_digit( $term['name'] ) ) {
-						$error[] = __( "Term Name can't be only digits", 'gmLang' );
+						$error[] = __( "Term Name can't be only digits", 'grand-media' );
 						break;
 					}
 					if ( $edit_term && ! $gmDB->term_exists( $edit_term, $taxonomy ) ) {
-						$error[]   = __( 'A term with the id provided do not exists', 'gmLang' );
+						$error[]   = __( 'A term with the id provided do not exists', 'grand-media' );
 						$edit_term = false;
 					}
 					if ( ( $term_id = $gmDB->term_exists( $term['name'], $taxonomy ) ) ) {
 						if ( $term_id != $edit_term ) {
-							$error[] = __( 'A term with the name provided already exists', 'gmLang' );
+							$error[] = __( 'A term with the name provided already exists', 'grand-media' );
 							break;
 						}
 					}
 					if ( $edit_term ) {
 						$_term = $gmDB->get_term( $edit_term, $taxonomy );
 						if ( ( (int) $_term->global != (int) $user_ID ) && ! current_user_can( 'gmedia_edit_others_media' ) ) {
-							$error[] = __( 'You are not allowed to edit others media', 'gmLang' );
+							$error[] = __( 'You are not allowed to edit others media', 'grand-media' );
 							break;
 						}
 						$term_id = $gmDB->update_term( $edit_term, $taxonomy, $term );
@@ -898,19 +913,19 @@ function gmedia_ios_app_processor( $action, $data, $filter = true ) {
 						}
 					}
 
-					$alert[] = sprintf( __( 'Album `%s` successfuly saved', 'gmLang' ), $term['name'] );
+					$alert[] = sprintf( __( 'Album `%s` successfuly saved', 'grand-media' ), $term['name'] );
 
 				} while ( 0 );
 				$out = gmedia_ios_app_library_data( array( 'filter', $taxonomy ) );
 			} elseif ( 'gmedia_tag' == $taxonomy ) {
 				if ( ! current_user_can( 'gmedia_tag_manage' ) ) {
-					$out['error'] = array( 'code' => 'nocapability', 'title' => __( "You can't do this", 'gmLang' ), 'message' => __( 'You have no permission to do this operation', 'gmLang' ) );
+					$out['error'] = array( 'code' => 'nocapability', 'title' => __( "You can't do this", 'grand-media' ), 'message' => __( 'You have no permission to do this operation', 'grand-media' ) );
 
 					return $out;
 				}
 				if ( $edit_term ) {
 					if ( ! current_user_can( 'gmedia_edit_others_media' ) ) {
-						$error[] = __( 'You are not allowed to edit others media', 'gmLang' );
+						$error[] = __( 'You are not allowed to edit others media', 'grand-media' );
 						break;
 					}
 					$term['name']    = trim( $term['name'] );
@@ -922,16 +937,16 @@ function gmedia_ios_app_processor( $action, $data, $filter = true ) {
 								if ( is_wp_error( $term_id ) ) {
 									$error[] = $term_id->get_error_message();
 								} else {
-									$alert[] = sprintf( __( "Tag %d successfuly updated", 'gmLang' ), $term_id );
+									$alert[] = sprintf( __( "Tag %d successfuly updated", 'grand-media' ), $term_id );
 								}
 							} else {
-								$error[] = __( 'A term with the name provided already exists', 'gmLang' );
+								$error[] = __( 'A term with the name provided already exists', 'grand-media' );
 							}
 						} else {
-							$error[] = __( "A term with the id provided do not exists", 'gmLang' );
+							$error[] = __( "A term with the id provided do not exists", 'grand-media' );
 						}
 					} else {
-						$error[] = __( "Term name can't be only digits or empty", 'gmLang' );
+						$error[] = __( "Term name can't be only digits or empty", 'grand-media' );
 					}
 				} else {
 					$terms       = array_filter( array_map( 'trim', explode( ',', $term['name'] ) ) );
@@ -947,10 +962,10 @@ function gmedia_ios_app_processor( $action, $data, $filter = true ) {
 							if ( is_wp_error( $term_id ) ) {
 								$error[] = $term_id->get_error_message();
 							} else {
-								$alert['tag_add'] = sprintf( __( '%d of %d tags successfuly added', 'gmLang' ), ++ $terms_added, $terms_qty );
+								$alert['tag_add'] = sprintf( __( '%d of %d tags successfuly added', 'grand-media' ), ++ $terms_added, $terms_qty );
 							}
 						} else {
-							$alert['tag_add'] = __( 'Some of provided tags are already exists', 'gmLang' );
+							$alert['tag_add'] = __( 'Some of provided tags are already exists', 'grand-media' );
 						}
 					}
 				}

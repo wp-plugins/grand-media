@@ -28,33 +28,41 @@ function gmedia_term_shortcode($atts, $content = ''){
 	 * @var $album
 	 * @var $tag
 	 * @var $category
+	 * @var $filter
+	 * @var $id
 	 * @var $module
 	 * @var $preset
+	 * @var $_raw
 	 */
 	extract(shortcode_atts(array(
 		'album' => 0,
 		'tag' => 0,
 		'category' => 0,
+		'filter' => 0,
+		'id' => 0,
 		'module' => '',
 		'preset' => 0,
+		'_raw' => false
 	), $atts));
 	if($album){
-		$_tax = 'album';
+		//$_tax = 'album';
 		$id = $album;
 	} elseif($tag){
-		$_tax = 'tag';
+		//$_tax = 'tag';
 		$id = $tag;
+	} elseif($filter){
+		//$_tax = 'filter';
+		$id = $filter;
 	} elseif($category){
-		$_tax = 'category';
+		//$_tax = 'category';
 		$id = $category;
-	} else{
-		return '';
 	}
 	$sc_atts = array(
 		'id' => $id,
 		'set_module' => $module,
 		'preset' => $preset,
-		'_tax' => $_tax
+		//'_tax' => $_tax,
+		'_raw' => $_raw
 	);
 	$out = gmedia_shortcode($sc_atts, $content);
 
@@ -70,20 +78,20 @@ function gmedia_term_shortcode($atts, $content = ''){
 function gmedia_shortcode($atts, $content = ''){
 	global $gmDB, $gmGallery, $gmCore;
 	global $gmedia_shortcode_instance;
+
 	/**
 	 * @var $id
 	 * @var $set_module
 	 * @var $preset
-	 * @var $_tax
 	 * @var $_raw
 	 */
 	extract(shortcode_atts(array(
 		'id' => 0,
 		'set_module' => '',
 		'preset' => 0,
-		'_tax' => 'gallery',
+		//'_tax' => 'gallery',
 		'_raw' => false
-	), $atts));
+	), $atts, 'gmedia'));
 
 	$shortcode_raw = (isset($gmGallery->options['shortcode_raw']) && '1' === $gmGallery->options['shortcode_raw']);
 	if($shortcode_raw && false !== $_raw){
@@ -106,7 +114,7 @@ function gmedia_shortcode($atts, $content = ''){
 		'_settings' => array()
 	);
 
-	$taxonomy = 'gmedia_' . $_tax;
+	$taxonomy = $gmDB->get_tax_by_term_id($id);
 	$gallery = $gmDB->get_term($id, $taxonomy, ARRAY_A);
 	if(is_wp_error($gallery)){
 		return '<div class="gmedia_gallery gmediaShortcodeError">#' . $id . ': ' . $gallery->get_error_message() . '<br />' . $content . '</div>';
@@ -136,17 +144,19 @@ function gmedia_shortcode($atts, $content = ''){
 		$gallery['_settings'][$gallery['_module']] = array();
 	}
 
-	if('filter' === $_tax){
+	if('gmedia_filter' === $taxonomy){
 		$gallery['custom_query'] = $gallery['_query'];
 		$gallery['_query'] = array();
 	}
-	if(empty($gallery['_query']) && ('gallery' !== $_tax)){
-		$gallery['_query']['gmedia_' . $_tax] = array($id);
+	if(empty($gallery['_query']) && ('gmedia_gallery' !== $taxonomy)){
+		$gallery['_query'][$taxonomy] = array($id);
 	}
+
+	$gallery = apply_filters('gmedia_shortcode_gallery_data', $gallery);
 
 	$module = $gmCore->get_module_path($gallery['_module']);
 	if(!$module){
-		return '<div class="gmedia_gallery gmediaShortcodeError">#' . $id . ': ' . __('Gmedia Module folder missed.', 'gmLang') . '<br />' . $content . '</div>';
+		return '<div class="gmedia_gallery gmediaShortcodeError">#' . $id . ': ' . __('Gmedia Module folder missed.', 'grand-media') . '<br />' . $content . '</div>';
 	}
 
 	if(file_exists($module['path'] . '/index.php') && file_exists($module['path'] . '/settings.php')){
@@ -173,6 +183,8 @@ function gmedia_shortcode($atts, $content = ''){
 			$settings = $gmCore->array_diff_keyval_recursive($presettings, $settings, false);
 		}
 	}
+	$customCSS = (isset($settings['customCSS']) && ('' != trim($settings['customCSS'])))? $settings['customCSS'] : '';
+	unset($settings['customCSS']);
 
 	$terms = array();
 	$gmedia = array();
@@ -190,6 +202,7 @@ function gmedia_shortcode($atts, $content = ''){
 					$gmedia[$term_id] = $gmDB->get_gmedias(array('gmedia__in' => $term_ids, 'orderby' => 'gmedia__in', 'order' => 'ASC', 'status' => $gmedia_status));
 					continue;
 				}
+				$term_ids = wp_parse_id_list($term_ids);
 				foreach($term_ids as $term_id){
 					$terms[$term_id] = $gmDB->get_term($term_id, $tax);
 					if(!empty($terms[$term_id]) && !is_wp_error($terms[$term_id])){
@@ -218,7 +231,7 @@ function gmedia_shortcode($atts, $content = ''){
 							} else {
 								$args = $gmDB->get_metadata( 'gmedia_term', $term_id, '_query', true );
 							}
-							$args = array_merge( array( 'status' => $gmedia_status, 'album__status' => $gmedia_status ), $args );
+							$args = array_merge($args, array( 'status' => $gmedia_status ) );
 							$gmedia[ $term_id ] = $gmDB->get_gmedias( $args );
 						}
 					} else{
@@ -251,8 +264,8 @@ function gmedia_shortcode($atts, $content = ''){
 	$out .= ob_get_contents();
 	ob_end_clean();
 
-	if(isset($settings['customCSS']) && ('' != trim($settings['customCSS']))){
-		$out .= "<style type='text/css' scoped='scoped'>/**** Custom CSS {$gallery['_module']} #{$id} ****/" . $settings['customCSS'] . "</style>";
+	if($customCSS){
+		$out .= "<style type='text/css' scoped='scoped'>/**** Custom CSS {$gallery['_module']} #{$id} ****/{$customCSS}</style>";
 	}
 
 	$out .= '</div>';

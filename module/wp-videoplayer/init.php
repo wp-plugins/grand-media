@@ -36,14 +36,14 @@ foreach($terms as $term){
 			}
 		}
 
-		$cover = $gmCore->gm_get_media_image($get_cover_from, 'web', true, $default_cover);
+		$cover = $gmCore->gm_get_media_image($get_cover_from, 'web', true);
 		$img_w = $img_h = '';
 		if($cover == $default_cover){
 			$img_w = 48;
 			$img_h = 64;
 			$cover_thumb = $cover;
 		} else{
-			$cover_thumb = $gmCore->gm_get_media_image($get_cover_from, 'thumb', true, $default_cover);
+			$cover_thumb = $gmCore->gm_get_media_image($get_cover_from, 'thumb', true);
 		}
 		$meta = $gmDB->get_metadata('gmedia', $item->ID, '_metadata', true);
 		if(empty($meta)){

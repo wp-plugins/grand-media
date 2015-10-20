@@ -31,7 +31,7 @@ function gmediacloud_meta_generator(){
 	<link href="<?php echo $icon_url; ?>/icon_gmedia_180.png" rel="apple-touch-icon" sizes="180x180"/>
 
 	<meta content="<?php the_gmedia_title(); ?>" property="og:title"/>
-	<meta content="<?php _e('Shared with GmediaGallery', 'gmLang'); ?>" property="og:description"/>
+	<meta content="<?php _e('Shared with GmediaGallery', 'grand-media'); ?>" property="og:description"/>
 	<?php if($gmedia_type != 'single'){
 		if(did_action('gmedia_shortcode')){
 			$og_imgs = array();
@@ -107,7 +107,7 @@ function gmedia_footer(){
 function gmedia_title($sep = '|', $display = true){
 	global $gmedia, $gmedia_type, $gmGallery;
 
-	$_title = __('GmediaGallery', 'gmLang');
+	$_title = __('GmediaGallery', 'grand-media');
 	if(is_object($gmedia) && !is_wp_error($gmedia)){
 		if(in_array($gmedia_type, array('gallery', 'album', 'tag', 'filter'))){
 			$_title = $gmedia->name;
@@ -151,7 +151,7 @@ function gmedia_title($sep = '|', $display = true){
 function the_gmedia_title($return = false){
 	global $gmedia, $gmedia_type, $gmGallery;
 
-	$title = __('GmediaGallery', 'gmLang');
+	$title = __('GmediaGallery', 'grand-media');
 	if(is_object($gmedia) && !is_wp_error($gmedia)){
 		if(in_array($gmedia_type, array('gallery', 'album', 'tag', 'filter'))){
 			$title = $gmedia->name;
@@ -272,7 +272,7 @@ function gmediacloud_social_sharing(){
 	global $wp, $gmedia_share_img;
 
 	$url =urlencode(esc_url_raw(home_url(add_query_arg(array(), $wp->request))));
-	$text =urlencode(__('Shared with GmediaGallery', 'gmLang'));
+	$text =urlencode(__('Shared with GmediaGallery', 'grand-media'));
 	$title =urlencode(the_gmedia_title(true));
 	$image =urlencode($gmedia_share_img[0]);
 	?>
@@ -342,7 +342,20 @@ function gmediacloud_social_sharing(){
 function gmedia_default_template_styles(){ ?>
 	<style type="text/css" media="screen">
 		* { box-sizing:border-box; }
-		body.gmedia-template { font-family:"Arial", "Verdana", serif; font-size:13px; }
+		body.gmedia-template { font-family:"Arial", "Verdana", serif; font-size:13px;}
+		.gmedia-template-wrapper {
+			display: -webkit-box;
+			display: -moz-box;
+			display: -ms-flexbox;
+			display: -webkit-flex;
+			display: flex;
+
+			-webkit-flex-flow: column;
+			flex-flow: column;
+			position:absolute;
+			left:0; top:0;
+			right:0; bottom:0;
+		}
 		header { position:relative; min-height:30px; background-color:#0f0f0f; color:#f1f1f1; padding:5px 0 3px 30px; font-family:"Arial", "Verdana", serif; z-index:10; }
 		header.has-description { padding-right:30px; }
 		.gmedia-header-title { display:inline-block; font-size:16px; vertical-align:bottom; margin-top:2px; }
@@ -385,19 +398,22 @@ function gmedia_default_template_styles(){ ?>
 			outline: none;
 		}
 
+		.gmedia-flex-box {
+			-webkit-box-flex: 1;
+			-moz-box-flex: 1;
+			-webkit-flex: 1;
+			-ms-flex: 1;
+			flex: 1;
+			position:relative;
+		}
 		.gmedia-main-wrapper {
-			position:absolute;
-			top:30px; left:0; right:0; bottom:0;
 			overflow:auto;
-		}
-		body.gmedia-template-single .gmedia-main-wrapper,
-		body.is_mobile .gmedia-main-wrapper {
 			position:absolute;
-			top:30px; left:0; right:0; bottom:auto;
-			overflow:visible;
+			left:0; right:0;
+			top:0; bottom:0;
 		}
-		body.admin-bar .gmedia-main-wrapper {
-			top:62px;
+		body.admin-bar .gmedia-template-wrapper {
+			top:32px;
 		}
 		.gmedia-main-wrapper .gmedia_gallery {
 			width:100%;
@@ -432,8 +448,8 @@ function gmedia_default_template_styles(){ ?>
 		.gmedia-no-files { text-align:center; font-size:16px; padding:30px 10px; }
 		.gmediaShortcodeError { text-align:left; font-size:14px; padding:30px 10px; }
 		@media screen and ( max-width:782px ) {
-			body.admin-bar .gmedia-main-wrapper {
-				top:76px;
+			body.admin-bar .gmedia-template-wrapper {
+				top:46px;
 			}
 		}
 	</style>

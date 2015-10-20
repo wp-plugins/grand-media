@@ -42,7 +42,7 @@ function gmediaModules(){
 	if(!is_wp_error($get_xml) && (200 == $get_xml['response']['code'])){
 		$xml = @simplexml_load_string($get_xml['body']);
 	} else{
-		$alert = array(__('Error loading remote xml...', 'gmLang'));
+		$alert = array(__('Error loading remote xml...', 'grand-media'));
 		if(is_wp_error($get_xml)){
 			$alert[] = $get_xml->get_error_message();
 		}
@@ -64,7 +64,7 @@ function gmediaModules(){
 					echo ' disabled';
 				} ?>" data-toggle="modal"><?php _e('Install Module ZIP'); ?></a>
 
-				<h3 class="panel-title"><?php _e('Installed Modules', 'gmLang'); ?></h3>
+				<h3 class="panel-title"><?php _e('Installed Modules', 'grand-media'); ?></h3>
 			</div>
 			<div class="panel-body" id="gmedia-msg-panel"></div>
 			<div class="panel-body">
@@ -97,7 +97,7 @@ function gmediaModules(){
 						$update_button = '';
 						if(isset($xml_modules[$module_name])){
 							if(version_compare((float)$xml_modules[$module_name]['version'], (float)$module_info['version'], '>')){
-								$update_button = '<a class="btn btn-warning module_install" data-module="' . $module_name . '" data-loading-text="' . __('Loading...', 'gmLang') . '" href="' . esc_url($xml_modules[$module_name]['download']) . '">' . __('Update Module', 'gmLang') . " (v{$xml_modules[$module_name]['version']})</a>";
+								$update_button = '<a class="btn btn-warning module_install" data-module="' . $module_name . '" data-loading-text="' . __('Loading...', 'grand-media') . '" href="' . esc_url($xml_modules[$module_name]['download']) . '">' . __('Update Module', 'grand-media') . " (v{$xml_modules[$module_name]['version']})</a>";
 								$mclass .= ' module-update';
 							} else{
 								unset($xml_modules[$module_name]);
@@ -111,23 +111,23 @@ function gmediaModules(){
 							<div class="media-body" style="margin-left:340px;">
 								<h4 class="media-heading"><?php echo $m['title']; ?></h4>
 
-								<p class="version"><?php echo __('Version', 'gmLang') . ': ' . $module_info['version']; ?></p>
+								<p class="version"><?php echo __('Version', 'grand-media') . ': ' . $module_info['version']; ?></p>
 
 								<div class="description"><?php echo str_replace("\n", '<br />', (string)$m['description']); ?></div>
 								<hr/>
 								<p class="buttons">
 									<?php if(!empty($m['demo']) && $m['demo'] != '#'){ ?>
-										<a class="btn btn-default" target="_blank" href="<?php echo $m['demo']; ?>"><?php _e('View Demo', 'gmLang') ?></a>
+										<a class="btn btn-default" target="_blank" href="<?php echo $m['demo']; ?>"><?php _e('View Demo', 'grand-media') ?></a>
 									<?php } ?>
 									<a class="btn btn-success" href="<?php echo $gmCore->get_admin_url(array(
 										'page' => 'GrandMedia_Galleries',
 										'gallery_module' => $module_name
-									), array(), true); ?>"><?php _e('Create Gallery', 'gmLang'); ?></a>
+									), array(), true); ?>"><?php _e('Create Gallery', 'grand-media'); ?></a>
 									<?php echo $update_button; ?>
 									<?php if(('upload' == $place) && $gmCore->caps['gmedia_module_manage']){ ?>
 										<a class="btn btn-danger" href="<?php echo wp_nonce_url($gmCore->get_admin_url(array(
 											'delete_module' => $module_name
-										), array(), $url), 'gmedia_module_delete'); ?>"><?php _e('Delete Module', 'gmLang'); ?></a>
+										), array(), $url), 'gmedia_module_delete'); ?>"><?php _e('Delete Module', 'grand-media'); ?></a>
 									<?php } ?>
 								</p>
 							</div>
@@ -142,7 +142,7 @@ function gmediaModules(){
 		<?php if(!empty($xml_modules)){ ?>
 			<div class="panel panel-default">
 				<div class="panel-heading clearfix">
-					<h3 class="panel-title"><?php _e('Not Installed Modules', 'gmLang'); ?></h3>
+					<h3 class="panel-title"><?php _e('Not Installed Modules', 'grand-media'); ?></h3>
 				</div>
 				<div class="panel-body" id="gmedia-msg-panel"></div>
 				<div class="panel-body">
@@ -161,15 +161,15 @@ function gmediaModules(){
 							<div class="media-body" style="margin-left:340px;">
 								<h4 class="media-heading"><?php echo $m['title']; ?></h4>
 
-								<p class="version"><?php echo __('Version', 'gmLang') . ': ' . $m['version']; ?></p>
+								<p class="version"><?php echo __('Version', 'grand-media') . ': ' . $m['version']; ?></p>
 
 								<div class="description"><?php echo str_replace("\n", '<br />', (string)$m['description']); ?></div>
 								<hr/>
 								<p class="buttons">
 									<?php if(!empty($m['demo']) && $m['demo'] != '#'){ ?>
-										<a class="btn btn-default" target="_blank" href="<?php echo $m['demo']; ?>"><?php _e('View Demo', 'gmLang') ?></a>
+										<a class="btn btn-default" target="_blank" href="<?php echo $m['demo']; ?>"><?php _e('View Demo', 'grand-media') ?></a>
 									<?php } ?>
-									<a class="btn btn-primary <?php echo $gmCore->caps['gmedia_module_manage']? 'module_install' : 'disabled'; ?>" data-module="<?php echo $m['name']; ?>" data-loading-text="<?php _e('Loading...', 'gmLang'); ?>" href="<?php echo $m['download']; ?>"><?php _e('Install Module', 'gmLang'); ?></a>
+									<a class="btn btn-primary <?php echo $gmCore->caps['gmedia_module_manage']? 'module_install' : 'disabled'; ?>" data-module="<?php echo $m['name']; ?>" data-loading-text="<?php _e('Loading...', 'grand-media'); ?>" href="<?php echo $m['download']; ?>"><?php _e('Install Module', 'grand-media'); ?></a>
 								</p>
 							</div>
 						</div>
@@ -195,8 +195,8 @@ function gmediaModules(){
 						<input type="file" id="modulezip" name="modulezip"/>
 					</div>
 					<div class="modal-footer">
-						<button type="button" class="btn btn-default" data-dismiss="modal"><?php _e('Cancel', 'gmLang'); ?></button>
-						<button type="submit" class="btn btn-primary"><?php _e('Install', 'gmLang'); ?></button>
+						<button type="button" class="btn btn-default" data-dismiss="modal"><?php _e('Cancel', 'grand-media'); ?></button>
+						<button type="submit" class="btn btn-primary"><?php _e('Install', 'grand-media'); ?></button>
 					</div>
 				</form>
 			</div>

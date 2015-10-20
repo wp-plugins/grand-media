@@ -1,15 +1,18 @@
 <?php
 /*
-Plugin Name: Gmedia Gallery
-Plugin URI: http://wordpress.org/extend/plugins/grand-media/
-Description: Gmedia Gallery - powerfull media library plugin for creating beautiful galleries and managing files.
-Version: 1.7.4
-Author: Rattus
-Author URI: http://codeasily.com/
-Requires at least: 3.6
-Tested up to: 4.3
-
--------------------
+ * Plugin Name: Gmedia Gallery
+ * Plugin URI: http://wordpress.org/extend/plugins/grand-media/
+ * Description: Gmedia Gallery - powerfull media library plugin for creating beautiful galleries and managing files.
+ * Version: 1.7.9
+ * Author: Rattus
+ * Author URI: http://codeasily.com/
+ * Requires at least: 3.6
+ * Tested up to: 4.3.1
+ * Text Domain: grand-media
+ * Domain Path: /languages
+ *
+ */
+/* -------------------
 
 		Copyright (C) 2011  Rattus  (email : gmediafolder@gmail.com)
 
@@ -39,7 +42,7 @@ if(!class_exists('Gmedia')){
 	 */
 	class Gmedia{
 
-		var $version = '1.7.4';
+		var $version = '1.7.9';
 		var $dbversion = '0.9.6';
 		var $minium_WP = '3.6';
 		var $options = '';
@@ -61,6 +64,10 @@ if(!class_exists('Gmedia')){
 			$this->load_options();
 			$this->define_constant();
 			$this->define_tables();
+
+			// Load global libraries
+			require_once(dirname(__FILE__) . '/inc/core.php');
+			require_once(dirname(__FILE__) . '/inc/db.connect.php');
 
 			if($this->options['debug_mode']){
 				ini_set( 'display_errors', true );
@@ -95,10 +102,12 @@ if(!class_exists('Gmedia')){
 			//Add some links on the plugins page
 			//add_filter( 'plugin_row_meta', array( &$this, 'add_plugin_links' ), 10, 2 );
 
-			$this->load_dependencies();
 		}
 
 		function start_plugin(){
+
+			$this->load_dependencies();
+			$this->compatibility();
 
 			// Load the language file
 			$this->load_textdomain();
@@ -106,20 +115,15 @@ if(!class_exists('Gmedia')){
 			// Check for upgrade
 			$this->upgrade();
 
-			require_once(dirname(__FILE__) . '/inc/hashids.php');
-			require_once(dirname(__FILE__) . '/inc/permalinks.php');
-
 			// Load the admin panel or the frontend functions
 			if(is_admin()){
+
+				require_once(dirname(__FILE__) . '/admin/processor.php');
 
 				// Pass the init check or show a message
 				if(get_option('gmediaInitCheck')){
 					add_action('admin_notices', array(&$this, 'admin_notices'));
 				}
-
-				require_once(dirname(__FILE__) . '/admin/processor.php');
-				require_once(dirname(__FILE__) . '/inc/media-upload.php');
-				require_once(dirname(__FILE__) . '/inc/post-metabox.php');
 
 			} else{
 
@@ -158,20 +162,20 @@ if(!class_exists('Gmedia')){
 
 			// Check for WP version installation
 			if(version_compare($wp_version, $this->minium_WP, '<')){
-				$note = sprintf(__('Sorry, Gmedia Gallery works only under WordPress %s or higher', 'gmLang'), $this->minium_WP);
+				$note = sprintf(__('Sorry, Gmedia Gallery works only under WordPress %s or higher', 'grand-media'), $this->minium_WP);
 				update_option('gmediaInitCheck', $note);
 				add_action('admin_notices', array(&$this, 'admin_notices'));
 
 				return false;
 			}
 			if(version_compare('5.2', phpversion(), '>')){
-				$note = sprintf(__('Attention! Your server php version is: %s. Gmedia Gallery requires php version 5.2+ in order to run properly. Please upgrade your server!', 'gmLang'), phpversion());
+				$note = sprintf(__('Attention! Your server php version is: %s. Gmedia Gallery requires php version 5.2+ in order to run properly. Please upgrade your server!', 'grand-media'), phpversion());
 				update_option('gmediaInitCheck', $note);
 				add_action('admin_notices', array(&$this, 'admin_notices'));
 			}
 			if(version_compare('5.3', phpversion(), '>')){
 				if(ini_get('safe_mode')){
-					$note = __('Attention! Your server safe mode is: ON. Gmedia Gallery requires safe mode to be OFF in order to run properly. Please set your server safe mode option!', 'gmLang');
+					$note = __('Attention! Your server safe mode is: ON. Gmedia Gallery requires safe mode to be OFF in order to run properly. Please set your server safe mode option!', 'grand-media');
 					update_option('gmediaInitCheck', $note);
 					add_action('admin_notices', array(&$this, 'admin_notices'));
 				}
@@ -234,35 +238,41 @@ if(!class_exists('Gmedia')){
 
 		function load_dependencies(){
 
-			// Load global libraries
-			require_once(dirname(__FILE__) . '/inc/core.php');
-			require_once(dirname(__FILE__) . '/inc/db.connect.php');
+			require_once(dirname(__FILE__) . '/inc/permalinks.php');
 
 			// We didn't need all stuff during a AJAX operation
 			if(defined('DOING_AJAX')){
 				require_once(dirname(__FILE__) . '/admin/ajax.php');
 			} else{
+				require_once(dirname(__FILE__) . '/inc/hashids.php');
+
 				// Load backend libraries
 				if(is_admin()){
+					require_once(dirname(__FILE__) . '/inc/media-upload.php');
+					require_once(dirname(__FILE__) . '/inc/post-metabox.php');
+
 					require_once(dirname(__FILE__) . '/admin/admin.php');
-					new GmediaAdmin();
 
 					// Load frontend libraries
 				} else{
 					require_once(dirname(__FILE__) . '/inc/shortcodes.php');
 				}
-			}
 
-			$current_plugins = get_option('active_plugins');
-			if (in_array('wordpress-seo/wp-seo.php', $current_plugins)) {
-				require_once (dirname (__FILE__) . '/inc/sitemap.php');
+				$current_plugins = get_option('active_plugins');
+				if (in_array('wordpress-seo/wp-seo.php', $current_plugins)) {
+					require_once (dirname (__FILE__) . '/inc/sitemap.php');
+				}
 			}
 
 		}
 
+		function compatibility(){
+			require_once(dirname(__FILE__) . '/inc/compatibility.php');
+		}
+
 		function load_textdomain(){
 
-			load_plugin_textdomain('gmLang', false, GMEDIA_FOLDER . '/languages/');
+			load_plugin_textdomain('grand-media', false, GMEDIA_FOLDER . '/languages/');
 
 		}
 
@@ -278,12 +288,12 @@ if(!class_exists('Gmedia')){
 				'pluginPath' => $gmCore->gmedia_url
 			));
 
-			wp_register_style('grand-media', $gmCore->gmedia_url . '/admin/css/grand-media.css', array(), '1.7.1', 'all');
-			wp_register_script('grand-media', $gmCore->gmedia_url . '/admin/js/grand-media.js', array('jquery', 'gmedia-global-backend'), '1.7.0');
+			wp_register_style('grand-media', $gmCore->gmedia_url . '/admin/css/grand-media.css', array(), '1.7.9', 'all');
+			wp_register_script('grand-media', $gmCore->gmedia_url . '/admin/js/grand-media.js', array('jquery', 'gmedia-global-backend'), '1.7.9');
 			wp_localize_script('grand-media', 'grandMedia', array(
-				'error3' => __('Disable your Popup Blocker and try again.', 'gmLang'),
-				'download' => __('downloading...', 'gmLang'),
-				'wait' => __('Working. Wait please.', 'gmLang'),
+				'error3' => __('Disable your Popup Blocker and try again.', 'grand-media'),
+				'download' => __('downloading...', 'grand-media'),
+				'wait' => __('Working. Wait please.', 'grand-media'),
 				'nonce' => wp_create_nonce('grandMedia')
 			));
 
@@ -503,10 +513,10 @@ if(!class_exists('Gmedia')){
 		function add_plugin_links( $links, $file ) {
 			// TODO plugin links
 			if ( $file == plugin_basename( __FILE__ ) ) {
-				$links[] = '<a href="admin.php?page=GrandMedia">' . __( 'Overview', 'gmLang' ) . '</a>';
-				$links[] = '<a href="#">' . __( 'Get help', 'gmLang' ) . '</a>';
-				$links[] = '<a href="#">' . __( 'Contribute', 'gmLang' ) . '</a>';
-				$links[] = '<a href="#">' . __( 'Donate', 'gmLang' ) . '</a>';
+				$links[] = '<a href="admin.php?page=GrandMedia">' . __( 'Overview', 'grand-media' ) . '</a>';
+				$links[] = '<a href="#">' . __( 'Get help', 'grand-media' ) . '</a>';
+				$links[] = '<a href="#">' . __( 'Contribute', 'grand-media' ) . '</a>';
+				$links[] = '<a href="#">' . __( 'Donate', 'grand-media' ) . '</a>';
 			}
 			return $links;
 		}

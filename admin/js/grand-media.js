@@ -252,7 +252,7 @@ jQuery(function($){
 				$('.modal-title', modal_div).text($(this).attr('title'));
 
 				if(data['metainfo']){
-					$('.modal-dialog', modal_div).addClass('modal-sm');
+					$('.modal-dialog', modal_div).addClass('modal-md');
 					$('.modal-body', modal_div).html($('#metainfo_'+data['metainfo']).html());
 				} else{
 					$('.modal-dialog', modal_div).css('width', (data['width'] + 32));

@@ -1118,26 +1118,7 @@ class GmediaCore {
 
 		list( , , $sourceImageType ) = getimagesize( $file );
 
-		/*
-		 * EXIF contains a bunch of data we'll probably never need formatted in ways
-		 * that are difficult to use. We'll normalize it and just extract the fields
-		 * that are likely to be useful. Fractions and numbers are converted to
-		 * floats, dates to unix timestamps, and everything else to strings.
-		 */
-		$meta = array(
-			'aperture' => 0,
-			'credit' => '',
-			'camera' => '',
-			'caption' => '',
-			'created_timestamp' => 0,
-			'copyright' => '',
-			'focal_length' => 0,
-			'iso' => 0,
-			'keywords' => array(),
-			'shutter_speed' => 0,
-			'title' => '',
-			'orientation' => 0,
-		);
+		$meta = array();
 
 		/*
 		 * Read IPTC first, since it might contain data not available in exif such
@@ -1203,11 +1184,13 @@ class GmediaCore {
 		 */
 		if ( is_callable( 'exif_read_data' ) && in_array( $sourceImageType, apply_filters( 'wp_read_image_metadata_types', array( IMAGETYPE_JPEG, IMAGETYPE_TIFF_II, IMAGETYPE_TIFF_MM ) ) ) ) {
 			$exif = @exif_read_data( $file );
+			unset($exif['MakerNote']);
 
+			// Title
 			if ( empty( $meta['title'] ) && ! empty( $exif['Title'] ) ) {
 				$meta['title'] = trim( $exif['Title'] );
 			}
-
+			// Descrioption
 			if ( ! empty( $exif['ImageDescription'] ) ) {
 				mbstring_binary_safe_encoding();
 				$description_length = strlen( $exif['ImageDescription'] );
@@ -1225,7 +1208,7 @@ class GmediaCore {
 			} elseif ( empty( $meta['caption'] ) && ! empty( $exif['Comments'] ) && trim( $exif['Comments'] ) != $meta['title'] ) {
 				$meta['caption'] = trim( $exif['Comments'] );
 			}
-
+			// Credit
 			if ( empty( $meta['credit'] ) ) {
 				if ( ! empty( $exif['Artist'] ) ) {
 					$meta['credit'] = trim( $exif['Artist'] );
@@ -1233,36 +1216,113 @@ class GmediaCore {
 					$meta['credit'] = trim( $exif['Author'] );
 				}
 			}
-
+			// Copyright
 			if ( empty( $meta['copyright'] ) && ! empty( $exif['Copyright'] ) ) {
 				$meta['copyright'] = trim( $exif['Copyright'] );
 			}
-			if ( ! empty( $exif['FNumber'] ) ) {
-				$meta['aperture'] = round( wp_exif_frac2dec( $exif['FNumber'] ), 2 );
+			// Camera Make
+			if ( ! empty( $exif['Make'] ) ) {
+				$meta['make']     = $exif['Make'];
 			}
+			// Camera Model
 			if ( ! empty( $exif['Model'] ) ) {
-				$meta['camera'] = trim( $exif['Model'] );
+				$meta['model'] = trim( $exif['Model'] );
 			}
-			if ( empty( $meta['created_timestamp'] ) && ! empty( $exif['DateTimeDigitized'] ) ) {
-				$meta['created_timestamp'] = wp_exif_date2ts( $exif['DateTimeDigitized'] );
+			// Exposure Time (shutter speed)
+			if ( ! empty( $exif['ExposureTime'] ) ) {
+				$meta['exposure'] = $exif['ExposureTime'] . 's';
+				$meta['shutter_speed'] = (string) wp_exif_frac2dec( $exif['ExposureTime'] ) . 's';
 			}
-			if ( ! empty( $exif['FocalLength'] ) ) {
-				$meta['focal_length'] = (string) wp_exif_frac2dec( $exif['FocalLength'] );
+			// Aperture
+			if ( ! empty( $exif['COMPUTED']['ApertureFNumber'] ) ) {
+				$meta['aperture'] = $exif['COMPUTED']['ApertureFNumber'];
+			} elseif ( ! empty( $exif['FNumber'] ) ) {
+				$meta['aperture'] = 'f/'. (string) round( wp_exif_frac2dec( $exif['FNumber'] ), 2 );
 			}
+			// ISO
 			if ( ! empty( $exif['ISOSpeedRatings'] ) ) {
 				$meta['iso'] = is_array( $exif['ISOSpeedRatings'] ) ? reset( $exif['ISOSpeedRatings'] ) : $exif['ISOSpeedRatings'];
 				$meta['iso'] = trim( $meta['iso'] );
 			}
-			if ( ! empty( $exif['ExposureTime'] ) ) {
-				$meta['shutter_speed'] = (string) wp_exif_frac2dec( $exif['ExposureTime'] );
+			// Date
+			if ( ! empty( $exif['DateTime'] ) ) {
+				$meta['date'] = $exif['DateTime'];
 			}
+			// Created TimeStamp
+			if ( empty( $meta['created_timestamp'] ) && ! empty( $exif['DateTimeDigitized'] ) ) {
+				$meta['created_timestamp'] = wp_exif_date2ts( $exif['DateTimeDigitized'] );
+			}
+			// Lens
+			if ( ! empty( $exif['UndefinedTag:0xA434'] ) ) {
+				$meta['lens'] = $exif['UndefinedTag:0xA434'];
+			}
+			// Focus Distance
+			if ( ! empty( $exif['COMPUTED']['FocusDistance'] ) ) {
+				$meta['distance'] = $exif['COMPUTED']['FocusDistance'];
+			}
+			// Focal Length
+			if ( ! empty( $exif['FocalLength'] ) ) {
+				$meta['focallength'] = (string) round( wp_exif_frac2dec( $exif['FocalLength'] ) ) . 'mm';
+			}
+			// Focal Length 35mm
+			if ( ! empty( $exif['FocalLengthIn35mmFilm'] ) ) {
+				$meta['focallength35'] = $exif['FocalLengthIn35mmFilm'] . 'mm';
+			}
+			// Flash data
+			if ( ! empty( $exif['Flash'] ) ) {
+				// we need to interpret the result - it's given as a number and we want a human-readable description.
+				$fdata = $exif['Flash'];
+
+				switch($fdata){
+					case 0 : $fdata = 'No Flash'; break;
+					case 1 : $fdata = 'Flash'; break;
+					case 5 : $fdata = 'Flash, strobe return light not detected'; break;
+					case 7 : $fdata = 'Flash, strob return light detected'; break;
+					case 9 : $fdata = 'Compulsory Flash'; break;
+					case 13: $fdata = 'Compulsory Flash, Return light not detected'; break;
+					case 15: $fdata = 'Compulsory Flash, Return light detected'; break;
+					case 16: $fdata = 'No Flash'; break;
+					case 24: $fdata = 'No Flash'; break;
+					case 25: $fdata = 'Flash, Auto-Mode'; break;
+					case 29: $fdata = 'Flash, Auto-Mode, Return light not detected'; break;
+					case 31: $fdata = 'Flash, Auto-Mode, Return light detected'; break;
+					case 32: $fdata = 'No Flash'; break;
+					case 65: $fdata = 'Red Eye'; break;
+					case 69: $fdata = 'Red Eye, Return light not detected'; break;
+					case 71: $fdata = 'Red Eye, Return light detected'; break;
+					case 73: $fdata = 'Red Eye, Compulsory Flash'; break;
+					case 77: $fdata = 'Red Eye, Compulsory Flash, Return light not detected'; break;
+					case 79: $fdata = 'Red Eye, Compulsory Flash, Return light detected'; break;
+					case 89: $fdata = 'Red Eye, Auto-Mode'; break;
+					case 93: $fdata = 'Red Eye, Auto-Mode, Return light not detected'; break;
+					case 95: $fdata = 'Red Eye, Auto-Mode, Return light detected'; break;
+					default: $fdata = 'Unknown: ' . $fdata; break;
+				}
+				$meta['flashdata'] = $fdata;
+			}
+			// Lens Make
+			if ( ! empty( $exif['UndefinedTag:0xA433'] ) ) {
+				$meta['lensmake'] = $exif['UndefinedTag:0xA433'];
+			}
+			// Software
+			if ( ! empty( $exif['Software'] ) ) {
+				$meta['software'] = $exif['Software'];
+			}
+			// Orientation
 			if ( ! empty( $exif['Orientation'] ) ) {
 				$meta['orientation'] = $exif['Orientation'];
 			}
+
+			$exif_sections = @exif_read_data( $file, null, true );
+			if(isset($exif_sections['GPS'])) {
+				$meta['GPS'] = $this->getGPSfromExif($exif_sections['GPS']);
+			}
+			unset($exif_sections);
+			//$meta['exif'] = $exif;
 		}
 
-		foreach ( array( 'title', 'caption', 'credit', 'copyright', 'camera', 'iso' ) as $key ) {
-			if ( $meta[ $key ] && ! seems_utf8( $meta[ $key ] ) ) {
+		foreach ( array( 'title', 'caption', 'credit', 'copyright', 'model', 'iso', 'software' ) as $key ) {
+			if ( !empty($meta[ $key ]) && ! seems_utf8( $meta[ $key ] ) ) {
 				$meta[ $key ] = utf8_encode( $meta[ $key ] );
 			}
 		}
@@ -1439,7 +1499,7 @@ class GmediaCore {
 			$return = array(
 				"error" => array(
 					"code"    => 100,
-					"message" => sprintf( __( 'Unable to create directory %s. Is its parent directory writable by the server?', 'gmLang' ), $fileinfo['dirpath'] )
+					"message" => sprintf( __( 'Unable to create directory %s. Is its parent directory writable by the server?', 'grand-media' ), $fileinfo['dirpath'] )
 				),
 				"id"    => $fileinfo['basename']
 			);
@@ -1453,7 +1513,7 @@ class GmediaCore {
 				$return = array(
 					"error" => array(
 						"code"    => 100,
-						"message" => sprintf( __( 'Directory %s or its subfolders are not writable by the server.', 'gmLang' ), dirname( $fileinfo['dirpath'] ) )
+						"message" => sprintf( __( 'Directory %s or its subfolders are not writable by the server.', 'grand-media' ), dirname( $fileinfo['dirpath'] ) )
 					),
 					"id"    => $fileinfo['basename']
 				);
@@ -1475,7 +1535,7 @@ class GmediaCore {
 			closedir( $_dir );
 		} else {
 			$return = array(
-				"error" => array( "code" => 100, "message" => sprintf( __( 'Failed to open directory: %s', 'gmLang' ), $fileinfo['dirpath'] ) ),
+				"error" => array( "code" => 100, "message" => sprintf( __( 'Failed to open directory: %s', 'grand-media' ), $fileinfo['dirpath'] ) ),
 				"id"    => $fileinfo['basename']
 			);
 
@@ -1493,7 +1553,7 @@ class GmediaCore {
 					fwrite( $out, $buff );
 				}
 			} else {
-				$return = array( "error" => array( "code" => 101, "message" => __( "Failed to open input stream.", 'gmLang' ) ), "id" => $fileinfo['basename'] );
+				$return = array( "error" => array( "code" => 101, "message" => __( "Failed to open input stream.", 'grand-media' ) ), "id" => $fileinfo['basename'] );
 
 				return $return;
 			}
@@ -1559,7 +1619,7 @@ class GmediaCore {
 							$return = array(
 								"error" => array(
 									"code"    => 100,
-									"message" => sprintf( __( 'Unable to create directory %s. Is its parent directory writable by the server?', 'gmLang' ), $fileinfo['dirpath_thumb'] )
+									"message" => sprintf( __( 'Unable to create directory %s. Is its parent directory writable by the server?', 'grand-media' ), $fileinfo['dirpath_thumb'] )
 								),
 								"id"    => $fileinfo['basename']
 							);
@@ -1573,7 +1633,7 @@ class GmediaCore {
 								$return = array(
 									"error" => array(
 										"code"    => 100,
-										"message" => sprintf( __( 'Directory %s is not writable by the server.', 'gmLang' ), $fileinfo['dirpath_thumb'] )
+										"message" => sprintf( __( 'Directory %s is not writable by the server.', 'grand-media' ), $fileinfo['dirpath_thumb'] )
 									),
 									"id"    => $fileinfo['basename']
 								);
@@ -1585,7 +1645,7 @@ class GmediaCore {
 							$return = array(
 								"error" => array(
 									"code"    => 100,
-									"message" => sprintf( __( 'Unable to create directory %s. Is its parent directory writable by the server?', 'gmLang' ), $fileinfo['dirpath_original'] )
+									"message" => sprintf( __( 'Unable to create directory %s. Is its parent directory writable by the server?', 'grand-media' ), $fileinfo['dirpath_original'] )
 								),
 								"id"    => $fileinfo['basename']
 							);
@@ -1599,7 +1659,7 @@ class GmediaCore {
 								$return = array(
 									"error" => array(
 										"code"    => 100,
-										"message" => sprintf( __( 'Directory %s is not writable by the server.', 'gmLang' ), $fileinfo['dirpath_original'] )
+										"message" => sprintf( __( 'Directory %s is not writable by the server.', 'grand-media' ), $fileinfo['dirpath_original'] )
 									),
 									"id"    => $fileinfo['basename']
 								);
@@ -1697,7 +1757,7 @@ class GmediaCore {
 					} else {
 						@unlink( $fileinfo['filepath'] );
 						$return = array(
-							"error" => array( "code" => 104, "message" => __( "Could not read image size. Invalid image was deleted.", 'gmLang' ) ),
+							"error" => array( "code" => 104, "message" => __( "Could not read image size. Invalid image was deleted.", 'grand-media' ) ),
 							"id"    => $fileinfo['basename']
 						);
 
@@ -1723,15 +1783,17 @@ class GmediaCore {
 				// use image exif/iptc data for title and caption defaults if possible
 				if ( $size ) {
 					$image_meta = @$gmCore->wp_read_image_metadata( $fileinfo['filepath_original'] );
-					if ( trim( $image_meta['caption'] ) ) {
+					if ( !empty($image_meta['caption']) && trim( $image_meta['caption'] ) ) {
 						$description = $image_meta['caption'];
 					}
 					if ( 'exif' == $post_data['set_title'] ) {
-						if ( trim( $image_meta['title'] ) && ! is_numeric( sanitize_title( $image_meta['title'] ) ) ) {
+						if ( !empty($image_meta['title']) &&  trim( $image_meta['title'] ) && ! is_numeric( sanitize_title( $image_meta['title'] ) ) ) {
 							$title = $image_meta['title'];
 						}
 					}
-					$keywords = $image_meta['keywords'];
+					if(!empty($image_meta['keywords'])) {
+						$keywords = $image_meta['keywords'];
+					}
 					/*if(!empty($image_meta['created_timestamp']) && ($created_timestamp = date('Y-m-d H:i:s', strtotime($image_meta['created_timestamp'])))){
 						$date = $created_timestamp;
 					}*/
@@ -1790,9 +1852,17 @@ class GmediaCore {
 				$id = $gmDB->insert_gmedia( $media_data );
 				$media_metadata = $gmDB->generate_gmedia_metadata( $id, $fileinfo );
 				$gmDB->update_metadata( $meta_type = 'gmedia', $id, $meta_key = '_metadata', $media_metadata );
+				if($size){
+					if(!empty($image_meta['created_timestamp'])){
+						$gmDB->update_metadata( $meta_type = 'gmedia', $id, $meta_key = '_created_timestamp', $image_meta['created_timestamp'] );
+					}
+					if(!empty($image_meta['GPS'])){
+						$gmDB->update_metadata( $meta_type = 'gmedia', $id, $meta_key = '_gps', $image_meta['GPS'] );
+					}
+				}
 
 				$return = array(
-					"success" => array( "code" => 200, "message" => sprintf( __( 'File uploaded successful. Assigned ID: %s', 'gmLang' ), $id ) ),
+					"success" => array( "code" => 200, "message" => sprintf( __( 'File uploaded successful. Assigned ID: %s', 'grand-media' ), $id ) ),
 					"id"      => $fileinfo['basename']
 				);
 
@@ -1803,7 +1873,7 @@ class GmediaCore {
 				return $return;
 			}
 		} else {
-			$return = array( "error" => array( "code" => 102, "message" => __( "Failed to open output stream.", 'gmLang' ) ), "id" => $fileinfo['basename'] );
+			$return = array( "error" => array( "code" => 102, "message" => __( "Failed to open output stream.", 'grand-media' ) ), "id" => $fileinfo['basename'] );
 
 			return $return;
 		}
@@ -1846,7 +1916,7 @@ class GmediaCore {
 				if ( isset( $file['file'] ) ) {
 					extract( $file );
 				} else {
-					_e( 'Something went wrong...', 'gmLang' );
+					_e( 'Something went wrong...', 'grand-media' );
 					die();
 				}
 			}
@@ -1859,7 +1929,7 @@ class GmediaCore {
 			$prefix_ko = "\n<pre class='ko'>$i/$c - ";
 
 			if ( ! is_file( $file ) ) {
-				echo $prefix_ko . sprintf( __( 'File not exists: %s', 'gmLang' ), $file ) . $eol;
+				echo $prefix_ko . sprintf( __( 'File not exists: %s', 'grand-media' ), $file ) . $eol;
 				continue;
 			}
 
@@ -1871,27 +1941,27 @@ class GmediaCore {
 			$fileinfo = $gmCore->fileinfo( $file, $file_suffix );
 
 			if(('skip' === $exists) && file_exists( $fileinfo['filepath'] )){
-				echo $prefix . $fileinfo['basename'] . ': ' . __( 'file already exists', 'gmLang' ) . $eol;
+				echo $prefix . $fileinfo['basename'] . ': ' . __( 'file already exists', 'grand-media' ) . $eol;
 				continue;
 			}
 
 
 			// try to make grand-media dir if not exists
 			if ( ! wp_mkdir_p( $fileinfo['dirpath'] ) ) {
-				echo $prefix_ko . sprintf( __( 'Unable to create directory `%s`. Is its parent directory writable by the server?', 'gmLang' ), $fileinfo['dirpath'] ) . $eol;
+				echo $prefix_ko . sprintf( __( 'Unable to create directory `%s`. Is its parent directory writable by the server?', 'grand-media' ), $fileinfo['dirpath'] ) . $eol;
 				continue;
 			}
 			// Check if grand-media dir is writable
 			if ( ! is_writable( $fileinfo['dirpath'] ) ) {
 				@chmod( $fileinfo['dirpath'], 0755 );
 				if ( ! is_writable( $fileinfo['dirpath'] ) ) {
-					echo $prefix_ko . sprintf( __( 'Directory `%s` or its subfolders are not writable by the server.', 'gmLang' ), dirname( $fileinfo['dirpath'] ) ) . $eol;
+					echo $prefix_ko . sprintf( __( 'Directory `%s` or its subfolders are not writable by the server.', 'grand-media' ), dirname( $fileinfo['dirpath'] ) ) . $eol;
 					continue;
 				}
 			}
 
 			if ( ! copy( $file, $fileinfo['filepath'] ) ) {
-				echo $prefix_ko . sprintf( __( "Can't copy file from `%s` to `%s`", 'gmLang' ), $file, $fileinfo['filepath'] ) . $eol;
+				echo $prefix_ko . sprintf( __( "Can't copy file from `%s` to `%s`", 'grand-media' ), $file, $fileinfo['filepath'] ) . $eol;
 				continue;
 			}
 
@@ -1943,26 +2013,26 @@ class GmediaCore {
 					}
 
 					if ( ! wp_mkdir_p( $fileinfo['dirpath_thumb'] ) ) {
-						echo $prefix_ko . sprintf( __( 'Unable to create directory `%s`. Is its parent directory writable by the server?', 'gmLang' ), $fileinfo['dirpath_thumb'] ) . $eol;
+						echo $prefix_ko . sprintf( __( 'Unable to create directory `%s`. Is its parent directory writable by the server?', 'grand-media' ), $fileinfo['dirpath_thumb'] ) . $eol;
 						continue;
 					}
 					if ( ! is_writable( $fileinfo['dirpath_thumb'] ) ) {
 						@chmod( $fileinfo['dirpath_thumb'], 0755 );
 						if ( ! is_writable( $fileinfo['dirpath_thumb'] ) ) {
 							@unlink( $fileinfo['filepath'] );
-							echo $prefix_ko . sprintf( __( 'Directory `%s` is not writable by the server.', 'gmLang' ), $fileinfo['dirpath_thumb'] ) . $eol;
+							echo $prefix_ko . sprintf( __( 'Directory `%s` is not writable by the server.', 'grand-media' ), $fileinfo['dirpath_thumb'] ) . $eol;
 							continue;
 						}
 					}
 					if ( ! wp_mkdir_p( $fileinfo['dirpath_original'] ) ) {
-						echo $prefix_ko . sprintf( __( 'Unable to create directory `%s`. Is its parent directory writable by the server?', 'gmLang' ), $fileinfo['dirpath_original'] ) . $eol;
+						echo $prefix_ko . sprintf( __( 'Unable to create directory `%s`. Is its parent directory writable by the server?', 'grand-media' ), $fileinfo['dirpath_original'] ) . $eol;
 						continue;
 					}
 					if ( ! is_writable( $fileinfo['dirpath_original'] ) ) {
 						@chmod( $fileinfo['dirpath_original'], 0755 );
 						if ( ! is_writable( $fileinfo['dirpath_original'] ) ) {
 							@unlink( $fileinfo['filepath'] );
-							echo $prefix_ko . sprintf( __( 'Directory `%s` is not writable by the server.', 'gmLang' ), $fileinfo['dirpath_original'] ) . $eol;
+							echo $prefix_ko . sprintf( __( 'Directory `%s` is not writable by the server.', 'grand-media' ), $fileinfo['dirpath_original'] ) . $eol;
 							continue;
 						}
 					}
@@ -2029,7 +2099,7 @@ class GmediaCore {
 					$is_webimage = true;
 				} else {
 					@unlink( $fileinfo['filepath'] );
-					echo $prefix_ko . $fileinfo['basename'] . ": " . __( "Could not read image size. Invalid image was deleted.", 'gmLang' ) . $eol;
+					echo $prefix_ko . $fileinfo['basename'] . ": " . __( "Could not read image size. Invalid image was deleted.", 'grand-media' ) . $eol;
 					continue;
 				}
 			}
@@ -2080,7 +2150,7 @@ class GmediaCore {
 			$id = $gmDB->insert_gmedia( $media_data );
 			$gmDB->update_metadata( $meta_type = 'gmedia', $id, $meta_key = '_metadata', $gmDB->generate_gmedia_metadata( $id, $fileinfo ) );
 
-			echo $prefix . $fileinfo['basename'] . ': <span class="ok">' . sprintf( __( 'success (ID #%s)', 'gmLang' ), $id ) . '</span>' . $eol;
+			echo $prefix . $fileinfo['basename'] . ': <span class="ok">' . sprintf( __( 'success (ID #%s)', 'grand-media' ), $id ) . '</span>' . $eol;
 
 			if ( $move ) {
 				@unlink( $file );
@@ -2126,7 +2196,7 @@ class GmediaCore {
 		}
 
 		if(in_array($service, array('app_activate','app_updateinfo')) && !is_email($data['email'])){
-			$result['error'] = $gmProcessor->alert('danger', __('Enter valid email, please', 'gmLang'));
+			$result['error'] = $gmProcessor->alert('danger', __('Enter valid email, please', 'grand-media'));
 		} else {
 
 			$hash = wp_generate_password('6', false);
@@ -2178,40 +2248,52 @@ class GmediaCore {
 	function i18n_exif_name($key) {
 		$_key = strtolower($key);
 		$tagnames = array(
-			'aperture' 			=> __('Aperture','gmLang'),
-			'credit' 			=> __('Credit','gmLang'),
-			'camera' 			=> __('Camera','gmLang'),
-			'caption' 			=> __('Caption','gmLang'),
-			'created_timestamp' => __('Date/Time','gmLang'),
-			'copyright' 		=> __('Copyright','gmLang'),
-			'focal_length' 		=> __('Focal length','gmLang'),
-			'iso' 				=> __('ISO','gmLang'),
-			'shutter_speed' 	=> __('Shutter speed','gmLang'),
-			'title' 			=> __('Title','gmLang'),
-			'author' 			=> __('Author','gmLang'),
-			'tags' 				=> __('Tags','gmLang'),
-			'subject' 			=> __('Subject','gmLang'),
-			'make' 				=> __('Make','gmLang'),
-			'status' 			=> __('Edit Status','gmLang'),
-			'category'			=> __('Category','gmLang'),
-			'keywords' 			=> __('Keywords','gmLang'),
-			'created_date' 		=> __('Date Created','gmLang'),
-			'created_time'		=> __('Time Created','gmLang'),
-			'position'			=> __('Author Position','gmLang'),
-			'city'				=> __('City','gmLang'),
-			'location'			=> __('Location','gmLang'),
-			'state' 			=> __('Province/State','gmLang'),
-			'country_code'		=> __('Country code','gmLang'),
-			'country'			=> __('Country','gmLang'),
-			'headline' 			=> __('Headline','gmLang'),
-			'source'			=> __('Source','gmLang'),
-			'contact'			=> __('Contact','gmLang'),
-			'last_modfied'		=> __('Last modified','gmLang'),
-			'tool'				=> __('Program tool','gmLang'),
-			'format'			=> __('Format','gmLang'),
-			'width'				=> __('Width','gmLang'),
-			'height'			=> __('Height','gmLang'),
-			'flash'				=> __('Flash','gmLang')
+			'aperture' 			=> __('Aperture','grand-media'),
+			'credit' 			=> __('Credit','grand-media'),
+			'camera' 			=> __('Camera','grand-media'),
+			'model' 			=> __('Camera','grand-media'),
+			'lens'  			=> __('Lens','grand-media'),
+			'lensmake'  		=> __('Lens Make','grand-media'),
+			'caption' 			=> __('Caption','grand-media'),
+			'date'              => __('Date/Time','grand-media'),
+			'created_timestamp' => __('Timestamp','grand-media'),
+			'created_date' 		=> __('Date Created','grand-media'),
+			'created_time'		=> __('Time Created','grand-media'),
+			'copyright' 		=> __('Copyright','grand-media'),
+			'focallength' 		=> __('Focal length','grand-media'),
+			'focallength35' 	=> __('Focal length in 35mm Film','grand-media'),
+			'iso' 				=> __('ISO','grand-media'),
+			'exposure' 	        => __('Exposure Time','grand-media'),
+			'shutter_speed' 	=> __('Shutter speed','grand-media'),
+			'title' 			=> __('Title','grand-media'),
+			'author' 			=> __('Author','grand-media'),
+			'tags' 				=> __('Tags','grand-media'),
+			'subject' 			=> __('Subject','grand-media'),
+			'make' 				=> __('Make','grand-media'),
+			'status' 			=> __('Edit Status','grand-media'),
+			'category'			=> __('Category','grand-media'),
+			'keywords' 			=> __('Keywords','grand-media'),
+			'position'			=> __('Author Position','grand-media'),
+			'GPS'				=> __('GPS','grand-media'),
+			'lat'				=> __('Latitude','grand-media'),
+			'lng'				=> __('Longtitude','grand-media'),
+			'city'				=> __('City','grand-media'),
+			'location'			=> __('Location','grand-media'),
+			'state' 			=> __('Province/State','grand-media'),
+			'country_code'		=> __('Country code','grand-media'),
+			'country'			=> __('Country','grand-media'),
+			'headline' 			=> __('Headline','grand-media'),
+			'source'			=> __('Source','grand-media'),
+			'contact'			=> __('Contact','grand-media'),
+			'last_modfied'		=> __('Last modified','grand-media'),
+			'tool'				=> __('Program tool','grand-media'),
+			'software'			=> __('Software','grand-media'),
+			'format'			=> __('Format','grand-media'),
+			'width'				=> __('Width','grand-media'),
+			'height'			=> __('Height','grand-media'),
+			'flash'				=> __('Flash','grand-media'),
+			'flashdata'			=> __('Flash','grand-media'),
+			'orientation'		=> __('Orientation','grand-media')
 		);
 
 		if (isset($tagnames[$_key])){
@@ -2237,7 +2319,7 @@ class GmediaCore {
 		}
 		?>
 		<fieldset id="gmediacustomstuff_<?php echo $gmedia_id; ?>" class="gmediacustomstuff" data-metatype="<?php echo $meta_type; ?>">
-			<legend class="label label-default" style="font-size:85%;"><?php _e('Custom Fields','gmLang'); ?></legend>
+			<legend class="label label-default" style="font-size:85%;"><?php _e('Custom Fields','grand-media'); ?></legend>
 			<?php
 			$metadata = $gmDB->has_meta($gmedia_id, $meta_type);
 			foreach ( $metadata as $key => $value ) {
@@ -2252,7 +2334,7 @@ class GmediaCore {
 				}
 			} ?>
 			</div>
-			<a href="#newCustomFieldModal" data-gmid="<?php echo $gmedia_id; ?>" class="newcustomfield-modal label label-primary"><?php _e( 'Add New Custom Field', 'gmLang' ) ?></a>
+			<a href="#newCustomFieldModal" data-gmid="<?php echo $gmedia_id; ?>" class="newcustomfield-modal label label-primary"><?php _e( 'Add New Custom Field', 'grand-media' ) ?></a>
 		</fieldset>
 		<p><?php _e('Custom fields can be used to add extra metadata to a gmedia item that developer can use in their templates.'); ?></p>
 	<?php
@@ -2285,7 +2367,7 @@ class GmediaCore {
 			<div class="form-group col-sm-6 gm-custom-meta-'.$entry['meta_id'].'">
 				<span class="delete-custom-field glyphicon glyphicon-remove pull-right text-danger"></span>
 				<label>'.$entry['meta_key'].'</label>
-				<textarea name="meta['.$entry['meta_id'].']" class="gmedia-custom-field gm-custom-field-'.$entry['meta_id'].' vert form-control input-sm" style="height:30px;" placeholder="'.__('Value', 'gmLang').'" rows="1" cols="30">'.$entry['meta_value'].'</textarea>
+				<textarea name="meta['.$entry['meta_id'].']" class="gmedia-custom-field gm-custom-field-'.$entry['meta_id'].' vert form-control input-sm" style="height:30px;" placeholder="'.__('Value', 'grand-media').'" rows="1" cols="30">'.$entry['meta_value'].'</textarea>
 			</div>
 		';
 
@@ -2343,8 +2425,8 @@ class GmediaCore {
 						</select>
 						<input type="text" class="metakeyinput hide-if-js form-control input-sm" name="metakeyinput" value="" />
 						<a href="#gmediacustomstuff" class="hide-if-no-js gmediacustomstuff" onclick="jQuery(\'.metakeyinput, .metakeyselect, .enternew, .cancelnew\', \'#newmeta\').toggle();jQuery(this).parent().toggleClass(\'newcfield\');return false;">
-							<span class="enternew">'.__('Enter new', 'gmLang').'</span>
-							<span class="cancelnew" style="display:none;">'.__('Cancel', 'gmLang').'</span></a>';
+							<span class="enternew">'.__('Enter new', 'grand-media').'</span>
+							<span class="cancelnew" style="display:none;">'.__('Cancel', 'grand-media').'</span></a>';
 					} else {
 						$meta_form .= '
 						<input type="text" class="metakeyinput form-control input-sm" name="metakeyinput" value="" />';
@@ -2352,7 +2434,7 @@ class GmediaCore {
 		$meta_form .= '
 				</div>
 				<div class="form-group col-sm-6">
-					<label>'.__( 'Value', 'gmLang' ).'</label>
+					<label>'.__( 'Value', 'grand-media' ).'</label>
 					<textarea class="metavalue vert form-control input-sm" name="metavalue" rows="2" cols="25"></textarea>
 				</div>
 			</div>
@@ -2430,6 +2512,7 @@ class GmediaCore {
 			$metainfo = $meta['image_meta'];
 		} else{
 			$metainfo = $meta;
+			unset($metainfo['web'],$metainfo['original'],$metainfo['thumb'],$metainfo['file']);
 		}
 
 		if(!empty($metainfo)){
@@ -2437,27 +2520,39 @@ class GmediaCore {
 				if(empty($value)){
 					continue;
 				}
-				if($key == 'aperture'){
-					$value = 'F ' . $value;
-				}
-				if($key == 'focal_length'){
-					$value = $value . ' mm';
-				}
-				if($key == 'shutter_speed'){
-					$value = $value . ' sec';
-				}
-				if($key == 'created_timestamp'){
-					$value = date_i18n(get_option('date_format') . ' ' . get_option('time_format'), $value);
-				}
-
 				$key_name = $this->i18n_exif_name($key);
 				$key_name = ucwords(str_replace('_', ' ', $key_name));
-
+				$value = $this->sanitize_meta_value($value);
 				$metadata[$key] = array('name' => $key_name, 'value' => $value);
 			}
 		}
 
 		return $metadata;
+	}
+
+	/**
+	 * @param $value
+	 *
+	 * @return array
+	 */
+	function sanitize_meta_value($value) {
+		if (is_array($value) && (bool) count( array_filter( array_keys( $value ), 'is_string' ) ) ) {
+			$value_return = array();
+			foreach ( $value as $key => $val ) {
+				if(empty($value)){
+					continue;
+				}
+				$key_name = $this->i18n_exif_name($key);
+				$key_name = ucwords(str_replace('_', ' ', $key_name));
+				if(is_array($val)){
+					$val = $this->sanitize_meta_value($val);
+				}
+				$value_return[$key] = array('name' => $key_name, 'value' => $val);
+			}
+		} else {
+			$value_return = $value;
+		}
+		return $value_return;
 	}
 
 	/** Get item Meta Text
@@ -2473,19 +2568,72 @@ class GmediaCore {
 				if($meta['name'] == 'Image'){
 					continue;
 				}
+				$metatext .= "<b>{$meta['name']}:</b>";
 				if(!is_array($meta['value'])){
-					$metatext .= "<b>{$meta['name']}:</b> {$meta['value']}\n";
+					$metatext .= " {$meta['value']}\n";
 				} else{
-					$metatext .= "<b>{$meta['name']}:</b>\n";
-					foreach($meta['value'] as $key => $value){
-						$key_name = ucwords(str_replace('_', ' ', $key));
-						$metatext .= " - <b>{$key_name}:</b> {$value}\n";
-					}
+					$value = $meta['value'];
+					$this->meta_value_array_show($metatext, $value);
 				}
 			}
 		}
 
 		return $metatext;
+	}
+
+	/**
+	 * @param $metatext
+	 * @param $value
+	 * @param int $pad
+	 */
+	function meta_value_array_show(&$metatext, $value, $pad = 0) {
+		if ( (bool) count( array_filter( array_keys( $value ), 'is_string' ) ) ) {
+			$pad++;
+			foreach ( $value as $val ) {
+				$metatext .= "\n" . str_pad('&nbsp;', $pad) . "- <b>{$val['name']}:</b> ";
+				if(is_array($val['value'])){
+					$this->meta_value_array_show($metatext, $val['value'], $pad);
+				} else {
+					$metatext .= $val['value'];
+				}
+			}
+		} else {
+			$metatext .= ' ' . implode( ', ', $value );
+		}
+		$metatext .= "\n";
+	}
+
+	/** Get [latitude, longtitude] coordinates from EXIF
+	 * @param array $gps Exif[GPS] array
+	 *
+	 * @return array
+	 */
+	function getGPSfromExif($gps) {
+		$lat = $this->getGPS($gps['GPSLatitude'], $gps['GPSLatitudeRef']);
+		$lng = $this->getGPS($gps['GPSLongitude'], $gps['GPSLongitudeRef']);
+		return array('lat' => round($lat, 4), 'lng' => round($lng, 4));
+	}
+
+	/**
+	 * @param $coordinate
+	 * @param $hemisphere
+	 *
+	 * @return int
+	 */
+	function getGPS($coordinate, $hemisphere) {
+		for ($i = 0; $i < 3; $i++) {
+			$part = explode('/', $coordinate[$i]);
+			if (count($part) == 1) {
+				$coordinate[$i] = $part[0];
+			} else if (count($part) == 2) {
+				$coordinate[$i] = floatval($part[0])/floatval($part[1]);
+			} else {
+				$coordinate[$i] = 0;
+			}
+		}
+		list($degrees, $minutes, $seconds) = $coordinate;
+		$sign = ($hemisphere == 'W' || $hemisphere == 'S') ? -1 : 1;
+		return $sign * ($degrees + $minutes/60 + $seconds/3600);
 	}
 
 	/**
@@ -2510,6 +2658,46 @@ class GmediaCore {
 		return $meta;
 	}
 
+	/**
+	 * Replace keys of an array based on a key map array
+	 *
+	 * @param $array
+	 * @param $keymap
+	 *
+	 * @return array
+	 * @throws Exception
+	 */
+	function replace_array_keys(&$array, $keymap) {
+		$replaced_keys = array();
+		$skipped = $keymap;
+		do {
+			$keymap = $skipped;
+			foreach ($keymap as $new_key => $original_key) {
+				if(isset($array[$original_key])) {
+					if ( ! isset( $array[ $new_key ] ) || ( isset( $replaced_keys[ $new_key ] ) && ! isset( $replaced_keys[ $original_key ] ) ) ) {
+						$array[ $new_key ] = $array[ $original_key ];
+						unset( $array[ $original_key ] );
+						$replaced_keys[ $original_key ] = $new_key;
+						unset( $skipped[ $new_key ] );
+					} elseif ( isset( $array[ $new_key ] ) && array_search( $new_key, $keymap ) === false ) {
+						throw new Exception( 'Trying to replace an array key with an already existing array key, without providing a new position for the existing array key in replace_array_keys().' );
+					} elseif ( isset( $array[ $new_key ] ) && $keymap[ $original_key ] == $new_key && ! isset( $replaced_keys[ $original_key ] ) ) {
+						//switch places.
+						$temp                           = $array[ $new_key ];
+						$array[ $new_key ]              = $array[ $original_key ];
+						$array[ $original_key ]         = $temp;
+						$replaced_keys[ $new_key ]      = $original_key;
+						$replaced_keys[ $original_key ] = $new_key;
+						unset( $skipped[ $new_key ] );
+						unset( $skipped[ $original_key ] );
+					}
+				} else {
+					unset( $skipped[ $new_key ] );
+				}
+			}
+		} while (!empty($skipped));
+		return $replaced_keys;
+	}
 }
 
 global $gmCore;

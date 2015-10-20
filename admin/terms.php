@@ -94,7 +94,7 @@ function gmediaTerms() {
 					<input type="hidden" name="page" value="<?php echo $gmProcessor->page; ?>"/>
 					<input type="hidden" name="term" value="<?php echo $taxonomy; ?>"/>
 					<input id="gmedia-search" class="form-control input-sm" type="text" name="s"
-					       placeholder="<?php _e( 'Search...', 'gmLang' ); ?>"
+					       placeholder="<?php _e( 'Search...', 'grand-media' ); ?>"
 					       value="<?php echo $gmCore->_get( 's', '' ); ?>"/>
 				</div>
 				<button type="submit" class="btn btn-default input-sm"><span class="glyphicon glyphicon-search"></span>
@@ -110,14 +110,14 @@ function gmediaTerms() {
                                                                 data-group="cb_term-object" type="checkbox"/></span>
 					<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
 						<span class="caret"></span>
-						<span class="sr-only"><?php _e( 'Toggle Dropdown', 'gmLang' ); ?></span>
+						<span class="sr-only"><?php _e( 'Toggle Dropdown', 'grand-media' ); ?></span>
 					</button>
 					<ul class="dropdown-menu" role="menu">
-						<li><a data-select="total" href="#"><?php _e( 'All', 'gmLang' ); ?></a></li>
-						<li><a data-select="none" href="#"><?php _e( 'None', 'gmLang' ); ?></a></li>
+						<li><a data-select="total" href="#"><?php _e( 'All', 'grand-media' ); ?></a></li>
+						<li><a data-select="none" href="#"><?php _e( 'None', 'grand-media' ); ?></a></li>
 						<li class="divider"></li>
 						<li><a data-select="reverse" href="#"
-						       title="<?php _e( 'Reverse only visible items', 'gmLang' ); ?>"><?php _e( 'Reverse', 'gmLang' ); ?></a>
+						       title="<?php _e( 'Reverse only visible items', 'grand-media' ); ?>"><?php _e( 'Reverse', 'grand-media' ); ?></a>
 						</li>
 					</ul>
 				</div>
@@ -126,19 +126,19 @@ function gmediaTerms() {
 			<?php
 			switch ( $taxonomy ) {
 				case 'gmedia_album':
-					$button_title = __( 'Show: Albums', 'gmLang' );
+					$button_title = __( 'Show: Albums', 'grand-media' );
 					break;
 				case 'gmedia_filter':
-					$button_title = __( 'Show: Filters', 'gmLang' );
+					$button_title = __( 'Show: Filters', 'grand-media' );
 					break;
 				case 'gmedia_tag':
-					$button_title = __( 'Show: Tags', 'gmLang' );
+					$button_title = __( 'Show: Tags', 'grand-media' );
 					break;
 				case 'gmedia_category':
-					$button_title = __( 'Show: Categories', 'gmLang' );
+					$button_title = __( 'Show: Categories', 'grand-media' );
 					break;
 				default:
-					$button_title = __( 'Show: Albums', 'gmLang' );
+					$button_title = __( 'Show: Albums', 'grand-media' );
 					break;
 			}
 			?>
@@ -149,30 +149,30 @@ function gmediaTerms() {
 				<ul class="dropdown-menu" role="menu">
 					<li<?php if ( 'gmedia_album' == $taxonomy ) {
 						echo ' class="active"';
-					} ?>><a href="<?php echo add_query_arg( array( 'term' => 'gmedia_album' ), $url ); ?>"><?php _e( 'Albums', 'gmLang' ); ?></a></li>
+					} ?>><a href="<?php echo add_query_arg( array( 'term' => 'gmedia_album' ), $url ); ?>"><?php _e( 'Albums', 'grand-media' ); ?></a></li>
 					<li<?php if ( 'gmedia_tag' == $taxonomy ) {
 						echo ' class="active"';
-					} ?>><a href="<?php echo add_query_arg( array( 'term' => 'gmedia_tag' ), $url ); ?>"><?php _e( 'Tags', 'gmLang' ); ?></a></li>
+					} ?>><a href="<?php echo add_query_arg( array( 'term' => 'gmedia_tag' ), $url ); ?>"><?php _e( 'Tags', 'grand-media' ); ?></a></li>
 					<li<?php if ( 'gmedia_category' == $taxonomy ) {
 						echo ' class="active"';
-					} ?>><a href="<?php echo add_query_arg( array( 'term' => 'gmedia_category' ), $url ); ?>"><?php _e( 'Categories', 'gmLang' ); ?></a></li>
+					} ?>><a href="<?php echo add_query_arg( array( 'term' => 'gmedia_category' ), $url ); ?>"><?php _e( 'Categories', 'grand-media' ); ?></a></li>
 					<li class="divider"></li>
 					<li<?php if ( 'gmedia_filter' == $taxonomy ) {
 						echo ' class="active"';
-					} ?>><a href="<?php echo add_query_arg( array( 'term' => 'gmedia_filter' ), $url ); ?>"><?php _e( 'Custom Filters', 'gmLang' ); ?></a></li>
+					} ?>><a href="<?php echo add_query_arg( array( 'term' => 'gmedia_filter' ), $url ); ?>"><?php _e( 'Custom Filters', 'grand-media' ); ?></a></li>
 				</ul>
 			</div>
 
 			<?php if ( ( 'gmedia_filter' == $taxonomy ) ) { ?>
-				<a class="btn btn-success pull-left" href="<?php echo add_query_arg( array( 'edit_filter' => '0' ), $url ); ?>"><?php _e( 'Create Filter', 'gmLang' ); ?></a>
+				<a class="btn btn-success pull-left" href="<?php echo add_query_arg( array( 'edit_filter' => '0' ), $url ); ?>"><?php _e( 'Create Filter', 'grand-media' ); ?></a>
 			<?php } ?>
 
 			<?php if ( ( 'gmedia_category' != $taxonomy ) && ! empty( $gmediaTerms ) ) { ?>
 				<div class="btn-group">
-					<a class="btn btn-default" href="#"><?php _e( 'Action', 'gmLang' ); ?></a>
+					<a class="btn btn-default" href="#"><?php _e( 'Action', 'grand-media' ); ?></a>
 					<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
 						<span class="caret"></span>
-						<span class="sr-only"><?php _e( 'Toggle Dropdown', 'gmLang' ); ?></span>
+						<span class="sr-only"><?php _e( 'Toggle Dropdown', 'grand-media' ); ?></span>
 					</button>
 					<?php
 					$rel_selected_show = 'rel-selected-show';
@@ -180,14 +180,14 @@ function gmediaTerms() {
 					?>
 					<ul class="dropdown-menu" role="menu">
 						<li class="dropdown-header <?php echo $rel_selected_hide; ?>">
-							<span><?php _e( "Select items to see more actions", "gmLang" ); ?></span></li>
+							<span><?php _e( "Select items to see more actions", "grand-media" ); ?></span></li>
 						<li class="<?php echo $rel_selected_show;
 						if ( ! $gmCore->caps['gmedia_terms_delete'] ) {
 							echo ' disabled';
 						} ?>">
 							<a href="<?php echo wp_nonce_url( $gmCore->get_admin_url( array( 'delete' => 'selected' ), array( 'filter' ) ), 'gmedia_delete' ) ?>"
 							   class="gmedia-delete"
-							   data-confirm="<?php _e( "You are about to permanently delete the selected items.\n\r'Cancel' to stop, 'OK' to delete.", "gmLang" ); ?>"><?php _e( 'Delete Selected Items', 'gmLang' ); ?></a>
+							   data-confirm="<?php _e( "You are about to permanently delete the selected items.\n\r'Cancel' to stop, 'OK' to delete.", "grand-media" ); ?>"><?php _e( 'Delete Selected Items', 'grand-media' ); ?></a>
 						</li>
 						<?php do_action( 'gmedia_term_action_list' ); ?>
 					</ul>
@@ -199,17 +199,17 @@ function gmediaTerms() {
 					      'filter' => 'selected'
 				      ), $url ); ?>" method="post">
 					<button type="submit"
-					        class="btn btn<?php echo ( 'selected' == $gmCore->_req( 'filter' ) ) ? '-success' : '-info' ?>"><?php printf( __( '%s selected', 'gmLang' ), '<span id="gm-selected-qty">' . count( $gmProcessor->selected_items ) . '</span>' ); ?></button>
+					        class="btn btn<?php echo ( 'selected' == $gmCore->_req( 'filter' ) ) ? '-success' : '-info' ?>"><?php printf( __( '%s selected', 'grand-media' ), '<span id="gm-selected-qty">' . count( $gmProcessor->selected_items ) . '</span>' ); ?></button>
 					<button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown"><span
 							class="caret"></span>
-						<span class="sr-only"><?php _e( 'Toggle Dropdown', 'gmLang' ); ?></span></button>
+						<span class="sr-only"><?php _e( 'Toggle Dropdown', 'grand-media' ); ?></span></button>
 					<input type="hidden" id="gm-selected" data-userid="<?php echo $user_ID; ?>"
 					       data-key="<?php echo $taxonomy; ?>" name="selected_items"
 					       value="<?php echo implode( ',', $gmProcessor->selected_items ); ?>"/>
 					<ul class="dropdown-menu" role="menu">
-						<li><a id="gm-selected-show" href="#show"><?php _e( 'Show only selected items', 'gmLang' ); ?></a>
+						<li><a id="gm-selected-show" href="#show"><?php _e( 'Show only selected items', 'grand-media' ); ?></a>
 						</li>
-						<li><a id="gm-selected-clear" href="#clear"><?php _e( 'Clear selected items', 'gmLang' ); ?></a>
+						<li><a id="gm-selected-clear" href="#clear"><?php _e( 'Clear selected items', 'grand-media' ); ?></a>
 						</li>
 					</ul>
 				</form>
@@ -226,12 +226,12 @@ function gmediaTerms() {
 				<div class="row">
 					<div class="col-xs-6">
 						<div class="form-group">
-							<label><?php _e( 'Name', 'gmLang' ); ?></label>
+							<label><?php _e( 'Name', 'grand-media' ); ?></label>
 							<input type="text" class="form-control input-sm" name="term[name]"
-							       placeholder="<?php _e( 'Album Name', 'gmLang' ); ?>" required/>
+							       placeholder="<?php _e( 'Album Name', 'grand-media' ); ?>" required/>
 						</div>
 						<div class="form-group">
-							<label><?php _e( 'Description', 'gmLang' ); ?></label>
+							<label><?php _e( 'Description', 'grand-media' ); ?></label>
                             <textarea class="form-control input-sm" style="height:75px;" rows="2"
                                       name="term[description]"></textarea>
 						</div>
@@ -239,37 +239,37 @@ function gmediaTerms() {
 					<div class="col-xs-6">
 						<div class="form-group row">
 							<div class="col-xs-6">
-								<label><?php _e( 'Order gmedia', 'gmLang' ); ?></label>
+								<label><?php _e( 'Order gmedia', 'grand-media' ); ?></label>
 								<select name="term[meta][_orderby]" class="form-control input-sm">
-									<option value="custom"><?php _e( 'user defined', 'gmLang' ); ?></option>
-									<option selected="selected" value="ID"><?php _e( 'by ID', 'gmLang' ); ?></option>
-									<option value="title"><?php _e( 'by title', 'gmLang' ); ?></option>
-									<option value="gmuid"><?php _e( 'by filename', 'gmLang' ); ?></option>
-									<option value="date"><?php _e( 'by date', 'gmLang' ); ?></option>
-									<option value="modified"><?php _e( 'by last modified date', 'gmLang' ); ?></option>
-									<option value="rand"><?php _e( 'Random', 'gmLang' ); ?></option>
+									<option value="custom"><?php _e( 'user defined', 'grand-media' ); ?></option>
+									<option selected="selected" value="ID"><?php _e( 'by ID', 'grand-media' ); ?></option>
+									<option value="title"><?php _e( 'by title', 'grand-media' ); ?></option>
+									<option value="gmuid"><?php _e( 'by filename', 'grand-media' ); ?></option>
+									<option value="date"><?php _e( 'by date', 'grand-media' ); ?></option>
+									<option value="modified"><?php _e( 'by last modified date', 'grand-media' ); ?></option>
+									<option value="rand"><?php _e( 'Random', 'grand-media' ); ?></option>
 								</select>
 							</div>
 							<div class="col-xs-6">
-								<label><?php _e( 'Sort order', 'gmLang' ); ?></label>
+								<label><?php _e( 'Sort order', 'grand-media' ); ?></label>
 								<select name="term[meta][_order]" class="form-control input-sm">
-									<option selected="selected" value="DESC"><?php _e( 'DESC', 'gmLang' ); ?></option>
-									<option value="ASC"><?php _e( 'ASC', 'gmLang' ); ?></option>
+									<option selected="selected" value="DESC"><?php _e( 'DESC', 'grand-media' ); ?></option>
+									<option value="ASC"><?php _e( 'ASC', 'grand-media' ); ?></option>
 								</select>
 							</div>
 						</div>
 						<div class="row">
 							<div class="form-group col-xs-6">
-								<label><?php _e( 'Status', 'gmLang' ); ?></label>
+								<label><?php _e( 'Status', 'grand-media' ); ?></label>
 								<select name="term[status]" class="form-control input-sm">
-									<option selected="selected" value="public"><?php _e( 'Public', 'gmLang' ); ?></option>
-									<option value="private"><?php _e( 'Private', 'gmLang' ); ?></option>
-									<option value="draft"><?php _e( 'Draft', 'gmLang' ); ?></option>
+									<option selected="selected" value="public"><?php _e( 'Public', 'grand-media' ); ?></option>
+									<option value="private"><?php _e( 'Private', 'grand-media' ); ?></option>
+									<option value="draft"><?php _e( 'Draft', 'grand-media' ); ?></option>
 								</select>
 							</div>
 							<div class="col-xs-6">
 								<div class="form-group">
-									<label><?php _e( 'Author', 'gmLang' ); ?></label>
+									<label><?php _e( 'Author', 'grand-media' ); ?></label>
 									<?php $user_ids = $gmCore->caps['gmedia_delete_others_media'] ? $gmCore->get_editable_user_ids() : array( $user_ID );
 									if ( $user_ids && $gmCore->caps['gmedia_edit_others_media'] ) {
 										if ( ! in_array( $user_ID, $user_ids ) ) {
@@ -282,7 +282,7 @@ function gmediaTerms() {
 											'selected'         => $user_ID,
 											'class'            => 'form-control input-sm',
 											'multi'            => true,
-											'show_option_all'  => __( 'Shared', 'gmLang' )
+											'show_option_all'  => __( 'Shared', 'grand-media' )
 										) );
 									} else {
 										echo '<input type="hidden" name="term[global]" value="' . $user_ID . '"/>';
@@ -297,7 +297,7 @@ function gmediaTerms() {
 									?>
 									<input type="hidden" name="term[taxonomy]" value="gmedia_album"/>
 									<button style="display:block" type="submit" class="btn btn-primary btn-sm"
-									        name="gmedia_album_save"><?php _e( 'Add New Album', 'gmLang' ); ?></button>
+									        name="gmedia_album_save"><?php _e( 'Add New Album', 'grand-media' ); ?></button>
 								</div>
 							</div>
 						</div>
@@ -307,12 +307,12 @@ function gmediaTerms() {
 		<?php } else { ?>
 			<div class="alert alert-warning alert-dismissible" role="alert" style="margin-bottom:0">
 				<button type="button" class="close" data-dismiss="alert">
-					<span aria-hidden="true">&times;</span><span class="sr-only"><?php _e( 'Close', 'gmLang' ); ?></span>
+					<span aria-hidden="true">&times;</span><span class="sr-only"><?php _e( 'Close', 'grand-media' ); ?></span>
 				</button>
-				<strong><?php _e( 'Info:', 'gmLang' ); ?></strong> <?php _e( 'You are not allowed to add new terms', 'gmLang' ); ?>
+				<strong><?php _e( 'Info:', 'grand-media' ); ?></strong> <?php _e( 'You are not allowed to add new terms', 'grand-media' ); ?>
 			</div>
 		<?php } ?>
-		<form class="list-group" id="gm-list-table" style="margin-bottom:4px;">
+		<form class="list-group <?php echo $taxonomy; ?>" id="gm-list-table" style="margin-bottom:4px;">
 			<?php
 			if ( count( $gmediaTerms ) ) {
 				foreach ( $gmediaTerms as $item ) {
@@ -331,9 +331,9 @@ function gmediaTerms() {
 					$allow_terms_delete = $gmCore->caps['gmedia_terms_delete'];
 					if ( $item->global ) {
 						if ( ( $display_author_name = get_the_author_meta( 'display_name', $item->global ) ) ) {
-							$author_name .= sprintf( __( 'by %s', 'gmLang' ), $display_author_name );
+							$author_name .= sprintf( __( 'by %s', 'grand-media' ), $display_author_name );
 						} else {
-							$author_name .= '(' . __( 'deleted author', 'gmLang' ) . ')';
+							$author_name .= '(' . __( 'deleted author', 'grand-media' ) . ')';
 						}
 						if ( $item->global == $user_ID ) {
 							$row_class .= ' current_user';
@@ -345,7 +345,7 @@ function gmediaTerms() {
 							$allow_delete = ( $allow_edit && $allow_terms_delete );
 						}
 					} else {
-						$author_name .= '(' . __( 'no author', 'gmLang' ) . ')';
+						$author_name .= '(' . __( 'no author', 'grand-media' ) . ')';
 						$row_class .= ' shared';
 						$allow_edit   = $gmCore->caps['gmedia_edit_others_media'];
 						$allow_delete = ( $allow_edit && $allow_terms_delete );
@@ -379,7 +379,7 @@ function gmediaTerms() {
 										<?php
 										$filter_icon = '<span class="badge">' . $item->count . '</span>';
 										if ( $item->count ) {
-											echo '<a title="' . __( 'Filter in Gmedia Library', 'gmLang' ) . '" href="' . $gmCore->get_admin_url( array(
+											echo '<a title="' . __( 'Filter in Gmedia Library', 'grand-media' ) . '" href="' . $gmCore->get_admin_url( array(
 													'page' => 'GrandMedia',
 													'alb'  => $item->term_id
 												), array(), true ) . '">' . $filter_icon . '</a>';
@@ -390,14 +390,14 @@ function gmediaTerms() {
 										$cloud_link = $gmCore->gmcloudlink($item->term_id, 'album');
 										$share_icon = '<span class="glyphicon glyphicon-share"></span>';
 										if ( 'draft' !== $item->status ) {
-											echo '<a target="_blank" data-target="#shareModal" data-share="' . $item->term_id . '" class="share-modal" title="' . __( 'Share', 'gmLang' ) . '" href="' . $cloud_link . '">' . $share_icon . '</a>';
+											echo '<a target="_blank" data-target="#shareModal" data-share="' . $item->term_id . '" class="share-modal" title="' . __( 'Share', 'grand-media' ) . '" href="' . $cloud_link . '">' . $share_icon . '</a>';
 										} else {
 											echo "<span class='action-inactive'>$share_icon</span>";
 										}
 
 										$edit_icon = '<span class="glyphicon glyphicon-edit"></span>';
 										if ( $allow_edit ) {
-											echo '<a title="' . __( 'Edit', 'gmLang' ) . '" href="' . add_query_arg( array( 'edit_album' => $item->term_id ), $url ) . '">' . $edit_icon . '</a>';
+											echo '<a title="' . __( 'Edit', 'grand-media' ) . '" href="' . add_query_arg( array( 'edit_album' => $item->term_id ), $url ) . '">' . $edit_icon . '</a>';
 										} else {
 											echo "<span class='action-inactive'>$edit_icon</span>";
 										}
@@ -405,16 +405,19 @@ function gmediaTerms() {
 										if ( $allow_terms_delete ) {
 											$trash_icon = '<span class="glyphicon glyphicon-trash"></span>';
 											if ( $allow_delete ) {
-												echo '<a class="trash-icon" title="' . __( 'Delete', 'gmLang' ) . '" href="' . wp_nonce_url( add_query_arg( array(
+												echo '<a class="trash-icon" title="' . __( 'Delete', 'grand-media' ) . '" href="' . wp_nonce_url( add_query_arg( array(
 														'term'   => $taxonomy,
 														'delete' => $item->term_id
-													), $url ), 'gmedia_delete' ) . '" data-confirm="' . __( "You are about to permanently delete the selected items.\n\r'Cancel' to stop, 'OK' to delete.", "gmLang" ) . '">' . $trash_icon . '</a>';
+													), $url ), 'gmedia_delete' ) . '" data-confirm="' . __( "You are about to permanently delete the selected items.\n\r'Cancel' to stop, 'OK' to delete.", "grand-media" ) . '">' . $trash_icon . '</a>';
 											} else {
 												echo "<span class='action-inactive'>$trash_icon</span>";
 											}
 										}
 										?>
 									</div>
+									<?php if ( ! empty( $item->description ) ) { ?>
+										<div class="term-description"><?php echo esc_html( nl2br($item->description) ); ?></div>
+									<?php } ?>
 								</div>
 							</div>
 							<div class="col-xs-6">
@@ -436,9 +439,6 @@ function gmediaTerms() {
 								</div>
 							</div>
 						</div>
-						<?php if ( ! empty( $item->description ) ) { ?>
-							<div class="term-description"><?php echo nl2br( esc_html( $item->description ) ); ?></div>
-						<?php } ?>
 					</div>
 				<?php
 				}
@@ -446,7 +446,7 @@ function gmediaTerms() {
 				?>
 				<div class="list-group-item">
 					<div class="well well-lg text-center">
-						<h4><?php _e( 'No items to show.', 'gmLang' ); ?></h4>
+						<h4><?php _e( 'No items to show.', 'grand-media' ); ?></h4>
 					</div>
 				</div>
 			<?php } ?>
@@ -470,9 +470,9 @@ function gmediaTerms() {
 					$allow_terms_delete = $gmCore->caps['gmedia_terms_delete'];
 					if ( $item->global ) {
 						if ( ( $display_author_name = get_the_author_meta( 'display_name', $item->global ) ) ) {
-							$author_name .= sprintf( __( 'by %s', 'gmLang' ), $display_author_name );
+							$author_name .= sprintf( __( 'by %s', 'grand-media' ), $display_author_name );
 						} else {
-							$author_name .= '(' . __( 'deleted author', 'gmLang' ) . ')';
+							$author_name .= '(' . __( 'deleted author', 'grand-media' ) . ')';
 						}
 						if ( $item->global == $user_ID ) {
 							$row_class .= ' current_user';
@@ -484,7 +484,7 @@ function gmediaTerms() {
 							$allow_delete = ( $allow_edit && $allow_terms_delete );
 						}
 					} else {
-						$author_name .= '(' . __( 'no author', 'gmLang' ) . ')';
+						$author_name .= '(' . __( 'no author', 'grand-media' ) . ')';
 						$row_class .= ' shared';
 						$allow_edit   = $gmCore->caps['gmedia_edit_others_media'];
 						$allow_delete = ( $allow_edit && $allow_terms_delete );
@@ -508,18 +508,18 @@ function gmediaTerms() {
 									<div class="object-actions">
 										<?php
 										$filter_icon = '<span class="glyphicon glyphicon-filter"></span>';
-										echo '<a title="' . __( 'Filter in Gmedia Library', 'gmLang' ) . '" href="' . $gmCore->get_admin_url( array(
+										echo '<a title="' . __( 'Filter in Gmedia Library', 'grand-media' ) . '" href="' . $gmCore->get_admin_url( array(
 												'page' => 'GrandMedia',
 												'custom_filter'  => $item->term_id
 											), array(), true ) . '">' . $filter_icon . '</a>';
 
 										$cloud_link = $gmCore->gmcloudlink($item->term_id, 'filter');
 										$share_icon = '<span class="glyphicon glyphicon-share"></span>';
-										echo '<a target="_blank" data-target="#shareModal" data-share="' . $item->term_id . '" class="share-modal" title="' . __( 'Share', 'gmLang' ) . '" href="' . $cloud_link . '">' . $share_icon . '</a>';
+										echo '<a target="_blank" data-target="#shareModal" data-share="' . $item->term_id . '" class="share-modal" title="' . __( 'Share', 'grand-media' ) . '" href="' . $cloud_link . '">' . $share_icon . '</a>';
 
 										$edit_icon = '<span class="glyphicon glyphicon-edit"></span>';
 										if ( $allow_edit ) {
-											echo '<a title="' . __( 'Edit', 'gmLang' ) . '" href="' . add_query_arg( array( 'edit_filter' => $item->term_id ), $url ) . '">' . $edit_icon . '</a>';
+											echo '<a title="' . __( 'Edit', 'grand-media' ) . '" href="' . add_query_arg( array( 'edit_filter' => $item->term_id ), $url ) . '">' . $edit_icon . '</a>';
 										} else {
 											echo "<span class='action-inactive'>$edit_icon</span>";
 										}
@@ -527,10 +527,10 @@ function gmediaTerms() {
 										if ( $allow_terms_delete ) {
 											$trash_icon = '<span class="glyphicon glyphicon-trash"></span>';
 											if ( $allow_delete ) {
-												echo '<a class="trash-icon" title="' . __( 'Delete', 'gmLang' ) . '" href="' . wp_nonce_url( add_query_arg( array(
+												echo '<a class="trash-icon" title="' . __( 'Delete', 'grand-media' ) . '" href="' . wp_nonce_url( add_query_arg( array(
 														'term'   => $taxonomy,
 														'delete' => $item->term_id
-													), $url ), 'gmedia_delete' ) . '" data-confirm="' . __( "You are about to permanently delete the selected items.\n\r'Cancel' to stop, 'OK' to delete.", "gmLang" ) . '">' . $trash_icon . '</a>';
+													), $url ), 'gmedia_delete' ) . '" data-confirm="' . __( "You are about to permanently delete the selected items.\n\r'Cancel' to stop, 'OK' to delete.", "grand-media" ) . '">' . $trash_icon . '</a>';
 											} else {
 												echo "<span class='action-inactive'>$trash_icon</span>";
 											}
@@ -555,7 +555,7 @@ function gmediaTerms() {
 				?>
 				<div class="list-group-item">
 					<div class="well well-lg text-center">
-						<h4><?php _e( 'No items to show.', 'gmLang' ); ?></h4>
+						<h4><?php _e( 'No items to show.', 'grand-media' ); ?></h4>
 					</div>
 				</div>
 			<?php } ?>
@@ -572,12 +572,12 @@ function gmediaTerms() {
 			      style="padding-bottom:0; border-bottom:1px solid #ddd;">
 				<div class="row">
 					<div class="form-group col-xs-9">
-						<label><?php _e( 'Tags', 'gmLang' ); ?>
+						<label><?php _e( 'Tags', 'grand-media' ); ?>
 							<small class="text-muted">(<?php _e( 'you can type multiple tags separated by comma' ) ?>)
 							</small>
 						</label>
 						<input type="text" class="form-control input-sm" name="term[name]"
-						       placeholder="<?php _e( 'Tag Names', 'gmLang' ); ?>" required/>
+						       placeholder="<?php _e( 'Tag Names', 'grand-media' ); ?>" required/>
 					</div>
 					<div class="col-xs-3" style="padding-top:24px;">
 						<?php
@@ -586,16 +586,16 @@ function gmediaTerms() {
 						?>
 						<input type="hidden" name="term[taxonomy]" value="gmedia_tag"/>
 						<button type="submit" class="btn btn-primary btn-sm"
-						        name="gmedia_tag_add"><?php _e( 'Add New Tags', 'gmLang' ); ?></button>
+						        name="gmedia_tag_add"><?php _e( 'Add New Tags', 'grand-media' ); ?></button>
 					</div>
 				</div>
 			</form>
 		<?php } else { ?>
 			<div class="alert alert-warning alert-dismissible" role="alert" style="margin-bottom:0">
 				<button type="button" class="close" data-dismiss="alert">
-					<span aria-hidden="true">&times;</span><span class="sr-only"><?php _e( 'Close', 'gmLang' ); ?></span>
+					<span aria-hidden="true">&times;</span><span class="sr-only"><?php _e( 'Close', 'grand-media' ); ?></span>
 				</button>
-				<strong><?php _e( 'Info:', 'gmLang' ); ?></strong> <?php _e( 'You are not allowed to add new terms', 'gmLang' ); ?>
+				<strong><?php _e( 'Info:', 'grand-media' ); ?></strong> <?php _e( 'You are not allowed to add new terms', 'grand-media' ); ?>
 			</div>
 		<?php } ?>
 		<form class="list-group" id="gm-list-table" style="margin-bottom:4px;">
@@ -645,7 +645,7 @@ function gmediaTerms() {
 									<?php
 									$filter_icon = '<span class="badge">' . $item->count . '</span>';
 									if ( $item->count ) {
-										echo '<a title="' . __( 'Filter in Gmedia Library', 'gmLang' ) . '" href="' . $gmCore->get_admin_url( array(
+										echo '<a title="' . __( 'Filter in Gmedia Library', 'grand-media' ) . '" href="' . $gmCore->get_admin_url( array(
 												'page'    => 'GrandMedia',
 												'tag__in' => $item->term_id
 											), array(), true ) . '">' . $filter_icon . '</a>';
@@ -655,18 +655,18 @@ function gmediaTerms() {
 
 									$cloud_link = $gmCore->gmcloudlink( $item->term_id, 'tag' );
 									$share_icon = '<span class="glyphicon glyphicon-share"></span>';
-									echo '<a target="_blank" data-target="#shareModal" data-share="' . $item->term_id . '" class="share-modal" title="' . __( 'Share', 'gmLang' ) . '" href="' . $cloud_link . '">' . $share_icon . '</a>';
+									echo '<a target="_blank" data-target="#shareModal" data-share="' . $item->term_id . '" class="share-modal" title="' . __( 'Share', 'grand-media' ) . '" href="' . $cloud_link . '">' . $share_icon . '</a>';
 
 									/*
 									$edit_icon = '<span class="glyphicon glyphicon-edit"></span>';
 									if ( $allow_edit ){
-										echo '<a class="edit_tag_link" title="' . __('Edit', 'gmLang') . '" href="#tag_' . $item->term_id . '">'.$edit_icon.'</a>';
+										echo '<a class="edit_tag_link" title="' . __('Edit', 'grand-media') . '" href="#tag_' . $item->term_id . '">'.$edit_icon.'</a>';
 									}
 									*/
 
 									if ( $allow_delete ) {
 										$trash_icon = '<span class="glyphicon glyphicon-trash"></span>';
-										echo '<a title="' . __( 'Delete', 'gmLang' ) . '" href="' . wp_nonce_url( add_query_arg( array(
+										echo '<a title="' . __( 'Delete', 'grand-media' ) . '" href="' . wp_nonce_url( add_query_arg( array(
 												'term'   => $taxonomy,
 												'delete' => $item->term_id
 											), $url ), 'gmedia_delete' ) . '">' . $trash_icon . '</a>';
@@ -758,7 +758,7 @@ function gmediaTerms() {
 			?>
 				<div class="list-group-item">
 					<div class="well well-lg text-center">
-						<h4><?php _e( 'No items to show.', 'gmLang' ); ?></h4>
+						<h4><?php _e( 'No items to show.', 'grand-media' ); ?></h4>
 					</div>
 				</div>
 			<?php } ?>
@@ -810,7 +810,7 @@ function gmediaTerms() {
 								<?php
 								$filter_icon = '<span class="badge">' . $count . '</span>';
 								if ( $count ) {
-									echo '<a title="' . __( 'Filter in Gmedia Library', 'gmLang' ) . '" href="' . $gmCore->get_admin_url( array( 'page' => 'GrandMedia', 'cat' => $term_id ), array(), true ) . '">' . $filter_icon . '</a>';
+									echo '<a title="' . __( 'Filter in Gmedia Library', 'grand-media' ) . '" href="' . $gmCore->get_admin_url( array( 'page' => 'GrandMedia', 'cat' => $term_id ), array(), true ) . '">' . $filter_icon . '</a>';
 								} else {
 									echo $filter_icon;
 								}
@@ -818,14 +818,14 @@ function gmediaTerms() {
 								$share_icon = '<span class="glyphicon glyphicon-share"></span>';
 								if ( isset( $cat[ $name ]->term_id ) ) {
 									$cloud_link = $gmCore->gmcloudlink( $term_id, 'category' );
-									echo '<a target="_blank" data-target="#shareModal" data-share="' . $term_id . '" class="share-modal" title="' . __( 'Share', 'gmLang' ) . '" href="' . $cloud_link . '">' . $share_icon . '</a>';
+									echo '<a target="_blank" data-target="#shareModal" data-share="' . $term_id . '" class="share-modal" title="' . __( 'Share', 'grand-media' ) . '" href="' . $cloud_link . '">' . $share_icon . '</a>';
 								} else {
 									echo "<span class='action-inactive'>$share_icon</span>";
 								}
 
 								/*
 								$edit_icon = '<span class="glyphicon glyphicon-edit"></span>';
-								echo '<a title="' . __('Edit', 'gmLang') . '" href="' . add_query_arg( array( 'edit_album' => $item->term_id ), $url ) . '">'.$edit_icon.'</a>';
+								echo '<a title="' . __('Edit', 'grand-media') . '" href="' . add_query_arg( array( 'edit_album' => $item->term_id ), $url ) . '">'.$edit_icon.'</a>';
 								*/
 								?>
 							</div>
@@ -862,20 +862,20 @@ function gmediaTerms() {
 				</div>
 				<form class="modal-body" method="post" id="shareForm">
 					<div class="form-group">
-						<label><?php _e( 'Link to page', 'gmLang' ); ?></label>
+						<label><?php _e( 'Link to page', 'grand-media' ); ?></label>
 						<input name="sharelink" type="text" class="form-control sharelink" readonly="readonly" value=""/>
 					</div>
 					<div class="form-group">
-						<label><?php _e( 'Send this link to', 'gmLang' ); ?></label>
-						<input name="email" type="email" class="form-control sharetoemail" value="" placeholder="<?php _e( 'Email', 'gmLang' ); ?>"/>
-						<textarea name="message" cols="20" rows="3" class="form-control" placeholder="<?php _e( 'Message (optional)', 'gmLang' ); ?>"></textarea>
+						<label><?php _e( 'Send this link to', 'grand-media' ); ?></label>
+						<input name="email" type="email" class="form-control sharetoemail" value="" placeholder="<?php _e( 'Email', 'grand-media' ); ?>"/>
+						<textarea name="message" cols="20" rows="3" class="form-control" placeholder="<?php _e( 'Message (optional)', 'grand-media' ); ?>"></textarea>
 					</div>
 					<input type="hidden" name="action" value="gmedia_share_page"/>
 					<?php wp_nonce_field( 'share_modal', '_sharenonce' ); ?>
 				</form>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-primary sharebutton" disabled="disabled"><?php _e( 'Send', 'gmLang' ); ?></button>
-					<button type="button" class="btn btn-default" data-dismiss="modal"><?php _e( 'Close', 'gmLang' ); ?></button>
+					<button type="button" class="btn btn-primary sharebutton" disabled="disabled"><?php _e( 'Send', 'grand-media' ); ?></button>
+					<button type="button" class="btn btn-default" data-dismiss="modal"><?php _e( 'Close', 'grand-media' ); ?></button>
 				</div>
 			</div>
 		</div>
@@ -942,25 +942,25 @@ function gmediaAlbumEdit() {
 							<?php _e( 'Return to' ) ?> <span class="caret"></span>
 						</button>
 						<ul class="dropdown-menu" role="menu">
-							<li class="active"><a href="<?php echo add_query_arg( array( 'term' => 'gmedia_album' ), $url ); ?>"><?php _e( 'Albums', 'gmLang' ); ?></a></li>
-							<li><a href="<?php echo add_query_arg( array( 'term' => 'gmedia_tag' ), $url ); ?>"><?php _e( 'Tags', 'gmLang' ); ?></a></li>
-							<li><a href="<?php echo add_query_arg( array( 'term' => 'gmedia_category' ), $url ); ?>"><?php _e( 'Categories', 'gmLang' ); ?></a></li>
+							<li class="active"><a href="<?php echo add_query_arg( array( 'term' => 'gmedia_album' ), $url ); ?>"><?php _e( 'Albums', 'grand-media' ); ?></a></li>
+							<li><a href="<?php echo add_query_arg( array( 'term' => 'gmedia_tag' ), $url ); ?>"><?php _e( 'Tags', 'grand-media' ); ?></a></li>
+							<li><a href="<?php echo add_query_arg( array( 'term' => 'gmedia_category' ), $url ); ?>"><?php _e( 'Categories', 'grand-media' ); ?></a></li>
 							<li class="divider"></li>
-							<li><a href="<?php echo add_query_arg( array( 'term' => 'gmedia_filter' ), $url ); ?>"><?php _e( 'Custom Filters', 'gmLang' ); ?></a></li>
+							<li><a href="<?php echo add_query_arg( array( 'term' => 'gmedia_filter' ), $url ); ?>"><?php _e( 'Custom Filters', 'grand-media' ); ?></a></li>
 						</ul>
 					</div>
 
 					<div class="btn-group">
-						<a class="btn btn-default" href="#"><?php _e( 'Action', 'gmLang' ); ?></a>
+						<a class="btn btn-default" href="#"><?php _e( 'Action', 'grand-media' ); ?></a>
 						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
 							<span class="caret"></span>
-							<span class="sr-only"><?php _e( 'Toggle Dropdown', 'gmLang' ); ?></span>
+							<span class="sr-only"><?php _e( 'Toggle Dropdown', 'grand-media' ); ?></span>
 						</button>
 						<ul class="dropdown-menu" role="menu">
 							<li><a href="<?php echo add_query_arg( array(
 									'page' => 'GrandMedia',
 									'alb'  => $term->term_id
-								), admin_url( 'admin.php' ) ); ?>"><?php _e( 'Show Album in Gmedia Library', 'gmLang' ); ?></a>
+								), admin_url( 'admin.php' ) ); ?>"><?php _e( 'Show Album in Gmedia Library', 'grand-media' ); ?></a>
 							</li>
 						</ul>
 					</div>
@@ -970,7 +970,7 @@ function gmediaAlbumEdit() {
 
 			<form method="post" id="gmedia-edit-term" name="gmEditTerm" class="panel-body" data-id="<?php echo $term->term_id; ?>">
 				<h4 style="margin-top:0;">
-					<span class="pull-right"><?php echo __( 'ID', 'gmLang' ) . ": {$term->term_id}"; ?></span>
+					<span class="pull-right"><?php echo __( 'ID', 'grand-media' ) . ": {$term->term_id}"; ?></span>
 					<?php _e( 'Edit Album' ); ?>: <em><?php echo esc_html( $term->name ); ?></em>
 				</h4>
 
@@ -978,13 +978,13 @@ function gmediaAlbumEdit() {
 					<div class="col-xs-6">
 						<div class="form-group row">
 							<div class="col-xs-6">
-								<label><?php _e( 'Name', 'gmLang' ); ?></label>
+								<label><?php _e( 'Name', 'grand-media' ); ?></label>
 								<input type="text" class="form-control input-sm" name="term[name]"
 								       value="<?php echo esc_attr( $term->name ); ?>"
-								       placeholder="<?php _e( 'Album Name', 'gmLang' ); ?>" required/>
+								       placeholder="<?php _e( 'Album Name', 'grand-media' ); ?>" required/>
 							</div>
 							<div class="col-xs-6">
-								<label><?php _e( 'Author', 'gmLang' ); ?></label>
+								<label><?php _e( 'Author', 'grand-media' ); ?></label>
 								<?php $user_ids = $gmCore->caps['gmedia_delete_others_media'] ? $gmCore->get_editable_user_ids() : array( $user_ID );
 								if ( $user_ids && $gmCore->caps['gmedia_edit_others_media'] ) {
 									if ( ! in_array( $user_ID, $user_ids ) ) {
@@ -998,7 +998,7 @@ function gmediaAlbumEdit() {
 										'selected'         => $selected_user,
 										'class'            => 'form-control input-sm',
 										'multi'            => true,
-										'show_option_all'  => __( 'Shared', 'gmLang' )
+										'show_option_all'  => __( 'Shared', 'grand-media' )
 									) );
 								} else {
 									echo '<input type="hidden" name="term[global]" value="' . $user_ID . '"/>';
@@ -1008,7 +1008,7 @@ function gmediaAlbumEdit() {
 							</div>
 						</div>
 						<div class="form-group">
-							<label><?php _e( 'Description', 'gmLang' ); ?></label>
+							<label><?php _e( 'Description', 'grand-media' ); ?></label>
                             <textarea class="form-control input-sm" style="height:53px;" rows="2"
                                       name="term[description]"><?php echo $term->description; ?></textarea>
 						</div>
@@ -1017,33 +1017,33 @@ function gmediaAlbumEdit() {
 							<input type="hidden" name="term[term_id]" value="<?php echo $term->term_id; ?>"/>
 							<input type="hidden" name="term[taxonomy]" value="gmedia_album"/>
 							<button type="submit" class="btn btn-primary btn-sm"
-							        name="gmedia_album_save"><?php _e( 'Update', 'gmLang' ); ?></button>
+							        name="gmedia_album_save"><?php _e( 'Update', 'grand-media' ); ?></button>
 						</div>
 					</div>
 					<div class="col-xs-6">
 						<div class="row">
 							<div class="col-xs-6">
 								<div class="form-group">
-									<label><?php _e( 'Status', 'gmLang' ); ?></label>
+									<label><?php _e( 'Status', 'grand-media' ); ?></label>
 									<select name="term[status]" class="form-control input-sm">
 										<option
-											value="public"<?php selected( $term->status, 'public' ); ?>><?php _e( 'Public', 'gmLang' ); ?></option>
+											value="public"<?php selected( $term->status, 'public' ); ?>><?php _e( 'Public', 'grand-media' ); ?></option>
 										<option
-											value="private"<?php selected( $term->status, 'private' ); ?>><?php _e( 'Private', 'gmLang' ); ?></option>
+											value="private"<?php selected( $term->status, 'private' ); ?>><?php _e( 'Private', 'grand-media' ); ?></option>
 										<option
-											value="draft"<?php selected( $term->status, 'draft' ); ?>><?php _e( 'Draft', 'gmLang' ); ?></option>
+											value="draft"<?php selected( $term->status, 'draft' ); ?>><?php _e( 'Draft', 'grand-media' ); ?></option>
 									</select>
 								</div>
 								<div class="form-group">
-									<div class="checkbox"><label><input type="checkbox" name="term[status_global]" value="1"> <?php _e( 'Apply Status for all items in album', 'gmLang' ); ?></label></div>
+									<div class="checkbox"><label><input type="checkbox" name="term[status_global]" value="1"> <?php _e( 'Apply Status for all items in album', 'grand-media' ); ?></label></div>
 								</div>
 							</div>
 							<div class="col-xs-6">
 								<div class="form-group">
-									<label><?php _e( 'Album Cover', 'gmLang' ); ?></label>
+									<label><?php _e( 'Album Cover', 'grand-media' ); ?></label>
 									<input type="text" class="form-control input-sm" name="term[meta][_cover]"
 									       value="<?php echo esc_attr( $term_meta['_cover'] ); ?>"
-									       placeholder="<?php _e( 'Gmedia Image ID', 'gmLang' ); ?>" required/>
+									       placeholder="<?php _e( 'Gmedia Image ID', 'grand-media' ); ?>" />
 								</div>
 								<?php if($term_meta['_cover']){
 									$cover_id = intval($term_meta['_cover']);
@@ -1053,7 +1053,7 @@ function gmediaAlbumEdit() {
 											?><span class="label label-default">ID: <?php echo $cover->ID; ?></span><?php
 										?></div>
 									<?php } else {
-										echo '<strong class="text-danger">'.__('No image with such ID', 'gmLang').'</strong>';
+										echo '<strong class="text-danger">'.__('No image with such ID', 'grand-media').'</strong>';
 									}
 								} ?>
 							</div>
@@ -1079,24 +1079,24 @@ function gmediaAlbumEdit() {
 					<div class="row">
 						<div class="col-xs-3">
 							<div class="form-group">
-								<label><?php _e( 'Order gmedia', 'gmLang' ); ?></label>
+								<label><?php _e( 'Order gmedia', 'grand-media' ); ?></label>
 								<select name="term[meta][_orderby]" id="gmedia_term_orderby" class="form-control input-sm">
-									<option value="custom"<?php selected( $term_meta['_orderby'], 'custom' ); ?>><?php _e( 'Custom Order', 'gmLang' ); ?></option>
-									<option value="ID"<?php selected( $term_meta['_orderby'], 'ID' ); ?>><?php _e( 'by ID', 'gmLang' ); ?></option>
-									<option value="title"<?php selected( $term_meta['_orderby'], 'title' ); ?>><?php _e( 'by title', 'gmLang' ); ?></option>
-									<option value="gmuid"<?php selected( $term_meta['_orderby'], 'gmuid' ); ?>><?php _e( 'by filename', 'gmLang' ); ?></option>
-									<option value="date"<?php selected( $term_meta['_orderby'], 'date' ); ?>><?php _e( 'by date', 'gmLang' ); ?></option>
-									<option value="modified"<?php selected( $term_meta['_orderby'], 'modified' ); ?>><?php _e( 'by last modified date', 'gmLang' ); ?></option>
-									<option value="rand"<?php selected( $term_meta['_orderby'], 'rand' ); ?>><?php _e( 'Random', 'gmLang' ); ?></option>
+									<option value="custom"<?php selected( $term_meta['_orderby'], 'custom' ); ?>><?php _e( 'Custom Order', 'grand-media' ); ?></option>
+									<option value="ID"<?php selected( $term_meta['_orderby'], 'ID' ); ?>><?php _e( 'by ID', 'grand-media' ); ?></option>
+									<option value="title"<?php selected( $term_meta['_orderby'], 'title' ); ?>><?php _e( 'by title', 'grand-media' ); ?></option>
+									<option value="gmuid"<?php selected( $term_meta['_orderby'], 'gmuid' ); ?>><?php _e( 'by filename', 'grand-media' ); ?></option>
+									<option value="date"<?php selected( $term_meta['_orderby'], 'date' ); ?>><?php _e( 'by date', 'grand-media' ); ?></option>
+									<option value="modified"<?php selected( $term_meta['_orderby'], 'modified' ); ?>><?php _e( 'by last modified date', 'grand-media' ); ?></option>
+									<option value="rand"<?php selected( $term_meta['_orderby'], 'rand' ); ?>><?php _e( 'Random', 'grand-media' ); ?></option>
 								</select>
 							</div>
 						</div>
 						<div class="col-xs-3">
 							<div class="form-group">
-								<label><?php _e( 'Sort order', 'gmLang' ); ?></label>
+								<label><?php _e( 'Sort order', 'grand-media' ); ?></label>
 								<select id="gmedia_term_order" name="term[meta][_order]" class="form-control input-sm">
-									<option value="DESC"<?php selected( $term_meta['_order'], 'DESC' ); ?>><?php _e( 'DESC', 'gmLang' ); ?></option>
-									<option value="ASC"<?php selected( $term_meta['_order'], 'ASC' ); ?>><?php _e( 'ASC', 'gmLang' ); ?></option>
+									<option value="DESC"<?php selected( $term_meta['_order'], 'DESC' ); ?>><?php _e( 'DESC', 'grand-media' ); ?></option>
+									<option value="ASC"<?php selected( $term_meta['_order'], 'ASC' ); ?>><?php _e( 'ASC', 'grand-media' ); ?></option>
 								</select>
 							</div>
 						</div>
@@ -1104,12 +1104,12 @@ function gmediaAlbumEdit() {
 							<div class="form-group pull-left" style="margin-right:30px;">
 								<label style="visibility:hidden;">-</label>
 
-								<div class="checkbox"><label><input id="reset_order_option" type="checkbox" name="term[reset_custom_order]" value="1"> <?php _e( 'Reset custom order', 'gmLang' ); ?></label></div>
+								<div class="checkbox"><label><input id="reset_order_option" type="checkbox" name="term[reset_custom_order]" value="1"> <?php _e( 'Reset custom order', 'grand-media' ); ?></label></div>
 							</div>
 							<div class="form-group pull-left">
 								<label style="visibility:hidden;">-</label>
 								<button style="display:block" type="submit" class="btn btn-primary btn-sm"
-								        name="gmedia_term_sort_save"><?php _e( 'Update', 'gmLang' ); ?></button>
+								        name="gmedia_term_sort_save"><?php _e( 'Update', 'grand-media' ); ?></button>
 							</div>
 							<?php wp_nonce_field( 'GmediaTerms', 'term_save_wpnonce' ); ?>
 							<input type="hidden" name="term[term_id]" value="<?php echo $term->term_id; ?>"/>
@@ -1245,8 +1245,8 @@ function gmediaAlbumEdit() {
 						<input type="hidden" class="newcustomfield-for-id" name="ID" value="" />
 					</form>
 					<div class="modal-footer">
-						<button type="button" class="btn btn-primary customfieldsubmit"><?php _e( 'Add', 'gmLang' ); ?></button>
-						<button type="button" class="btn btn-default" data-dismiss="modal"><?php _e( 'Close', 'gmLang' ); ?></button>
+						<button type="button" class="btn btn-primary customfieldsubmit"><?php _e( 'Add', 'grand-media' ); ?></button>
+						<button type="button" class="btn btn-default" data-dismiss="modal"><?php _e( 'Close', 'grand-media' ); ?></button>
 					</div>
 				</div>
 			</div>
@@ -1331,7 +1331,7 @@ function gmediaFilterEdit() {
 
 	);
 
-	$filter_variable_data = array(
+	$filter_variable_data = $term_query = array(
 		 'cache_results'    => false
 		,'page' => $cur_page // number of page. Show the posts that would normally show up just on page X.
 		,'per_page' => $per_page // number of post to displace or pass over. Note: Setting offset parameter will ignore the 'page' parameter.
@@ -1364,13 +1364,20 @@ function gmediaFilterEdit() {
 	extract($filter_form_custom_data);
 
 	$totalResult = 0;
+	$limit = 0;
 	if ( $term_id ) {
 		$term = $gmDB->get_term( $term_id, $taxonomy, ARRAY_A );
 		if ( ! empty( $term ) && ! is_wp_error( $term ) ) {
 
 			$term_query = $gmDB->get_metadata( 'gmedia_term', $term['term_id'], '_query', true );
 			$filter_data = array_merge( $filter_data, $term_query );
-			$term_query = array_merge( $term_query, $filter_variable_data );
+
+			if(isset($term_query['per_page'])){
+				//$term_query['offset'] = 0;
+				$limit = $term_query['per_page'];
+				unset( $term_query['per_page'] );
+			}
+			$term_query = array_merge( $filter_variable_data, $term_query );
 
 			if ( isset( $_GET['author'] ) && ( $term['global'] != $author ) ) {
 				$filter_data['_query']['gmedia_album'] = array();
@@ -1428,26 +1435,26 @@ function gmediaFilterEdit() {
 						<?php _e( 'Return to' ) ?> <span class="caret"></span>
 					</button>
 					<ul class="dropdown-menu" role="menu">
-						<li><a href="<?php echo add_query_arg( array( 'term' => 'gmedia_album' ), $url ); ?>"><?php _e( 'Albums', 'gmLang' ); ?></a></li>
-						<li><a href="<?php echo add_query_arg( array( 'term' => 'gmedia_tag' ), $url ); ?>"><?php _e( 'Tags', 'gmLang' ); ?></a></li>
-						<li><a href="<?php echo add_query_arg( array( 'term' => 'gmedia_category' ), $url ); ?>"><?php _e( 'Categories', 'gmLang' ); ?></a></li>
+						<li><a href="<?php echo add_query_arg( array( 'term' => 'gmedia_album' ), $url ); ?>"><?php _e( 'Albums', 'grand-media' ); ?></a></li>
+						<li><a href="<?php echo add_query_arg( array( 'term' => 'gmedia_tag' ), $url ); ?>"><?php _e( 'Tags', 'grand-media' ); ?></a></li>
+						<li><a href="<?php echo add_query_arg( array( 'term' => 'gmedia_category' ), $url ); ?>"><?php _e( 'Categories', 'grand-media' ); ?></a></li>
 						<li class="divider"></li>
-						<li class="active"><a href="<?php echo add_query_arg( array( 'term' => 'gmedia_filter' ), $url ); ?>"><?php _e( 'Custom Filters', 'gmLang' ); ?></a></li>
+						<li class="active"><a href="<?php echo add_query_arg( array( 'term' => 'gmedia_filter' ), $url ); ?>"><?php _e( 'Custom Filters', 'grand-media' ); ?></a></li>
 					</ul>
 				</div>
 
 				<?php if ( $term_id ) { ?>
 					<div class="btn-group">
-						<a class="btn btn-default" href="#"><?php _e( 'Action', 'gmLang' ); ?></a>
+						<a class="btn btn-default" href="#"><?php _e( 'Action', 'grand-media' ); ?></a>
 						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
 							<span class="caret"></span>
-							<span class="sr-only"><?php _e( 'Toggle Dropdown', 'gmLang' ); ?></span>
+							<span class="sr-only"><?php _e( 'Toggle Dropdown', 'grand-media' ); ?></span>
 						</button>
 						<ul class="dropdown-menu" role="menu">
 							<li><a href="<?php echo add_query_arg( array(
 									'page'          => 'GrandMedia',
 									'custom_filter' => $term['term_id']
-								), admin_url( 'admin.php' ) ); ?>"><?php _e( 'Show Filter in Gmedia Library', 'gmLang' ); ?></a>
+								), admin_url( 'admin.php' ) ); ?>"><?php _e( 'Show Filter in Gmedia Library', 'grand-media' ); ?></a>
 							</li>
 						</ul>
 					</div>
@@ -1459,7 +1466,7 @@ function gmediaFilterEdit() {
 		<form method="post" id="gmedia-edit-term" name="gmEditTerm" class="panel-body">
 			<h4 style="margin-top:0;">
 				<?php if ( $term_id ) { ?>
-					<span class="pull-right"><?php echo __( 'ID', 'gmLang' ) . ": {$term['term_id']}"; ?></span>
+					<span class="pull-right"><?php echo __( 'ID', 'grand-media' ) . ": {$term['term_id']}"; ?></span>
 					<?php _e( 'Edit Filter' ); ?>: <em><?php echo esc_html( $term['name'] ); ?></em>
 				<?php } else {
 					_e( 'Create Filter' );
@@ -1469,10 +1476,10 @@ function gmediaFilterEdit() {
 			<div class="row">
 				<div class="col-xs-6">
 					<div class="form-group">
-						<label><?php _e( 'Filter Name', 'gmLang' ); ?></label>
+						<label><?php _e( 'Filter Name', 'grand-media' ); ?></label>
 						<input type="text" class="form-control input-sm" name="term[name]"
 						       value="<?php echo esc_attr( $term['name'] ); ?>"
-						       placeholder="<?php _e( 'Filter Name', 'gmLang' ); ?>" required/>
+						       placeholder="<?php _e( 'Filter Name', 'grand-media' ); ?>" required/>
 					</div>
 					<div class="form-group pull-right">
 						<?php
@@ -1481,11 +1488,11 @@ function gmediaFilterEdit() {
 						?>
 						<input type="hidden" name="term[taxonomy]" value="gmedia_filter"/>
 						<input type="hidden" name="term[term_id]" value="<?php echo $term_id; ?>"/>
-						<button type="submit" class="btn btn-primary btn-sm" name="gmedia_filter_save"><?php _e( 'Save', 'gmLang' ); ?></button>
+						<button type="submit" class="btn btn-primary btn-sm" name="gmedia_filter_save"><?php _e( 'Save', 'grand-media' ); ?></button>
 					</div>
-					<p><b><?php _e( 'Filter Author:', 'gmLang' ); ?></b>
+					<p><b><?php _e( 'Filter Author:', 'grand-media' ); ?></b>
 						<?php if ( $gmCore->caps['gmedia_delete_others_media'] ) { ?>
-							<a href="#gallModal" data-modal="select_author" data-action="gmedia_get_modal" class="gmedia-modal" title="<?php _e( 'Click to choose author for gallery', 'gmLang' ); ?>"><?php echo $term['global'] ? get_the_author_meta( 'display_name', $term['global'] ) : __( '(no author / shared albums)' ); ?></a>
+							<a href="#gallModal" data-modal="select_author" data-action="gmedia_get_modal" class="gmedia-modal" title="<?php _e( 'Click to choose author for gallery', 'grand-media' ); ?>"><?php echo $term['global'] ? get_the_author_meta( 'display_name', $term['global'] ) : __( '(no author / shared albums)' ); ?></a>
 							<?php if ( $author_new ) {
 								echo '<br /><span class="text-danger">' . __( 'Note: Author changed but not saved yet. You can see Albums list only of chosen author' ) . '</span>';
 							} ?>
@@ -1497,7 +1504,7 @@ function gmediaFilterEdit() {
 				</div>
 				<div class="col-xs-6">
 					<div class="form-group">
-						<label><?php _e( 'Description', 'gmLang' ); ?></label>
+						<label><?php _e( 'Description', 'grand-media' ); ?></label>
                         <textarea class="form-control input-sm" style="height:77px;" rows="2" name="term[description]"><?php echo $term['description']; ?></textarea>
 					</div>
 				</div>
@@ -1530,22 +1537,22 @@ function gmediaFilterEdit() {
 					}
 					$setvalue = !empty($gmedia_album)? 'data-setvalue="' . implode(',', $gmedia_album) . '"' : '';
 					?>
-					<label><?php _e( 'Choose Albums', 'gmLang' ); ?> </label>
+					<label><?php _e( 'Choose Albums', 'grand-media' ); ?> </label>
 					<div class="row">
 						<div class="col-xs-8">
-							<select <?php echo $setvalue; ?> id="gmedia_album" name="filter_data[gmedia_album][]" class="gmedia-combobox form-control input-sm" multiple="multiple" placeholder="<?php echo esc_attr( __( 'Any Album...', 'gmLang' ) ); ?>">
-								<option value=""<?php if(empty($gmedia_album)){ echo ' selected="selected"'; } ?>><?php _e( 'Any Album...', 'gmLang' ); ?></option>
+							<select <?php echo $setvalue; ?> id="gmedia_album" name="filter_data[gmedia_album][]" class="gmedia-combobox form-control input-sm" multiple="multiple" placeholder="<?php echo esc_attr( __( 'Any Album...', 'grand-media' ) ); ?>">
+								<option value=""<?php if(empty($gmedia_album)){ echo ' selected="selected"'; } ?>><?php _e( 'Any Album...', 'grand-media' ); ?></option>
 								<?php echo $terms_items; ?>
 							</select>
 						</div>
 						<div class="col-xs-4">
 							<select name="filter_data[album__condition]" class="form-control input-sm">
-								<option <?php selected($album__condition, 'album__in'); ?> value="album__in"><?php _e( 'get albums', 'gmLang' ); ?></option>
-								<option <?php selected($album__condition, 'album__not_in'); ?> value="album__not_in"><?php _e( 'exclude albums', 'gmLang' ); ?></option>
+								<option <?php selected($album__condition, 'album__in'); ?> value="album__in"><?php _e( 'get albums', 'grand-media' ); ?></option>
+								<option <?php selected($album__condition, 'album__not_in'); ?> value="album__not_in"><?php _e( 'exclude albums', 'grand-media' ); ?></option>
 							</select>
 						</div>
 					</div>
-					<p class="help-block"><?php _e( 'You can choose Albums from the same author as Gallery author or Albums without author', 'gmLang' ); ?></p>
+					<p class="help-block"><?php _e( 'You can choose Albums from the same author as Gallery author or Albums without author', 'grand-media' ); ?></p>
 				</div>
 
 				<div class="form-group">
@@ -1563,18 +1570,18 @@ function gmediaFilterEdit() {
 					}
 					$setvalue = !empty($gmedia_category)? 'data-setvalue="' . implode(',', $gmedia_category) . '"' : '';
 					?>
-					<label><?php _e( 'Choose Categories', 'gmLang' ); ?></label>
+					<label><?php _e( 'Choose Categories', 'grand-media' ); ?></label>
 					<div class="row">
 						<div class="col-xs-8">
-							<select <?php echo $setvalue; ?> id="gmedia_category" name="filter_data[gmedia_category][]" class="gmedia-combobox form-control input-sm" multiple="multiple" placeholder="<?php echo esc_attr( __( 'Any Category...', 'gmLang' ) ); ?>">
-								<option value=""<?php if(empty($gmedia_category)){ echo ' selected="selected"'; } ?>><?php _e( 'Any Category...', 'gmLang' ); ?></option>
+							<select <?php echo $setvalue; ?> id="gmedia_category" name="filter_data[gmedia_category][]" class="gmedia-combobox form-control input-sm" multiple="multiple" placeholder="<?php echo esc_attr( __( 'Any Category...', 'grand-media' ) ); ?>">
+								<option value=""<?php if(empty($gmedia_category)){ echo ' selected="selected"'; } ?>><?php _e( 'Any Category...', 'grand-media' ); ?></option>
 								<?php echo $terms_items; ?>
 							</select>
 						</div>
 						<div class="col-xs-4">
 							<select name="filter_data[category__condition]" class="form-control input-sm">
-								<option <?php selected($category__condition, 'category__in'); ?> value="category__in"><?php _e( 'get categories', 'gmLang' ); ?></option>
-								<option <?php selected($category__condition, 'category__not_in'); ?> value="category__not_in"><?php _e( 'exclude categories', 'gmLang' ); ?></option>
+								<option <?php selected($category__condition, 'category__in'); ?> value="category__in"><?php _e( 'get categories', 'grand-media' ); ?></option>
+								<option <?php selected($category__condition, 'category__not_in'); ?> value="category__not_in"><?php _e( 'exclude categories', 'grand-media' ); ?></option>
 							</select>
 						</div>
 					</div>
@@ -1594,19 +1601,19 @@ function gmediaFilterEdit() {
 					}
 					$setvalue = !empty($gmedia_tag)? 'data-setvalue="' . implode(',', $gmedia_tag) . '"' : '';
 					?>
-					<label><?php _e( 'Choose Tags', 'gmLang' ); ?> </label>
+					<label><?php _e( 'Choose Tags', 'grand-media' ); ?> </label>
 					<div class="row">
 						<div class="col-xs-8">
-							<select <?php echo $setvalue; ?> id="gmedia_tag" name="filter_data[gmedia_tag][]" class="gmedia-combobox form-control input-sm" multiple="multiple" placeholder="<?php echo esc_attr( __( 'Any Tag...', 'gmLang' ) ); ?>">
-								<option value=""<?php if(empty($gmedia_tag)){ echo ' selected="selected"'; } ?>><?php _e( 'Any Tag...', 'gmLang' ); ?></option>
+							<select <?php echo $setvalue; ?> id="gmedia_tag" name="filter_data[gmedia_tag][]" class="gmedia-combobox form-control input-sm" multiple="multiple" placeholder="<?php echo esc_attr( __( 'Any Tag...', 'grand-media' ) ); ?>">
+								<option value=""<?php if(empty($gmedia_tag)){ echo ' selected="selected"'; } ?>><?php _e( 'Any Tag...', 'grand-media' ); ?></option>
 								<?php echo $terms_items; ?>
 							</select>
 						</div>
 						<div class="col-xs-4">
 							<select name="filter_data[tag__condition]" class="form-control input-sm">
-								<option <?php selected($tag__condition, 'tag__in'); ?> value="tag__in"><?php _e( 'get items with either tags', 'gmLang' ); ?></option>
-								<option <?php selected($tag__condition, 'tag__and'); ?> value="tag__and"><?php _e( 'get items that have all listed tags', 'gmLang' ); ?></option>
-								<option <?php selected($tag__condition, 'tag__not_in'); ?> value="tag__not_in"><?php _e( 'exclude items that have any of the listed tags', 'gmLang' ); ?></option>
+								<option <?php selected($tag__condition, 'tag__in'); ?> value="tag__in"><?php _e( 'get items with either tags', 'grand-media' ); ?></option>
+								<option <?php selected($tag__condition, 'tag__and'); ?> value="tag__and"><?php _e( 'get items that have all listed tags', 'grand-media' ); ?></option>
+								<option <?php selected($tag__condition, 'tag__not_in'); ?> value="tag__not_in"><?php _e( 'exclude items that have any of the listed tags', 'grand-media' ); ?></option>
 							</select>
 						</div>
 					</div>
@@ -1614,7 +1621,7 @@ function gmediaFilterEdit() {
 
 			<?php } ?>
 			<div class="form-group">
-				<label><?php _e( 'Terms Relation', 'gmLang' ); ?> </label>
+				<label><?php _e( 'Terms Relation', 'grand-media' ); ?> </label>
 				<div class="row">
 					<div class="col-xs-4">
 						<select name="gmedia_filter[terms_relation]" class="form-control input-sm">
@@ -1623,55 +1630,55 @@ function gmediaFilterEdit() {
 						</select>
 					</div>
 					<div class="col-xs-8">
-						<p class="help-block"><?php _e('allows you to describe the relationship between the taxonomy queries', 'gmLang'); ?></p>
+						<p class="help-block"><?php _e('allows you to describe the relationship between the taxonomy queries', 'grand-media'); ?></p>
 					</div>
 				</div>
 			</div>
 			<div class="form-group">
-				<label><?php _e('Search', 'gmLang'); ?></label>
+				<label><?php _e('Search', 'grand-media'); ?></label>
 				<div class="row">
 					<div class="col-xs-8">
-						<input type="text" class="form-control input-sm" placeholder="<?php _e('Search string or terms separated by comma', 'gmLang'); ?>" value="<?php echo $filter_data['s']; ?>" name="gmedia_filter[s]">
+						<input type="text" class="form-control input-sm" placeholder="<?php _e('Search string or terms separated by comma', 'grand-media'); ?>" value="<?php echo $filter_data['s']; ?>" name="gmedia_filter[s]">
 					</div>
 					<div class="col-xs-4">
-						<div class="checkbox"><label><input type="checkbox" name="gmedia_filter[exact]" value="yes"<?php if($filter_data['exact']){ echo ' checked="checked"'; } ?> /> <?php _e( 'Search exactly string', 'gmLang' ); ?></label></div>
+						<div class="checkbox"><label><input type="checkbox" name="gmedia_filter[exact]" value="yes"<?php if($filter_data['exact']){ echo ' checked="checked"'; } ?> /> <?php _e( 'Search exactly string', 'grand-media' ); ?></label></div>
 					</div>
 				</div>
 			</div>
 			<div class="form-group">
 				<div class="row">
 					<div class="col-xs-8">
-						<div class="pull-right"><a id="use_lib_selected" class="label label-primary" href="#libselected"><?php _e('Use selected in Library', 'gmLang'); ?></a></div>
-						<label><?php _e( 'Gmedia IDs <small class="text-muted">separated by comma</small>', 'gmLang' ); ?> </label>
+						<div class="pull-right"><a id="use_lib_selected" class="label label-primary" href="#libselected"><?php _e('Use selected in Library', 'grand-media'); ?></a></div>
+						<label><?php _e( 'Gmedia IDs <small class="text-muted">separated by comma</small>', 'grand-media' ); ?> </label>
 						<?php $value = !empty($gmedia_id)? implode(',', wp_parse_id_list($gmedia_id)) : '';
 						?>
-						<textarea id="gmedia__ids" name="filter_data[gmedia_id]" rows="1" class="form-control input-sm" style="resize:vertical;" placeholder="<?php echo esc_attr( __( 'Gmedia IDs...', 'gmLang' ) ); ?>"><?php echo $value; ?></textarea>
+						<textarea id="gmedia__ids" name="filter_data[gmedia_id]" rows="1" class="form-control input-sm" style="resize:vertical;" placeholder="<?php echo esc_attr( __( 'Gmedia IDs...', 'grand-media' ) ); ?>"><?php echo $value; ?></textarea>
 					</div>
 					<div class="col-xs-4">
 						<label>&nbsp;</label>
 						<select name="filter_data[gmedia_id__condition]" class="form-control input-sm">
-							<option <?php selected($gmedia_id__condition, 'gmedia__in'); ?> value="gmedia__in"><?php _e( 'get gmedia IDs', 'gmLang' ); ?></option>
-							<option <?php selected($gmedia_id__condition, 'gmedia__not_in'); ?> value="gmedia__not_in"><?php _e( 'exclude gmedia IDs', 'gmLang' ); ?></option>
+							<option <?php selected($gmedia_id__condition, 'gmedia__in'); ?> value="gmedia__in"><?php _e( 'get gmedia IDs', 'grand-media' ); ?></option>
+							<option <?php selected($gmedia_id__condition, 'gmedia__not_in'); ?> value="gmedia__not_in"><?php _e( 'exclude gmedia IDs', 'grand-media' ); ?></option>
 						</select>
 					</div>
 				</div>
-				<p class="help-block"><?php _e('You can select items you want to add here right in Gmedia Library and then return here and click button "Use selected in Library"', 'gmLang'); ?></p>
+				<p class="help-block"><?php _e('You can select items you want to add here right in Gmedia Library and then return here and click button "Use selected in Library"', 'grand-media'); ?></p>
 			</div>
 			<div class="form-group">
 				<div class="row">
 					<div class="col-xs-4">
-						<label><?php _e( 'Mime Type', 'gmLang' ); ?> </label>
-						<select name="gmedia_filter[mime_type][]" class="gmedia-combobox form-control input-sm" multiple="multiple" placeholder="<?php echo esc_attr( __( 'All types...', 'gmLang' ) ); ?>">
-							<option value=""><?php _e( 'All types...', 'gmLang' ); ?></option>
-							<option <?php if(in_array('image', $filter_data['mime_type'])){ echo 'selected="selected"'; } ?> value="image"><?php _e( 'Image', 'gmLang' ); ?></option>
-							<option <?php if(in_array('audio', $filter_data['mime_type'])){ echo 'selected="selected"'; } ?> value="audio"><?php _e( 'Audio', 'gmLang' ); ?></option>
-							<option <?php if(in_array('video', $filter_data['mime_type'])){ echo 'selected="selected"'; } ?> value="video"><?php _e( 'Video', 'gmLang' ); ?></option>
-							<option <?php if(in_array('text', $filter_data['mime_type'])){ echo 'selected="selected"'; } ?> value="text"><?php _e( 'Text', 'gmLang' ); ?></option>
-							<option <?php if(in_array('application', $filter_data['mime_type'])){ echo 'selected="selected"'; } ?> value="application"><?php _e( 'Application', 'gmLang' ); ?></option>
+						<label><?php _e( 'Mime Type', 'grand-media' ); ?> </label>
+						<select name="gmedia_filter[mime_type][]" class="gmedia-combobox form-control input-sm" multiple="multiple" placeholder="<?php echo esc_attr( __( 'All types...', 'grand-media' ) ); ?>">
+							<option value=""><?php _e( 'All types...', 'grand-media' ); ?></option>
+							<option <?php if(in_array('image', $filter_data['mime_type'])){ echo 'selected="selected"'; } ?> value="image"><?php _e( 'Image', 'grand-media' ); ?></option>
+							<option <?php if(in_array('audio', $filter_data['mime_type'])){ echo 'selected="selected"'; } ?> value="audio"><?php _e( 'Audio', 'grand-media' ); ?></option>
+							<option <?php if(in_array('video', $filter_data['mime_type'])){ echo 'selected="selected"'; } ?> value="video"><?php _e( 'Video', 'grand-media' ); ?></option>
+							<option <?php if(in_array('text', $filter_data['mime_type'])){ echo 'selected="selected"'; } ?> value="text"><?php _e( 'Text', 'grand-media' ); ?></option>
+							<option <?php if(in_array('application', $filter_data['mime_type'])){ echo 'selected="selected"'; } ?> value="application"><?php _e( 'Application', 'grand-media' ); ?></option>
 						</select>
 					</div>
 					<div class="col-xs-4">
-						<label><?php _e( 'Authors', 'gmLang' ); ?></label>
+						<label><?php _e( 'Authors', 'grand-media' ); ?></label>
 						<?php if($gmCore->caps['gmedia_show_others_media']){
 							$user_ids = $gmCore->get_editable_user_ids();
 							if ( ! in_array( $user_ID, $user_ids ) ) {
@@ -1688,8 +1695,8 @@ function gmediaFilterEdit() {
 							}
 							$setvalue = !empty($author_id)? 'data-setvalue="' . implode(',', $author_id) . '"' : '';
 							?>
-							<select <?php echo $setvalue; ?> name="filter_data[author_id][]" class="gmedia-combobox form-control input-sm" multiple="multiple" placeholder="<?php echo esc_attr( __( 'All authors...', 'gmLang' ) ); ?>">
-								<option value=""><?php _e( 'All authors...', 'gmLang' ); ?></option>
+							<select <?php echo $setvalue; ?> name="filter_data[author_id][]" class="gmedia-combobox form-control input-sm" multiple="multiple" placeholder="<?php echo esc_attr( __( 'All authors...', 'grand-media' ) ); ?>">
+								<option value=""><?php _e( 'All authors...', 'grand-media' ); ?></option>
 								<?php echo $users; ?>
 							</select>
 						<?php } else { ?>
@@ -1701,8 +1708,8 @@ function gmediaFilterEdit() {
 						<div class="col-xs-4">
 							<label>&nbsp;</label>
 							<select name="filter_data[author_id__condition]" class="form-control input-sm">
-								<option <?php selected($author_id__condition, 'author__in'); ?> value="author__in"><?php _e( 'get authors', 'gmLang' ); ?></option>
-								<option <?php selected($author_id__condition, 'author__not_in'); ?> value="author__not_in"><?php _e( 'exclude authors', 'gmLang' ); ?></option>
+								<option <?php selected($author_id__condition, 'author__in'); ?> value="author__in"><?php _e( 'get authors', 'grand-media' ); ?></option>
+								<option <?php selected($author_id__condition, 'author__not_in'); ?> value="author__not_in"><?php _e( 'exclude authors', 'grand-media' ); ?></option>
 							</select>
 						</div>
 					<?php } ?>
@@ -1711,16 +1718,16 @@ function gmediaFilterEdit() {
 			<div class="form-group">
 				<div class="row">
 					<div class="col-xs-4">
-						<label><?php _e('Year', 'gmLang'); ?></label>
-						<input type="text" class="form-control input-sm" placeholder="<?php _e('4 digit year e.g. 2011', 'gmLang'); ?>" value="<?php echo $filter_data['year']; ?>" name="gmedia_filter[year]">
+						<label><?php _e('Year', 'grand-media'); ?></label>
+						<input type="text" class="form-control input-sm" placeholder="<?php _e('4 digit year e.g. 2011', 'grand-media'); ?>" value="<?php echo $filter_data['year']; ?>" name="gmedia_filter[year]">
 					</div>
 					<div class="col-xs-4">
-						<label><?php _e('Month', 'gmLang'); ?></label>
-						<input type="text" class="form-control input-sm" placeholder="<?php _e('from 1 to 12', 'gmLang'); ?>" value="<?php echo $filter_data['monthnum']; ?>" name="gmedia_filter[monthnum]">
+						<label><?php _e('Month', 'grand-media'); ?></label>
+						<input type="text" class="form-control input-sm" placeholder="<?php _e('from 1 to 12', 'grand-media'); ?>" value="<?php echo $filter_data['monthnum']; ?>" name="gmedia_filter[monthnum]">
 					</div>
 					<div class="col-xs-4">
-						<label><?php _e('Day', 'gmLang'); ?></label>
-						<input type="text" class="form-control input-sm" placeholder="<?php _e('from 1 to 31', 'gmLang'); ?>" value="<?php echo $filter_data['day']; ?>" name="gmedia_filter[day]">
+						<label><?php _e('Day', 'grand-media'); ?></label>
+						<input type="text" class="form-control input-sm" placeholder="<?php _e('from 1 to 31', 'grand-media'); ?>" value="<?php echo $filter_data['day']; ?>" name="gmedia_filter[day]">
 					</div>
 				</div>
 			</div>
@@ -1730,20 +1737,20 @@ function gmediaFilterEdit() {
 					?>
 				<div class="row">
 					<div class="col-xs-6 col-sm-3">
-						<label><?php _e('Custom Field Key', 'gmLang'); ?></label>
+						<label><?php _e('Custom Field Key', 'grand-media'); ?></label>
 						<input type="text" class="form-control input-sm" value="<?php echo $q['key']; ?>" name="gmedia_filter[meta_query][<?php echo $i; ?>][key]">
-						<span class="help-block"><?php _e('Display items with this field key', 'gmLang'); ?></span>
+						<span class="help-block"><?php _e('Display items with this field key', 'grand-media'); ?></span>
 					</div>
 					<div class="col-xs-6 col-sm-3">
-						<label><?php _e('Custom Field Value', 'gmLang'); ?></label>
+						<label><?php _e('Custom Field Value', 'grand-media'); ?></label>
 						<input type="text" class="form-control input-sm" value="<?php echo $q['value']; ?>" name="gmedia_filter[meta_query][<?php echo $i; ?>][value]">
-						<span class="help-block"><?php _e('Display items with this field value', 'gmLang'); ?></span>
+						<span class="help-block"><?php _e('Display items with this field value', 'grand-media'); ?></span>
 					</div>
 					<div class="col-xs-6 col-sm-3">
-						<label><?php _e('Compare Operator', 'gmLang'); ?></label>
+						<label><?php _e('Compare Operator', 'grand-media'); ?></label>
 						<select class="form-control input-sm" name="gmedia_filter[meta_query][<?php echo $i; ?>][compare]">
-							<option value=""><?php _e('Choose..', 'gmLang'); ?></option>
-							<option <?php selected($q['compare'], '='); ?> value="=">= (<?php _e('Default', 'gmLang'); ?>)</option>
+							<option value=""><?php _e('Choose..', 'grand-media'); ?></option>
+							<option <?php selected($q['compare'], '='); ?> value="=">= (<?php _e('Default', 'grand-media'); ?>)</option>
 							<option <?php selected($q['compare'], '!='); ?> value="!=">!=</option>
 							<option <?php selected($q['compare'], '>'); ?> value="&gt;">&gt;</option>
 							<option <?php selected($q['compare'], '>='); ?> value="&gt;=">&gt;=</option>
@@ -1759,59 +1766,64 @@ function gmediaFilterEdit() {
 							<?php */ ?>
 							<option <?php selected($q['compare'], 'EXISTS'); ?> value="EXISTS">EXISTS</option>
 						</select>
-						<span class="help-block"><?php _e('Operator to test the field value', 'gmLang'); ?></span>
+						<span class="help-block"><?php _e('Operator to test the field value', 'grand-media'); ?></span>
 					</div>
 					<div class="col-xs-6 col-sm-3">
-						<label><?php _e('Meta Type', 'gmLang'); ?></label>
+						<label><?php _e('Meta Type', 'grand-media'); ?></label>
 						<select class="form-control input-sm" name="gmedia_filter[meta_query][<?php echo $i; ?>][type]">
-							<option value=""><?php _e('Choose..', 'gmLang'); ?></option>
+							<option value=""><?php _e('Choose..', 'grand-media'); ?></option>
 							<option <?php selected($q['type'], 'NUMERIC'); ?> value="NUMERIC">NUMERIC</option>
 							<option <?php selected($q['type'], 'BINARY'); ?> value="BINARY">BINARY</option>
 							<option <?php selected($q['type'], 'DATE'); ?> value="DATE">DATE</option>
-							<option <?php selected($q['type'], 'CHAR'); ?> value="CHAR">CHAR (<?php _e('Default', 'gmLang'); ?>)</option>
+							<option <?php selected($q['type'], 'CHAR'); ?> value="CHAR">CHAR (<?php _e('Default', 'grand-media'); ?>)</option>
 							<option <?php selected($q['type'], 'DATETIME'); ?> value="DATETIME">DATETIME</option>
 							<option <?php selected($q['type'], 'DECIMAL'); ?> value="DECIMAL">DECIMAL</option>
 							<option <?php selected($q['type'], 'SIGNED'); ?> value="SIGNED">SIGNED</option>
 							<option <?php selected($q['type'], 'TIME'); ?> value="TIME">TIME</option>
 							<option <?php selected($q['type'], 'UNSIGNED'); ?> value="UNSIGNED">UNSIGNED</option>
 						</select>
-						<span class="help-block"><?php _e('Custom field type', 'gmLang'); ?></span>
+						<span class="help-block"><?php _e('Custom field type', 'grand-media'); ?></span>
 					</div>
 				</div>
 				<?php } ?>
 			</div>
 			<div class="form-group">
 				<div class="row">
-					<div class="col-xs-4">
-						<label><?php _e('Order', 'gmLang'); ?></label>
+					<div class="col-xs-6 col-sm-3">
+						<label><?php _e('Order', 'grand-media'); ?></label>
 						<select class="form-control input-sm" name="gmedia_filter[order]">
-							<option value=""><?php _e('Choose..', 'gmLang'); ?></option>
-							<option <?php selected($filter_data['order'], 'ASC'); ?> value="ASC"><?php _e('ASC', 'gmLang'); ?></option>
-							<option <?php selected($filter_data['order'], 'DESC'); ?> value="DESC"><?php _e('DESC - Default', 'gmLang'); ?></option>
+							<option value=""><?php _e('Choose..', 'grand-media'); ?></option>
+							<option <?php selected($filter_data['order'], 'ASC'); ?> value="ASC"><?php _e('ASC', 'grand-media'); ?></option>
+							<option <?php selected($filter_data['order'], 'DESC'); ?> value="DESC"><?php _e('DESC - Default', 'grand-media'); ?></option>
 						</select>
-						<span class="help-block"><?php _e('Ascending or Descending order', 'gmLang'); ?></span>
+						<span class="help-block"><?php _e('Ascending or Descending order', 'grand-media'); ?></span>
 					</div>
-					<div class="col-xs-4">
-						<label><?php _e('Order by', 'gmLang'); ?></label>
+					<div class="col-xs-6 col-sm-3">
+						<label><?php _e('Order by', 'grand-media'); ?></label>
 						<select class="form-control input-sm" name="gmedia_filter[orderby]">
-							<option value=""><?php _e('Choose..', 'gmLang'); ?></option>
-							<option <?php selected($filter_data['orderby'], 'none'); ?> value="none"><?php _e('None', 'gmLang'); ?></option>
-							<option <?php selected($filter_data['orderby'], 'rand'); ?> value="rand"><?php _e('Random', 'gmLang'); ?></option>
-							<option <?php selected($filter_data['orderby'], 'id'); ?> value="id"><?php _e('ID', 'gmLang'); ?></option>
-							<option <?php selected($filter_data['orderby'], 'title'); ?> value="title"><?php _e('Title', 'gmLang'); ?></option>
-							<option <?php selected($filter_data['orderby'], 'gmuid'); ?> value="gmuid"><?php _e('Filename', 'gmLang'); ?></option>
-							<option <?php selected($filter_data['orderby'], 'date'); ?> value="date"><?php _e('Date - Default', 'gmLang'); ?></option>
-							<option <?php selected($filter_data['orderby'], 'modified'); ?> value="modified"><?php _e('Modified Date', 'gmLang'); ?></option>
-							<option <?php selected($filter_data['orderby'], 'author'); ?> value="author"><?php _e('Author', 'gmLang'); ?></option>
-							<option <?php selected($filter_data['orderby'], 'gmedia__in'); ?> value="gmedia__in"><?php _e('Selected Order', 'gmLang'); ?></option>
-							<option <?php selected($filter_data['orderby'], 'meta_value'); ?> value="meta_value"><?php _e('Custom Field Value', 'gmLang'); ?></option>
-							<option <?php selected($filter_data['orderby'], 'meta_value_num'); ?> value="meta_value_num"><?php _e('Custom Field Value (Numeric)', 'gmLang'); ?></option>
+							<option value=""><?php _e('Choose..', 'grand-media'); ?></option>
+							<option <?php selected($filter_data['orderby'], 'none'); ?> value="none"><?php _e('None', 'grand-media'); ?></option>
+							<option <?php selected($filter_data['orderby'], 'rand'); ?> value="rand"><?php _e('Random', 'grand-media'); ?></option>
+							<option <?php selected($filter_data['orderby'], 'id'); ?> value="id"><?php _e('ID', 'grand-media'); ?></option>
+							<option <?php selected($filter_data['orderby'], 'title'); ?> value="title"><?php _e('Title', 'grand-media'); ?></option>
+							<option <?php selected($filter_data['orderby'], 'gmuid'); ?> value="gmuid"><?php _e('Filename', 'grand-media'); ?></option>
+							<option <?php selected($filter_data['orderby'], 'date'); ?> value="date"><?php _e('Date - Default', 'grand-media'); ?></option>
+							<option <?php selected($filter_data['orderby'], 'modified'); ?> value="modified"><?php _e('Modified Date', 'grand-media'); ?></option>
+							<option <?php selected($filter_data['orderby'], 'author'); ?> value="author"><?php _e('Author', 'grand-media'); ?></option>
+							<option <?php selected($filter_data['orderby'], 'gmedia__in'); ?> value="gmedia__in"><?php _e('Selected Order', 'grand-media'); ?></option>
+							<option <?php selected($filter_data['orderby'], 'meta_value'); ?> value="meta_value"><?php _e('Custom Field Value', 'grand-media'); ?></option>
+							<option <?php selected($filter_data['orderby'], 'meta_value_num'); ?> value="meta_value_num"><?php _e('Custom Field Value (Numeric)', 'grand-media'); ?></option>
 						</select>
-						<span class="help-block"><?php _e('Sort retrieved posts by', 'gmLang'); ?></span>
+						<span class="help-block"><?php _e('Sort retrieved posts by', 'grand-media'); ?></span>
 					</div>
-					<div class="col-xs-4 text-right">
+					<div class="col-xs-6 col-sm-3">
+						<label><?php _e('Limit', 'grand-media'); ?></label>
+						<input type="text" class="form-control input-sm" value="<?php echo $filter_data['per_page']; ?>" name="gmedia_filter[per_page]" placeholder="<?php _e('leave empty for no limit', 'grand-media'); ?>">
+						<span class="help-block"><?php _e('Limit number of gmedia items', 'grand-media'); ?></span>
+					</div>
+					<div class="col-xs-6 col-sm-3 text-right">
 						<label style="display:block;">&nbsp;</label>
-						<button type="submit" class="btn btn-primary btn-sm" name="gmedia_filter_save"><?php _e( 'Save', 'gmLang' ); ?></button>
+						<button type="submit" class="btn btn-primary btn-sm" name="gmedia_filter_save"><?php _e( 'Save', 'grand-media' ); ?></button>
 					</div>
 				</div>
 			</div>
@@ -1864,9 +1876,15 @@ function gmediaFilterEdit() {
 		<div class="panel-body">
 			<div class="termItems clearfix">
 				<?php if(!empty($termItems)){
+					$ic = ((int) $term_query['page'] - 1) * (int) $term_query['per_page'];
 					foreach($termItems as $item){
+						$ic++;
+						$item_class = '';
+						if($limit && $limit < $ic){
+							$item_class = ' item-after-limit';
+						}
 						?>
-						<div class="gm-img-thumbnail" data-gmid="<?php echo $item->ID; ?>"><?php
+						<div class="gm-img-thumbnail<?php echo $item_class; ?>" data-gmid="<?php echo $item->ID; ?>"><?php
 							?><img src="<?php echo $gmCore->gm_get_media_image($item, 'thumb', false); ?>" alt="<?php echo $item->ID; ?>" title="<?php echo esc_attr($item->title); ?>"/><?php
 							?><span class="label label-default">ID: <?php echo $item->ID; ?></span><?php
 							?>
@@ -1884,8 +1902,10 @@ function gmediaFilterEdit() {
 			</div>
 		</div>
 		<div class="panel-footer clearfix" style="margin-top:20px;"><?php echo $pager_html; ?>
-			<div class="well well-sm pull-left"
-			     style="margin:0;"><?php printf(__('Total items: %d'), $totalResult); ?></div>
+			<?php if($limit){ ?>
+				<div class="well well-sm pull-left" style="margin-right:10px;"><?php printf(__('Limited to: %d'), $limit); ?></div>
+			<?php } ?>
+			<div class="well well-sm pull-left" style="margin:0;"><?php printf(__('Total items: %d'), $totalResult); ?></div>
 		</div>
 	</div>
 

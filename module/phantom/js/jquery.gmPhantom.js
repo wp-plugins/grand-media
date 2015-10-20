@@ -1,7 +1,7 @@
 /*
  * Title                   : gmPhantom
  * Version                 : 2.8
- * Copyright               : 2013 CodEasily.com
+ * Copyright               : 2013-2015 CodEasily.com
  * Website                 : http://www.codeasily.com
  */
 if(typeof jQuery.fn.gmPhantom == 'undefined'){

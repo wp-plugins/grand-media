@@ -1,6 +1,6 @@
 /*
  * Title      : WP Video Player Module for Gmedia Gallery plugin
- * Version    : 1.3
+ * Version    : 1.4
  * Copyright  : 2015 CodEasily.com
  * Website    : http://www.codeasily.com
  */
@@ -24,8 +24,6 @@
 				this.currentNode = this.$( '.wp-playlist-current-item' );
 			}
 
-			this.renderCurrent();
-
 			if ( this.data.tracklist ) {
 				this.itemTemplate = wp.template( 'wp-playlist-item' );
 				this.playingClass = 'wp-playlist-playing';
@@ -41,6 +39,8 @@
 			}
 			this.settings.success = this.bindPlayer;
 			this.setPlayer();
+
+			this.renderCurrent();
 		},
 
 		bindPlayer : function (mejs) {
@@ -73,9 +73,11 @@
 
 		playCurrentSrc : function () {
 			this.renderCurrent();
-			this.mejs.setSrc( this.playerNode.attr( 'src' ) );
-			this.mejs.load();
-			this.mejs.play();
+			if(this.mejs){
+				this.mejs.setSrc(this.playerNode.attr('src'));
+				this.mejs.load();
+				this.mejs.play();
+			}
 		},
 
 		renderCurrent : function () {
@@ -86,6 +88,10 @@
 				}
 				dimensions = this.current.get( 'dimensions' ).resized;
 				this.playerNode.attr( dimensions );
+				var cannotplay = this.playerNode.parent().find('.me-cannotplay');
+				if(cannotplay.length){
+					cannotplay.css({'background':'rgba(255, 255, 255, 0.95) url('+this.current.get( 'image' ).src+') 50% 50% no-repeat', 'height':'100%'}).find('a').attr({'href':this.playerNode.attr('src'), 'download':'download'}).css({'color':'#2e6286'});
+				}
 			} else {
 				if ( ! this.data.images ) {
 					this.current.set( 'image', false );

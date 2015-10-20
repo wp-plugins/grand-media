@@ -87,7 +87,7 @@ if(file_exists($module['path'] . "/template/{$gmedia_type}.php")){
 } else{
 	/* only for default template */
 	add_action('gmedia_head', 'gmedia_default_template_styles');
-	if(file_exists($module['path'] . "/template/{$gmedia_type}.php")) {
+	if(file_exists( GMEDIA_ABSPATH . "template/{$gmedia_type}.php" )) {
 		require_once( GMEDIA_ABSPATH . "template/{$gmedia_type}.php" );
 	} else {
 		require_once( GMEDIA_ABSPATH . "template/gallery.php" );

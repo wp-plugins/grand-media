@@ -251,6 +251,18 @@ div#gmedia-container .list-group-item-warning:hover {
     background-color: #fcf8e3 !important;
 }
 
+div#gmedia-container .item-after-limit {
+	filter: blur(1px);
+	-webkit-filter: blur(1px);
+	-moz-filter: blur(1px);
+	-o-filter: blur(1px);
+	-ms-filter: blur(1px);
+	filter:progid:DXImageTransform.Microsoft.Blur(PixelRadius='1');
+}
+.gm-img-thumbnail:not(.item-after-limit) + .item-after-limit {
+	clear:left;
+}
+
 .bg-status-private {
     background-color: #d9edf7;
     box-shadow: 3px 0 0 5px #d9edf7, -2px 0 0 5px #6fbfff;
@@ -262,10 +274,11 @@ div#gmedia-container .list-group-item-warning:hover {
 }
 
 label.cb_media-object-gallery {
-    margin-right: 15px;
-    float: left;
-    width: 135px;
-    max-width: 100%;
+    width: 40px;
+	position:absolute;
+	left:5px;
+	top:0; bottom:0;
+	text-align:center;
 }
 
 .d-row .thumbnail {
@@ -293,6 +306,7 @@ label.cb_media-object-gallery {
 
 .media-title {
     font-weight: bold;
+	font-size: 15px;
 }
 
 .media-caption:empty { display:none; }
@@ -308,6 +322,7 @@ label.cb_media-object-gallery {
     overflow:auto;
     word-break: normal;
     word-wrap: break-word;
+	max-height:210px;
 }
 .media-body .media-caption {
     margin:0;
@@ -318,6 +333,7 @@ label.cb_media-object-gallery {
     overflow: hidden;
     text-overflow: ellipsis; /*white-space:nowrap;*/
 }
+.media-meta .gm_gallery_source {font-weight:bold;}
 
 .media-meta .label-default {
     background-color: #eeeeee;
@@ -480,7 +496,8 @@ div#gmedia-msg-panel .alert {
     padding-top: 0;
     padding-bottom: 0;
 }
-#gmedia-container .cb_term-object { min-height:70px; }
+#gmedia-container .cb_term-object { min-height:60px; }
+#gmedia-container .gmedia_album .cb_term-object { min-height:78px; }
 .object-actions { text-align:right; font-size:16px;}
 .object-actions.gallery-object-actions { text-align:left; margin-bottom:5px;}
 .object-actions > * { margin:0 0 0 10px; vertical-align:middle; display:inline-block; }
@@ -500,10 +517,11 @@ a.trash-icon:hover {color:#843534;}
 }
 
 .term-list-item .term-description {
-    padding: 1px 0 4px;
+    padding: 0;
     white-space: nowrap;
     overflow: hidden;
     color: #444444;
+    text-overflow:ellipsis;
 }
 
 .term-list-item .term-description:empty {
@@ -519,7 +537,7 @@ a.trash-icon:hover {color:#843534;}
 
 .term-list-item .term-images img {
     position: relative;
-    height: 60px;
+    height: 50px;
     width: auto;
     background-color: #ffffff;
 }
@@ -527,6 +545,10 @@ a.trash-icon:hover {color:#843534;}
 .term-list-item .term_name {
     margin-right:10px;
 }
+
+.gmedia_album .term-list-item .term-images img { height: 68px; }
+.gmedia_album .term-list-item .term_name { font-size:14px; font-weight:bold; }
+
 .term-list-item .term_info_author {
     font-size: 80%;
     white-space:nowrap;
@@ -859,7 +881,8 @@ body.gmedia-blank.image_editor {
     padding: 0
 }
 
-body.gmedia-blank.image_editor .panel {
+body.gmedia-blank.image_editor .panel,
+body.gmedia-blank.map_editor .panel {
     position: relative;
     height: 100%;
     overflow: auto;
@@ -911,6 +934,16 @@ body.gmedia-blank .media-edit-sidebar .panel-footer {
     left: 0;
     bottom: 0;
     right: 0;
+}
+
+#map-floating-panel {
+	position: absolute;
+	top: 15px;
+	right: 15px;
+	z-index: 5;
+	background-color: #fff;
+	padding: 0 0 5px 5px;
+	width:250px;
 }
 
 #gallery_preview_ {

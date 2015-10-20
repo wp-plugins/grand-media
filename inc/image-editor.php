@@ -16,21 +16,21 @@ function gmedia_image_editor(){
 		<div class="panel-heading clearfix">
 			<div class="btn-toolbar pull-right">
 				<?php if(file_exists($fileinfo['filepath_original'] . '_backup')){ ?>
-					<button type="button" id="gmedit-restore" name="gmedit_restore" class="btn btn-warning pull-left" data-confirm="<?php _e('Do you really want restore original image?') ?>"><?php _e('Restore Original', 'gmLang'); ?></button>
+					<button type="button" id="gmedit-restore" name="gmedit_restore" class="btn btn-warning pull-left" data-confirm="<?php _e('Do you really want restore original image?') ?>"><?php _e('Restore Original', 'grand-media'); ?></button>
 				<?php } ?>
 				<div class="btn-group pull-left">
-					<button type="button" id="gmedit-reset" name="gmedit_reset" class="btn btn-default" data-confirm="<?php _e('Do you really want reset all changes?') ?>"><?php _e('Reset', 'gmLang'); ?></button>
-					<button type="button" id="gmedit-save" name="gmedit_save" data-loading-text="<?php _e('Working', 'gmLang'); ?>" data-reset-text="<?php _e('Save image', 'gmLang'); ?>" class="btn btn-primary"><?php _e('Save image', 'gmLang'); ?></button>
+					<button type="button" id="gmedit-reset" name="gmedit_reset" class="btn btn-default" data-confirm="<?php _e('Do you really want reset all changes?') ?>"><?php _e('Reset', 'grand-media'); ?></button>
+					<button type="button" id="gmedit-save" name="gmedit_save" data-loading-text="<?php _e('Working', 'grand-media'); ?>" data-reset-text="<?php _e('Save image', 'grand-media'); ?>" class="btn btn-primary"><?php _e('Save image', 'grand-media'); ?></button>
 				</div>
 				<?php wp_nonce_field('gmedit-save'); ?>
 			</div>
 
-			<div class="gmedit-tool-button gmedit-rotate left" data-toggle="tooltip" title="<?php _e('Rotate Counterclockwise', 'gmLang'); ?>"></div>
-			<div class="gmedit-tool-button gmedit-rotate right" data-toggle="tooltip" title="<?php _e('Rotate Clockwise', 'gmLang'); ?>"></div>
-			<div class="gmedit-tool-button gmedit-tool flip_hor" data-toggle="tooltip" data-tool="flip_hor" data-value="0" title="<?php _e('Flip Horizontal', 'gmLang'); ?>"></div>
-			<div class="gmedit-tool-button gmedit-tool flip_ver" data-toggle="tooltip" data-tool="flip_ver" data-value="0" title="<?php _e('Flip Vertical', 'gmLang'); ?>"></div>
-			<div class="gmedit-tool-button gmedit-tool greyscale" data-toggle="tooltip" data-tool="greyscale" data-value="0" title="<?php _e('Greyscale', 'gmLang'); ?>"></div>
-			<div class="gmedit-tool-button gmedit-tool invert" data-toggle="tooltip" data-tool="invert" data-value="0" title="<?php _e('Invert', 'gmLang'); ?>"></div>
+			<div class="gmedit-tool-button gmedit-rotate left" data-toggle="tooltip" title="<?php _e('Rotate Counterclockwise', 'grand-media'); ?>"></div>
+			<div class="gmedit-tool-button gmedit-rotate right" data-toggle="tooltip" title="<?php _e('Rotate Clockwise', 'grand-media'); ?>"></div>
+			<div class="gmedit-tool-button gmedit-tool flip_hor" data-toggle="tooltip" data-tool="flip_hor" data-value="0" title="<?php _e('Flip Horizontal', 'grand-media'); ?>"></div>
+			<div class="gmedit-tool-button gmedit-tool flip_ver" data-toggle="tooltip" data-tool="flip_ver" data-value="0" title="<?php _e('Flip Vertical', 'grand-media'); ?>"></div>
+			<div class="gmedit-tool-button gmedit-tool greyscale" data-toggle="tooltip" data-tool="greyscale" data-value="0" title="<?php _e('Greyscale', 'grand-media'); ?>"></div>
+			<div class="gmedit-tool-button gmedit-tool invert" data-toggle="tooltip" data-tool="invert" data-value="0" title="<?php _e('Invert', 'grand-media'); ?>"></div>
 
 		</div>
 		<div class="panel-body">
@@ -42,15 +42,15 @@ function gmedia_image_editor(){
 						</div>
 						<div id="gmedit-busy"></div>
 					</div>
-					<div id="gmedit-overlay"><span style="height:100%; width:1px; overflow:hidden;"></span><span><?php _e('Processing image', 'gmLang'); ?></span></div>
+					<div id="gmedit-overlay"><span style="height:100%; width:1px; overflow:hidden;"></span><span><?php _e('Processing image', 'grand-media'); ?></span></div>
 				</div>
 				<div class="col-xs-5 col-md-3 media-edit-sidebar">
 					<div id="media-edit-form-container">
 						<div class="alert-box" style="display:none;"></div>
-						<h2><?php _e('Filters', 'gmLang'); ?></h2>
+						<h2><?php _e('Filters', 'grand-media'); ?></h2>
 						<ul id="gmedit-instruments">
 							<li class="gmedit-filter">
-								<h3><?php _e('Brightness', 'gmLang'); ?></h3>
+								<h3><?php _e('Brightness', 'grand-media'); ?></h3>
 
 								<div class="pull-right">
 									<a href="#" class="gmedit-filter-pm text-hide" data-tool="brightness" data-direction="minus">-</a>
@@ -61,7 +61,7 @@ function gmedia_image_editor(){
 								<div class="gmedit-slider-noui" id="brightness_slider" data-tool="brightness"></div>
 							</li>
 							<li class="gmedit-filter">
-								<h3><?php _e('Contrast', 'gmLang'); ?></h3>
+								<h3><?php _e('Contrast', 'grand-media'); ?></h3>
 
 								<div class="pull-right">
 									<a href="#" class="gmedit-filter-pm text-hide" data-tool="contrast" data-direction="minus">-</a>
@@ -72,7 +72,7 @@ function gmedia_image_editor(){
 								<div class="gmedit-slider-noui" id="contrast_slider" data-tool="contrast"></div>
 							</li>
 							<li class="gmedit-filter">
-								<h3><?php _e('Saturation', 'gmLang'); ?></h3>
+								<h3><?php _e('Saturation', 'grand-media'); ?></h3>
 
 								<div class="pull-right">
 									<a href="#" class="gmedit-filter-pm text-hide" data-tool="saturation" data-direction="minus">-</a>
@@ -83,7 +83,7 @@ function gmedia_image_editor(){
 								<div class="gmedit-slider-noui" id="saturation_slider" data-tool="saturation"></div>
 							</li>
 							<li class="gmedit-filter">
-								<h3><?php _e('Vibrance', 'gmLang'); ?></h3>
+								<h3><?php _e('Vibrance', 'grand-media'); ?></h3>
 
 								<div class="pull-right">
 									<a href="#" class="gmedit-filter-pm text-hide" data-tool="vibrance" data-direction="minus">-</a>
@@ -94,7 +94,7 @@ function gmedia_image_editor(){
 								<div class="gmedit-slider-noui" id="vibrance_slider" data-tool="vibrance"></div>
 							</li>
 							<li class="gmedit-filter">
-								<h3><?php _e('Exposure', 'gmLang'); ?></h3>
+								<h3><?php _e('Exposure', 'grand-media'); ?></h3>
 
 								<div class="pull-right">
 									<a href="#" class="gmedit-filter-pm text-hide" data-tool="exposure" data-direction="minus">-</a>
@@ -105,7 +105,7 @@ function gmedia_image_editor(){
 								<div class="gmedit-slider-noui" id="exposure_slider" data-tool="exposure"></div>
 							</li>
 							<li class="gmedit-filter">
-								<h3><?php _e('Hue', 'gmLang'); ?></h3>
+								<h3><?php _e('Hue', 'grand-media'); ?></h3>
 
 								<div class="pull-right">
 									<a href="#" class="gmedit-filter-pm text-hide" data-tool="hue" data-direction="minus">-</a>
@@ -116,7 +116,7 @@ function gmedia_image_editor(){
 								<div class="gmedit-slider-noui" id="hue_slider" data-tool="hue"></div>
 							</li>
 							<li class="gmedit-filter">
-								<h3><?php _e('Sepia', 'gmLang'); ?></h3>
+								<h3><?php _e('Sepia', 'grand-media'); ?></h3>
 
 								<div class="pull-right">
 									<a href="#" class="gmedit-filter-pm text-hide" data-tool="sepia" data-direction="minus">-</a>
@@ -127,7 +127,7 @@ function gmedia_image_editor(){
 								<div class="gmedit-slider-noui" id="sepia_slider" data-tool="sepia"></div>
 							</li>
 							<li class="gmedit-filter">
-								<h3><?php _e('Noise', 'gmLang'); ?></h3>
+								<h3><?php _e('Noise', 'grand-media'); ?></h3>
 
 								<div class="pull-right">
 									<a href="#" class="gmedit-filter-pm text-hide" data-tool="noise" data-direction="minus">-</a>
@@ -138,7 +138,7 @@ function gmedia_image_editor(){
 								<div class="gmedit-slider-noui" id="noise_slider" data-tool="noise"></div>
 							</li>
 							<li class="gmedit-filter">
-								<h3><?php _e('Clip', 'gmLang'); ?></h3>
+								<h3><?php _e('Clip', 'grand-media'); ?></h3>
 
 								<div class="pull-right">
 									<a href="#" class="gmedit-filter-pm text-hide" data-tool="clip" data-direction="minus">-</a>
@@ -152,7 +152,7 @@ function gmedia_image_editor(){
 					</div>
 					<div class="panel-footer form-inline">
 						<div class="form-group pull-right">
-							<label class="control-label"><?php _e('Apply to', 'gmLang'); ?>: &nbsp;</label>
+							<label class="control-label"><?php _e('Apply to', 'grand-media'); ?>: &nbsp;</label>
 							<select name="applyto" id="applyto" class="form-control input-sm">
 								<option value="original"><?php _e('Original, Web-image, Thumbnail') ?></option>
 								<option value="web" selected="selected"><?php _e('Web-image, Thumbnail') ?></option>

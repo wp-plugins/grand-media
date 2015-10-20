@@ -103,7 +103,7 @@ if(!empty($content['data'])){
 		} elseif(isset($item['meta']['width']) && isset($item['meta']['height'])) {
 			$ratio = $item['meta']['width'] / $item['meta']['height'];
 		} else {
-			$ratio = 1;
+			$ratio = 1.5;
 		}
 		$content['data'][$id]['ratio'] = $ratio;
 		if(1 <= $ratio){
@@ -158,8 +158,8 @@ if(!empty($content['data'])){
 		</div>
 
 		<div class="gmpm_photo_header">
-			<div class="gmpm_wrapper clearfix">
-				<div class="gmpm_name_wrap clearfix">
+			<div class="gmpm_wrapper gmpm_clearfix">
+				<div class="gmpm_name_wrap gmpm_clearfix">
 					<?php if(!empty($allsettings['show_author_avatar'])){ ?>
 					<div class="gmpm_user_avatar">
 						<a class="gmpm_user_avatar_link" href="<?php echo $content['data'][$iSlide]['author']['posts_link']; ?>"><img src="<?php echo $content['data'][$iSlide]['author']['avatar']; ?>" alt="" /></a>
@@ -170,7 +170,7 @@ if(!empty($content['data'])){
 						<div class="gmpm_author_name"><a class="gmpm_author_link" href="<?php echo $content['data'][$iSlide]['author']['posts_link']; ?>"><?php echo $content['data'][$iSlide]['author']['name']; ?></a></div>
 					</div>
 				</div>
-				<div class="gmpm_actions clearfix">
+				<div class="gmpm_actions gmpm_clearfix">
 					<div class="gmpm_carousel gmpm_has_previous gmpm_has_next">
 						<div class="gmpm_previous_button"></div>
 						<div class="gmpm_photo_carousel">
@@ -201,24 +201,24 @@ if(!empty($content['data'])){
 				</div>
 				<div class="gmpm_focus_actions">
 					<?php if(!empty($allsettings['show_like_button'])){ ?>
-					<ul class="gmpm_focus_like_fave clearfix">
-						<li><a class="gmpm_button like"><?php _e('Like', 'gmLang'); ?></a></li>
+					<ul class="gmpm_focus_like_fave gmpm_clearfix">
+						<li><a class="gmpm_button gmpm_like"><?php _e('Like', 'grand-media'); ?></a></li>
 					</ul>
 					<?php } ?>
-					<ul class="gmpm_focus_arrows clearfix">
-						<li><a class="gmpm_button gmpm_photo_arrow_previous gmpm_prev"><?php _e('Previous', 'gmLang'); ?></a></li>
-						<li><a class="gmpm_button gmpm_photo_arrow_next gmpm_next"><?php _e('Next', 'gmLang'); ?></a></li>
+					<ul class="gmpm_focus_arrows gmpm_clearfix">
+						<li><a class="gmpm_button gmpm_photo_arrow_previous gmpm_prev"><?php _e('Previous', 'grand-media'); ?></a></li>
+						<li><a class="gmpm_button gmpm_photo_arrow_next gmpm_next"><?php _e('Next', 'grand-media'); ?></a></li>
 					</ul>
-					<ul class="gmpm_focus_close_full clearfix">
-						<li><a class="gmpm_button gmpm_close"><?php _e('Close', 'gmLang'); ?></a></li>
-						<li><a class="gmpm_button gmpm_full"><?php _e('Full', 'gmLang'); ?></a></li>
+					<ul class="gmpm_focus_close_full gmpm_clearfix">
+						<li><a class="gmpm_button gmpm_close"><?php _e('Close', 'grand-media'); ?></a></li>
+						<li><a class="gmpm_button gmpm_full"><?php _e('Full', 'grand-media'); ?></a></li>
 					</ul>
 				</div>
 			</div>
 		</div>
 		<?php if(!empty($allsettings['show_description'])){ ?>
 		<div class="gmpm_photo_details no-details-tab<?php echo empty($content['data'][$iSlide]['description'])? ' no-slide-description' : ''; ?>">
-			<div class="gmpm_wrapper clearfix">
+			<div class="gmpm_wrapper gmpm_clearfix">
 				<div class="gmpm_description_wrap">
 					<?php if(!empty($allsettings['description_title'])){ ?>
 					<h2><?php echo $allsettings['description_title']; ?></h2>
@@ -234,13 +234,13 @@ if(!empty($content['data'])){
 
 		<div class="gmpm_focus_footer">
 			<div class="gmpm_focus_keyboard">
-				<h6><?php _e('Keyboard Shortcuts', 'gmLang'); ?> <a class="gmpm_focus_keyboard_dismiss"><?php _e('Dismiss', 'gmLang'); ?></a></h6>
+				<h6><?php _e('Keyboard Shortcuts', 'grand-media'); ?> <a class="gmpm_focus_keyboard_dismiss"><?php _e('Dismiss', 'grand-media'); ?></a></h6>
 				<ul>
-					<li><a data-key="p" class="gmpm_key">S</a><span class="gmpm_label"><?php _e('Slideshow', 'gmLang'); ?></span></li>
-					<li><a data-key="m" class="gmpm_key">M</a><span class="gmpm_label"><?php _e('Maximize', 'gmLang'); ?></span></li>
-					<li><a data-key="left" class="gmpm_key">&nbsp;</a><span class="gmpm_label"><?php _e('Previous', 'gmLang'); ?></span></li>
-					<li><a data-key="right" class="gmpm_key">&nbsp;</a><span class="gmpm_label"><?php _e('Next', 'gmLang'); ?></span></li>
-					<li><a data-key="escape" class="gmpm_key gmpm_esc">esc</a><span class="gmpm_label"><?php _e('Close', 'gmLang'); ?></span></li>
+					<li><a data-key="p" class="gmpm_key">S</a><span class="gmpm_label"><?php _e('Slideshow', 'grand-media'); ?></span></li>
+					<li><a data-key="m" class="gmpm_key">M</a><span class="gmpm_label"><?php _e('Maximize', 'grand-media'); ?></span></li>
+					<li><a data-key="left" class="gmpm_key">&nbsp;</a><span class="gmpm_label"><?php _e('Previous', 'grand-media'); ?></span></li>
+					<li><a data-key="right" class="gmpm_key">&nbsp;</a><span class="gmpm_label"><?php _e('Next', 'grand-media'); ?></span></li>
+					<li><a data-key="escape" class="gmpm_key gmpm_esc">esc</a><span class="gmpm_label"><?php _e('Close', 'grand-media'); ?></span></li>
 				</ul>
 			</div>
 		</div>

@@ -51,16 +51,13 @@ function gmedia_update_data() {
 			if ( isset( $gmedia['meta'] ) && is_array( $gmedia['meta'] ) ) {
 				$meta_error = array();
 				foreach ( $gmedia['meta'] as $key => $value ) {
-					if ( '_cover' == $key ) {
-						$value = ltrim( $value, '#' );
-						$gmDB->update_metadata( 'gmedia', $id, $key, $value );
-					} elseif($gmCore->is_digit($key)){
+					if($gmCore->is_digit($key)){
 						$mid = (int) $key;
 						//$value = wp_unslash( $value );
 						if ( ! ($meta = $gmDB->get_metadata_by_mid( 'gmedia', $mid )) ){
 							$meta_error[] = array(
 								'error' => 'no_meta',
-								'message' => __( 'No record in DataBase.', 'gmLang' ),
+								'message' => __( 'No record in DataBase.', 'grand-media' ),
 								'meta_id' => $mid,
 								'meta_key' => $meta->meta_key
 							);
@@ -69,7 +66,7 @@ function gmedia_update_data() {
 						if ( '' == trim($value) ) {
 							$meta_error[] = array(
 								'error' => 'empty_value',
-								'message' => __( 'Please provide a custom field value.', 'gmLang' ),
+								'message' => __( 'Please provide a custom field value.', 'grand-media' ),
 								'meta_id' => $mid,
 								'meta_key' => $meta->meta_key,
 								'meta_value' => $meta->meta_value
@@ -78,15 +75,27 @@ function gmedia_update_data() {
 						}
 
 						if ( $meta->meta_value != $value ) {
-							if ( !($u = $gmDB->update_metadata_by_mid( 'gmedia', $mid, $value )) )
+							if ( !($u = $gmDB->update_metadata_by_mid( 'gmedia', $mid, $value )) ) {
 								$meta_error[] = array(
-									'error' => 'meta_update',
-									'message' => __( 'Something goes wrong.', 'gmLang' ),
-									'meta_id' => $mid,
-									'meta_key' => $meta->meta_key,
+									'error'      => 'meta_update',
+									'message'    => __( 'Something goes wrong.', 'grand-media' ),
+									'meta_id'    => $mid,
+									'meta_key'   => $meta->meta_key,
 									'meta_value' => $meta->meta_value
 								);
+							}
 						}
+					} elseif(is_protected_meta($key)) {
+						if ( '_cover' == $key ) {
+							$value = ltrim( $value, '#' );
+						} elseif( '_gps' == $key ) {
+							if($value) {
+								$latlng = explode( ',', $value );
+								$value  = array( 'lat' => trim( $latlng[0] ), 'lng' => trim( $latlng[1] ) );
+							}
+						}
+						$value = apply_filters('gmedia_protected_meta_value', $value, $key, $id);
+						$gmDB->update_metadata( 'gmedia', $id, $key, $value );
 					}
 				}
 			}
@@ -309,7 +318,7 @@ function gmedit_save() {
 
 			$gmDB->update_metadata( $meta_type = 'gmedia', $id, $meta_key = '_metadata', $meta );
 
-			$success = sprintf( __( 'Image "%d" updated', 'gmLang' ), $id );
+			$success = sprintf( __( 'Image "%d" updated', 'grand-media' ), $id );
 		} while ( 0 );
 
 		if ( empty( $fail ) ) {
@@ -455,7 +464,7 @@ function gmedit_restore() {
 
 			$gmDB->update_metadata( $meta_type = 'gmedia', $id, $meta_key = '_metadata', $meta );
 
-			$success = sprintf( __( 'Image "%d" restored from backup and saved', 'gmLang' ), $id );
+			$success = sprintf( __( 'Image "%d" restored from backup and saved', 'grand-media' ), $id );
 		} while ( 0 );
 
 		if ( empty( $fail ) ) {
@@ -484,66 +493,66 @@ function gmedia_get_modal() {
 			if ( ! current_user_can( 'gmedia_gallery_manage' ) ) {
 				die( '-1' );
 			}
-			$modal_title  = __( 'Quick Gallery from selected items', 'gmLang' );
-			$modal_button = __( 'Create Quick Gallery', 'gmLang' );
+			$modal_title  = __( 'Quick Gallery from selected items', 'grand-media' );
+			$modal_button = __( 'Create Quick Gallery', 'grand-media' );
 			break;
 		case 'filter_categories':
-			$modal_title  = __( 'Show Images from Categories', 'gmLang' );
-			$modal_button = __( 'Show Selected', 'gmLang' );
+			$modal_title  = __( 'Show Images from Categories', 'grand-media' );
+			$modal_button = __( 'Show Selected', 'grand-media' );
 			break;
 		case 'assign_category':
 			if ( ! current_user_can( 'gmedia_terms' ) ) {
 				die( '-1' );
 			}
-			$modal_title  = __( 'Assign Category for Selected Images', 'gmLang' );
-			$modal_button = __( 'Assign Category', 'gmLang' );
+			$modal_title  = __( 'Assign Category for Selected Images', 'grand-media' );
+			$modal_button = __( 'Assign Category', 'grand-media' );
 			break;
 		case 'filter_albums':
-			$modal_title  = __( 'Filter Albums', 'gmLang' );
-			$modal_button = __( 'Show Selected', 'gmLang' );
+			$modal_title  = __( 'Filter Albums', 'grand-media' );
+			$modal_button = __( 'Show Selected', 'grand-media' );
 			break;
 		case 'assign_album':
 			if ( ! current_user_can( 'gmedia_terms' ) ) {
 				die( '-1' );
 			}
-			$modal_title  = __( 'Assign Album for Selected Items', 'gmLang' );
-			$modal_button = __( 'Assign Album', 'gmLang' );
+			$modal_title  = __( 'Assign Album for Selected Items', 'grand-media' );
+			$modal_button = __( 'Assign Album', 'grand-media' );
 			break;
 		case 'filter_tags':
-			$modal_title  = __( 'Filter by Tags', 'gmLang' );
-			$modal_button = __( 'Show Selected', 'gmLang' );
+			$modal_title  = __( 'Filter by Tags', 'grand-media' );
+			$modal_button = __( 'Show Selected', 'grand-media' );
 			break;
 		case 'add_tags':
 			if ( ! current_user_can( 'gmedia_terms' ) ) {
 				die( '-1' );
 			}
-			$modal_title  = __( 'Add Tags to Selected Items', 'gmLang' );
-			$modal_button = __( 'Add Tags', 'gmLang' );
+			$modal_title  = __( 'Add Tags to Selected Items', 'grand-media' );
+			$modal_button = __( 'Add Tags', 'grand-media' );
 			break;
 		case 'delete_tags':
 			if ( ! current_user_can( 'gmedia_terms' ) ) {
 				die( '-1' );
 			}
 			$button_class = 'btn-danger';
-			$modal_title  = __( 'Delete Tags from Selected Items', 'gmLang' );
-			$modal_button = __( 'Delete Tags', 'gmLang' );
+			$modal_title  = __( 'Delete Tags from Selected Items', 'grand-media' );
+			$modal_button = __( 'Delete Tags', 'grand-media' );
 			break;
 		case 'custom_filters':
-			$modal_title  = __( 'Custom Filters', 'gmLang' );
-			$modal_button = __( 'Show Selected', 'gmLang' );
+			$modal_title  = __( 'Custom Filters', 'grand-media' );
+			$modal_button = __( 'Show Selected', 'grand-media' );
 			break;
 		case 'filter_authors':
-			$modal_title = __( 'Filter by Author', 'gmLang' );
+			$modal_title = __( 'Filter by Author', 'grand-media' );
 			if ( $gmCore->caps['gmedia_show_others_media'] ) {
-				$modal_button = __( 'Show Selected', 'gmLang' );
+				$modal_button = __( 'Show Selected', 'grand-media' );
 			} else {
 				$modal_button = false;
 			}
 			break;
 		case 'select_author':
-			$modal_title = __( 'Select Author', 'gmLang' );
+			$modal_title = __( 'Select Author', 'grand-media' );
 			if ( $gmCore->caps['gmedia_show_others_media'] ) {
-				$modal_button = __( 'Select', 'gmLang' );
+				$modal_button = __( 'Select', 'grand-media' );
 			} else {
 				$modal_button = false;
 			}
@@ -552,8 +561,8 @@ function gmedia_get_modal() {
 			if ( ! current_user_can( 'gmedia_edit_media' ) ) {
 				die( '-1' );
 			}
-			$modal_title  = __( 'Batch Edit', 'gmLang' );
-			$modal_button = __( 'Batch Save', 'gmLang' );
+			$modal_title  = __( 'Batch Edit', 'grand-media' );
+			$modal_button = __( 'Batch Save', 'grand-media' );
 			break;
 		default:
 			$modal_title  = ' ';
@@ -576,7 +585,7 @@ function gmedia_get_modal() {
 		$ckey     = "gmuser_{$user_ID}_library";
 		$selected = isset( $_COOKIE[ $ckey ] ) ? $_COOKIE[ $ckey ] : '';
 		if ( empty( $selected ) ) {
-			_e( 'No selected Gmedia. Select at least one item in library.', 'gmLang' );
+			_e( 'No selected Gmedia. Select at least one item in library.', 'grand-media' );
 			break;
 		}
 		$modules = array();
@@ -604,11 +613,11 @@ function gmedia_get_modal() {
 		}
 		?>
 		<div class="form-group">
-			<label><?php _e( 'Gallery Name', 'gmLang' ); ?></label>
-			<input type="text" class="form-control input-sm" name="gallery[name]" placeholder="<?php echo esc_attr( __( 'Gallery Name', 'gmLang' ) ); ?>" value="" required="required"/>
+			<label><?php _e( 'Gallery Name', 'grand-media' ); ?></label>
+			<input type="text" class="form-control input-sm" name="gallery[name]" placeholder="<?php echo esc_attr( __( 'Gallery Name', 'grand-media' ) ); ?>" value="" required="required"/>
 		</div>
 		<div class="form-group">
-			<label><?php _e( 'Modue', 'gmLang' ); ?></label>
+			<label><?php _e( 'Modue', 'grand-media' ); ?></label>
 			<select class="form-control input-sm" name="gallery[module]">
 				<?php
 				if ( ! empty( $modules ) ) {
@@ -636,7 +645,7 @@ function gmedia_get_modal() {
 			</select>
 		</div>
 		<div class="form-group">
-			<label><?php _e( 'Selected IDs', 'gmLang' ); ?></label>
+			<label><?php _e( 'Selected IDs', 'grand-media' ); ?></label>
 			<input type="text" name="gallery[query][gmedia__in][]" class="form-control input-sm" value="<?php echo $selected; ?>" required="required"/>
 		</div>
 	<?php
@@ -644,7 +653,7 @@ function gmedia_get_modal() {
 	case 'filter_categories':
 	$gm_terms = $gmDB->get_terms( 'gmedia_category' );
 	?>
-		<div class="checkbox"><label><input type="checkbox" name="cat[]" value="0"> <?php _e( 'Uncategorized', 'gmLang' ); ?></label></div>
+		<div class="checkbox"><label><input type="checkbox" name="cat[]" value="0"> <?php _e( 'Uncategorized', 'grand-media' ); ?></label></div>
 		<?php if ( count( $gm_terms ) ) {
 	foreach ( $gm_terms as $term ) {
 	if ( $term->count ) {
@@ -662,7 +671,7 @@ function gmedia_get_modal() {
 	$term_type = 'gmedia_category';
 	$gm_terms  = $gmGallery->options['taxonomies'][ $term_type ];
 	?>
-		<div class="radio"><label><input type="radio" name="cat" value="0"> <?php _e( 'Uncategorized', 'gmLang' ); ?></label></div>
+		<div class="radio"><label><input type="radio" name="cat" value="0"> <?php _e( 'Uncategorized', 'grand-media' ); ?></label></div>
 	<?php if ( count( $gm_terms ) ) {
 		foreach ( $gm_terms as $term_name => $term_title ) {
 			echo '<div class="radio"><label><input type="radio" name="cat" value="' . $term_name . '"> ' . esc_html( $term_title ) . '</label></div>';
@@ -680,17 +689,17 @@ function gmedia_get_modal() {
 	}
 	$gm_terms = $gmDB->get_terms( 'gmedia_album', $args );
 	?>
-		<div class="checkbox"><label><input type="checkbox" name="alb[]" value="0"> <?php _e( 'No Album', 'gmLang' ); ?></label></div>
+		<div class="checkbox"><label><input type="checkbox" name="alb[]" value="0"> <?php _e( 'No Album', 'grand-media' ); ?></label></div>
 	<hr/>
 		<?php if ( count( $gm_terms ) ) {
 	foreach ( $gm_terms as $term ) {
 		$author_name = '';
 		if ( $term->global ) {
 			if ( $gmCore->caps['gmedia_show_others_media'] ) {
-				$author_name .= sprintf( __( 'by %s', 'gmLang' ), get_the_author_meta( 'display_name', $term->global ) );
+				$author_name .= sprintf( __( 'by %s', 'grand-media' ), get_the_author_meta( 'display_name', $term->global ) );
 			}
 		} else {
-			$author_name .= '(' . __( 'shared', 'gmLang' ) . ')';
+			$author_name .= '(' . __( 'shared', 'grand-media' ) . ')';
 		}
 		if ( 'public' != $term->status ) {
 			$author_name .= ' [' . $term->status . ']';
@@ -726,10 +735,10 @@ function gmedia_get_modal() {
 			$author_name = '';
 			if ( $term->global ) {
 				if ( $gmCore->caps['gmedia_edit_others_media'] ) {
-					$author_name .= ' &nbsp; ' . sprintf( __( 'by %s', 'gmLang' ), get_the_author_meta( 'display_name', $term->global ) );
+					$author_name .= ' &nbsp; ' . sprintf( __( 'by %s', 'grand-media' ), get_the_author_meta( 'display_name', $term->global ) );
 				}
 			} else {
-				$author_name .= ' &nbsp; (' . __( 'shared', 'gmLang' ) . ')';
+				$author_name .= ' &nbsp; (' . __( 'shared', 'grand-media' ) . ')';
 			}
 			if ( 'public' != $term->status ) {
 				$author_name .= ' [' . $term->status . ']';
@@ -739,15 +748,15 @@ function gmedia_get_modal() {
 	}
 	?>
 		<div class="form-group">
-			<label><?php _e( 'Move to Album', 'gmLang' ); ?> </label>
-			<select id="combobox_gmedia_album" name="alb" class="form-control" placeholder="<?php _e( 'Album Name...', 'gmLang' ); ?>">
+			<label><?php _e( 'Move to Album', 'grand-media' ); ?> </label>
+			<select id="combobox_gmedia_album" name="alb" class="form-control" placeholder="<?php _e( 'Album Name...', 'grand-media' ); ?>">
 				<option></option>
-				<option value="0"><?php _e( 'No Album', 'gmLang' ); ?></option>
+				<option value="0"><?php _e( 'No Album', 'grand-media' ); ?></option>
 				<?php echo $terms_album; ?>
 			</select>
 		</div>
 		<div class="form-group">
-			<div class="checkbox"><label><input type="checkbox" name="status_global" value="1" checked> <?php _e( 'Make status of selected items be the same as Album status', 'gmLang' ); ?></label></div>
+			<div class="checkbox"><label><input type="checkbox" name="status_global" value="1" checked> <?php _e( 'Make status of selected items be the same as Album status', 'grand-media' ); ?></label></div>
 		</div>
 		<script type="text/javascript">
 			jQuery(function ($) {
@@ -798,7 +807,7 @@ function gmedia_get_modal() {
 	if (count( $gm_terms )){
 	?>
 		<div class="form-group">
-			<input id="combobox_gmedia_tag" name="tag_ids" class="form-control input-sm" value="" placeholder="<?php _e( 'Filter Tags...', 'gmLang' ); ?>"/></div>
+			<input id="combobox_gmedia_tag" name="tag_ids" class="form-control input-sm" value="" placeholder="<?php _e( 'Filter Tags...', 'grand-media' ); ?>"/></div>
 		<script type="text/javascript">
 			jQuery(function ($) {
 				var gm_terms = <?php echo json_encode($gm_terms); ?>;
@@ -829,7 +838,7 @@ function gmedia_get_modal() {
 	<?php
 	} else {
 		$modal_button = false; ?>
-		<p class="notags"><?php _e( 'No tags', 'gmLang' ); ?></p>
+		<p class="notags"><?php _e( 'No tags', 'grand-media' ); ?></p>
 	<?php
 	}
 	break;
@@ -839,7 +848,7 @@ function gmedia_get_modal() {
 	if (count( $gm_terms )){
 	?>
 		<div class="form-group">
-			<input id="combobox_gmedia_tag" name="tag_names" class="form-control input-sm" value="" placeholder="<?php _e( 'Add Tags...', 'gmLang' ); ?>"/>
+			<input id="combobox_gmedia_tag" name="tag_names" class="form-control input-sm" value="" placeholder="<?php _e( 'Add Tags...', 'grand-media' ); ?>"/>
 		</div>
 		<div class="checkbox">
 			<label><input type="checkbox" name="iptc_tags" value="1"> <?php _e('Import IPTC Keywords from selected images to Tags'); ?></label>
@@ -884,7 +893,7 @@ function gmedia_get_modal() {
 	<?php
 	} else {
 		$modal_button = false; ?>
-		<p class="notags"><?php _e( 'No tags', 'gmLang' ); ?></p>
+		<p class="notags"><?php _e( 'No tags', 'grand-media' ); ?></p>
 	<?php
 	}
 	break;
@@ -906,7 +915,7 @@ function gmedia_get_modal() {
 		}
 	} else {
 		$modal_button = false; ?>
-		<p class="notags"><?php _e( 'No tags', 'gmLang' ); ?></p>
+		<p class="notags"><?php _e( 'No tags', 'grand-media' ); ?></p>
 	<?php
 	}
 	break;
@@ -923,17 +932,17 @@ function gmedia_get_modal() {
 
 	if ( count( $gm_terms ) ) { ?>
 		<div class="form-group">
-			<label><?php _e( 'Choose Filter', 'gmLang' ); ?> </label>
-			<select id="combobox_gmedia_filter" name="custom_filter" class="form-control" placeholder="<?php _e( 'Filter Name...', 'gmLang' ); ?>">
+			<label><?php _e( 'Choose Filter', 'grand-media' ); ?> </label>
+			<select id="combobox_gmedia_filter" name="custom_filter" class="form-control" placeholder="<?php _e( 'Filter Name...', 'grand-media' ); ?>">
 				<option></option>
 				<?php foreach ( $gm_terms as $term ) {
 					$author_name = '';
 					if ( $term->global ) {
 						if ( $gmCore->caps['gmedia_show_others_media'] ) {
-							$author_name .= ' &nbsp; ' . sprintf( __( 'by %s', 'gmLang' ), get_the_author_meta( 'display_name', $term->global ) );
+							$author_name .= ' &nbsp; ' . sprintf( __( 'by %s', 'grand-media' ), get_the_author_meta( 'display_name', $term->global ) );
 						}
 					} else {
-						$author_name .= ' &nbsp; (' . __( 'shared', 'gmLang' ) . ')';
+						$author_name .= ' &nbsp; (' . __( 'shared', 'grand-media' ) . ')';
 					}
 					echo '<option value="' . $term->term_id . '" data-name="' . esc_html( $term->name ) . '" data-meta="' . esc_attr( $author_name ) . '">' . esc_html( $term->name ) . $author_name . '</option>' . "\n";
 				} ?>
@@ -971,7 +980,7 @@ function gmedia_get_modal() {
 			});
 		</script>
 	<?php } else { ?>
-		<p><?php _e('There is no Filters created yet.') ?> <a href="<?php echo add_query_arg( array( 'page' => 'GrandMedia_Terms', 'edit_filter' => '0'), admin_url('admin.php') ); ?>"><?php _e( 'Create Filter', 'gmLang' ); ?></a></p>
+		<p><?php _e('There is no Filters created yet.') ?> <a href="<?php echo add_query_arg( array( 'page' => 'GrandMedia_Terms', 'edit_filter' => '0'), admin_url('admin.php') ); ?>"><?php _e( 'Create Filter', 'grand-media' ); ?></a></p>
 	<?php }
 	break;
 	case 'filter_authors':
@@ -979,7 +988,7 @@ function gmedia_get_modal() {
 	if ($gmCore->caps['gmedia_show_others_media']){
 	?>
 		<div class="form-group">
-			<label><?php _e( 'Choose Author', 'gmLang' ); ?></label>
+			<label><?php _e( 'Choose Author', 'grand-media' ); ?></label>
 			<?php
 			$user_ids = $gmCore->get_editable_user_ids();
 			if ( $user_ids ) {
@@ -1009,10 +1018,10 @@ function gmedia_get_modal() {
 	?>
 		<p><?php _e( 'Note, data will be saved to all selected items in Gmedia Library.' ) ?></p>
 		<div class="form-group">
-			<label><?php _e( 'Filename', 'gmLang' ); ?></label>
+			<label><?php _e( 'Filename', 'grand-media' ); ?></label>
 			<select class="form-control input-sm batch_set" name="batch_filename">
-				<option value=""><?php _e( 'Skip. Do not change', 'gmLang' ); ?></option>
-				<option value="custom"><?php _e( 'Custom', 'gmLang' ); ?></option>
+				<option value=""><?php _e( 'Skip. Do not change', 'grand-media' ); ?></option>
+				<option value="custom"><?php _e( 'Custom', 'grand-media' ); ?></option>
 			</select>
 			<div class="batch_set_custom" style="margin-top:5px;display:none;">
 				<input class="form-control input-sm" name="batch_filename_custom" value="" placeholder="<?php echo 'newname_{id}'; ?>"/>
@@ -1020,50 +1029,50 @@ function gmedia_get_modal() {
 			</div>
 		</div>
 		<div class="form-group">
-			<label><?php _e( 'Title', 'gmLang' ); ?></label>
+			<label><?php _e( 'Title', 'grand-media' ); ?></label>
 			<select class="form-control input-sm batch_set" name="batch_title">
-				<option value=""><?php _e( 'Skip. Do not change', 'gmLang' ); ?></option>
-				<option value="empty"><?php _e( 'Empty Title', 'gmLang' ); ?></option>
-				<option value="filename"><?php _e( 'From Filename', 'gmLang' ); ?></option>
-				<option value="custom"><?php _e( 'Custom', 'gmLang' ); ?></option>
+				<option value=""><?php _e( 'Skip. Do not change', 'grand-media' ); ?></option>
+				<option value="empty"><?php _e( 'Empty Title', 'grand-media' ); ?></option>
+				<option value="filename"><?php _e( 'From Filename', 'grand-media' ); ?></option>
+				<option value="custom"><?php _e( 'Custom', 'grand-media' ); ?></option>
 			</select>
-			<input class="form-control input-sm batch_set_custom" style="margin-top:5px;display:none;" name="batch_title_custom" value="" placeholder="<?php _e( 'Enter custom title here', 'gmLang' ); ?>"/>
+			<input class="form-control input-sm batch_set_custom" style="margin-top:5px;display:none;" name="batch_title_custom" value="" placeholder="<?php _e( 'Enter custom title here', 'grand-media' ); ?>"/>
 		</div>
 		<div class="form-group">
-			<label><?php _e( 'Description', 'gmLang' ); ?></label>
+			<label><?php _e( 'Description', 'grand-media' ); ?></label>
 			<select class="form-control input-sm batch_set" name="batch_description">
-				<option value=""><?php _e( 'Skip. Do not change', 'gmLang' ); ?></option>
-				<option value="metadata"><?php _e( 'Add MetaInfo to Description', 'gmLang' ); ?></option>
-				<option value="empty"><?php _e( 'Empty Description', 'gmLang' ); ?></option>
-				<option value="custom"><?php _e( 'Custom', 'gmLang' ); ?></option>
+				<option value=""><?php _e( 'Skip. Do not change', 'grand-media' ); ?></option>
+				<option value="metadata"><?php _e( 'Add MetaInfo to Description', 'grand-media' ); ?></option>
+				<option value="empty"><?php _e( 'Empty Description', 'grand-media' ); ?></option>
+				<option value="custom"><?php _e( 'Custom', 'grand-media' ); ?></option>
 			</select>
 
 			<div class="batch_set_custom" style="margin-top:5px;display:none;">
 				<select class="form-control input-sm" name="what_description_custom" style="margin-bottom:5px;">
-					<option value="replace"><?php _e( 'Replace', 'gmLang' ); ?></option>
-					<option value="append"><?php _e( 'Append', 'gmLang' ); ?></option>
-					<option value="prepend"><?php _e( 'Prepend', 'gmLang' ); ?></option>
+					<option value="replace"><?php _e( 'Replace', 'grand-media' ); ?></option>
+					<option value="append"><?php _e( 'Append', 'grand-media' ); ?></option>
+					<option value="prepend"><?php _e( 'Prepend', 'grand-media' ); ?></option>
 				</select>
-				<textarea class="form-control input-sm" cols="30" rows="3" name="batch_description_custom" placeholder="<?php _e( 'Enter description here', 'gmLang' ); ?>"></textarea>
+				<textarea class="form-control input-sm" cols="30" rows="3" name="batch_description_custom" placeholder="<?php _e( 'Enter description here', 'grand-media' ); ?>"></textarea>
 			</div>
 		</div>
 		<div class="form-group">
-			<label><?php _e( 'Link', 'gmLang' ); ?></label>
+			<label><?php _e( 'Link', 'grand-media' ); ?></label>
 			<select class="form-control input-sm batch_set" name="batch_link">
-				<option value=""><?php _e( 'Skip. Do not change', 'gmLang' ); ?></option>
-				<option value="empty"><?php _e( 'Empty Link', 'gmLang' ); ?></option>
-				<option value="self"><?php _e( 'Link to original file', 'gmLang' ); ?></option>
-				<option value="custom"><?php _e( 'Custom', 'gmLang' ); ?></option>
+				<option value=""><?php _e( 'Skip. Do not change', 'grand-media' ); ?></option>
+				<option value="empty"><?php _e( 'Empty Link', 'grand-media' ); ?></option>
+				<option value="self"><?php _e( 'Link to original file', 'grand-media' ); ?></option>
+				<option value="custom"><?php _e( 'Custom', 'grand-media' ); ?></option>
 			</select>
 			<input class="form-control input-sm batch_set_custom" style="margin-top:5px;display:none;" name="batch_link_custom" value="" placeholder="<?php _e( 'Enter url here' ); ?>"/>
 		</div>
 		<div class="form-group">
-			<label><?php _e( 'Status', 'gmLang' ); ?></label>
+			<label><?php _e( 'Status', 'grand-media' ); ?></label>
 			<select class="form-control input-sm batch_set" name="batch_status">
-				<option value=""><?php _e( 'Skip. Do not change', 'gmLang' ); ?></option>
-				<option value="public"><?php _e( 'Public', 'gmLang' ); ?></option>
-				<option value="private"><?php _e( 'Private', 'gmLang' ); ?></option>
-				<option value="draft"><?php _e( 'Draft', 'gmLang' ); ?></option>
+				<option value=""><?php _e( 'Skip. Do not change', 'grand-media' ); ?></option>
+				<option value="public"><?php _e( 'Public', 'grand-media' ); ?></option>
+				<option value="private"><?php _e( 'Private', 'grand-media' ); ?></option>
+				<option value="draft"><?php _e( 'Draft', 'grand-media' ); ?></option>
 			</select>
 		</div>
 	<?php $user_ids = current_user_can( 'gmedia_delete_others_media' ) ? $gmCore->get_editable_user_ids() : false;
@@ -1073,9 +1082,9 @@ function gmedia_get_modal() {
 	}
 	?>
 		<div class="form-group">
-			<label><?php _e( 'Author', 'gmLang' ); ?></label>
+			<label><?php _e( 'Author', 'grand-media' ); ?></label>
 			<?php wp_dropdown_users( array(
-				'show_option_none' => __( 'Skip. Do not change', 'gmLang' ),
+				'show_option_none' => __( 'Skip. Do not change', 'grand-media' ),
 				'include'          => $user_ids,
 				'include_selected' => true,
 				'name'             => 'batch_author',
@@ -1099,13 +1108,13 @@ function gmedia_get_modal() {
 		<?php
 		break;
 		default:
-			_e( 'Ops! Something wrong.', 'gmLang' );
+			_e( 'Ops! Something wrong.', 'grand-media' );
 			break;
 	}
 	?>
 	</div>
 	<div class="modal-footer">
-		<button type="button" class="btn btn-default" data-dismiss="modal"><?php _e( 'Cancel', 'gmLang' ); ?></button>
+		<button type="button" class="btn btn-default" data-dismiss="modal"><?php _e( 'Cancel', 'grand-media' ); ?></button>
 		<?php if ( $modal_button ) { ?>
 			<input type="hidden" name="<?php echo $modal; ?>"/>
 			<button type="button" onclick="jQuery('#ajax-modal-form').submit()" name="<?php echo $modal; ?>" class="btn <?php echo $button_class; ?>"><?php echo $modal_button; ?></button>
@@ -1125,7 +1134,7 @@ function gmedia_tag_edit() {
 
 	check_ajax_referer( 'GmediaTerms' );
 	if ( ! current_user_can( 'gmedia_tag_manage' ) && ! current_user_can( 'gmedia_edit_others_media' ) ) {
-		$out['error'] = $gmProcessor->alert( 'danger', __( "You are not allowed to edit others media", 'gmLang' ) );
+		$out['error'] = $gmProcessor->alert( 'danger', __( "You are not allowed to edit others media", 'grand-media' ) );
 		header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
 		echo json_encode( $out );
 		die();
@@ -1141,16 +1150,16 @@ function gmedia_tag_edit() {
 				if ( is_wp_error( $term_id ) ) {
 					$out['error'] = $gmProcessor->alert( 'danger', $term_id->get_error_message() );
 				} else {
-					$out['msg'] = $gmProcessor->alert( 'info', sprintf( __( "Tag #%d successfuly updated", 'gmLang' ), $term_id ) );
+					$out['msg'] = $gmProcessor->alert( 'info', sprintf( __( "Tag #%d successfuly updated", 'grand-media' ), $term_id ) );
 				}
 			} else {
-				$out['error'] = $gmProcessor->alert( 'danger', __( "A term with the name provided already exists", 'gmLang' ) );
+				$out['error'] = $gmProcessor->alert( 'danger', __( "A term with the name provided already exists", 'grand-media' ) );
 			}
 		} else {
-			$out['error'] = $gmProcessor->alert( 'danger', __( "A term with the id provided do not exists", 'gmLang' ) );
+			$out['error'] = $gmProcessor->alert( 'danger', __( "A term with the id provided do not exists", 'grand-media' ) );
 		}
 	} else {
-		$out['error'] = $gmProcessor->alert( 'danger', __( "Term name can't be only digits or empty", 'gmLang' ) );
+		$out['error'] = $gmProcessor->alert( 'danger', __( "Term name can't be only digits or empty", 'grand-media' ) );
 	}
 
 	header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
@@ -1167,7 +1176,7 @@ function gmedia_module_preset_delete() {
 
 	check_ajax_referer( 'GmediaGallery' );
 	if ( ! current_user_can( 'gmedia_gallery_manage' ) ) {
-		$out['error'] = $gmProcessor->alert( 'danger', __( "You are not allowed to manage galleries", 'gmLang' ) );
+		$out['error'] = $gmProcessor->alert( 'danger', __( "You are not allowed to manage galleries", 'grand-media' ) );
 	} else {
 		$taxonomy = 'gmedia_module';
 		$term_id  = intval( $gmCore->_post( 'preset_id', 0 ) );
@@ -1205,13 +1214,13 @@ function gmedia_module_install() {
 		$mzip      = str_replace( "\\", "/", $mzip );
 		$to_folder = $gmCore->upload['path'] . '/' . $gmGallery->options['folder']['module'] . '/';
 		if ( ! wp_mkdir_p( $to_folder ) ) {
-			echo $gmProcessor->alert( 'danger', sprintf( __( 'Unable to create directory %s. Is its parent directory writable by the server?', 'gmLang' ), $to_folder ));
+			echo $gmProcessor->alert( 'danger', sprintf( __( 'Unable to create directory %s. Is its parent directory writable by the server?', 'grand-media' ), $to_folder ));
 			die();
 		}
 		if ( ! is_writable( $to_folder ) ) {
 			@chmod( $to_folder, 0755 );
 			if ( ! is_writable( $to_folder ) ) {
-				echo $gmProcessor->alert( 'danger', sprintf( __( 'Directory %s is not writable by the server.', 'gmLang' ), $to_folder ));
+				echo $gmProcessor->alert( 'danger', sprintf( __( 'Directory %s is not writable by the server.', 'grand-media' ), $to_folder ));
 				die();
 			}
 		}
@@ -1240,7 +1249,7 @@ function gmedia_module_install() {
 			echo $gmProcessor->alert( 'success', sprintf( __( "The `%s` module successfuly installed", 'flag' ), $module ) );
 		}
 	} else {
-		echo $gmProcessor->alert( 'danger', __( 'No file specified', 'gmLang' ) );
+		echo $gmProcessor->alert( 'danger', __( 'No file specified', 'grand-media' ) );
 	}
 
 	die();
@@ -1285,11 +1294,11 @@ function gmedia_import_wpmedia_modal() {
 							}
 						}
 						?>
-						<label><?php _e( 'Assign Category', 'gmLang' ); ?>
+						<label><?php _e( 'Assign Category', 'grand-media' ); ?>
 							<small><?php _e( '(for images only)' ) ?></small>
 						</label>
 						<select id="gmedia_category" name="terms[gmedia_category]" class="form-control input-sm">
-							<option value=""><?php _e( 'Uncategorized', 'gmLang' ); ?></option>
+							<option value=""><?php _e( 'Uncategorized', 'grand-media' ); ?></option>
 							<?php echo $terms_category; ?>
 						</select>
 					</div>
@@ -1302,12 +1311,12 @@ function gmedia_import_wpmedia_modal() {
 						$terms_album = '';
 						if ( count( $gm_terms ) ) {
 							foreach ( $gm_terms as $term ) {
-								$terms_album .= '<option value="' . esc_attr( $term->term_id ) . '">' . esc_html( $term->name ) . ( $term->global ? '' : __( ' (shared)', 'gmLang' ) ) . ( 'public' == $term->status ? '' : " [{$term->status}]" ) . '</option>' . "\n";
+								$terms_album .= '<option value="' . esc_attr( $term->term_id ) . '">' . esc_html( $term->name ) . ( $term->global ? '' : __( ' (shared)', 'grand-media' ) ) . ( 'public' == $term->status ? '' : " [{$term->status}]" ) . '</option>' . "\n";
 							}
 						}
 						?>
-						<label><?php _e( 'Add to Album', 'gmLang' ); ?> </label>
-						<select id="combobox_gmedia_album" name="terms[gmedia_album]" class="form-control input-sm" placeholder="<?php _e( 'Album Name...', 'gmLang' ); ?>">
+						<label><?php _e( 'Add to Album', 'grand-media' ); ?> </label>
+						<select id="combobox_gmedia_album" name="terms[gmedia_album]" class="form-control input-sm" placeholder="<?php _e( 'Album Name...', 'grand-media' ); ?>">
 							<option value=""></option>
 							<?php echo $terms_album; ?>
 						</select>
@@ -1318,13 +1327,13 @@ function gmedia_import_wpmedia_modal() {
 						$term_type = 'gmedia_tag';
 						$gm_terms  = $gmDB->get_terms( $term_type, array( 'fields' => 'names' ) );
 						?>
-						<label><?php _e( 'Add Tags', 'gmLang' ); ?> </label>
-						<input id="combobox_gmedia_tag" name="terms[gmedia_tag]" class="form-control input-sm" value="" placeholder="<?php _e( 'Add Tags...', 'gmLang' ); ?>"/>
+						<label><?php _e( 'Add Tags', 'grand-media' ); ?> </label>
+						<input id="combobox_gmedia_tag" name="terms[gmedia_tag]" class="form-control input-sm" value="" placeholder="<?php _e( 'Add Tags...', 'grand-media' ); ?>"/>
 					</div>
 				<?php } else { ?>
-					<p><?php _e( 'You are not allowed to assign terms', 'gmLang' ) ?></p>
+					<p><?php _e( 'You are not allowed to assign terms', 'grand-media' ) ?></p>
 				<?php } ?>
-				<div class="checkbox"><label><input type="checkbox" name="skip_exists" value="skip"> <?php _e('Skip if file with the same name already exists in Gmedia Library', 'gmLang'); ?></label></div>
+				<div class="checkbox"><label><input type="checkbox" name="skip_exists" value="skip"> <?php _e('Skip if file with the same name already exists in Gmedia Library', 'grand-media'); ?></label></div>
 				<script type="text/javascript">
 					jQuery(function ($) {
 						<?php if($gmCore->caps['gmedia_terms']){ ?>
@@ -1379,8 +1388,8 @@ function gmedia_import_wpmedia_modal() {
 			<iframe name="import_window" id="import_window" src="about:blank" style="display:none; position:absolute; left:0; top:0; width:100%; height:100%; z-index:1000; background-color:#ffffff; padding:20px 20px 0 20px;" onload="gmedia_import_done()"></iframe>
 		</div>
 		<div class="modal-footer">
-			<button type="button" class="btn btn-default" data-dismiss="modal"><?php _e( 'Cancel', 'gmLang' ); ?></button>
-			<button type="button" id="import-done" class="btn btn-primary" data-complete-text="<?php _e( 'Close', 'gmLang' ); ?>" data-loading-text="<?php _e( 'Working...', 'gmLang' ); ?>" data-reset-text="<?php _e( 'Import', 'gmLang' ); ?>"><?php _e( 'Import', 'gmLang' ); ?></button>
+			<button type="button" class="btn btn-default" data-dismiss="modal"><?php _e( 'Cancel', 'grand-media' ); ?></button>
+			<button type="button" id="import-done" class="btn btn-primary" data-complete-text="<?php _e( 'Close', 'grand-media' ); ?>" data-loading-text="<?php _e( 'Working...', 'grand-media' ); ?>" data-reset-text="<?php _e( 'Import', 'grand-media' ); ?>"><?php _e( 'Import', 'grand-media' ); ?></button>
 		</div>
 	</div><!-- /.modal-content -->
 	<?php
@@ -1440,7 +1449,7 @@ function gmedia_relimage() {
 		if ( $relative == 1 ) {
 			$relative = 0;
 			$paged    = 1;
-			$content .= '<li class="emptydb">' . __( 'No items related by tags.', 'gmLang' ) . '</li>' . "\n";
+			$content .= '<li class="emptydb">' . __( 'No items related by tags.', 'grand-media' ) . '</li>' . "\n";
 		}
 
 		$tag__not_in = "'" . implode( "','", array_map( 'esc_sql', array_unique( (array) $post_tags ) ) ) . "'";
@@ -1474,9 +1483,9 @@ function gmedia_relimage() {
 		}
 	} else {
 		if ( $s ) {
-			$content .= '<li class="emptydb">' . __( 'No items matching the search query.', 'gmLang' ) . '</li>' . "\n";
+			$content .= '<li class="emptydb">' . __( 'No items matching the search query.', 'grand-media' ) . '</li>' . "\n";
 		} else {
-			$content .= '<li class="emptydb">' . __( 'No items to show', 'gmLang' ) . '</li>' . "\n";
+			$content .= '<li class="emptydb">' . __( 'No items to show', 'grand-media' ) . '</li>' . "\n";
 		}
 		$continue = false;
 	}
@@ -1647,13 +1656,13 @@ function gmedia_upload_handler() {
 
 	// Get parameters
 	if ( !$filename ) {
-		$return = json_encode( array( "error" => array( "code" => 100, "message" => __( "No file name.", 'gmLang' ) ) ) );
+		$return = json_encode( array( "error" => array( "code" => 100, "message" => __( "No file name.", 'grand-media' ) ) ) );
 		die( $return );
 	}
 
 	$fileinfo = $gmCore->fileinfo( $filename );
 	if ( false === $fileinfo ) {
-		$return = json_encode( array( "error" => array( "code" => 100, "message" => __( "File type not allowed.", 'gmLang' ) ), "id" => $filename ) );
+		$return = json_encode( array( "error" => array( "code" => 100, "message" => __( "File type not allowed.", 'grand-media' ) ), "id" => $filename ) );
 		die( $return );
 	}
 
@@ -1678,7 +1687,7 @@ function gmedia_upload_handler() {
 	}
 
 	if(empty($file_tmp)){
-		$return = json_encode( array( "error" => array( "code" => 103, "message" => __( "Failed to move uploaded file.", 'gmLang' ) ), "id" => $filename ) );
+		$return = json_encode( array( "error" => array( "code" => 103, "message" => __( "Failed to move uploaded file.", 'grand-media' ) ), "id" => $filename ) );
 		die( $return );
 	}
 
@@ -1790,10 +1799,10 @@ function gmedia_import_handler() {
 					}
 					$gmCore->gmedia_import_files( $files, $terms, $move, $exists );
 				} else {
-					echo sprintf( __( 'Folder `%s` is empty', 'gmLang' ), $path ) . PHP_EOL;
+					echo sprintf( __( 'Folder `%s` is empty', 'grand-media' ), $path ) . PHP_EOL;
 				}
 			} else {
-				echo __( 'No folder chosen', 'gmLang' ) . PHP_EOL;
+				echo __( 'No folder chosen', 'grand-media' ) . PHP_EOL;
 			}
 		}
 	} elseif ( ('import-flagallery' == $import) || isset($_POST['import-flagallery']) ) {
@@ -1821,18 +1830,18 @@ function gmedia_import_handler() {
 
 				$path = ABSPATH . trailingslashit( $flag_gallery['path'] );
 
-				echo '<h5 style="margin: 10px 0 5px">' . sprintf( __( 'Import `%s` gallery', 'gmLang' ), $flag_gallery['title'] ) . ":</h5>" . PHP_EOL;
+				echo '<h5 style="margin: 10px 0 5px">' . sprintf( __( 'Import `%s` gallery', 'grand-media' ), $flag_gallery['title'] ) . ":</h5>" . PHP_EOL;
 
 				$flag_pictures = $wpdb->get_results( $wpdb->prepare( "SELECT CONCAT('%s', filename) AS file, description, alttext AS title, link FROM {$wpdb->prefix}flag_pictures WHERE galleryid = %d", $path, $flag_gallery['gid'] ), ARRAY_A );
 				if ( empty( $flag_pictures ) ) {
-					echo '<pre>' . __( 'gallery contains 0 images', 'gmLang' ) . '</pre>';
+					echo '<pre>' . __( 'gallery contains 0 images', 'grand-media' ) . '</pre>';
 					continue;
 				}
 				//echo '<pre>'.print_r($flag_pictures, true).'</pre>';
 				$gmCore->gmedia_import_files( $flag_pictures, $terms, false );
 			}
 		} else {
-			echo __( 'No gallery chosen', 'gmLang' ) . PHP_EOL;
+			echo __( 'No gallery chosen', 'grand-media' ) . PHP_EOL;
 		}
 	} elseif ( ('import-nextgen' == $import) || isset($_POST['import-nextgen']) ) {
 
@@ -1859,17 +1868,17 @@ function gmedia_import_handler() {
 
 				$path = ABSPATH . trailingslashit( $ngg_gallery['path'] );
 
-				echo '<h5 style="margin: 10px 0 5px">' . sprintf( __( 'Import `%s` gallery', 'gmLang' ), $ngg_gallery['title'] ) . ":</h5>" . PHP_EOL;
+				echo '<h5 style="margin: 10px 0 5px">' . sprintf( __( 'Import `%s` gallery', 'grand-media' ), $ngg_gallery['title'] ) . ":</h5>" . PHP_EOL;
 
 				$ngg_pictures = $wpdb->get_results( $wpdb->prepare( "SELECT CONCAT('%s', filename) AS file, description, alttext AS title FROM {$wpdb->prefix}ngg_pictures WHERE galleryid = %d", $path, $ngg_gallery['gid'] ), ARRAY_A );
 				if ( empty( $ngg_pictures ) ) {
-					echo '<pre>' . __( 'gallery contains 0 images', 'gmLang' ) . '</pre>';
+					echo '<pre>' . __( 'gallery contains 0 images', 'grand-media' ) . '</pre>';
 					continue;
 				}
 				$gmCore->gmedia_import_files( $ngg_pictures, $terms, false );
 			}
 		} else {
-			echo __( 'No gallery chosen', 'gmLang' ) . PHP_EOL;
+			echo __( 'No gallery chosen', 'grand-media' ) . PHP_EOL;
 		}
 	} elseif ( ('import-wpmedia' == $import) || isset($_POST['import-wpmedia']) ) {
 
@@ -1892,7 +1901,7 @@ function gmedia_import_handler() {
 			$gmCore->gmedia_import_files( $wp_media, $terms, false, $exists );
 
 		} else {
-			echo __( 'No items chosen', 'gmLang' ) . PHP_EOL;
+			echo __( 'No items chosen', 'grand-media' ) . PHP_EOL;
 		}
 	}
 	?>
@@ -1939,14 +1948,14 @@ function gmedia_share_page() {
 	$email = $gmCore->_post('email', '');
 	$sharemessage = $gmCore->_post('message', '');
 	if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-		echo $gmProcessor->alert( 'danger', __('Invalid email', 'gmLang'). ': '. esc_html($email) );
+		echo $gmProcessor->alert( 'danger', __('Invalid email', 'grand-media'). ': '. esc_html($email) );
 		die();
 	}
 
 	$display_name = get_the_author_meta( 'display_name', $user_ID );
-	$subject = sprintf(__('%s shared GmediaCloud Page with you', 'gmLang'), $display_name);
-	$sharetitle = sprintf(__('%s used Gmedia to share something interesting with you!', 'gmLang'), $display_name);
-	$sharelinktext = __('Click here to view page', 'gmLang');
+	$subject = sprintf(__('%s shared GmediaCloud Page with you', 'grand-media'), $display_name);
+	$sharetitle = sprintf(__('%s used Gmedia to share something interesting with you!', 'grand-media'), $display_name);
+	$sharelinktext = __('Click here to view page', 'grand-media');
 	if($sharemessage){
 		$sharemessage = '<blockquote>"'.nl2br(esc_html($sharemessage)).'"</blockquote>';
 	}
@@ -1992,7 +2001,7 @@ EOT;
 
 	$headers = array('Content-Type: text/html; charset=UTF-8');
 	if(wp_mail( $email, $subject, $message, $headers )){
-		echo $gmProcessor->alert( 'success', sprintf(__('Message sent to %s', 'gmLang'), $email) );
+		echo $gmProcessor->alert( 'success', sprintf(__('Message sent to %s', 'grand-media'), $email) );
 	}
 
 	die();
@@ -2011,16 +2020,16 @@ function gmedia_add_custom_field() {
 	header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
 
 	if ( !current_user_can( 'gmedia_edit_media' ) || ($user_ID != $post->author && !current_user_can( 'gmedia_edit_others_media' )) ) {
-		echo json_encode( array( 'error' => array( 'code' => 100, 'message' => __( 'You are not allowed to edit others media', 'gmLang' ) ), 'id' => $pid ) );
+		echo json_encode( array( 'error' => array( 'code' => 100, 'message' => __( 'You are not allowed to edit others media', 'grand-media' ) ), 'id' => $pid ) );
 		die();
 	}
 	if ( isset($_POST['metakeyselect']) && empty($_POST['metakeyselect']) && empty($_POST['metakeyinput']) ) {
-		echo json_encode( array( 'error' => array( 'code' => 101, 'message' => __( 'Choose or provide a custom field name', 'gmLang' ) ), 'id' => $pid ) );
+		echo json_encode( array( 'error' => array( 'code' => 101, 'message' => __( 'Choose or provide a custom field name', 'grand-media' ) ), 'id' => $pid ) );
 		die();
 	}
 
 	if ( !$mid = $gmCore->add_meta( $pid, $meta_type ) ) {
-		echo json_encode(array( 'error' => array( 'code' => 102, 'message' => __( 'Please provide a custom field value', 'gmLang' ) ), 'id' => $pid ));
+		echo json_encode(array( 'error' => array( 'code' => 102, 'message' => __( 'Please provide a custom field value', 'grand-media' ) ), 'id' => $pid ));
 		die();
 	}
 
@@ -2056,7 +2065,7 @@ function gmedia_delete_custom_field() {
 	$post = $gmDB->get_gmedia( $pid );
 
 	if ( !current_user_can( 'gmedia_edit_media' ) || ($user_ID != $post->author && !current_user_can( 'gmedia_edit_others_media' )) ) {
-		echo json_encode( array( 'error' => array( 'code' => 100, 'message' => __( 'You are not allowed to edit others media', 'gmLang' ) ), 'id' => $pid ) );
+		echo json_encode( array( 'error' => array( 'code' => 100, 'message' => __( 'You are not allowed to edit others media', 'grand-media' ) ), 'id' => $pid ) );
 		die();
 	}
 
@@ -2101,16 +2110,16 @@ function gmedia_term_add_custom_field() {
 	header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
 
 	if ( !current_user_can( 'gmedia_album_manage' ) || ($user_ID != $post->global && !current_user_can( 'gmedia_edit_others_media' )) ) {
-		echo json_encode( array( 'error' => array( 'code' => 100, 'message' => __( 'You are not allowed to edit others media', 'gmLang' ) ), 'id' => $pid ) );
+		echo json_encode( array( 'error' => array( 'code' => 100, 'message' => __( 'You are not allowed to edit others media', 'grand-media' ) ), 'id' => $pid ) );
 		die();
 	}
 	if ( isset($_POST['metakeyselect']) && empty($_POST['metakeyselect']) && empty($_POST['metakeyinput']) ) {
-		echo json_encode( array( 'error' => array( 'code' => 101, 'message' => __( 'Choose or provide a custom field name', 'gmLang' ) ), 'id' => $pid ) );
+		echo json_encode( array( 'error' => array( 'code' => 101, 'message' => __( 'Choose or provide a custom field name', 'grand-media' ) ), 'id' => $pid ) );
 		die();
 	}
 
 	if ( !$mid = $gmCore->add_meta( $pid, $meta_type ) ) {
-		echo json_encode(array( 'error' => array( 'code' => 102, 'message' => __( 'Please provide a custom field value', 'gmLang' ) ), 'id' => $pid ));
+		echo json_encode(array( 'error' => array( 'code' => 102, 'message' => __( 'Please provide a custom field value', 'grand-media' ) ), 'id' => $pid ));
 		die();
 	}
 
@@ -2147,7 +2156,7 @@ function gmedia_term_delete_custom_field() {
 	$post = $gmDB->get_term( $pid, $taxonomy );
 
 	if ( !current_user_can( 'gmedia_album_manage' ) || ($user_ID != $post->global && !current_user_can( 'gmedia_edit_others_media' )) ) {
-		echo json_encode( array( 'error' => array( 'code' => 100, 'message' => __( 'You are not allowed to edit others media', 'gmLang' ) ), 'id' => $pid ) );
+		echo json_encode( array( 'error' => array( 'code' => 100, 'message' => __( 'You are not allowed to edit others media', 'grand-media' ) ), 'id' => $pid ) );
 		die();
 	}
 

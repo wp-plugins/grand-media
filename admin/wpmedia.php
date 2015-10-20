@@ -47,7 +47,7 @@ function grandWPMedia(){
 						<?php
 						}
 					} ?>
-					<input id="gmedia-search" class="form-control input-sm" type="text" name="s" placeholder="<?php _e('Search...', 'gmLang'); ?>" value="<?php echo $gmCore->_get('s', ''); ?>"/>
+					<input id="gmedia-search" class="form-control input-sm" type="text" name="s" placeholder="<?php _e('Search...', 'grand-media'); ?>" value="<?php echo $gmCore->_get('s', ''); ?>"/>
 				</div>
 				<button type="submit" class="btn btn-default input-sm"><span class="glyphicon glyphicon-search"></span>
 				</button>
@@ -60,17 +60,17 @@ function grandWPMedia(){
 						<span class="btn btn-default active"><input class="doaction" id="cb_global" data-group="cb_media-object" type="checkbox"/></span>
 						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
 							<span class="caret"></span>
-							<span class="sr-only"><?php _e('Toggle Dropdown', 'gmLang'); ?></span></button>
+							<span class="sr-only"><?php _e('Toggle Dropdown', 'grand-media'); ?></span></button>
 						<ul class="dropdown-menu" role="menu">
-							<li><a data-select="total" href="#"><?php _e('All', 'gmLang'); ?></a></li>
-							<li><a data-select="none" href="#"><?php _e('None', 'gmLang'); ?></a></li>
+							<li><a data-select="total" href="#"><?php _e('All', 'grand-media'); ?></a></li>
+							<li><a data-select="none" href="#"><?php _e('None', 'grand-media'); ?></a></li>
 							<li class="divider"></li>
-							<li><a data-select="image" href="#"><?php _e('Images', 'gmLang'); ?></a></li>
-							<li><a data-select="audio" href="#"><?php _e('Audio', 'gmLang'); ?></a></li>
-							<li><a data-select="video" href="#"><?php _e('Video', 'gmLang'); ?></a></li>
+							<li><a data-select="image" href="#"><?php _e('Images', 'grand-media'); ?></a></li>
+							<li><a data-select="audio" href="#"><?php _e('Audio', 'grand-media'); ?></a></li>
+							<li><a data-select="video" href="#"><?php _e('Video', 'grand-media'); ?></a></li>
 							<li class="divider"></li>
 							<li>
-								<a data-select="reverse" href="#" title="<?php _e('Reverse only visible items', 'gmLang'); ?>"><?php _e('Reverse', 'gmLang'); ?></a>
+								<a data-select="reverse" href="#" title="<?php _e('Reverse only visible items', 'grand-media'); ?>"><?php _e('Reverse', 'grand-media'); ?></a>
 							</li>
 						</ul>
 					</div>
@@ -79,20 +79,20 @@ function grandWPMedia(){
 				<div class="btn-group">
 					<?php $curr_mime = explode(',', $gmCore->_get('mime_type', 'total')); ?>
 					<?php if($gmDB->filter){ ?>
-						<a class="btn btn-warning" title="<?php _e('Reset Filter', 'gmLang'); ?>" rel="total" href="<?php echo $url; ?>"><?php _e('Filter', 'gmLang'); ?></a>
+						<a class="btn btn-warning" title="<?php _e('Reset Filter', 'grand-media'); ?>" rel="total" href="<?php echo $url; ?>"><?php _e('Filter', 'grand-media'); ?></a>
 					<?php } else{ ?>
-						<button type="button" class="btn btn-default"><?php _e('Filter', 'gmLang'); ?></button>
+						<button type="button" class="btn btn-default"><?php _e('Filter', 'grand-media'); ?></button>
 					<?php } ?>
 					<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
 						<span class="caret"></span>
-						<span class="sr-only"><?php _e('Toggle Dropdown', 'gmLang'); ?></span>
+						<span class="sr-only"><?php _e('Toggle Dropdown', 'grand-media'); ?></span>
 					</button>
 					<ul class="dropdown-menu" role="menu">
-						<li role="presentation" class="dropdown-header"><?php _e('TYPE', 'gmLang'); ?></li>
+						<li role="presentation" class="dropdown-header"><?php _e('TYPE', 'grand-media'); ?></li>
 						<li class="total<?php if(in_array('total', $curr_mime)){
 							echo ' active';
 						} ?>"><a rel="total" href="<?php echo $gmCore->get_admin_url(array(), array('mime_type', 'pager')); ?>"><?php echo $gm_qty['total'];
-								_e('All', 'gmLang'); ?></a></li>
+								_e('All', 'grand-media'); ?></a></li>
 						<li class="image<?php if(in_array('image', $curr_mime)){
 							echo ' active';
 						}
@@ -100,7 +100,7 @@ function grandWPMedia(){
 							echo ' disabled';
 						} ?>">
 							<a rel="image" href="<?php echo $gmCore->get_admin_url(array('mime_type' => 'image'), array('pager')); ?>"><?php echo $gm_qty['image'];
-								_e('Images', 'gmLang'); ?></a></li>
+								_e('Images', 'grand-media'); ?></a></li>
 						<li class="audio<?php if(in_array('audio', $curr_mime)){
 							echo ' active';
 						}
@@ -108,7 +108,7 @@ function grandWPMedia(){
 							echo ' disabled';
 						} ?>">
 							<a rel="audio" href="<?php echo $gmCore->get_admin_url(array('mime_type' => 'audio'), array('pager')); ?>"><?php echo $gm_qty['audio'];
-								_e('Audio', 'gmLang'); ?></a></li>
+								_e('Audio', 'grand-media'); ?></a></li>
 						<li class="video<?php if(in_array('video', $curr_mime)){
 							echo ' active';
 						}
@@ -116,7 +116,7 @@ function grandWPMedia(){
 							echo ' disabled';
 						} ?>">
 							<a rel="video" href="<?php echo $gmCore->get_admin_url(array('mime_type' => 'video'), array('pager')); ?>"><?php echo $gm_qty['video'];
-								_e('Video', 'gmLang'); ?></a></li>
+								_e('Video', 'grand-media'); ?></a></li>
 						<li class="application<?php if(in_array('application', $curr_mime) || in_array('text', $curr_mime)){
 							echo ' active';
 						}
@@ -124,16 +124,16 @@ function grandWPMedia(){
 							echo ' disabled';
 						} ?>">
 							<a rel="application" href="<?php echo $gmCore->get_admin_url(array('mime_type' => 'application,text'), array('pager')); ?>"><?php echo $gm_qty['other'];
-								_e('Other', 'gmLang'); ?></a></li>
+								_e('Other', 'grand-media'); ?></a></li>
 						<?php do_action('gmedia_wp_filter_list'); ?>
 					</ul>
 				</div>
 
 				<div class="btn-group">
-					<a class="btn btn-default" href="#"><?php _e('Action', 'gmLang'); ?></a>
+					<a class="btn btn-default" href="#"><?php _e('Action', 'grand-media'); ?></a>
 					<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
 						<span class="caret"></span>
-						<span class="sr-only"><?php _e('Toggle Dropdown', 'gmLang'); ?></span></button>
+						<span class="sr-only"><?php _e('Toggle Dropdown', 'grand-media'); ?></span></button>
 					<?php
 					$rel_selected_show = 'rel-selected-show';
 					$rel_selected_hide = 'rel-selected-hide';
@@ -143,23 +143,23 @@ function grandWPMedia(){
 						if(!$gmCore->caps['gmedia_import']){
 							echo ' disabled';
 						} ?>">
-							<a href="#importModal" data-modal="import-wpmedia" data-action="gmedia_import_wpmedia_modal" class="gmedia-modal"><?php _e('Import to Gmedia Library...', 'gmLang'); ?></a>
+							<a href="#importModal" data-modal="import-wpmedia" data-action="gmedia_import_wpmedia_modal" class="gmedia-modal"><?php _e('Import to Gmedia Library...', 'grand-media'); ?></a>
 						</li>
 						<!-- <li class="divider <?php echo $rel_selected_hide; ?>"></li> -->
-						<li class="dropdown-header <?php echo $rel_selected_hide; ?>"><span><?php _e("Select items to see more actions", "gmLang"); ?></span></li>
+						<li class="dropdown-header <?php echo $rel_selected_hide; ?>"><span><?php _e("Select items to see more actions", "grand-media"); ?></span></li>
 						<?php do_action('gmedia_action_list'); ?>
 					</ul>
 				</div>
 
 				<form class="btn-group" id="gm-selected-btn" name="gm-selected-form" action="<?php echo add_query_arg(array('filter' => 'selected'), $url); ?>" method="post">
-					<button type="submit" class="btn btn<?php echo ('selected' == $gmCore->_req('filter'))? '-success' : '-info' ?>"><?php printf(__('%s selected', 'gmLang'), '<span id="gm-selected-qty">' . count($gmProcessor->selected_items) . '</span>'); ?></button>
+					<button type="submit" class="btn btn<?php echo ('selected' == $gmCore->_req('filter'))? '-success' : '-info' ?>"><?php printf(__('%s selected', 'grand-media'), '<span id="gm-selected-qty">' . count($gmProcessor->selected_items) . '</span>'); ?></button>
 					<button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown">
 						<span class="caret"></span>
-						<span class="sr-only"><?php _e('Toggle Dropdown', 'gmLang'); ?></span></button>
+						<span class="sr-only"><?php _e('Toggle Dropdown', 'grand-media'); ?></span></button>
 					<input type="hidden" id="gm-selected" data-userid="<?php echo $user_ID; ?>" data-key="wpmedia" name="selected_items" value="<?php echo implode(',', $gmProcessor->selected_items); ?>"/>
 					<ul class="dropdown-menu" role="menu">
-						<li><a id="gm-selected-show" href="#show"><?php _e('Show only selected items', 'gmLang'); ?></a></li>
-						<li><a id="gm-selected-clear" href="#clear"><?php _e('Clear selected items', 'gmLang'); ?></a></li>
+						<li><a id="gm-selected-show" href="#show"><?php _e('Show only selected items', 'grand-media'); ?></a></li>
+						<li><a id="gm-selected-clear" href="#clear"><?php _e('Clear selected items', 'grand-media'); ?></a></li>
 					</ul>
 				</form>
 
@@ -180,21 +180,21 @@ function grandWPMedia(){
 					<th class="cb"><span>#</span></th>
 					<th class="id">
 						<?php $new_order = ('ID' == $arg['orderby'])? (('DESC' == $arg['order'])? 'ASC' : 'DESC') : 'DESC'; ?>
-						<a href="<?php echo $gmCore->get_admin_url(array('orderby' => 'ID', 'order' => $new_order)); ?>"><?php _e('ID', 'gmLang'); ?></a>
+						<a href="<?php echo $gmCore->get_admin_url(array('orderby' => 'ID', 'order' => $new_order)); ?>"><?php _e('ID', 'grand-media'); ?></a>
 					</th>
-					<th class="file" title="<?php _e('Sort by filename', 'gmLang'); ?>">
+					<th class="file" title="<?php _e('Sort by filename', 'grand-media'); ?>">
 						<?php $new_order = ('filename' == $arg['orderby'])? (('DESC' == $arg['order'])? 'ASC' : 'DESC') : 'DESC'; ?>
 						<a href="<?php echo $gmCore->get_admin_url(array(
 							'orderby' => 'filename',
 							'order' => $new_order
-						)); ?>"><?php _e('File', 'gmLang'); ?></a>
+						)); ?>"><?php _e('File', 'grand-media'); ?></a>
 					</th>
-					<th class="type"><span><?php _e('Type', 'gmLang'); ?></span></th>
+					<th class="type"><span><?php _e('Type', 'grand-media'); ?></span></th>
 					<th class="title">
 						<?php $new_order = ('title' == $arg['orderby'])? (('DESC' == $arg['order'])? 'ASC' : 'DESC') : 'DESC'; ?>
-						<a href="<?php echo $gmCore->get_admin_url(array('orderby' => 'title', 'order' => $new_order)); ?>"><?php _e('Title', 'gmLang'); ?></a>
+						<a href="<?php echo $gmCore->get_admin_url(array('orderby' => 'title', 'order' => $new_order)); ?>"><?php _e('Title', 'grand-media'); ?></a>
 					</th>
-					<th class="descr hidden-xs"><span><?php _e('Description', 'gmLang'); ?></span></th>
+					<th class="descr hidden-xs"><span><?php _e('Description', 'grand-media'); ?></span></th>
 				</tr>
 				</thead>
 				<tbody>
@@ -231,7 +231,7 @@ function grandWPMedia(){
 		<?php } else{ ?>
 			<div class="panel-body">
 				<div class="well well-lg text-center">
-					<h4><?php _e('No items to show.', 'gmLang'); ?></h4>
+					<h4><?php _e('No items to show.', 'grand-media'); ?></h4>
 				</div>
 			</div>
 		<?php } ?>

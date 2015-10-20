@@ -55,6 +55,10 @@ class GmediaAdmin {
 				require_once( dirname( dirname( __FILE__ ) ) . '/inc/image-editor.php' );
 				gmedia_image_editor();
 				break;
+			case 'map_editor':
+				require_once( dirname( dirname( __FILE__ ) ) . '/inc/map-editor.php' );
+				gmedia_map_editor();
+				break;
 		}
 
 		iframe_footer();
@@ -72,16 +76,16 @@ class GmediaAdmin {
 	function add_menu() {
 		$gmediaURL     = plugins_url( GMEDIA_FOLDER );
 		$this->pages   = array();
-		$this->pages[] = add_object_page( __( 'Gmedia Library', 'gmLang' ), 'Gmedia Gallery', 'gmedia_library', 'GrandMedia', array( &$this, 'shell' ), $gmediaURL . '/admin/images/gm-icon.png' );
-		$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Gmedia Library', 'gmLang' ), __( 'Gmedia Library', 'gmLang' ), 'gmedia_library', 'GrandMedia', array( &$this, 'shell' ) );
+		$this->pages[] = add_object_page( __( 'Gmedia Library', 'grand-media' ), 'Gmedia Gallery', 'gmedia_library', 'GrandMedia', array( &$this, 'shell' ), $gmediaURL . '/admin/images/gm-icon.png' );
+		$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Gmedia Library', 'grand-media' ), __( 'Gmedia Library', 'grand-media' ), 'gmedia_library', 'GrandMedia', array( &$this, 'shell' ) );
 		if ( current_user_can( 'gmedia_library' ) ) {
-			$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Add Media Files', 'gmLang' ), __( 'Add/Import Files', 'gmLang' ), 'gmedia_upload', 'GrandMedia_AddMedia', array( &$this, 'shell' ) );
-			$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Albums, Tags, Filters...', 'gmLang' ), __( 'Albums, Tags, Filters...', 'gmLang' ), 'gmedia_library', 'GrandMedia_Terms', array( &$this, 'shell' ) );
-			$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Gmedia Galleries', 'gmLang' ), __( 'Create/Manage Galleries...', 'gmLang' ), 'gmedia_gallery_manage', 'GrandMedia_Galleries', array( &$this, 'shell' ) );
-			$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Modules', 'gmLang' ), __( 'Modules', 'gmLang' ), 'gmedia_gallery_manage', 'GrandMedia_Modules', array( &$this, 'shell' ) );
-			$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Gmedia Settings', 'gmLang' ), __( 'Settings', 'gmLang' ), 'manage_options', 'GrandMedia_Settings', array( &$this, 'shell' ) );
-			$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Mobile Application', 'gmLang' ), __( 'Mobile Application', 'gmLang' ), 'gmedia_settings', 'GrandMedia_App', array( &$this, 'shell' ) );
-			$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Wordpress Media Library', 'gmLang' ), __( 'WP Media Library', 'gmLang' ), 'gmedia_import', 'GrandMedia_WordpressLibrary', array( &$this, 'shell' ) );
+			$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Add Media Files', 'grand-media' ), __( 'Add/Import Files', 'grand-media' ), 'gmedia_upload', 'GrandMedia_AddMedia', array( &$this, 'shell' ) );
+			$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Albums, Tags, Filters...', 'grand-media' ), __( 'Albums, Tags, Filters...', 'grand-media' ), 'gmedia_library', 'GrandMedia_Terms', array( &$this, 'shell' ) );
+			$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Gmedia Galleries', 'grand-media' ), __( 'Create/Manage Galleries...', 'grand-media' ), 'gmedia_gallery_manage', 'GrandMedia_Galleries', array( &$this, 'shell' ) );
+			$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Modules', 'grand-media' ), __( 'Modules', 'grand-media' ), 'gmedia_gallery_manage', 'GrandMedia_Modules', array( &$this, 'shell' ) );
+			$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Gmedia Settings', 'grand-media' ), __( 'Settings', 'grand-media' ), 'manage_options', 'GrandMedia_Settings', array( &$this, 'shell' ) );
+			$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Mobile Application', 'grand-media' ), __( 'Mobile Application', 'grand-media' ), 'gmedia_settings', 'GrandMedia_App', array( &$this, 'shell' ) );
+			$this->pages[] = add_submenu_page( 'GrandMedia', __( 'Wordpress Media Library', 'grand-media' ), __( 'WP Media Library', 'grand-media' ), 'gmedia_import', 'GrandMedia_WordpressLibrary', array( &$this, 'shell' ) );
 		}
 
 		foreach ( $this->pages as $page ) {
@@ -94,7 +98,7 @@ class GmediaAdmin {
 	 * Display shell of plugin
 	 */
 	function shell() {
-		global $gmProcessor;
+		global $gmProcessor, $gmGallery;
 
 		// check for upgrade
 		if ( get_option( 'gmediaDbVersion' ) != GMEDIA_DBVERSION ) {
@@ -109,7 +113,7 @@ class GmediaAdmin {
 		$sideLinks = $this->sideLinks();
 
 		if ( isset( $update_frame ) ) {
-			$sideLinks['grandTitle'] = __( 'Updating GmediaGallery Plugin', 'gmLang' );
+			$sideLinks['grandTitle'] = __( 'Updating GmediaGallery Plugin', 'grand-media' );
 		}
 		?>
 		<div id="gmedia-container">
@@ -124,26 +128,22 @@ class GmediaAdmin {
 					<div class="col-sm-2 hidden-xs" id="sidebar" role="navigation">
 						<?php echo $sideLinks['sideLinks']; ?>
 
+						<?php if($gmGallery->options['installDate'] && (strtotime($gmGallery->options['installDate']) < strtotime('2 weeks ago'))){ ?>
 						<div class="row panel panel-default visible-lg-block">
-							<div class="panel-heading">
-								<a class="badge pull-right" role="button" data-toggle="collapse" href="#support_div_collapse" aria-expanded="false" aria-controls="support_div_collapse">?</a>
-								<b><?php _e('I need your support') ?></b>
+							<div class="panel-heading" data-toggle="collapse" data-target="#support_div_collapse" aria-expanded="true" aria-controls="support_div_collapse" style="cursor:pointer;">
+								<b><?php _e('Any feedback?','grand-media'); ?></b>
 							</div>
-							<div class="collapse" id="support_div_collapse">
+							<div class="collapse<?php if(empty($gmGallery->options['license_key'])){ echo ' in'; } ?>" id="support_div_collapse">
 								<div class="panel-body">
-									<p>If You like Gmedia Gallery plugin, You can help me spread the word about it among the users striving to get awesome galleries on their WordPress sites.</p>
-									<p>Just leave your feedback and rate plugin on WordPress.org site.</p>
-									<p><a class="btn btn-primary" href="https://wordpress.org/support/view/plugin-reviews/grand-media?filter=5" target="_blank">Rate Gmedia Gallery</a></p>
-									<p>Your feedback helps me to create new awesome modules.</p>
+									<p><?php _e('You can help me spread the word about GmediaGallery among the users striving to get awesome galleries on their WordPress sites.','grand-media'); ?></p>
+									<p><a class="btn btn-primary" href="https://wordpress.org/support/view/plugin-reviews/grand-media?filter=5" target="_blank"><?php _e('Rate Gmedia Gallery','grand-media'); ?></a></p>
+									<p><?php _e('Your reviews and ideas helps me to create new awesome modules and to improve plugin.','grand-media'); ?></p>
 								</div>
 							</div>
 						</div>
-						<div class="row panel panel-default visible-lg-block">
-							<div class="panel-body">
-								<p>Follow me on twitter for latest news and updates:</p>
-								<a href="https://twitter.com/CodEasily" class="twitter-follow-button" data-show-count="false" data-size="large">Follow @CodEasily</a>
-								<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
-							</div>
+						<?php } ?>
+						<div class="row panel visible-lg-block">
+							<a class="twitter-timeline" href="https://twitter.com/CodEasily/timelines/648240437141086212" data-widget-id="648245214201692161"></a> <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
 						</div>
 					</div>
 					<div class="col-sm-10 col-xs-12">
@@ -381,10 +381,10 @@ class GmediaAdmin {
 	<li>Exclude theme conflict: Temporary switch to one of default themes and check if gallery works</li>
 </ul>
 <h4>Links</h4>
-<p><a href="http://codeasily.com/community/forum/gmedia-gallery-wordpress-plugin/" target="_blank">' . __( 'Support Forum', 'gmLang' ) . '</a>
-	| <a href="http://codeasily.com/contact/" target="_blank">' . __( 'Contact', 'gmLang' ) . '</a>
-	| <a href="http://codeasily.com/portfolio/gmedia-gallery-modules/" target="_blank">' . __( 'Demo', 'gmLang' ) . '</a>
-	| <a href="http://codeasily.com/product/one-site-license/" target="_blank">' . __( 'Premium', 'gmLang' ) . '</a>
+<p><a href="http://codeasily.com/community/forum/gmedia-gallery-wordpress-plugin/" target="_blank">' . __( 'Support Forum', 'grand-media' ) . '</a>
+	| <a href="http://codeasily.com/contact/" target="_blank">' . __( 'Contact', 'grand-media' ) . '</a>
+	| <a href="http://codeasily.com/portfolio/gmedia-gallery-modules/" target="_blank">' . __( 'Demo', 'grand-media' ) . '</a>
+	| <a href="http://codeasily.com/product/one-site-license/" target="_blank">' . __( 'Premium', 'grand-media' ) . '</a>
 </p>',
 		) );
 
@@ -400,7 +400,7 @@ class GmediaAdmin {
 <p>No, plugin is absolutely free and all modules for it are free to install.</p>
 <p>Even premium modules are fully functional and free to test, but have backlink labels. To remove baclink labels from premium modules you need license key.</p>
 <p>Note: License Key will remove backlinks from all current and future premium modules, so you can use all available modules on one website.</p>
-<p>Do not purchase license key before testing module you like. Only if everything works fine and you satisfied with functionality you are good to purchase license. Otherwise use <a href="http://codeasily.com/community/forum/gmedia-gallery-wordpress-plugin/" target="_blank">' . __( 'Gmedia Support Forum', 'gmLang' ) . '</a>.</p>
+<p>Do not purchase license key before testing module you like. Only if everything works fine and you satisfied with functionality you are good to purchase license. Otherwise use <a href="http://codeasily.com/community/forum/gmedia-gallery-wordpress-plugin/" target="_blank">' . __( 'Gmedia Support Forum', 'grand-media' ) . '</a>.</p>
 <h4>I have license key but I can\'t activate it</h4>
 <p>Contact developer <a href="mailto:gmediafolder@gmail.com">gmediafolder@gmail.com</a> with your problem and wait for additional instructions and code for manual activation</p>
 <div><a class="btn btn-default" href="' . admin_url( 'admin.php?page=' . $screen_id . '&license_activate=manual' ) . '">Manual Activation</a></div>',
@@ -422,9 +422,9 @@ class GmediaAdmin {
 
 			$gm_screen_options = $gmProcessor->user_options();
 
-			$title             = '<h5><strong>' . __( 'Settings', 'gmLang' ) . '</strong></h5>';
+			$title             = '<h5><strong>' . __( 'Settings', 'grand-media' ) . '</strong></h5>';
 			$wp_screen_options = '<input type="hidden" name="wp_screen_options[option]" value="gm_screen_options" /><input type="hidden" name="wp_screen_options[value]" value="' . $screen->id . '" />';
-			$button            = get_submit_button( __( 'Apply', 'gmLang' ), 'button', 'screen-options-apply', false );
+			$button            = get_submit_button( __( 'Apply', 'grand-media' ), 'button', 'screen-options-apply', false );
 
 			$settings = false;
 
@@ -435,33 +435,33 @@ class GmediaAdmin {
 					$settings = '
 					<div class="form-inline pull-left">
 						<div class="form-group">
-							<input type="number" max="999" min="0" step="5" size="3" name="gm_screen_options[per_page_gmedia]" class="form-control input-sm" style="width: 5em;" value="' . $gm_screen_options['per_page_gmedia'] . '" /> <span>' . __( 'items per page', 'gmLang' ) . '</span>
+							<input type="number" max="999" min="0" step="5" size="3" name="gm_screen_options[per_page_gmedia]" class="form-control input-sm" style="width: 5em;" value="' . $gm_screen_options['per_page_gmedia'] . '" /> <span>' . __( 'items per page', 'grand-media' ) . '</span>
 						</div>
 						<div class="form-group">
 							<select name="gm_screen_options[orderby_gmedia]" class="form-control input-sm">
-								<option' . selected( $gm_screen_options['orderby_gmedia'], 'ID', false ) . ' value="ID">' . __( 'ID', 'gmLang' ) . '</option>
-								<option' . selected( $gm_screen_options['orderby_gmedia'], 'title', false ) . ' value="title">' . __( 'Title', 'gmLang' ) . '</option>
-								<option' . selected( $gm_screen_options['orderby_gmedia'], 'gmuid', false ) . ' value="gmuid">' . __( 'Filename', 'gmLang' ) . '</option>
-								<option' . selected( $gm_screen_options['orderby_gmedia'], 'date', false ) . ' value="date">' . __( 'Date', 'gmLang' ) . '</option>
-								<option' . selected( $gm_screen_options['orderby_gmedia'], 'modified', false ) . ' value="modified">' . __( 'Last Modified', 'gmLang' ) . '</option>
-								<option' . selected( $gm_screen_options['orderby_gmedia'], 'mime_type', false ) . ' value="mime_type">' . __( 'MIME Type', 'gmLang' ) . '</option>
-								<option' . selected( $gm_screen_options['orderby_gmedia'], 'author', false ) . ' value="author">' . __( 'Author', 'gmLang' ) . '</option>
-							</select> <span>' . __( 'order items', 'gmLang' ) . '</span>
+								<option' . selected( $gm_screen_options['orderby_gmedia'], 'ID', false ) . ' value="ID">' . __( 'ID', 'grand-media' ) . '</option>
+								<option' . selected( $gm_screen_options['orderby_gmedia'], 'title', false ) . ' value="title">' . __( 'Title', 'grand-media' ) . '</option>
+								<option' . selected( $gm_screen_options['orderby_gmedia'], 'gmuid', false ) . ' value="gmuid">' . __( 'Filename', 'grand-media' ) . '</option>
+								<option' . selected( $gm_screen_options['orderby_gmedia'], 'date', false ) . ' value="date">' . __( 'Date', 'grand-media' ) . '</option>
+								<option' . selected( $gm_screen_options['orderby_gmedia'], 'modified', false ) . ' value="modified">' . __( 'Last Modified', 'grand-media' ) . '</option>
+								<option' . selected( $gm_screen_options['orderby_gmedia'], 'mime_type', false ) . ' value="mime_type">' . __( 'MIME Type', 'grand-media' ) . '</option>
+								<option' . selected( $gm_screen_options['orderby_gmedia'], 'author', false ) . ' value="author">' . __( 'Author', 'grand-media' ) . '</option>
+							</select> <span>' . __( 'order items', 'grand-media' ) . '</span>
 						</div>
 						<div class="form-group">
 							<select name="gm_screen_options[sortorder_gmedia]" class="form-control input-sm">
-								<option' . selected( $gm_screen_options['sortorder_gmedia'], 'DESC', false ) . ' value="DESC">' . __( 'DESC', 'gmLang' ) . '</option>
-								<option' . selected( $gm_screen_options['sortorder_gmedia'], 'ASC', false ) . ' value="ASC">' . __( 'ASC', 'gmLang' ) . '</option>
-							</select> <span>' . __( 'sort order', 'gmLang' ) . '</span>
+								<option' . selected( $gm_screen_options['sortorder_gmedia'], 'DESC', false ) . ' value="DESC">' . __( 'DESC', 'grand-media' ) . '</option>
+								<option' . selected( $gm_screen_options['sortorder_gmedia'], 'ASC', false ) . ' value="ASC">' . __( 'ASC', 'grand-media' ) . '</option>
+							</select> <span>' . __( 'sort order', 'grand-media' ) . '</span>
 						</div>
 					';
 					if ( 'edit' == $gmCore->_get( 'mode' ) ) {
 						$settings .= '
 						<div class="form-group">
 							<select name="gm_screen_options[library_edit_quicktags]" class="form-control input-sm">
-								<option' . selected( $gm_screen_options['library_edit_quicktags'], 'false', false ) . ' value="false">' . __( 'FALSE', 'gmLang' ) . '</option>
-								<option' . selected( $gm_screen_options['library_edit_quicktags'], 'true', false ) . ' value="true">' . __( 'TRUE', 'gmLang' ) . '</option>
-							</select> <span>' . __( 'Quick Tags panel for Description field', 'gmLang' ) . '</span>
+								<option' . selected( $gm_screen_options['library_edit_quicktags'], 'false', false ) . ' value="false">' . __( 'FALSE', 'grand-media' ) . '</option>
+								<option' . selected( $gm_screen_options['library_edit_quicktags'], 'true', false ) . ' value="true">' . __( 'TRUE', 'grand-media' ) . '</option>
+							</select> <span>' . __( 'Quick Tags panel for Description field', 'grand-media' ) . '</span>
 						</div>
 						';
 					}
@@ -475,24 +475,24 @@ class GmediaAdmin {
 						$html4_hide = ( 'html4' == $gm_screen_options['uploader_runtime'] ) ? ' hide' : '';
 						$settings   = '
 						<div class="form-inline pull-left">
-							<div id="uploader_runtime" class="form-group"><span>' . __( 'Uploader runtime:', 'gmLang' ) . ' </span>
+							<div id="uploader_runtime" class="form-group"><span>' . __( 'Uploader runtime:', 'grand-media' ) . ' </span>
 								<select name="gm_screen_options[uploader_runtime]" class="form-control input-sm">
-									<option' . selected( $gm_screen_options['uploader_runtime'], 'auto', false ) . ' value="auto">' . __( 'Auto', 'gmLang' ) . '</option>
-									<option' . selected( $gm_screen_options['uploader_runtime'], 'html5', false ) . ' value="html5">' . __( 'HTML5 Uploader', 'gmLang' ) . '</option>
-									<option' . selected( $gm_screen_options['uploader_runtime'], 'flash', false ) . ' value="flash">' . __( 'Flash Uploader', 'gmLang' ) . '</option>
-									<option' . selected( $gm_screen_options['uploader_runtime'], 'html4', false ) . ' value="html4">' . __( 'HTML4 Uploader', 'gmLang' ) . '</option>
+									<option' . selected( $gm_screen_options['uploader_runtime'], 'auto', false ) . ' value="auto">' . __( 'Auto', 'grand-media' ) . '</option>
+									<option' . selected( $gm_screen_options['uploader_runtime'], 'html5', false ) . ' value="html5">' . __( 'HTML5 Uploader', 'grand-media' ) . '</option>
+									<option' . selected( $gm_screen_options['uploader_runtime'], 'flash', false ) . ' value="flash">' . __( 'Flash Uploader', 'grand-media' ) . '</option>
+									<option' . selected( $gm_screen_options['uploader_runtime'], 'html4', false ) . ' value="html4">' . __( 'HTML4 Uploader', 'grand-media' ) . '</option>
 								</select>
 							</div>
-							<div id="uploader_chunking" class="form-group' . $html4_hide . '"><span>' . __( 'Chunking:', 'gmLang' ) . ' </span>
+							<div id="uploader_chunking" class="form-group' . $html4_hide . '"><span>' . __( 'Chunking:', 'grand-media' ) . ' </span>
 								<select name="gm_screen_options[uploader_chunking]" class="form-control input-sm">
-									<option' . selected( $gm_screen_options['uploader_chunking'], 'true', false ) . ' value="true">' . __( 'TRUE', 'gmLang' ) . '</option>
-									<option' . selected( $gm_screen_options['uploader_chunking'], 'false', false ) . ' value="false">' . __( 'FALSE', 'gmLang' ) . '</option>
+									<option' . selected( $gm_screen_options['uploader_chunking'], 'true', false ) . ' value="true">' . __( 'TRUE', 'grand-media' ) . '</option>
+									<option' . selected( $gm_screen_options['uploader_chunking'], 'false', false ) . ' value="false">' . __( 'FALSE', 'grand-media' ) . '</option>
 								</select>
 							</div>
-							<div id="uploader_urlstream_upload" class="form-group' . $html4_hide . '"><span>' . __( 'URL streem upload:', 'gmLang' ) . ' </span>
+							<div id="uploader_urlstream_upload" class="form-group' . $html4_hide . '"><span>' . __( 'URL streem upload:', 'grand-media' ) . ' </span>
 								<select name="gm_screen_options[uploader_urlstream_upload]" class="form-control input-sm">
-									<option' . selected( $gm_screen_options['uploader_urlstream_upload'], 'true', false ) . ' value="true">' . __( 'TRUE', 'gmLang' ) . '</option>
-									<option' . selected( $gm_screen_options['uploader_urlstream_upload'], 'false', false ) . ' value="false">' . __( 'FALSE', 'gmLang' ) . '</option>
+									<option' . selected( $gm_screen_options['uploader_urlstream_upload'], 'true', false ) . ' value="true">' . __( 'TRUE', 'grand-media' ) . '</option>
+									<option' . selected( $gm_screen_options['uploader_urlstream_upload'], 'false', false ) . ' value="false">' . __( 'FALSE', 'grand-media' ) . '</option>
 								</select>
 							</div>
 						</div>
@@ -505,7 +505,7 @@ class GmediaAdmin {
 						$settings = '
 						<div class="form-inline pull-left">
 							<div class="form-group">
-								<input type="number" max="999" min="0" step="5" size="3" name="gm_screen_options[per_page_sort_gmedia]" class="form-control input-sm" style="width: 5em;" value="' . $gm_screen_options['per_page_sort_gmedia'] . '" /> <span>' . __( 'items per page', 'gmLang' ) . '</span>
+								<input type="number" max="999" min="0" step="5" size="3" name="gm_screen_options[per_page_sort_gmedia]" class="form-control input-sm" style="width: 5em;" value="' . $gm_screen_options['per_page_sort_gmedia'] . '" /> <span>' . __( 'items per page', 'grand-media' ) . '</span>
 							</div>
 						</div>
 						';
@@ -513,21 +513,21 @@ class GmediaAdmin {
 						$settings = '
 						<div class="form-inline pull-left">
 							<div class="form-group">
-								<input type="number" max="999" min="0" step="5" size="3" name="gm_screen_options[per_page_gmedia_terms]" class="form-control input-sm" style="width: 5em;" value="' . $gm_screen_options['per_page_gmedia_terms'] . '" /> <span>' . __( 'items per page', 'gmLang' ) . '</span>
+								<input type="number" max="999" min="0" step="5" size="3" name="gm_screen_options[per_page_gmedia_terms]" class="form-control input-sm" style="width: 5em;" value="' . $gm_screen_options['per_page_gmedia_terms'] . '" /> <span>' . __( 'items per page', 'grand-media' ) . '</span>
 							</div>
 							<div class="form-group">
 								<select name="gm_screen_options[orderby_gmedia_terms]" class="form-control input-sm">
-									<option' . selected( $gm_screen_options['orderby_gmedia_terms'], 'id', false ) . ' value="id">' . __( 'ID', 'gmLang' ) . '</option>
-									<option' . selected( $gm_screen_options['orderby_gmedia_terms'], 'name', false ) . ' value="name">' . __( 'Name', 'gmLang' ) . '</option>
-									<option' . selected( $gm_screen_options['orderby_gmedia_terms'], 'count', false ) . ' value="count">' . __( 'Gmedia Count', 'gmLang' ) . '</option>
-									<option' . selected( $gm_screen_options['orderby_gmedia_terms'], 'global', false ) . ' value="global">' . __( 'Author ID (for albums only)', 'gmLang' ) . '</option>
-								</select> <span>' . __( 'order items', 'gmLang' ) . '</span>
+									<option' . selected( $gm_screen_options['orderby_gmedia_terms'], 'id', false ) . ' value="id">' . __( 'ID', 'grand-media' ) . '</option>
+									<option' . selected( $gm_screen_options['orderby_gmedia_terms'], 'name', false ) . ' value="name">' . __( 'Name', 'grand-media' ) . '</option>
+									<option' . selected( $gm_screen_options['orderby_gmedia_terms'], 'count', false ) . ' value="count">' . __( 'Gmedia Count', 'grand-media' ) . '</option>
+									<option' . selected( $gm_screen_options['orderby_gmedia_terms'], 'global', false ) . ' value="global">' . __( 'Author ID (for albums only)', 'grand-media' ) . '</option>
+								</select> <span>' . __( 'order items', 'grand-media' ) . '</span>
 							</div>
 							<div class="form-group">
 								<select name="gm_screen_options[sortorder_gmedia_terms]" class="form-control input-sm">
-									<option' . selected( $gm_screen_options['sortorder_gmedia_terms'], 'DESC', false ) . ' value="DESC">' . __( 'DESC', 'gmLang' ) . '</option>
-									<option' . selected( $gm_screen_options['sortorder_gmedia_terms'], 'ASC', false ) . ' value="ASC">' . __( 'ASC', 'gmLang' ) . '</option>
-								</select> <span>' . __( 'sort order', 'gmLang' ) . '</span>
+									<option' . selected( $gm_screen_options['sortorder_gmedia_terms'], 'DESC', false ) . ' value="DESC">' . __( 'DESC', 'grand-media' ) . '</option>
+									<option' . selected( $gm_screen_options['sortorder_gmedia_terms'], 'ASC', false ) . ' value="ASC">' . __( 'ASC', 'grand-media' ) . '</option>
+								</select> <span>' . __( 'sort order', 'grand-media' ) . '</span>
 							</div>
 						</div>
 						';
@@ -538,47 +538,47 @@ class GmediaAdmin {
 						$settings = '
 						<div class="form-inline pull-left">
 							<div class="form-group">
-								<input type="number" max="999" min="0" step="5" size="3" name="gm_screen_options[per_page_gmedia_galleries]" class="form-control input-sm" style="width: 5em;" value="' . $gm_screen_options['per_page_gmedia_galleries'] . '" /> <span>' . __( 'items per page', 'gmLang' ) . '</span>
+								<input type="number" max="999" min="0" step="5" size="3" name="gm_screen_options[per_page_gmedia_galleries]" class="form-control input-sm" style="width: 5em;" value="' . $gm_screen_options['per_page_gmedia_galleries'] . '" /> <span>' . __( 'items per page', 'grand-media' ) . '</span>
 							</div>
 							<div class="form-group">
 								<select name="gm_screen_options[orderby_gmedia_galleries]" class="form-control input-sm">
-									<option' . selected( $gm_screen_options['orderby_gmedia_galleries'], 'id', false ) . ' value="id">' . __( 'ID', 'gmLang' ) . '</option>
-									<option' . selected( $gm_screen_options['orderby_gmedia_galleries'], 'name', false ) . ' value="name">' . __( 'Name', 'gmLang' ) . '</option>
-									<option' . selected( $gm_screen_options['orderby_gmedia_galleries'], 'global', false ) . ' value="global">' . __( 'Author ID', 'gmLang' ) . '</option>
-								</select> <span>' . __( 'order items', 'gmLang' ) . '</span>
+									<option' . selected( $gm_screen_options['orderby_gmedia_galleries'], 'id', false ) . ' value="id">' . __( 'ID', 'grand-media' ) . '</option>
+									<option' . selected( $gm_screen_options['orderby_gmedia_galleries'], 'name', false ) . ' value="name">' . __( 'Name', 'grand-media' ) . '</option>
+									<option' . selected( $gm_screen_options['orderby_gmedia_galleries'], 'global', false ) . ' value="global">' . __( 'Author ID', 'grand-media' ) . '</option>
+								</select> <span>' . __( 'order items', 'grand-media' ) . '</span>
 							</div>
 							<div class="form-group">
 								<select name="gm_screen_options[sortorder_gmedia_galleries]" class="form-control input-sm">
-									<option' . selected( $gm_screen_options['sortorder_gmedia_galleries'], 'DESC', false ) . ' value="DESC">' . __( 'DESC', 'gmLang' ) . '</option>
-									<option' . selected( $gm_screen_options['sortorder_gmedia_galleries'], 'ASC', false ) . ' value="ASC">' . __( 'ASC', 'gmLang' ) . '</option>
-								</select> <span>' . __( 'sort order', 'gmLang' ) . '</span>
+									<option' . selected( $gm_screen_options['sortorder_gmedia_galleries'], 'DESC', false ) . ' value="DESC">' . __( 'DESC', 'grand-media' ) . '</option>
+									<option' . selected( $gm_screen_options['sortorder_gmedia_galleries'], 'ASC', false ) . ' value="ASC">' . __( 'ASC', 'grand-media' ) . '</option>
+								</select> <span>' . __( 'sort order', 'grand-media' ) . '</span>
 							</div>
 						</div>
 						';
 					}
 					break;
 				case 'GrandMedia_WordpressLibrary' :
-					$settings = '<p>' . __( 'Set query options for this page to be loaded by default.', 'gmLang' ) . '</p>
+					$settings = '<p>' . __( 'Set query options for this page to be loaded by default.', 'grand-media' ) . '</p>
 					<div class="form-inline pull-left">
 						<div class="form-group">
-							<input type="number" max="999" min="0" step="5" size="3" name="gm_screen_options[per_page_wpmedia]" class="form-control input-sm" style="width: 5em;" value="' . $gm_screen_options['per_page_wpmedia'] . '" /> <span>' . __( 'items per page', 'gmLang' ) . '</span>
+							<input type="number" max="999" min="0" step="5" size="3" name="gm_screen_options[per_page_wpmedia]" class="form-control input-sm" style="width: 5em;" value="' . $gm_screen_options['per_page_wpmedia'] . '" /> <span>' . __( 'items per page', 'grand-media' ) . '</span>
 						</div>
 						<div class="form-group">
 							<select name="gm_screen_options[orderby_wpmedia]" class="form-control input-sm">
-								<option' . selected( $gm_screen_options['orderby_wpmedia'], 'ID', false ) . ' value="ID">' . __( 'ID', 'gmLang' ) . '</option>
-								<option' . selected( $gm_screen_options['orderby_wpmedia'], 'title', false ) . ' value="title">' . __( 'Title', 'gmLang' ) . '</option>
-								<option' . selected( $gm_screen_options['orderby_wpmedia'], 'filename', false ) . ' value="filename">' . __( 'Filename', 'gmLang' ) . '</option>
-								<option' . selected( $gm_screen_options['orderby_wpmedia'], 'date', false ) . ' value="date">' . __( 'Date', 'gmLang' ) . '</option>
-								<option' . selected( $gm_screen_options['orderby_wpmedia'], 'modified', false ) . ' value="modified">' . __( 'Last Modified', 'gmLang' ) . '</option>
-								<option' . selected( $gm_screen_options['orderby_wpmedia'], 'mime_type', false ) . ' value="mime_type">' . __( 'MIME Type', 'gmLang' ) . '</option>
-								<option' . selected( $gm_screen_options['orderby_wpmedia'], 'author', false ) . ' value="author">' . __( 'Author', 'gmLang' ) . '</option>
-							</select> <span>' . __( 'order items', 'gmLang' ) . '</span>
+								<option' . selected( $gm_screen_options['orderby_wpmedia'], 'ID', false ) . ' value="ID">' . __( 'ID', 'grand-media' ) . '</option>
+								<option' . selected( $gm_screen_options['orderby_wpmedia'], 'title', false ) . ' value="title">' . __( 'Title', 'grand-media' ) . '</option>
+								<option' . selected( $gm_screen_options['orderby_wpmedia'], 'filename', false ) . ' value="filename">' . __( 'Filename', 'grand-media' ) . '</option>
+								<option' . selected( $gm_screen_options['orderby_wpmedia'], 'date', false ) . ' value="date">' . __( 'Date', 'grand-media' ) . '</option>
+								<option' . selected( $gm_screen_options['orderby_wpmedia'], 'modified', false ) . ' value="modified">' . __( 'Last Modified', 'grand-media' ) . '</option>
+								<option' . selected( $gm_screen_options['orderby_wpmedia'], 'mime_type', false ) . ' value="mime_type">' . __( 'MIME Type', 'grand-media' ) . '</option>
+								<option' . selected( $gm_screen_options['orderby_wpmedia'], 'author', false ) . ' value="author">' . __( 'Author', 'grand-media' ) . '</option>
+							</select> <span>' . __( 'order items', 'grand-media' ) . '</span>
 						</div>
 						<div class="form-group">
 							<select name="gm_screen_options[sortorder_wpmedia]" class="form-control input-sm">
-								<option' . selected( $gm_screen_options['sortorder_wpmedia'], 'DESC', false ) . ' value="DESC">' . __( 'DESC', 'gmLang' ) . '</option>
-								<option' . selected( $gm_screen_options['sortorder_wpmedia'], 'ASC', false ) . ' value="ASC">' . __( 'ASC', 'gmLang' ) . '</option>
-							</select> <span>' . __( 'sort order', 'gmLang' ) . '</span>
+								<option' . selected( $gm_screen_options['sortorder_wpmedia'], 'DESC', false ) . ' value="DESC">' . __( 'DESC', 'grand-media' ) . '</option>
+								<option' . selected( $gm_screen_options['sortorder_wpmedia'], 'ASC', false ) . ' value="ASC">' . __( 'ASC', 'grand-media' ) . '</option>
+							</select> <span>' . __( 'sort order', 'grand-media' ) . '</span>
 						</div>
 					</div>
 					';
@@ -624,3 +624,5 @@ class GmediaAdmin {
 	}
 
 }
+// Start GmediaAdmin
+new GmediaAdmin();

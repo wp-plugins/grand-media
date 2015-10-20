@@ -9,6 +9,7 @@ class GmediaDB{
 	var $query; // User passed query
 	var $filter = false; // is there filter for get_gmedias()
 	var $filter_tax = array(); // is there filter by taxonomy for get_gmedias()
+	var $resultLimited; // Total records for limited query (with offset)
 	var $resultPerPage; // Total records in each pages
 	var $totalResult; // Total records in DB
 	var $gmediaCount; // Query gmedia count
@@ -297,7 +298,7 @@ class GmediaDB{
 	 * @return string
 	 */
 	function query_pager(){
-		if(empty($this->pages) || $this->pages == 1){
+		if(empty($this->pages) || $this->pages == 1 || $this->resultLimited){
 			return '';
 		}
 		$params = $_GET;
@@ -323,11 +324,11 @@ class GmediaDB{
 		$result .= '</div>';
 
 		$result .= '<form name="gmedia-pager" method="get" id="gmedia-pager" class="input-group btn-group input-group-sm" action="">';
-		$result .= '<span class="input-group-addon">' . __("Page", "gmLang") . '</span>';
+		$result .= '<span class="input-group-addon">' . __("Page", "grand-media") . '</span>';
 		foreach($params as $key => $value){
 			$result .= '<input type="hidden" name="' . $key . '" value="' . $value . '" />';
 		}
-		$result .= '<input class="form-control pager_current_page" name="pager" type="text" value="' . $this->openPage . '" /><span class="input-group-addon">' . __("of", "gmLang") . ' ' . $this->pages . '</span>';
+		$result .= '<input class="form-control pager_current_page" name="pager" type="text" value="' . $this->openPage . '" /><span class="input-group-addon">' . __("of", "grand-media") . ' ' . $this->pages . '</span>';
 		$result .= '</form>';
 
 		$result .= '<div class="btn-group btn-group-sm">';
@@ -402,7 +403,7 @@ class GmediaDB{
 			$media_ID = 0;
 		}
 
-		if(empty($date)){
+		if(!isset($date) || empty($date)){
 			$date = current_time('mysql');
 		}
 		if(empty($modified)){
@@ -903,7 +904,7 @@ class GmediaDB{
 			$gmOptions   = get_option( 'gmediaOptions' );
 			$q['per_page'] = $gmOptions['per_page_gmedia'];
 		}*/
-		if(!isset($q['per_page']) || $q['per_page'] == 0){
+		if(!isset($q['per_page']) || empty($q['per_page'])){
 			$q['per_page'] = -1;
 		}
 		if(!isset($q['nopaging'])){
@@ -1618,13 +1619,14 @@ class GmediaDB{
 				$page = 1;
 			}
 
-			if(empty($q['offset'])){
+			if(empty($q['offset']) && ((0 != $q['offset']) || ('0' != $q['offset']))){
 				$pgstrt = ($page - 1) * $q['per_page'] . ', ';
 				$limits = 'LIMIT ' . $pgstrt . $q['per_page'];
 			} else{ // we're ignoring $page and using 'offset'
 				$q['offset'] = absint($q['offset']);
 				$pgstrt = $q['offset'] . ', ';
 				$limits = 'LIMIT ' . $pgstrt . $q['per_page'];
+				$this->resultLimited = true;
 			}
 		}
 
@@ -2370,6 +2372,28 @@ class GmediaDB{
 		} else{
 			return $_term;
 		}
+	}
+
+	/**
+	 * Get Taxonomy by Term ID.
+	 *
+	 * @uses $wpdb
+	 *
+	 * @param int $term_id
+	 *
+	 * @return string $taxonomy
+	 */
+	function get_tax_by_term_id($term_id){
+		/** @var $wpdb wpdb */
+		global $wpdb, $gmCore;
+		$null = null;
+
+		if(!$gmCore->is_digit($term_id)){
+			return $null;
+		}
+		$taxonomy = $wpdb->get_var( $wpdb->prepare( "SELECT taxonomy FROM {$wpdb->prefix}gmedia_term WHERE term_id = %d", $term_id ) );
+
+		return $taxonomy;
 	}
 
 	/**
