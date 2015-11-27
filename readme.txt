@@ -134,10 +134,35 @@ Use [Gmedia Gallery support forum](http://codeasily.com/community/forum/gmedia-g
 = Modules Updated =
 * Go to Gmedia Modules page and update installed premium modules to latest versions
 
-= dev =
+= 1.7.40 =
+* Added: Grid View in Gmedia Library
+* Fixed: Sorting by Title and by Date in Gmedia Library
+* Added: Download link for modules
+
+= 1.7.30 =
+* Fixed: error T_PAAMAYIM_NEKUDOTAYIM
+* Fixed: Compatibility with PHP 5.2
+* Updated: Music Player
+
+= 1.7.21 =
+* Fixed: Import function
+* Fixed: Error when image have no orientation in EXIF
+
+= 1.7.20 =
+* Added: Autorotate images based on Exif information
+* Added: MP3 Title and Album from ID3Tag
+* Added: Using PEL library save EXIF to Web image files
+* Improved: Image Editor
+* Improved: List header is now fixed while scrolling
+* Other small fixes and improvements
+
+= 1.7.10 =
+* Added: Filter icons on Albums page and other terms pages
+* Added: Open GmediaCloud page icon from Galleries page
+* Added: Search geocode by address on map
+* Improved: GmediaCloud meta tags
 * Improved: Functions for iOS app
 * Changed: GPS location field now editable
-* Added: Search geocode by address on map
 
 = 1.7.9 =
 * Fixed: GmediaCloud page not worked
