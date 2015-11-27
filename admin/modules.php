@@ -38,7 +38,7 @@ function gmediaModules(){
 	}
 	// not installed modules
 	$xml = array();
-	$get_xml = wp_remote_get($gmGallery->options['modules_xml'], array('sslverify' => false));
+	$get_xml = wp_remote_get($gmGallery->options['modules_xml'], array('sslverify' => true));
 	if(!is_wp_error($get_xml) && (200 == $get_xml['response']['code'])){
 		$xml = @simplexml_load_string($get_xml['body']);
 	} else{

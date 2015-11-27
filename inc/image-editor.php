@@ -4,18 +4,19 @@
  */
 
 function gmedia_image_editor(){
-	global $gmCore;
+	global $gmCore, $gmDB;
 	$gmid = $gmCore->_get('id');
 	//$gmedia = $gmDB->get_gmedia($gmid);
-	$gmedia_src = $gmCore->gm_get_media_image($gmid, 'original');
-	$fileinfo = $gmCore->fileinfo($gmedia_src, false);
+	$gmedia_src = $gmCore->gm_get_media_image($gmid, 'web');
+	$gmedia_original_src = $gmCore->gm_get_media_image($gmid, 'original');
 	$gmedia_thumb_src = $gmCore->gm_get_media_image($gmid, 'thumb');
+	$is_modified = (int) $gmDB->get_metadata('gmedia', $gmid, '_modified', true);
 	?>
 
-	<div class="panel panel-default" id="gmedit" data-src="<?php echo $gmedia_src; ?>">
+	<div class="panel panel-default" id="gmedit">
 		<div class="panel-heading clearfix">
 			<div class="btn-toolbar pull-right">
-				<?php if(file_exists($fileinfo['filepath_original'] . '_backup')){ ?>
+				<?php if($is_modified){ ?>
 					<button type="button" id="gmedit-restore" name="gmedit_restore" class="btn btn-warning pull-left" data-confirm="<?php _e('Do you really want restore original image?') ?>"><?php _e('Restore Original', 'grand-media'); ?></button>
 				<?php } ?>
 				<div class="btn-group pull-left">
@@ -154,9 +155,9 @@ function gmedia_image_editor(){
 						<div class="form-group pull-right">
 							<label class="control-label"><?php _e('Apply to', 'grand-media'); ?>: &nbsp;</label>
 							<select name="applyto" id="applyto" class="form-control input-sm">
-								<option value="original"><?php _e('Original, Web-image, Thumbnail') ?></option>
-								<option value="web" selected="selected"><?php _e('Web-image, Thumbnail') ?></option>
-								<option value="thumb"><?php _e('Thumbnail') ?></option>
+								<option value="web_thumb" selected="selected"><?php _e('Web-image, Thumbnail') ?></option>
+								<option value="web"><?php _e('Only Web-image') ?></option>
+								<option value="thumb"><?php _e('Only Thumbnail') ?></option>
 							</select>
 						</div>
 					</div>
@@ -166,6 +167,17 @@ function gmedia_image_editor(){
 	</div>
 	<script type="text/javascript">
 		jQuery(function($){
+
+			var sources = {
+				web_thumb: '<?php echo $gmedia_src; ?>',
+				web: '<?php echo $gmedia_src; ?>',
+				thumb: '<?php echo $gmedia_thumb_src; ?>',
+				original: '<?php echo $gmedia_original_src; ?>'
+				};
+			var gmid = <?php echo $gmid; ?>;
+			var preinit_dom = '<canvas id="gmedit-canvas"></canvas>';
+			var editsrc = $("#applyto").val();
+
 			function div_frame(){
 				$('.panel-body').css({top: $('.panel-heading').outerHeight()});
 			}
@@ -186,7 +198,7 @@ function gmedia_image_editor(){
 					if(c.msg && !c.error){
 						var parent_doc = window.parent.document;
 						$('#list-item-' + gmid, parent_doc)
-							.find('.gmedia-thumb').attr('src', '<?php echo $gmedia_thumb_src; ?>?' + time)
+							.find('.gmedia-thumb').attr('src', '<?php echo $gmedia_thumb_src; ?>?' + (new Date).valueOf())
 							.end().find('.modified').text(c.modified);
 						$('#gmedia-panel', parent_doc).before(c.msg);
 						window.parent.closeModal('gmeditModal');
@@ -201,13 +213,16 @@ function gmedia_image_editor(){
 				});
 			};
 
-			var gmid = <?php echo $gmid; ?>;
-			var preinit_dom = $("#gmedit").clone();
-			var time = (new Date).valueOf();
-			gmedit_init($("#gmedit").data("src") + "?" + time, "#gmedit", {save: gmeditSave});
+			gmedit_init(sources[editsrc] + "?" + (new Date).valueOf(), "#gmedit", {save: gmeditSave});
 
-			jQuery("#gmedit").on("click", "#gmedit-restore", function(){
-				$('#applyto').val('original');
+			$("body").on("change", "#applyto", function(){
+				editsrc = $(this).val();
+				$('#gmedit-canvas-cont').html(preinit_dom);
+				gmedit.resetFilters();
+				gmedit.init("#gmedit-canvas", sources[editsrc] + "?" + (new Date).valueOf());
+			});
+
+			$("body").on("click", "#gmedit-restore", function(){
 				var btn = $('#gmedit-save');
 				btn.text(btn.data('loading-text')).prop('disabled', true);
 				var post_data = {
@@ -217,11 +232,13 @@ function gmedia_image_editor(){
 					if(c.msg && !c.error){
 						var parent_doc = window.parent.document;
 						$('#list-item-' + gmid, parent_doc)
-							.find('.gmedia-thumb').attr('src', '<?php echo $gmedia_thumb_src; ?>?' + time)
+							.find('.gmedia-thumb').attr('src', '<?php echo $gmedia_thumb_src; ?>?' + (new Date).valueOf())
 							.end().find('.modified').text(c.modified);
 						$('#gmedia-panel', parent_doc).before(c.msg);
-						$("#gmedit").replaceWith(preinit_dom);
-						gmedit_init($("#gmedit").data("src") + "?" + (new Date).valueOf(), "#gmedit", {save: gmeditSave});
+						$('#gmedit-canvas-cont').html(preinit_dom);
+						gmedit.resetFilters();
+						gmedit.init("#gmedit-canvas", sources[editsrc] + "?" + (new Date).valueOf());
+
 						$('#media-edit-form-container .alert-box').html(c.msg).show();
 						$("#gmedit-restore").remove();
 					} else{

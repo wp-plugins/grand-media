@@ -36,7 +36,8 @@ function grandWPMedia(){
 		$gm_qty[$key] = '<span class="badge pull-right">' . (int)$value . '</span>';
 	}
 	?>
-	<div class="panel panel-default">
+	<div class="panel panel-default panel-fixed-header">
+		<div class="panel-heading-fake"></div>
 		<div class="panel-heading clearfix">
 			<form class="form-inline gmedia-search-form" role="search">
 				<div class="form-group">

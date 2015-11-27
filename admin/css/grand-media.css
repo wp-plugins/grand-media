@@ -202,6 +202,33 @@ a.text-danger {
     pointer-events: none;
 }
 
+.panel-heading-fake { display:none; }
+.panel-floatingHeader .panel-heading-fake,
+.panel-absoluteHeader .panel-heading-fake { display:block; }
+.panel-fixed-header { position: relative; }
+.panel-fixed-header .panel-heading { position: relative; top:0; max-width:100%;
+	/*transition:top 0.2s ease-out; -webkit-transition:top 0.2s ease-out;*/
+}
+.panel-floatingHeader .panel-heading {
+    position: fixed;
+    top: 32px;
+    z-index: 10;
+    border-radius: 0px;
+    -webkit-box-shadow: 0px 5px 10px #888888;
+    -moz-box-shadow: 0px 5px 10px #888888;
+    box-shadow: 0px 5px 10px #888888;
+}
+
+.panel-absoluteHeader .panel-heading {
+    position: absolute;
+    z-index: 10;
+	top: auto;
+	bottom:0;
+    border-bottom: 1px solid transparent;
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+}
+
 div#gm-list-table {
     font-size: 13px;
 }
@@ -217,6 +244,7 @@ div#gm-list-table {
 .list-group-item.d-row {
     position: relative;
     color: inherit;
+	z-index:1;
 }
 
 .no-touch div.list-group-item.d-row:hover {
@@ -495,14 +523,19 @@ div#gmedia-msg-panel .alert {
 .term-list-item {
     padding-top: 0;
     padding-bottom: 0;
+	z-index:1;
 }
 #gmedia-container .cb_term-object { min-height:60px; }
 #gmedia-container .gmedia_album .cb_term-object { min-height:78px; }
 .object-actions { text-align:right; font-size:16px;}
 .object-actions.gallery-object-actions { text-align:left; margin-bottom:5px;}
 .object-actions > * { margin:0 0 0 10px; vertical-align:middle; display:inline-block; }
-a.trash-icon:hover {color:#843534;}
-.action-inactive {color:#b8b8b8;}
+.object-actions a:hover { text-decoration:none; }
+.gm_filter_in_lib { border: 1px solid; border-radius: 4px; font-size: 14px; line-height: 14px; padding: 0 2px 0 4px; }
+.gm_term_count { font-size: 13px; font-weight: bold; text-decoration: none; vertical-align: bottom; }
+a.trash-icon:hover { color:#843534; }
+.action-inactive { color:#b8b8b8; }
+.action-inactive:hover { color:#b8b8b8; }
 .term-list-item .term-label .checkbox {
     padding-left: 35px;
 }
@@ -533,6 +566,8 @@ a.trash-icon:hover {color:#843534;}
     padding-bottom: 5px;
     overflow: hidden;
     white-space: nowrap;
+	position:relative;
+	z-index:1;
 }
 
 .term-list-item .term-images img {
@@ -731,7 +766,7 @@ body#media-upload .panel {
     border-top: none;
 }
 
-body#media-upload .panel-heaading {
+body#media-upload .panel-heading {
     position: relative;
     z-index: 100;
 }
@@ -889,7 +924,7 @@ body.gmedia-blank.map_editor .panel {
     margin: 0;
 }
 
-body.gmedia-blank .panel-heaading {
+body.gmedia-blank .panel-heading {
     position: relative;
     z-index: 100;
 }

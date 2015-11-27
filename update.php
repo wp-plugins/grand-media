@@ -429,6 +429,24 @@ function gmedia_flush_rewrite_rules(){
 	flush_rewrite_rules(false);
 }
 
+function gmedia_restore_original_images(){
+	global $wpdb, $gmGallery, $gmCore, $gmDB;
+
+	$fix_files = glob($gmCore->upload['path'] . '/' . $gmGallery->options['folder']['image_original'] . '/?*.?*_backup', GLOB_NOSORT);
+	if(!empty($fix_files)){
+		foreach($fix_files as $ff){
+			$gmuid = basename($ff, '_backup');
+			$id = $wpdb->get_var($wpdb->prepare("SELECT ID FROM {$wpdb->prefix}gmedia WHERE gmuid = %s", $gmuid));
+			if($id){
+				$gmDB->update_metadata('gmedia', $id, '_modified', 1);
+				@rename($ff, $gmCore->upload['path'] . '/' . $gmGallery->options['folder']['image_original'] . '/' . $gmuid);
+			} else {
+				@unlink($gmCore->upload['path'] . '/' . $gmGallery->options['folder']['image_original'] . '/' . $gmuid . '_backup');
+			}
+		}
+	}
+}
+
 
 function gmedia_quite_update(){
 	global $wpdb, $gmDB, $gmCore, $gmGallery;
@@ -499,6 +517,9 @@ function gmedia_quite_update(){
 			foreach($gmedia_ids as $id) {
 				$gmDB->update_metadata( $meta_type = 'gmedia', $id, $meta_key = '_metadata', $gmDB->generate_gmedia_metadata( $id ) );
 			}
+		}
+		if(version_compare($current_version, '1.7.20', '<')){
+			gmedia_restore_original_images();
 		}
 
 		$gmCore->delete_folder($gmCore->upload['path'] . '/module/afflux');

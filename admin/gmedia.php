@@ -110,7 +110,8 @@ function gmediaLib(){
 			<a href="#libModal" data-modal="custom_filters" data-action="gmedia_get_modal" class="gmedia-modal"><?php echo $custom_filter; ?></a>
 		</div>
 	<?php } ?>
-	<div class="panel panel-default" id="gmedia-panel">
+	<div class="panel panel-default panel-fixed-header" id="gmedia-panel">
+	<div class="panel-heading-fake"></div>
 	<div class="panel-heading clearfix">
 		<form class="form-inline gmedia-search-form" role="search">
 			<div class="form-group">
@@ -500,7 +501,11 @@ function gmediaLib(){
 						<?php if(('image' == $type[0]) && !empty($_metadata)){
 							?>
 							<div class="media-meta">
-								<span class="label label-default"><?php _e('Size', 'grand-media'); ?>:</span> <?php echo $_metadata['original']['width'] . ' × ' . $_metadata['original']['height']; ?>
+								<span class="label label-default"><?php _e('Sizes', 'grand-media'); ?>:</span> <?php
+								echo $_metadata['original']['width'] . '×' . $_metadata['original']['height'] . ', ' .
+								     $_metadata['web']['width'] . '×' . $_metadata['web']['height'] . ', ' .
+								     $_metadata['thumb']['width'] . '×' . $_metadata['thumb']['height'];
+								?>
 							</div>
 						<?php } ?>
 						<div class="media-meta"><span class="label label-default"><?php _e('Filename', 'grand-media'); ?>:</span>

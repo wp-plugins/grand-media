@@ -144,7 +144,7 @@ function gmedit_save() {
 	$success = '';
 	$gmid    = $gmCore->_post( 'id' );
 	$image   = $gmCore->_post( 'image' );
-	$applyto = $gmCore->_post( 'applyto', 'web' );
+	$applyto = $gmCore->_post( 'applyto', 'web_thumb' );
 
 	$item = $gmDB->get_gmedia( $gmid );
 	if ( ! empty( $item ) ) {
@@ -153,29 +153,24 @@ function gmedit_save() {
 				die( '-2' );
 			}
 		}
-		$meta               = $gmDB->get_metadata( 'gmedia', $item->ID, '_metadata', true );
+		$meta               = $gmDB->get_metadata( 'gmedia', $item->ID );
+		$metadata           = $meta['_metadata'][0];
 		$gmedia['ID']       = $gmid;
 		$gmedia['date']     = $item->date;
 		$gmedia['modified'] = current_time( 'mysql' );
 		$gmedia['author']   = $item->author;
 
-		$webimg   = $gmGallery->options['image'];
 		$thumbimg = $gmGallery->options['thumb'];
 
 		$image = $gmCore->process_gmedit_image( $image );
 
 		$fileinfo = $gmCore->fileinfo( $item->gmuid, false );
 
-		if ( ! file_exists( $fileinfo['filepath_original'] . '_backup' ) ) {
-			@copy( $fileinfo['filepath_original'], $fileinfo['filepath_original'] . '_backup' );
-		}
-		rename( $fileinfo['filepath_original'], $fileinfo['filepath_original'] . '.tmp' );
-		file_put_contents( $fileinfo['filepath_original'], $image['data'] );
-		$size = @getimagesize( $fileinfo['filepath_original'] );
+		$size = @getimagesize( $fileinfo['filepath'] );
 
 		do {
+			$extensions = array( '1' => 'GIF', '2' => 'JPG', '3' => 'PNG', '6' => 'BMP' );
 			if ( function_exists( 'memory_get_usage' ) ) {
-				$extensions = array( '1' => 'GIF', '2' => 'JPG', '3' => 'PNG', '6' => 'BMP' );
 				switch ( $extensions[ $size[2] ] ) {
 					case 'GIF':
 						$CHANNEL = 1;
@@ -211,112 +206,70 @@ function gmedit_save() {
 				}
 			}
 
-			$editor = wp_get_image_editor( $fileinfo['filepath_original'] );
-			if ( is_wp_error( $editor ) ) {
-				@unlink( $fileinfo['filepath_original'] );
-				rename( $fileinfo['filepath_original'] . '.tmp', $fileinfo['filepath_original'] );
-				$fail = $fileinfo['basename'] . " (wp_get_image_editor): " . $editor->get_error_message();
+			if ( 'thumb' == $applyto ) {
+				$editfile = $fileinfo['filepath_thumb'];
+			} else {
+				$editfile = $fileinfo['filepath'];
+			}
+			if(! @file_put_contents( $editfile, $image['data'] )){
+				$fail = $fileinfo['basename'] . ": " . __('Can\'t write to file. Permission denied', 'grand-media');
 				break;
 			}
 
-			$webis   = false;
-			$thumbis = false;
+			$modified = isset($meta['_modified'][0])? (intval($meta['_modified'][0]) + 1) : 1;
+			$gmDB->update_metadata( $meta_type = 'gmedia', $item->ID, $meta_key = '_modified', $modified );
+
 			// Web-image
-			if ( 'web' == $applyto || 'original' == $applyto ) {
-				$webimg['resize'] = ( ( $webimg['width'] < $size[0] ) || ( $webimg['height'] < $size[1] ) ) ? true : false;
-				if ( $webimg['resize'] ) {
-					$editor->set_quality( $webimg['quality'] );
-					$resized = $editor->resize( $webimg['width'], $webimg['height'], $webimg['crop'] );
-					if ( is_wp_error( $resized ) ) {
-						@unlink( $fileinfo['filepath_original'] );
-						rename( $fileinfo['filepath_original'] . '.tmp', $fileinfo['filepath_original'] );
-						$fail = $fileinfo['basename'] . " (" . $resized->get_error_code() . " | editor->resize->webimage({$webimg['width']}, {$webimg['height']}, {$webimg['crop']})): " . $resized->get_error_message();
-						break;
-					}
-					if ( file_exists( $fileinfo['filepath'] ) ) {
-						$webis = true;
-						rename( $fileinfo['filepath'], $fileinfo['filepath'] . '.tmp' );
-					}
-					$saved = $editor->save( $fileinfo['filepath'] );
-					if ( is_wp_error( $saved ) ) {
-						@unlink( $fileinfo['filepath_original'] );
-						rename( $fileinfo['filepath_original'] . '.tmp', $fileinfo['filepath_original'] );
-						if ( $webis ) {
-							rename( $fileinfo['filepath'] . '.tmp', $fileinfo['filepath'] );
-						}
-						$fail = $fileinfo['basename'] . " (" . $saved->get_error_code() . " | editor->save->webimage): " . $saved->get_error_message();
-						break;
-					}
-				} else {
-					@copy( $fileinfo['filepath_original'], $fileinfo['filepath'] );
+			if ( 'thumb' !== $applyto ) {
+				if( ('JPG' == $extensions[ $size[2] ]) && !(extension_loaded('imagick') || class_exists("Imagick")) ) {
+					$gmCore->copy_exif($fileinfo['filepath_original'], $fileinfo['filepath']);
 				}
 			}
-
 			// Thumbnail
-			$thumbimg['resize'] = ( ( $thumbimg['width'] < $size[0] ) || ( $thumbimg['height'] < $size[1] ) ) ? true : false;
-			if ( $thumbimg['resize'] ) {
-				$editor->set_quality( $thumbimg['quality'] );
-				$resized = $editor->resize( $thumbimg['width'], $thumbimg['height'], $thumbimg['crop'] );
-				if ( is_wp_error( $resized ) ) {
-					@unlink( $fileinfo['filepath_original'] );
-					rename( $fileinfo['filepath_original'] . '.tmp', $fileinfo['filepath_original'] );
-					if ( $webis ) {
-						@unlink( $fileinfo['filepath'] );
-						rename( $fileinfo['filepath'] . '.tmp', $fileinfo['filepath'] );
+			if( 'web_thumb' == $applyto ) {
+				$thumbimg['resize'] = ( ( $thumbimg['width'] < $size[0] ) || ( $thumbimg['height'] < $size[1] ) ) ? true : false;
+				if ( $thumbimg['resize'] ) {
+					$editor = wp_get_image_editor( $editfile );
+					if ( is_wp_error( $editor ) ) {
+						$fail = $fileinfo['basename'] . " (wp_get_image_editor): " . $editor->get_error_message();
+						break;
 					}
-					$fail = $fileinfo['basename'] . " (" . $resized->get_error_code() . " | editor->resize->thumb({$thumbimg['width']}, {$thumbimg['height']}, {$thumbimg['crop']})): " . $resized->get_error_message();
-					break;
-				}
 
-				if ( file_exists( $fileinfo['filepath_thumb'] ) ) {
-					$thumbis = true;
-					rename( $fileinfo['filepath_thumb'], $fileinfo['filepath_thumb'] . '.tmp' );
-				}
-				$saved = $editor->save( $fileinfo['filepath_thumb'] );
-				if ( is_wp_error( $saved ) ) {
-					@unlink( $fileinfo['filepath_original'] );
-					rename( $fileinfo['filepath_original'] . '.tmp', $fileinfo['filepath_original'] );
-					if ( $webis ) {
-						@unlink( $fileinfo['filepath'] );
-						rename( $fileinfo['filepath'] . '.tmp', $fileinfo['filepath'] );
+					$editor->set_quality( $thumbimg['quality'] );
+					$resized = $editor->resize( $thumbimg['width'], $thumbimg['height'], $thumbimg['crop'] );
+					if ( is_wp_error( $resized ) ) {
+						$fail = $fileinfo['basename'] . " (" . $resized->get_error_code() . " | editor->resize->thumb({$thumbimg['width']}, {$thumbimg['height']}, {$thumbimg['crop']})) applyto-{$applyto}: " . $resized->get_error_message();
+						break;
 					}
-					if ( $thumbis ) {
-						rename( $fileinfo['filepath_thumb'] . '.tmp', $fileinfo['filepath_thumb'] );
-					}
-					$fail = $fileinfo['basename'] . " (" . $saved->get_error_code() . " | editor->save->thumb): " . $saved->get_error_message();
-					break;
-				}
 
-			} else {
-				@copy( $fileinfo['filepath_original'], $fileinfo['filepath'] );
-				@copy( $fileinfo['filepath_original'], $fileinfo['filepath_thumb'] );
+					$thumbis = false;
+					if ( file_exists( $fileinfo['filepath_thumb'] ) ) {
+						$thumbis = true;
+						rename( $fileinfo['filepath_thumb'], $fileinfo['filepath_thumb'] . '.tmp' );
+					}
+					$saved = $editor->save( $fileinfo['filepath_thumb'] );
+					if ( is_wp_error( $saved ) ) {
+						if ( $thumbis ) {
+							rename( $fileinfo['filepath_thumb'] . '.tmp', $fileinfo['filepath_thumb'] );
+						}
+						$fail = $fileinfo['basename'] . " (" . $saved->get_error_code() . " | editor->save->thumb): " . $saved->get_error_message();
+						break;
+					}
+
+				} else {
+					@copy( $fileinfo['filepath'], $fileinfo['filepath_thumb'] );
+				}
 			}
 
-			if ( 'original' !== $applyto ) {
-				@unlink( $fileinfo['filepath_original'] );
-				rename( $fileinfo['filepath_original'] . '.tmp', $fileinfo['filepath_original'] );
-				if ( filesize( $fileinfo['filepath_original'] ) === filesize( $fileinfo['filepath_original'] . '_backup' ) ) {
-					@unlink( $fileinfo['filepath_original'] . '_backup' );
-				}
-			}
-			if ( file_exists( $fileinfo['filepath'] . '.tmp' ) ) {
-				@unlink( $fileinfo['filepath'] . '.tmp' );
-			}
-			if ( file_exists( $fileinfo['filepath_original'] . '.tmp' ) ) {
-				@unlink( $fileinfo['filepath_original'] . '.tmp' );
-			}
-			if ( file_exists( $fileinfo['filepath_thumb'] . '.tmp' ) ) {
-				@unlink( $fileinfo['filepath_thumb'] . '.tmp' );
-			}
 
 			$id = $gmDB->insert_gmedia( $gmedia );
 
-			$metadata         = $gmDB->generate_gmedia_metadata( $id, $fileinfo );
-			$meta['web']      = $metadata['web'];
-			$meta['original'] = $metadata['original'];
-			$meta['thumb']    = $metadata['thumb'];
+			$new_metadata     = $gmDB->generate_gmedia_metadata( $id, $fileinfo );
+			$metadata['web']      = $new_metadata['web'];
+			$metadata['original'] = $new_metadata['original'];
+			$metadata['thumb']    = $new_metadata['thumb'];
 
-			$gmDB->update_metadata( $meta_type = 'gmedia', $id, $meta_key = '_metadata', $meta );
+			$gmDB->update_metadata( $meta_type = 'gmedia', $id, $meta_key = '_metadata', $metadata );
 
 			$success = sprintf( __( 'Image "%d" updated', 'grand-media' ), $id );
 		} while ( 0 );
@@ -354,7 +307,8 @@ function gmedit_restore() {
 				die( '-2' );
 			}
 		}
-		$meta               = $gmDB->get_metadata( 'gmedia', $item->ID, '_metadata', true );
+		$meta               = $gmDB->get_metadata( 'gmedia', $item->ID );
+		$metadata           = $meta['_metadata'][0];
 		$gmedia['ID']       = $gmid;
 		$gmedia['date']     = $item->date;
 		$gmedia['modified'] = current_time( 'mysql' );
@@ -365,14 +319,11 @@ function gmedit_restore() {
 
 		$fileinfo = $gmCore->fileinfo( $item->gmuid, false );
 
-		if ( file_exists( $fileinfo['filepath_original'] . '_backup' ) ) {
-			rename( $fileinfo['filepath_original'] . '_backup', $fileinfo['filepath_original'] );
-		}
 		$size = @getimagesize( $fileinfo['filepath_original'] );
 
 		do {
+			$extensions = array( '1' => 'GIF', '2' => 'JPG', '3' => 'PNG', '6' => 'BMP' );
 			if ( function_exists( 'memory_get_usage' ) ) {
-				$extensions = array( '1' => 'GIF', '2' => 'JPG', '3' => 'PNG', '6' => 'BMP' );
 				switch ( $extensions[ $size[2] ] ) {
 					case 'GIF':
 						$CHANNEL = 1;
@@ -408,23 +359,46 @@ function gmedit_restore() {
 				}
 			}
 
-			$editor = wp_get_image_editor( $fileinfo['filepath_original'] );
-			if ( is_wp_error( $editor ) ) {
-				$fail = $fileinfo['basename'] . " (wp_get_image_editor): " . $editor->get_error_message();
-				break;
+			$angle = 0;
+			$image_meta = @$gmCore->wp_read_image_metadata( $fileinfo['filepath_original'] );
+			if (!empty($image_meta['orientation'])) {
+				switch ($image_meta['orientation']) {
+					case 3:
+						$angle = 180;
+						break;
+					case 6:
+						$angle = -90;
+						break;
+					case 8:
+						$angle = 90;
+						break;
+				}
 			}
 
 			$thumbimg['resize'] = ( ( $thumbimg['width'] < $size[0] ) || ( $thumbimg['height'] < $size[1] ) ) ? true : false;
-			if ( $thumbimg['resize'] ) {
+			if ( $thumbimg['resize'] || $angle) {
+
+				$editor = wp_get_image_editor( $fileinfo['filepath_original'] );
+				if ( is_wp_error( $editor ) ) {
+					$fail = $fileinfo['basename'] . " (wp_get_image_editor): " . $editor->get_error_message();
+					break;
+				}
+
+				if($angle) {
+					$editor->rotate( $angle );
+				}
 
 				$webimg['resize'] = ( ( $webimg['width'] < $size[0] ) || ( $webimg['height'] < $size[1] ) ) ? true : false;
-				if ( $webimg['resize'] ) {
+				if ( $webimg['resize'] || $angle ) {
 					// Web-image
 					$editor->set_quality( $webimg['quality'] );
-					$resized = $editor->resize( $webimg['width'], $webimg['height'], $webimg['crop'] );
-					if ( is_wp_error( $resized ) ) {
-						$fail = $fileinfo['basename'] . " (" . $resized->get_error_code() . " | editor->resize->webimage({$webimg['width']}, {$webimg['height']}, {$webimg['crop']})): " . $resized->get_error_message();
-						break;
+
+					if( $webimg['resize'] ) {
+						$resized = $editor->resize( $webimg['width'], $webimg['height'], $webimg['crop'] );
+						if ( is_wp_error( $resized ) ) {
+							$fail = $fileinfo['basename'] . " (" . $resized->get_error_code() . " | editor->resize->webimage({$webimg['width']}, {$webimg['height']}, {$webimg['crop']})): " . $resized->get_error_message();
+							break;
+						}
 					}
 
 					$saved = $editor->save( $fileinfo['filepath'] );
@@ -432,16 +406,21 @@ function gmedit_restore() {
 						$fail = $fileinfo['basename'] . " (" . $saved->get_error_code() . " | editor->save->webimage): " . $saved->get_error_message();
 						break;
 					}
+					if( ('JPG' == $extensions[ $size[2] ]) && !(extension_loaded('imagick') || class_exists("Imagick")) ) {
+						$gmCore->copy_exif($fileinfo['filepath_original'], $fileinfo['filepath']);
+					}
 				} else {
 					@copy( $fileinfo['filepath_original'], $fileinfo['filepath'] );
 				}
 
 				// Thumbnail
 				$editor->set_quality( $thumbimg['quality'] );
-				$resized = $editor->resize( $thumbimg['width'], $thumbimg['height'], $thumbimg['crop'] );
-				if ( is_wp_error( $resized ) ) {
-					$fail = $fileinfo['basename'] . " (" . $resized->get_error_code() . " | editor->resize->thumb({$thumbimg['width']}, {$thumbimg['height']}, {$thumbimg['crop']})): " . $resized->get_error_message();
-					break;
+				if( $thumbimg['resize'] ) {
+					$resized = $editor->resize( $thumbimg['width'], $thumbimg['height'], $thumbimg['crop'] );
+					if ( is_wp_error( $resized ) ) {
+						$fail = $fileinfo['basename'] . " (" . $resized->get_error_code() . " | editor->resize->thumb({$thumbimg['width']}, {$thumbimg['height']}, {$thumbimg['crop']})): " . $resized->get_error_message();
+						break;
+					}
 				}
 
 				$saved = $editor->save( $fileinfo['filepath_thumb'] );
@@ -457,12 +436,13 @@ function gmedit_restore() {
 
 			$id = $gmDB->insert_gmedia( $gmedia );
 
-			$metadata         = $gmDB->generate_gmedia_metadata( $id, $fileinfo );
-			$meta['web']      = $metadata['web'];
-			$meta['original'] = $metadata['original'];
-			$meta['thumb']    = $metadata['thumb'];
+			$new_metadata         = $gmDB->generate_gmedia_metadata( $id, $fileinfo );
+			$metadata['web']      = $new_metadata['web'];
+			$metadata['original'] = $new_metadata['original'];
+			$metadata['thumb']    = $new_metadata['thumb'];
 
-			$gmDB->update_metadata( $meta_type = 'gmedia', $id, $meta_key = '_metadata', $meta );
+			$gmDB->update_metadata( $meta_type = 'gmedia', $id, $meta_key = '_metadata', $metadata );
+			$gmDB->update_metadata( $meta_type = 'gmedia', $id, $meta_key = '_modified', 0 );
 
 			$success = sprintf( __( 'Image "%d" restored from backup and saved', 'grand-media' ), $id );
 		} while ( 0 );

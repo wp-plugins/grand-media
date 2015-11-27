@@ -8,7 +8,7 @@ if (window.jQuery) {
 		});
 	};
 }
-// edik_init($("#for_edik").data("src") + "?" + g, "#for_edik", b + "/edik-editor/", {save: h})
+// gmedit_init($("#for_edit").data("src") + "?" + g, "#for_edit", {save: h})
 var gmedit;
 var gmedit_init = function(src, el, callback_args){
 	gmedit = new gmedit_core;

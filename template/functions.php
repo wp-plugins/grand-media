@@ -1,5 +1,6 @@
 <?php
 
+remove_all_actions('wp_print_styles');
 //add_action('gmedia_head', 'gmediacloud_appbaner');
 add_action('gmedia_head', 'gmediacloud_meta_generator');
 add_action('gmedia_head', 'wp_print_styles', 1000);
@@ -30,8 +31,8 @@ function gmediacloud_meta_generator(){
 	<link href="<?php echo $icon_url; ?>/icon_gmedia_152.png" rel="apple-touch-icon" sizes="152x152"/>
 	<link href="<?php echo $icon_url; ?>/icon_gmedia_180.png" rel="apple-touch-icon" sizes="180x180"/>
 
-	<meta content="<?php the_gmedia_title(); ?>" property="og:title"/>
-	<meta content="<?php _e('Shared with GmediaGallery', 'grand-media'); ?>" property="og:description"/>
+	<meta property="og:title" content="<?php the_gmedia_title(); ?>" />
+	<meta property="og:description" content="<?php _e('Shared with GmediaGallery', 'grand-media'); ?>" />
 	<?php if($gmedia_type != 'single'){
 		if(did_action('gmedia_shortcode')){
 			$og_imgs = array();
@@ -47,15 +48,15 @@ function gmediacloud_meta_generator(){
 		array_unshift($gmedia_share_img, $gmCore->gm_get_media_image($gmedia->ID));
 	}
 	foreach($gmedia_share_img as $og_image){
-		echo "<meta content='{$og_image}' property='og:image' />\n";
+		echo "<meta property=\"og:image\" content=\"{$og_image}\" />\n";
 	}
 	?>
-	<meta content="<?php echo esc_url_raw($current_url); ?>" property="og:url"/>
-	<meta content="article" property="og:type"/>
-	<meta content="<?php bloginfo('name') ?>" property="og:site_name"/>
+	<meta property="og:url" content="<?php echo esc_url_raw($current_url); ?>" />
+	<!--<meta property="og:type" content="article" />-->
+	<meta property="og:site_name" content="<?php bloginfo('name') ?>" />
 
-	<meta content="<?php echo $icon_url; ?>/icon_gmedia_180.png" name="msapplication-TileImage"/>
-	<meta content="#ffffff" name="msapplication-TileColor"/>
+	<meta name="msapplication-TileImage" content="<?php echo $icon_url; ?>/icon_gmedia_180.png" />
+	<meta name="msapplication-TileColor" content="#ffffff" />
 <?php
 }
 

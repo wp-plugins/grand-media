@@ -233,6 +233,8 @@ function gmedia_shortcode($atts, $content = ''){
 							}
 							$args = array_merge($args, array( 'status' => $gmedia_status ) );
 							$gmedia[ $term_id ] = $gmDB->get_gmedias( $args );
+						} else {
+							unset($terms[$term_id]);
 						}
 					} else{
 						unset($terms[$term_id]);
@@ -261,13 +263,14 @@ function gmedia_shortcode($atts, $content = ''){
 
 	ob_start();
 	include($module['path'] . '/init.php');
-	$out .= ob_get_contents();
+	$module_content = ob_get_contents();
 	ob_end_clean();
 
 	if($customCSS){
 		$out .= "<style type='text/css' scoped='scoped'>/**** Custom CSS {$gallery['_module']} #{$id} ****/{$customCSS}</style>";
 	}
 
+	$out .= $module_content;
 	$out .= '</div>';
 
 	do_action('gmedia_shortcode');

@@ -71,7 +71,8 @@ function gmediaGalleries(){
 	}
 	?>
 
-	<div class="panel panel-default">
+	<div class="panel panel-default  panel-fixed-header">
+		<div class="panel-heading-fake"></div>
 		<div class="panel-heading clearfix">
 			<form class="form-inline gmedia-search-form" role="search" method="get">
 				<div class="form-group">
@@ -220,10 +221,13 @@ function gmediaGalleries(){
 									$cloud_link = add_query_arg(array("$endpoint" => $gmedia_hashid, 't' => 'g'), home_url('index.php'));
 								}
 								$share_icon = '<span class="glyphicon glyphicon-share"></span>';
+								$new_window_icon = '<span class="glyphicon glyphicon-new-window"></span>';
 								if ( 'draft' !== $term->status ){
 									echo '<a target="_blank" data-target="#shareModal" data-share="' . $term->term_id . '" class="share-modal" title="' . __('Share', 'grand-media') . '" href="' . $cloud_link . '">'.$share_icon.'</a>';
+									echo '<a target="_blank" title="' . __('GmediaCloud Page', 'grand-media') . '" href="' . $cloud_link . '">'.$new_window_icon.'</a>';
 								} else{
 									echo "<span class='action-inactive'>$share_icon</span>";
+									echo "<span class='action-inactive'>$new_window_icon</span>";
 								}
 
 								$edit_icon = '<span class="glyphicon glyphicon-edit"></span>';

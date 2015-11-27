@@ -85,7 +85,8 @@ function gmediaTerms() {
 	$gmediaTerms = $gmDB->get_terms( $taxonomy, $args );
 
 	?>
-	<div class="panel panel-default" id="gmedia-panel">
+	<div class="panel panel-default panel-fixed-header" id="gmedia-panel">
+	<div class="panel-heading-fake"></div>
 	<div class="panel-heading clearfix">
 
 		<?php if ( 'gmedia_category' != $taxonomy ) { ?>
@@ -377,15 +378,15 @@ function gmediaTerms() {
 
 									<div class="object-actions">
 										<?php
-										$filter_icon = '<span class="badge">' . $item->count . '</span>';
 										if ( $item->count ) {
-											echo '<a title="' . __( 'Filter in Gmedia Library', 'grand-media' ) . '" href="' . $gmCore->get_admin_url( array(
+											$filter_href_attr = 'class="gm_filter_in_lib" href="' . $gmCore->get_admin_url( array(
 													'page' => 'GrandMedia',
-													'alb'  => $item->term_id
-												), array(), true ) . '">' . $filter_icon . '</a>';
+													'album__in'  => $item->term_id
+												), array(), true ) . '"';
 										} else {
-											echo $filter_icon;
+											$filter_href_attr = 'class="gm_filter_in_lib action-inactive"';
 										}
+										echo '<a title="' . __( 'Filter in Gmedia Library', 'grand-media' ) . '" ' . $filter_href_attr . '><span class="gm_term_count">' . $item->count . '</span><span class="glyphicon glyphicon-filter"></span></a>';
 
 										$cloud_link = $gmCore->gmcloudlink($item->term_id, 'album');
 										$share_icon = '<span class="glyphicon glyphicon-share"></span>';
@@ -643,15 +644,15 @@ function gmediaTerms() {
 
 								<div class="object-actions">
 									<?php
-									$filter_icon = '<span class="badge">' . $item->count . '</span>';
 									if ( $item->count ) {
-										echo '<a title="' . __( 'Filter in Gmedia Library', 'grand-media' ) . '" href="' . $gmCore->get_admin_url( array(
-												'page'    => 'GrandMedia',
-												'tag__in' => $item->term_id
-											), array(), true ) . '">' . $filter_icon . '</a>';
+										$filter_href_attr = 'class="gm_filter_in_lib" href="' . $gmCore->get_admin_url( array(
+												'page' => 'GrandMedia',
+												'tag__in'  => $item->term_id
+											), array(), true ) . '"';
 									} else {
-										echo $filter_icon;
+										$filter_href_attr = 'class="gm_filter_in_lib action-inactive"';
 									}
+									echo '<a title="' . __( 'Filter in Gmedia Library', 'grand-media' ) . '" ' . $filter_href_attr . '><span class="gm_term_count">' . $item->count . '</span><span class="glyphicon glyphicon-filter"></span></a>';
 
 									$cloud_link = $gmCore->gmcloudlink( $item->term_id, 'tag' );
 									$share_icon = '<span class="glyphicon glyphicon-share"></span>';
@@ -808,12 +809,15 @@ function gmediaTerms() {
 							<?php echo esc_html( $title ); ?>
 							<div class="object-actions">
 								<?php
-								$filter_icon = '<span class="badge">' . $count . '</span>';
 								if ( $count ) {
-									echo '<a title="' . __( 'Filter in Gmedia Library', 'grand-media' ) . '" href="' . $gmCore->get_admin_url( array( 'page' => 'GrandMedia', 'cat' => $term_id ), array(), true ) . '">' . $filter_icon . '</a>';
+									$filter_href_attr = 'class="gm_filter_in_lib" href="' . $gmCore->get_admin_url( array(
+											'page' => 'GrandMedia',
+											'category__in'  => $term_id
+										), array(), true ) . '"';
 								} else {
-									echo $filter_icon;
+									$filter_href_attr = 'class="gm_filter_in_lib action-inactive"';
 								}
+								echo '<a title="' . __( 'Filter in Gmedia Library', 'grand-media' ) . '" ' . $filter_href_attr . '><span class="gm_term_count">' . $count . '</span><span class="glyphicon glyphicon-filter"></span></a>';
 
 								$share_icon = '<span class="glyphicon glyphicon-share"></span>';
 								if ( isset( $cat[ $name ]->term_id ) ) {

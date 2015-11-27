@@ -605,59 +605,10 @@ class GmediaDB{
 	function generate_gmedia_metadata($media_id, $fileinfo = array()){
 		global $gmCore;
 		$media = $this->get_gmedia($media_id);
-
-		if(empty($fileinfo)){
-			$fileinfo = $gmCore->fileinfo($media->gmuid, false);
-		}
-
-		$metadata = array();
-		require_once(ABSPATH . 'wp-admin/includes/image.php');
-		if(preg_match('!^image/!', $media->mime_type) && file_is_displayable_image($fileinfo['filepath'])){
-			$imagesize = getimagesize($fileinfo['filepath']);
-			$metadata['web'] = array('width' => $imagesize[0], 'height' => $imagesize[1]);
-			$imagesize = getimagesize($fileinfo['filepath_original']);
-			$metadata['original'] = array('width' => $imagesize[0], 'height' => $imagesize[1]);
-			$imagesize = getimagesize($fileinfo['filepath_thumb']);
-			$metadata['thumb'] = array('width' => $imagesize[0], 'height' => $imagesize[1]);
-
-			$metadata['file'] = $this->_gm_relative_upload_path($fileinfo['filepath']);
-
-			// fetch additional metadata from exif/iptc
-			$image_meta = $gmCore->wp_read_image_metadata($fileinfo['filepath_original']);
-			if($image_meta){
-				$metadata['image_meta'] = $image_meta;
-			}
-
-		} elseif(preg_match('#^video/#', $media->mime_type)){
-			$metadata = $gmCore->wp_read_video_metadata($fileinfo['filepath']);
-		} elseif(preg_match('#^audio/#', $media->mime_type)){
-			$metadata = $gmCore->wp_read_audio_metadata($fileinfo['filepath']);
-		}
+		$metadata = $gmCore->get_file_metadata($media->gmuid, $fileinfo);
 
 		return apply_filters('generate_gmedia_metadata', $metadata, $media_id);
-	}
 
-	/**
-	 * Return relative path to an uploaded file.
-	 * The path is relative to the current upload dir.
-	 *
-	 * @see  _wp_relative_upload_path()
-	 * @uses apply_filters() Calls '_gm_relative_upload_path' on file path.
-	 *
-	 * @param string $path Full path to the file
-	 *
-	 * @return string relative path on success, unchanged path on failure.
-	 */
-	function _gm_relative_upload_path($path){
-		global $gmCore;
-		$new_path = $path;
-
-		if((false === $gmCore->upload['error']) && (0 === strpos($new_path, $gmCore->upload['path']))){
-			$new_path = str_replace($gmCore->upload['path'], '', $new_path);
-			$new_path = ltrim($new_path, '/');
-		}
-
-		return apply_filters('_gm_relative_upload_path', $new_path, $path);
 	}
 
 	/**
